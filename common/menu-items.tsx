@@ -25,6 +25,9 @@ import {
   Store01Icon,
   Analytics01Icon,
   InvestigationIcon,
+  BankIcon,
+  GraduationScrollIcon,
+  MailSend01Icon,
 } from "@hugeicons/core-free-icons";
 
 import { MenuItem, UserRole } from "../lib/types";
@@ -77,11 +80,18 @@ export const menuItems: MenuItem[] = [
     roles: ["admin", "teacher", "parent", "student"],
   },
   {
+    id: "myclass",
+    label: "My Class",
+    icon: TeacherIcon,
+    href: "/my-class",
+    roles: ["teacher"],
+  },
+  {
     id: "mycourses",
     label: "My Courses",
     icon: CourseIcon,
     href: "/my-courses",
-    roles: ["student"],
+    roles: ["student", "teacher"],
   },
   {
     id: "assignments",
@@ -123,7 +133,7 @@ export const menuItems: MenuItem[] = [
     label: "Students",
     icon: StudentsIcon,
     href: "/students",
-    roles: ["admin", "teacher"],
+    roles: ["admin"],
   },
   {
     id: "staff-management",
@@ -139,11 +149,32 @@ export const menuItems: MenuItem[] = [
     roles: ["admin", "teacher", "parent", "student"],
   },
   {
+    id: "questionbank",
+    label: "Question Bank",
+    icon: BankIcon,
+    href: "/question-bank",
+    roles: ["teacher"],
+  },
+  {
+    id: "gradeentryportal",
+    label: "Grade Entry Portal",
+    icon: GraduationScrollIcon,
+    href: "/grade-entry-portal",
+    roles: ["teacher"],
+  },
+  {
     id: "mywallet",
     label: "My Wallet",
     icon: Wallet01Icon,
     href: "/my-wallet",
-    roles: ["student"],
+    roles: ["student", "teacher"],
+  },
+  {
+    id: "leaverequestportal",
+    label: "Leave Request Portal",
+    icon: MailSend01Icon,
+    href: "/leave-request-portal",
+    roles: ["teacher"],
   },
   {
     id: "parentmywallet",
@@ -228,7 +259,7 @@ export const menuItems: MenuItem[] = [
     label: "Academic Management",
     icon: GlobalEducationIcon,
     href: "/academic",
-    roles: ["admin", "teacher"],
+    roles: ["admin"],
     children: [
       {
         id: "academicdashboard",
@@ -258,27 +289,27 @@ export const menuItems: MenuItem[] = [
     label: "CBT Management",
     icon: ComputerProgramming02Icon,
     href: "/cbt-management",
-    roles: ["admin", "teacher"],
+    roles: ["admin"],
   },
   {
     id: "learning-management",
     label: "Learning Management",
     icon: OnlineLearning02Icon,
     href: "/learning-management",
-    roles: ["admin", "teacher"],
+    roles: ["admin"],
   },
   {
     id: "separator",
     label: "",
     href: "",
-    roles: ["admin", "teacher"],
+    roles: ["admin"],
   },
   {
     id: "report-analysis",
     label: "Report & Analysis",
     icon: AnalyticsUpIcon,
     href: "/reports",
-    roles: ["admin", "teacher"],
+    roles: ["admin"],
   },
   {
     id: "alumni-management",
@@ -320,6 +351,6 @@ export const menuItems: MenuItem[] = [
     label: "System Settings",
     icon: Settings01Icon,
     href: "/settings",
-    roles: ["admin", "parent", "canteen"],
+    roles: ["admin", "teacher", "parent", "canteen"],
   },
 ];

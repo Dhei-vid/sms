@@ -29,7 +29,7 @@ export function ChatHeader({
     <Card>
       <CardContent className="flex flex-row justify-between">
         <div className="flex flex-row items-start gap-3">
-          {type === "general" && (
+          {(type === "general" || type === "group") && (
             <Icon
               icon={SharedDriveIcon}
               size={18}
