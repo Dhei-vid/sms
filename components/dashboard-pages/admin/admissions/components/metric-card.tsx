@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 interface MetricCardProps {
   title: string;
   value: string | number;
-  subtitle: string;
+  subtitle?: string;
   trend?: "up" | "down";
   trendColor?: string;
 }
@@ -27,12 +27,14 @@ export function MetricCard({
     <Card className="p-0">
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
-          <div className="flex-1">
+          <div className="flex flex-col gap-4">
             <p className="text-sm text-gray-600 mb-1">{title}</p>
-            <p className="text-2xl font-bold text-gray-800 mb-1">{value}</p>
-            <p className={cn("text-xs", trendColor || "text-gray-500")}>
-              {subtitle}
-            </p>
+            <div>
+              <p className="text-2xl font-bold text-gray-800 mb-1">{value}</p>
+              <p className={cn("text-xs", trendColor || "text-gray-500")}>
+                {subtitle}
+              </p>
+            </div>
           </div>
           {trend && (
             <>

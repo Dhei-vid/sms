@@ -1,24 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { useRouter } from "next/navigation";
+import { DataTable, TableColumn, TableAction } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Search, Filter, Download, MoreVertical } from "lucide-react";
+import { Search } from "lucide-react";
 import { Icon } from "@/components/general/huge-icon";
 import { cn } from "@/lib/utils";
 import {
@@ -133,6 +121,7 @@ const students: Student[] = [
 ];
 
 export function StudentTable() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
 
@@ -140,14 +129,6 @@ export function StudentTable() {
     setSelectedRows((prev) =>
       prev.includes(id) ? prev.filter((rowId) => id !== rowId) : [...prev, id]
     );
-  };
-
-  const toggleAllSelection = () => {
-    if (selectedRows.length === students.length) {
-      setSelectedRows([]);
-    } else {
-      setSelectedRows(students.map((student) => student.id));
-    }
   };
 
   const filteredStudents = students.filter(
@@ -190,6 +171,74 @@ export function StudentTable() {
     }
   };
 
+  const columns: TableColumn<Student>[] = [
+    {
+      key: "name",
+      title: "Full Name + School ID",
+      render: (_, row) => (
+        <span className="font-medium">
+          {row.name} ({row.schoolId})
+        </span>
+      ),
+    },
+    {
+      key: "grade",
+      title: "Grade/Class",
+    },
+    {
+      key: "attendance",
+      title: "Attendance per month.",
+    },
+    {
+      key: "academicAvg",
+      title: "Academic Avg.",
+    },
+    {
+      key: "outstandingFees",
+      title: "Outstanding Fees",
+    },
+    {
+      key: "status",
+      title: "Status",
+      render: (value) => (
+        <span className={cn("text-sm font-medium", getStatusColor(value as Student["status"]))}>
+          {getStatusLabel(value as Student["status"])}
+        </span>
+      ),
+    },
+    {
+      key: "latestActivity",
+      title: "Latest major activity",
+      className: "text-sm text-gray-600",
+    },
+  ];
+
+  const actions: TableAction<Student>[] = [
+    {
+      type: "dropdown",
+      config: {
+        items: [
+          {
+            label: "View Details",
+            onClick: (row) => router.push(`/admin/students/${row.id}`),
+            icon: <Icon icon={ElearningExchangeIcon} size={16} />,
+          },
+          {
+            label: "Edit Student",
+            onClick: (row) => router.push(`/admin/students/${row.id}/edit`),
+            icon: <Icon icon={ViewIcon} size={16} />,
+          },
+          {
+            separator: true,
+            label: "Print Document",
+            onClick: (row) => console.log("Print", row),
+            icon: <Icon icon={PrinterIcon} size={16} />,
+          },
+        ],
+      },
+    },
+  ];
+
   return (
     <div className="space-y-4">
       {/* Search and Filter */}
@@ -216,84 +265,13 @@ export function StudentTable() {
 
       {/* Table */}
       <div className="border rounded-lg overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-main-blue/5">
-              <TableHead className="w-12">
-                <Checkbox
-                  checked={
-                    selectedRows.length === students.length &&
-                    students.length > 0
-                  }
-                  onCheckedChange={toggleAllSelection}
-                />
-              </TableHead>
-              <TableHead>Full Name + School ID</TableHead>
-              <TableHead>Grade/Class</TableHead>
-              <TableHead>Attendance per month.</TableHead>
-              <TableHead>Academic Avg.</TableHead>
-              <TableHead>Outstanding Fees</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Latest major activity</TableHead>
-              <TableHead className="w-12"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredStudents.map((student) => (
-              <TableRow key={student.id}>
-                <TableCell>
-                  <Checkbox
-                    checked={selectedRows.includes(student.id)}
-                    onCheckedChange={() => toggleRowSelection(student.id)}
-                  />
-                </TableCell>
-                <TableCell className="font-medium">
-                  {student.name} ({student.schoolId})
-                </TableCell>
-                <TableCell>{student.grade}</TableCell>
-                <TableCell>{student.attendance}</TableCell>
-                <TableCell>{student.academicAvg}</TableCell>
-                <TableCell>{student.outstandingFees}</TableCell>
-                <TableCell>
-                  <span
-                    className={cn(
-                      "text-sm font-medium",
-                      getStatusColor(student.status)
-                    )}
-                  >
-                    {getStatusLabel(student.status)}
-                  </span>
-                </TableCell>
-                <TableCell className="text-sm text-gray-600">
-                  {student.latestActivity}
-                </TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem className="flex flex-row gap-3 items-center">
-                        <Icon icon={ElearningExchangeIcon} size={16} />
-                        <p>View Details</p>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="flex flex-row gap-3 items-center">
-                        <Icon icon={ViewIcon} size={16} />
-                        <p>Edit Student</p>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="flex flex-row gap-3 items-center">
-                        <Icon icon={PrinterIcon} size={16} />
-                        <p>Print Document</p>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <DataTable
+          columns={columns}
+          data={filteredStudents}
+          actions={actions}
+          headerClassName="bg-main-blue/5"
+          onRowClick={(row) => router.push(`/admin/students/${row.id}`)}
+        />
       </div>
 
       {/* Load More */}

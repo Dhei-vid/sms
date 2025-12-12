@@ -1,26 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { useRouter } from "next/navigation";
+import { DataTable, TableColumn, TableAction } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Search, Filter, MoreVertical } from "lucide-react";
+import { Search, Filter } from "lucide-react";
 import { Icon } from "@/components/general/huge-icon";
-// import { StatusBadge } from "@/components/dashboard-pages/admin/admissions/components/status-badge";
 import { cn } from "@/lib/utils";
 import {
   ElearningExchangeIcon,
@@ -28,7 +14,6 @@ import {
   Csv02Icon,
   PrinterIcon,
 } from "@hugeicons/core-free-icons";
-import Link from "next/link";
 
 interface Staff {
   id: string;
@@ -44,6 +29,7 @@ interface Staff {
 }
 
 export function StaffTable() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
 
@@ -152,38 +138,102 @@ export function StaffTable() {
     );
   };
 
-  const toggleAllSelection = () => {
-    if (selectedRows.length === staff.length) {
-      setSelectedRows([]);
-    } else {
-      setSelectedRows(staff.map((s) => s.id));
-    }
-  };
-
   const filteredStaff = staff.filter(
     (s) =>
       s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       s.staffId.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const getStatusBadgeType = (status: Staff["status"]) => {
-    switch (status) {
-      case "active":
-        return "accepted";
-      case "on-leave":
-        return "pending";
-      case "inactive":
-        return "rejected";
-      default:
-        return "pending";
-    }
-  };
-
   const getContractStatusColor = (expiry?: string) => {
     if (!expiry) return "text-gray-700";
     // Check if expiry is within 90 days (simplified check)
     return expiry.includes("1/2026") ? "text-red-600" : "text-gray-700";
   };
+
+  const columns: TableColumn<Staff>[] = [
+    {
+      key: "name",
+      title: "Full Name + Staff ID",
+      render: (_, row) => (
+        <span className="font-medium">
+          {row.name} ({row.staffId})
+        </span>
+      ),
+    },
+    {
+      key: "role",
+      title: "Role/Position",
+    },
+    {
+      key: "department",
+      title: "Department",
+    },
+    {
+      key: "contractStatus",
+      title: "Contract Status",
+      render: (_, row) => (
+        <div>
+          <span className="text-sm">{row.contractStatus}</span>
+          {row.contractExpiry && (
+            <span
+              className={cn(
+                "text-sm ml-2",
+                getContractStatusColor(row.contractExpiry)
+              )}
+            >
+              (Expires {row.contractExpiry})
+            </span>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "status",
+      title: "Status",
+      render: (_, row) => (
+        <p
+          className={cn(
+            row.status === "active" && "text-main-blue",
+            row.status === "on-leave" && "text-amber-600",
+            row.status === "inactive" && "text-red-600"
+          )}
+        >
+          {row.statusLabel}
+        </p>
+      ),
+    },
+    {
+      key: "leaveDaysLeft",
+      title: "Leave Days Left",
+      render: (value) => `${value} Days`,
+    },
+  ];
+
+  const actions: TableAction<Staff>[] = [
+    {
+      type: "dropdown",
+      config: {
+        items: [
+          {
+            label: "View Details",
+            onClick: (row) => router.push(`/admin/staff-management/${row.id}`),
+            icon: <Icon icon={ElearningExchangeIcon} size={16} />,
+          },
+          {
+            label: "Edit Staff",
+            onClick: (row) => router.push(`/admin/staff-management/${row.id}/edit`),
+            icon: <Icon icon={Edit01Icon} size={16} />,
+          },
+          {
+            separator: true,
+            label: "Print Profile",
+            onClick: (row) => console.log("Print", row),
+            icon: <Icon icon={PrinterIcon} size={16} />,
+          },
+        ],
+      },
+    },
+  ];
 
   return (
     <div className="space-y-4">
@@ -211,100 +261,13 @@ export function StaffTable() {
 
       {/* Table */}
       <div className="border rounded-lg overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-main-blue/5">
-              <TableHead className="w-12">
-                <Checkbox
-                  checked={
-                    selectedRows.length === staff.length && staff.length > 0
-                  }
-                  onCheckedChange={toggleAllSelection}
-                />
-              </TableHead>
-              <TableHead>Full Name + Staff ID</TableHead>
-              <TableHead>Role/Position</TableHead>
-              <TableHead>Department</TableHead>
-              <TableHead>Contract Status</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Leave Days Left</TableHead>
-              <TableHead className="w-12"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredStaff.map((member) => (
-              <TableRow key={member.id}>
-                <TableCell>
-                  <Checkbox
-                    checked={selectedRows.includes(member.id)}
-                    onCheckedChange={() => toggleRowSelection(member.id)}
-                  />
-                </TableCell>
-                <TableCell className="font-medium">
-                  {member.name} ({member.staffId})
-                </TableCell>
-                <TableCell>{member.role}</TableCell>
-                <TableCell>{member.department}</TableCell>
-                <TableCell>
-                  <div>
-                    <span className="text-sm">{member.contractStatus}</span>
-                    {member.contractExpiry && (
-                      <span
-                        className={cn(
-                          "text-sm ml-2",
-                          getContractStatusColor(member.contractExpiry)
-                        )}
-                      >
-                        (Expires {member.contractExpiry})
-                      </span>
-                    )}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <p
-                    className={cn(
-                      member.status === "active" && "text-main-blue",
-                      member.status === "on-leave" && "text-amber-600",
-                      member.status === "inactive" && "text-red-600"
-                    )}
-                  >
-                    {member.statusLabel}
-                  </p>
-                  {/* <StatusBadge
-                    status={getStatusBadgeType(member.status)}
-                    label={member.statusLabel}
-                  /> */}
-                </TableCell>
-                <TableCell>{member.leaveDaysLeft} Days</TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <Link href={`/admin/staff-management/${member.id}`}>
-                        <DropdownMenuItem className="flex flex-row gap-3 items-center">
-                          <Icon icon={ElearningExchangeIcon} size={16} />
-                          <p>View Details</p>
-                        </DropdownMenuItem>
-                      </Link>
-                      <DropdownMenuItem className="flex flex-row gap-3 items-center">
-                        <Icon icon={Edit01Icon} size={16} />
-                        <p>Edit Staff</p>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="flex flex-row gap-3 items-center">
-                        <Icon icon={PrinterIcon} size={16} />
-                        <p>Print Profile</p>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <DataTable
+          columns={columns}
+          data={filteredStaff}
+          actions={actions}
+          headerClassName="bg-main-blue/5"
+          onRowClick={(row) => router.push(`/admin/staff-management/${row.id}`)}
+        />
       </div>
 
       {/* Load More */}

@@ -1,13 +1,7 @@
 "use client";
 
 import { useState, Dispatch, SetStateAction } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { ModalContainer } from "@/components/ui/modal-container";
 import { Button } from "@/components/ui/button";
 import { InputField, TextareaField } from "@/components/ui/input-field";
 import { CheckboxField } from "@/components/ui/checkbox-field";
@@ -117,15 +111,14 @@ export function CreateEventModal({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl w-full max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-gray-800">
-            Create New School Event
-          </DialogTitle>
-        </DialogHeader>
-
-        <div className="space-y-6 py-4">
+    <ModalContainer
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Create New School Event"
+      size="5xl"
+      maxHeight="90vh"
+    >
+      <div className="space-y-6 py-4">
           {/* Event Title */}
           <InputField
             id="event-title"
@@ -244,15 +237,14 @@ export function CreateEventModal({
           </div>
         </div>
 
-        <DialogFooter className="grid grid-cols-2 gap-3">
-          <Button variant="outline" onClick={handleCancel}>
-            Cancel
-          </Button>
-          <Button onClick={handleSubmit} className="">
-            Create Event
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      <div className="grid grid-cols-2 gap-3 pt-4">
+        <Button variant="outline" onClick={handleCancel}>
+          Cancel
+        </Button>
+        <Button onClick={handleSubmit} className="">
+          Create Event
+        </Button>
+      </div>
+    </ModalContainer>
   );
 }

@@ -145,7 +145,7 @@ export default function MessagesPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Message Threads List */}
         <MessageThreadsList
           threads={threads}
@@ -155,7 +155,7 @@ export default function MessagesPage() {
         />
 
         {/* Chat Conversation */}
-        <div className="lg:col-span-3 flex flex-col">
+        <div className="lg:col-span-2 flex flex-col">
           {selectedThread ? (
             <div className="flex flex-col gap-4">
               {/* Header */}

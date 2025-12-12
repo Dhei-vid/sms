@@ -7,7 +7,6 @@ import { Icon } from "../general/huge-icon";
 import { Calendar02Icon } from "@hugeicons/core-free-icons";
 import { formatDate, isValidDate } from "@/common/helper";
 
-import { cn } from "@/lib/utils";
 import { Label } from "./label";
 import { Input } from "./input";
 import { Button } from "@/components/ui/button";
@@ -22,9 +21,10 @@ interface DatePicker {
   label: string;
   date: Date | undefined;
   setDate: Dispatch<SetStateAction<Date | undefined>>;
+  placeholder?: string;
 }
 
-export function DatePickerDropDown({ date, setDate }: DatePicker) {
+export function DatePickerDropDown({ date, setDate, placeholder }: DatePicker) {
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -45,8 +45,8 @@ export function DatePickerDropDown({ date, setDate }: DatePicker) {
 }
 
 interface DatePickerIcon extends DatePicker {
-  open: boolean;
-  setOpen: Dispatch<SetStateAction<boolean>>;
+  open?: boolean;
+  setOpen?: Dispatch<SetStateAction<boolean>>;
 }
 
 export default function DatePickerIcon({
@@ -55,6 +55,7 @@ export default function DatePickerIcon({
   setDate,
   open,
   setOpen,
+  placeholder,
 }: DatePickerIcon) {
   const [value, setValue] = useState(formatDate(date));
   const [month, setMonth] = useState<Date | undefined>(date);
@@ -68,7 +69,7 @@ export default function DatePickerIcon({
         <Input
           id="date"
           value={value}
-          placeholder="June 01, 2025"
+          placeholder={placeholder ? placeholder : "June 01, 2025"}
           className="bg-background pr-10"
           onChange={(e) => {
             const date = new Date(e.target.value);
@@ -81,7 +82,6 @@ export default function DatePickerIcon({
           onKeyDown={(e) => {
             if (e.key === "ArrowDown") {
               e.preventDefault();
-              setOpen(true);
             }
           }}
         />
@@ -115,7 +115,6 @@ export default function DatePickerIcon({
               onSelect={(date) => {
                 setDate(date);
                 setValue(formatDate(date));
-                setOpen(false);
               }}
             />
           </PopoverContent>

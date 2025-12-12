@@ -1,3 +1,5 @@
+import currency from "currency.js";
+
 /**
  * Date Formatter
  * @param date
@@ -25,3 +27,27 @@ export function isValidDate(date: Date | undefined) {
   }
   return !isNaN(date.getTime());
 }
+
+/**
+ * Format a number to 56,000.00
+ * @param value
+ * @param locale
+ * @returns
+ */
+export const formatNumber = (value: number, locale = "en-US") => {
+  return value.toLocaleString(locale, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};
+
+/**
+ * Format Amount
+ * @param amount
+ * @returns
+ */
+export const formattedAmount = (amount: number) =>
+  currency(amount, {
+    symbol: "₦",
+    separator: ",",
+  }).format();

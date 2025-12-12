@@ -1,11 +1,13 @@
 "use client";
 
-import { Search, Grid3x3 } from "lucide-react";
+import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { MenuItem } from "@/lib/types";
+import { Icon } from "../general/huge-icon";
 import { cn } from "@/lib/utils";
 
 interface HeaderProps {
-  title: string;
+  metaData?: MenuItem | null;
   searchPlaceholder?: string;
   user?: {
     name: string;
@@ -14,16 +16,18 @@ interface HeaderProps {
 }
 
 export function Header({
-  title,
+  metaData,
   searchPlaceholder = "Search students name/ID, staff name/ID",
   user = { name: "Admin" },
 }: HeaderProps) {
   return (
-    <header className="grid grid-cols-6 h-13 items-center gap-2 w-full">
+    <header className="grid grid-cols-7 h-13 items-center gap-2 w-full">
       {/* Title */}
-      <div className="bg-background h-full rounded-md flex items-center gap-2 px-4">
-        <Grid3x3 className="h-5 w-5 text-gray-600" />
-        <h1 className="text-lg font-semibold text-gray-800">{title}</h1>
+      <div className="col-span-2 bg-background h-full rounded-md flex items-center gap-2 px-4">
+        <Icon icon={metaData!.icon} size={18} className="text-main-blue" />
+        <h1 className="text-base font-semibold text-gray-800 line-clamp-1">
+          {metaData!.label}
+        </h1>
       </div>
 
       {/* Search Bar */}

@@ -14,19 +14,20 @@ import {
   StudentIcon,
   Settings01Icon,
   ArrowRight02Icon,
+  Wallet01Icon,
+  Payment02Icon,
+  Discount01Icon,
+  SchoolReportCardIcon,
+  Calendar02Icon,
+  Task01Icon,
+  UserSettings01Icon,
+  CourseIcon,
+  Store01Icon,
+  Analytics01Icon,
+  InvestigationIcon,
 } from "@hugeicons/core-free-icons";
 
 import { MenuItem, UserRole } from "../lib/types";
-
-// Helper function to get role-specific path
-function getRolePath(role: UserRole, basePath: string): string {
-  if (basePath === "/dashboard") {
-    return role === "admin" ? "/admin" : `/${role}`;
-  }
-  // Remove leading slash if present and add role prefix
-  const cleanPath = basePath.startsWith("/") ? basePath.slice(1) : basePath;
-  return `/${role}/${cleanPath}`;
-}
 
 // Menu items configuration with role-based access
 export const menuItems: MenuItem[] = [
@@ -34,8 +35,8 @@ export const menuItems: MenuItem[] = [
     id: "dashboard",
     label: "Dashboard",
     icon: DashboardSquare03Icon,
-    href: "/dashboard",
-    roles: ["admin", "teacher", "parent", "student", "canteen"],
+    href: "dashboard",
+    roles: ["admin", "teacher", "parent", "student"],
   },
   {
     id: "notice-board",
@@ -50,7 +51,7 @@ export const menuItems: MenuItem[] = [
     label: "Calendar",
     icon: Calendar03Icon,
     href: "/calendar",
-    roles: ["admin", "teacher", "parent", "student"],
+    roles: ["admin", "teacher", "parent"],
     badge: 1,
   },
   {
@@ -58,7 +59,15 @@ export const menuItems: MenuItem[] = [
     label: "Messages",
     icon: Chat01Icon,
     href: "/messages",
-    roles: ["admin", "teacher", "parent", "student"],
+    roles: ["admin", "teacher", "parent"],
+    badge: 3,
+  },
+  {
+    id: "timetable",
+    label: "Timetable",
+    icon: Chat01Icon,
+    href: "/timetable",
+    roles: ["student"],
     badge: 3,
   },
   {
@@ -66,6 +75,41 @@ export const menuItems: MenuItem[] = [
     label: "",
     href: "",
     roles: ["admin", "teacher", "parent", "student"],
+  },
+  {
+    id: "mycourses",
+    label: "My Courses",
+    icon: CourseIcon,
+    href: "/my-courses",
+    roles: ["student"],
+  },
+  {
+    id: "assignments",
+    label: "Assignments & Quizzes",
+    icon: TeacherIcon,
+    href: "/assignments",
+    roles: ["student"],
+  },
+  {
+    id: "mygrades",
+    label: "My Grades",
+    icon: SchoolReportCardIcon,
+    href: "/my-grades",
+    roles: ["student"],
+  },
+  {
+    id: "grades&report",
+    label: "Grades & Report Card",
+    icon: SchoolReportCardIcon,
+    href: "/grades-report-card",
+    roles: ["parent"],
+  },
+  {
+    id: "timetable",
+    label: "Timetable",
+    icon: Calendar02Icon,
+    href: "/timetable",
+    roles: ["parent"],
   },
   {
     id: "admissions",
@@ -95,31 +139,66 @@ export const menuItems: MenuItem[] = [
     roles: ["admin", "teacher", "parent", "student"],
   },
   {
+    id: "mywallet",
+    label: "My Wallet",
+    icon: Wallet01Icon,
+    href: "/my-wallet",
+    roles: ["student"],
+  },
+  {
+    id: "parentmywallet",
+    label: "Tunde's Wallet",
+    icon: Wallet01Icon,
+    href: "/wallet",
+    roles: ["parent"],
+  },
+  {
+    id: "fees&payment",
+    label: "Fees & Payment",
+    icon: Payment02Icon,
+    href: "/fee-payment-management",
+    roles: ["parent"],
+  },
+  {
+    id: "feesrequestportal",
+    label: "Fees/ Request Portal",
+    icon: Discount01Icon,
+    href: "/fee-request-portal",
+    roles: ["parent"],
+  },
+  {
     id: "finance",
     label: "Finance",
     icon: Money03Icon,
     href: "/finance",
     roles: ["admin"],
     children: [
+      // {
+      //   id: "financedashboard",
+      //   label: "Finance Dashboard",
+      //   icon: ArrowRight02Icon,
+      //   href: "/finance",
+      //   roles: ["admin"],
+      // },
       {
         id: "fee&revenue",
         label: "Fee & Revenue Management",
         icon: ArrowRight02Icon,
-        href: "/finance",
+        href: "/finance/fee-revenue-management",
         roles: ["admin"],
       },
       {
         id: "dailyoperations",
         label: "Daily Operations & Treasury",
         icon: ArrowRight02Icon,
-        href: "/finance",
+        href: "/finance/daily-operations-treasury",
         roles: ["admin"],
       },
       {
         id: "reporting&compliance",
         label: "Reporting & Compliance",
         icon: ArrowRight02Icon,
-        href: "/finance",
+        href: "/finance/reporting-and-compliance",
         roles: ["admin"],
       },
     ],
@@ -131,31 +210,68 @@ export const menuItems: MenuItem[] = [
     roles: ["admin", "teacher", "parent", "student"],
   },
   {
+    id: "personaltaskmanager",
+    label: "Personal Task Manager",
+    icon: Task01Icon,
+    href: "/personal-task-manager",
+    roles: ["student"],
+  },
+  {
+    id: "myprofile",
+    label: "My Profile",
+    icon: UserSettings01Icon,
+    href: "/my-profile",
+    roles: ["student"],
+  },
+  {
     id: "academic-management",
     label: "Academic Management",
     icon: GlobalEducationIcon,
     href: "/academic",
     roles: ["admin", "teacher"],
+    children: [
+      {
+        id: "academicdashboard",
+        label: "Academic Dashboard",
+        icon: ArrowRight02Icon,
+        href: "academic/dashboard",
+        roles: ["admin"],
+      },
+      {
+        id: "curriculummanagement",
+        label: "Curriculum Management",
+        icon: ArrowRight02Icon,
+        href: "academic/curriculum-management",
+        roles: ["admin"],
+      },
+      {
+        id: "assessment&grading",
+        label: "Assessment & Grading",
+        icon: ArrowRight02Icon,
+        href: "academic/assessment-grading",
+        roles: ["admin"],
+      },
+    ],
   },
   {
     id: "cbt-management",
     label: "CBT Management",
     icon: ComputerProgramming02Icon,
-    href: "/cbt",
+    href: "/cbt-management",
     roles: ["admin", "teacher"],
   },
   {
     id: "learning-management",
     label: "Learning Management",
     icon: OnlineLearning02Icon,
-    href: "/learning",
-    roles: ["admin", "teacher", "student"],
+    href: "/learning-management",
+    roles: ["admin", "teacher"],
   },
   {
     id: "separator",
     label: "",
     href: "",
-    roles: ["admin", "teacher", "parent", "student"],
+    roles: ["admin", "teacher"],
   },
   {
     id: "report-analysis",
@@ -168,39 +284,42 @@ export const menuItems: MenuItem[] = [
     id: "alumni-management",
     label: "Alumni Management",
     icon: StudentIcon,
-    href: "/alumni",
+    href: "/alumni-management",
     roles: ["admin"],
+  },
+  {
+    id: "terminal",
+    label: "Terminal",
+    icon: Store01Icon,
+    href: "/store",
+    roles: ["canteen"],
+  },
+  {
+    id: "sales",
+    label: "Sales",
+    icon: Analytics01Icon,
+    href: "/sales",
+    roles: ["canteen"],
+  },
+  {
+    id: "inventory",
+    label: "Inventory",
+    icon: InvestigationIcon,
+    href: "/inventory",
+    roles: ["canteen"],
+  },
+  {
+    id: "notice",
+    label: "Notice",
+    icon: NotificationSquareIcon,
+    href: "/notice",
+    roles: ["canteen"],
   },
   {
     id: "system-settings",
     label: "System Settings",
     icon: Settings01Icon,
     href: "/settings",
-    roles: ["admin"],
+    roles: ["admin", "parent", "canteen"],
   },
 ];
-
-// Get menu items filtered by role with role-specific paths
-export function getMenuItemsByRole(role: UserRole): MenuItem[] {
-  return menuItems
-    .filter((item) => item.roles.includes(role))
-    .map((item) => {
-      const rolePath = getRolePath(role, item.href);
-      if (item.children) {
-        return {
-          ...item,
-          href: rolePath,
-          children: item.children
-            .filter((child) => child.roles.includes(role))
-            .map((child) => ({
-              ...child,
-              href: getRolePath(role, child.href),
-            })),
-        };
-      }
-      return {
-        ...item,
-        href: rolePath,
-      };
-    });
-}

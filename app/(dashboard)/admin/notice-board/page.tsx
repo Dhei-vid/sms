@@ -18,7 +18,7 @@ export default function NoticeBoardPage() {
     NoticeBoardStatus.PRIORITY
   );
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header */}
       <div className="bg-background rounded-md mb-6 p-6">
         <h2 className="text-2xl font-bold text-gray-800">Notice Board</h2>
@@ -28,9 +28,9 @@ export default function NoticeBoardPage() {
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Left Column - Notice Management */}
-        <div className="lg:col-span-1 space-y-4 bg-background rounded-md p-6">
+        <div className="lg:col-span-1 space-y-4 bg-background rounded-md p-4">
           <div className="flex flex-col gap-1 mb-6">
             {/* priority */}
             <button
@@ -83,7 +83,7 @@ export default function NoticeBoardPage() {
         </div>
 
         {/* Right Column - List of Notices */}
-        <div className="lg:col-span-3">
+        <div className="lg:col-span-2">
           {showNotice === NoticeBoardStatus.PRIORITY && <NoticePriorityBoard />}
           {showNotice === NoticeBoardStatus.NEW && <NewNoticeBoard />}
           {showNotice === NoticeBoardStatus.ANNOUCEMENT && (

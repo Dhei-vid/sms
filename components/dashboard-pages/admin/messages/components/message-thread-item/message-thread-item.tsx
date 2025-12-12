@@ -38,7 +38,7 @@ export function MessageThreadItem({
         isSelected && "bg-main-blue/5 text-main-blue"
       )}
     >
-      <div className="flex gap-2 items-start">
+      <div className="flex gap-2 items-start w-full">
         {/* Avatar or Icon */}
         {avatar ? (
           <div className="relative h-12 w-12 rounded-full overflow-hidden shrink-0">

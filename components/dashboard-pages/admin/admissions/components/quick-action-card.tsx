@@ -5,10 +5,11 @@ import { cn } from "@/lib/utils";
 
 interface QuickActionCardProps {
   title: string;
-  description: string;
   icon: any;
+  description?: string;
   onClick?: () => void;
   className?: string;
+  textColor?: string;
 }
 
 export function QuickActionCard({
@@ -17,6 +18,7 @@ export function QuickActionCard({
   icon,
   onClick,
   className,
+  textColor,
 }: QuickActionCardProps) {
   return (
     <div
@@ -28,12 +30,19 @@ export function QuickActionCard({
     >
       <div className="px-6 py-4">
         <div className="flex items-start gap-3">
-          <div className="flex items-start">
-            <Icon icon={icon} size={20} />
+          <div className={cn(textColor, "flex items-start")}>
+            <Icon icon={icon} size={18} />
           </div>
           <div className="flex-1">
-            <h3 className="font-semibold text-gray-800">{title}</h3>
-            <p className="text-sm text-gray-600">{description}</p>
+            <h3
+              className={cn(
+                textColor ? textColor : "text-gray-800",
+                "text-sm font-semibold"
+              )}
+            >
+              {title}
+            </h3>
+            <p className="text-xs text-gray-600">{description}</p>
           </div>
         </div>
       </div>

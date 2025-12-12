@@ -43,10 +43,12 @@ export const FormField: React.FC<FormFieldProps> = ({
     <div className="flex flex-col gap-2 w-full">
       <div className={"flex flex-row gap-1 dark:text-main-900/80"}>
         {Icon && <Icon size={15} />}
-        <Label htmlFor={htmlFor} className="px-1 dark:text-main-900">
-          {label}
-          {label && required && " *"}
-        </Label>
+        {label && (
+          <Label htmlFor={htmlFor} className="px-1 dark:text-main-900">
+            {label}
+            {label && required && " *"}
+          </Label>
+        )}
       </div>
       {children}
     </div>

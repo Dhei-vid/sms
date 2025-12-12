@@ -9,3 +9,7 @@ export { ComplianceTabs } from "./compliance-tabs/compliance-tabs";
 export { ScheduleGrid } from "./schedule-grid/schedule-grid";
 export { StaffEventSidebar } from "./staff-event/staff-event-sidebar";
 export { ResourceTabs } from "./resource-tabs/resource-tabs";
+export { LeaveTabs } from "./leave-tabs/leave-tabs";
+export { ApplicantHeader } from "./applicant-header/applicant-header";
+export { ApplicantTabs } from "./applicant-tabs/applicant-tabs";
+export { RecordAssessmentModal } from "./record-assessment-modal/record-assessment-modal";

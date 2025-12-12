@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { menuItems } from "@/common/menu-items";
+import { getRolePath } from "@/utils/menu-utils";
 import { UserRole } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
@@ -37,13 +38,9 @@ export function Sidebar({ role, onClose }: SidebarProps) {
     return pathname.startsWith(itemHref);
   };
 
-  // Get role-specific path for href
-  const getRolePath = (basePath: string) => {
-    if (basePath === "/dashboard") {
-      return role === "admin" ? "/admin" : `/${role}`;
-    }
-    const cleanPath = basePath.startsWith("/") ? basePath.slice(1) : basePath;
-    return `/${role}/${cleanPath}`;
+  // Get role-specific path for href using utility function
+  const getRoleSpecificPath = (basePath: string) => {
+    return getRolePath(role, basePath);
   };
 
   const toggleExpanded = (itemId: string) => {
@@ -74,7 +71,7 @@ export function Sidebar({ role, onClose }: SidebarProps) {
       <nav className="flex-1 overflow-y-auto scrollbar-width bg-background rounded-md">
         <div className="p-4 space-y-2">
           {filteredNavItems.map((item, index) => {
-            const rolePath = getRolePath(item.href);
+            const rolePath = getRoleSpecificPath(item.href);
             const hasChildren = item.children && item.children.length > 0;
             const filteredChildren = hasChildren
               ? item.children!.filter((child) => child.roles.includes(role))
@@ -125,7 +122,7 @@ export function Sidebar({ role, onClose }: SidebarProps) {
                     {isExpanded && filteredChildren.length > 0 && (
                       <div className="ml-6 mt-1 space-y-2">
                         {filteredChildren.map((child) => {
-                          const childPath = getRolePath(child.href);
+                          const childPath = getRoleSpecificPath(child.href);
                           const childActive = isActiveRoute(childPath);
                           return (
                             <Link
@@ -167,7 +164,7 @@ export function Sidebar({ role, onClose }: SidebarProps) {
                         className={cn(
                           "ml-auto px-2 py-0.5 text-xs font-medium rounded-full",
                           active
-                            ? "bg-primary-foreground/20 text-primary-foreground"
+                            ? "bg-muted text-muted-foreground"
                             : "bg-muted text-muted-foreground"
                         )}
                       >

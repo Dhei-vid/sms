@@ -1,10 +1,4 @@
 export type UserRole = "admin" | "teacher" | "parent" | "student" | "canteen";
-import type { ReactNode } from "react";
-
-import { HugeiconsIcon } from "@hugeicons/react";
-import type { ComponentProps } from "react";
-
-// HugeiconsIconProps & RefAttributes<SVGSVGElement>
 
 export interface MenuItem {
   id: string;

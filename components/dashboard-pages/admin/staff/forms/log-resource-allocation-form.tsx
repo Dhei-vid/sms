@@ -75,6 +75,16 @@ export function LogResourceAllocationForm({
         </SelectField>
 
         <InputField
+          id="location"
+          label="Location"
+          placeholder="placeholder"
+          value={formData.assetTag}
+          onChange={(e) =>
+            setFormData({ ...formData, assetTag: e.target.value })
+          }
+        />
+
+        <InputField
           id="itemName"
           label="Item Name/Model"
           placeholder='E.g., "HP Laptop," "Room 405 Key," "Office Desk."'
@@ -102,9 +112,7 @@ export function LogResourceAllocationForm({
               setFormData({
                 ...formData,
                 issuedDate:
-                  typeof date === "function"
-                    ? date(formData.issuedDate)
-                    : date,
+                  typeof date === "function" ? date(formData.issuedDate) : date,
               })
             }
             open={openIssuedDate}
@@ -153,4 +161,3 @@ export function LogResourceAllocationForm({
     </div>
   );
 }
-
