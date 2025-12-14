@@ -6,6 +6,7 @@ import { DetailedGradeViewModal } from "@/components/dashboard-pages/student/my-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable, TableColumn } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
+import { usePagination } from "@/hooks/use-pagination";
 
 interface SubjectPerformance {
   subject: string;
@@ -20,7 +21,8 @@ interface ReportCard {
   status: string;
 }
 
-const subjectPerformances: SubjectPerformance[] = [
+// Sample data - in production, this would come from an API
+const allSubjectPerformances: SubjectPerformance[] = [
   {
     subject: "English Language",
     assignedTeacher: "Mr. Femi T.",
@@ -53,7 +55,8 @@ const subjectPerformances: SubjectPerformance[] = [
   },
 ];
 
-const reportCards: ReportCard[] = [
+// Sample data - in production, this would come from an API
+const allReportCards: ReportCard[] = [
   {
     documentName: "Term 1 Report Card",
     academicPeriod: "2025/2026 Term 1",
@@ -64,11 +67,35 @@ const reportCards: ReportCard[] = [
     academicPeriod: "2024/2025 Term 3",
     status: "Finalized",
   },
+  {
+    documentName: "Term 2 Report Card",
+    academicPeriod: "2024/2025 Term 2",
+    status: "Finalized",
+  },
+  {
+    documentName: "Term 1 Report Card",
+    academicPeriod: "2024/2025 Term 1",
+    status: "Finalized",
+  },
 ];
 
 export default function GradesReportCardPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
+
+  // Pagination for subject performances
+  const { displayedData: subjectPerformances, hasMore: hasMoreSubjects, loadMore: loadMoreSubjects } = usePagination({
+    data: allSubjectPerformances,
+    initialItemsPerPage: 4,
+    itemsPerPage: 4,
+  });
+
+  // Pagination for report cards
+  const { displayedData: reportCards, hasMore: hasMoreReportCards, loadMore: loadMoreReportCards } = usePagination({
+    data: allReportCards,
+    initialItemsPerPage: 2,
+    itemsPerPage: 2,
+  });
 
   const handleViewDetails = (subject: string) => {
     setSelectedSubject(subject);
@@ -203,9 +230,11 @@ export default function GradesReportCardPage() {
               showActionsColumn={false}
             />
           </div>
-          <div className="flex justify-center mt-4">
-            <Button variant="outline">Load More</Button>
-          </div>
+          {hasMoreSubjects && (
+            <div className="flex justify-center mt-4">
+              <Button variant="outline" onClick={loadMoreSubjects}>Load More</Button>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -231,9 +260,11 @@ export default function GradesReportCardPage() {
               showActionsColumn={false}
             />
           </div>
-          <div className="flex justify-center mt-4">
-            <Button variant="outline">Load More</Button>
-          </div>
+          {hasMoreReportCards && (
+            <div className="flex justify-center mt-4">
+              <Button variant="outline" onClick={loadMoreReportCards}>Load More</Button>
+            </div>
+          )}
         </CardContent>
       </Card>
 

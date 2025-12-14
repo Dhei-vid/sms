@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { MetricCard } from "@/components/dashboard-pages/admin/admissions/components/metric-card";
+import { usePagination } from "@/hooks/use-pagination";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable, TableColumn } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
@@ -47,7 +48,8 @@ const invoices: Invoice[] = [
   },
 ];
 
-const payments: Payment[] = [
+// Sample data - in production, this would come from an API
+const allPayments: Payment[] = [
   {
     id: "1",
     description: "Tuition Fee (Term 1)",
@@ -67,6 +69,20 @@ const payments: Payment[] = [
     description: "Admission Deposit",
     paymentDate: "Sept., 01 2025",
     amountPaid: "₦ 50,000.00",
+    status: "Completed",
+  },
+  {
+    id: "4",
+    description: "Library Fee",
+    paymentDate: "Aug., 15 2025",
+    amountPaid: "₦ 5,000.00",
+    status: "Completed",
+  },
+  {
+    id: "5",
+    description: "Sports Equipment",
+    paymentDate: "Aug., 10 2025",
+    amountPaid: "₦ 10,000.00",
     status: "Completed",
   },
 ];
@@ -330,9 +346,11 @@ export default function FeePaymentManagementPage() {
               showActionsColumn={false}
             />
           </div>
-          <div className="flex justify-center mt-4">
-            <Button variant="outline">Load More</Button>
-          </div>
+          {hasMore && (
+            <div className="flex justify-center mt-4">
+              <Button variant="outline" onClick={loadMore}>Load More</Button>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

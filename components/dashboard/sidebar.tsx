@@ -180,36 +180,38 @@ export function Sidebar({ role, onClose }: SidebarProps) {
       </nav>
 
       {/* Help & Support */}
-      <div className="p-4 space-y-4 bg-background rounded-md">
-        {/* Header */}
-        <div className="space-y-3">
-          <div className="flex flex-row gap-2 items-center">
-            <div className="w-fit rounded-full bg-main-blue p-2">
-              <Image
-                className={"w-5 h-5"}
-                src={"/logo/sms_icon_white.png"}
-                alt={"SMS_logo"}
-                width={30}
-                height={30}
-              />
+      {role === "admin" && (
+        <div className="p-4 space-y-4 bg-background rounded-md">
+          {/* Header */}
+          <div className="space-y-3">
+            <div className="flex flex-row gap-2 items-center">
+              <div className="w-fit rounded-full bg-main-blue p-2">
+                <Image
+                  className={"w-5 h-5"}
+                  src={"/logo/sms_icon_white.png"}
+                  alt={"SMS_logo"}
+                  width={30}
+                  height={30}
+                />
+              </div>
+              <p className="font-semibold text-xl">Upgrade Pro!</p>
             </div>
-            <p className="font-semibold text-xl">Upgrade Pro!</p>
+
+            {/* Pro message */}
+            <div>
+              <p className="text-sm text-gray-500">
+                Upgrade to Pro and elevate your experience today
+              </p>
+            </div>
           </div>
 
-          {/* Pro message */}
-          <div>
-            <p className="text-sm text-gray-500">
-              Upgrade to Pro and elevate your experience today
-            </p>
+          {/* CTA */}
+          <div className="grid grid-cols-2 space-x-2">
+            <Button>Upgrade</Button>
+            <Button variant={"outline"}>Learn More</Button>
           </div>
         </div>
-
-        {/* CTA */}
-        <div className="grid grid-cols-2 space-x-2">
-          <Button>Upgrade</Button>
-          <Button variant={"outline"}>Learn More</Button>
-        </div>
-      </div>
+      )}
     </div>
   );
 }

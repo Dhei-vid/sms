@@ -17,7 +17,8 @@ interface Transaction {
   runningBalance: string;
 }
 
-const transactions: Transaction[] = [
+// Sample data - in production, this would come from an API
+const allTransactions: Transaction[] = [
   {
     id: "1",
     dateTime: "Oct. 20, 2025; 12:30 PM",
@@ -58,11 +59,42 @@ const transactions: Transaction[] = [
     amount: "₦1,050",
     runningBalance: "₦1,700",
   },
+  {
+    id: "6",
+    dateTime: "Oct. 19, 2025; 10:15 AM",
+    transactionType: "Top - Up",
+    itemSource: "Deposit",
+    amount: "+ ₦3,000",
+    runningBalance: "₦2,750",
+  },
+  {
+    id: "7",
+    dateTime: "Oct. 19, 2025; 09:00 AM",
+    transactionType: "Wallet Debit",
+    itemSource: "Breakfast Combo",
+    amount: "- ₦1,200",
+    runningBalance: "- ₦250",
+  },
+  {
+    id: "8",
+    dateTime: "Oct. 18, 2025; 02:45 PM",
+    transactionType: "Top - Up",
+    itemSource: "Deposit",
+    amount: "+ ₦5,000",
+    runningBalance: "₦950",
+  },
 ];
 
 export default function WalletPage() {
   const [balanceVisible, setBalanceVisible] = useState(true);
   const [topUpModalOpen, setTopUpModalOpen] = useState(false);
+
+  // Pagination
+  const { displayedData: transactions, hasMore, loadMore } = usePagination({
+    data: allTransactions,
+    initialItemsPerPage: 5,
+    itemsPerPage: 5,
+  });
 
   const getAmountColor = (amount: string) => {
     if (amount.startsWith("+")) {
@@ -167,11 +199,13 @@ export default function WalletPage() {
             showActionsColumn={false}
           />
         </div>
-        <div className="flex justify-center mt-4">
-          <Button variant="outline" className="bg-gray-100">
-            Load More
-          </Button>
-        </div>
+        {hasMore && (
+          <div className="flex justify-center mt-4">
+            <Button variant="outline" className="bg-gray-100" onClick={loadMore}>
+              Load More
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Top Up Wallet Modal */}

@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DataTable, TableColumn } from "@/components/ui/data-table";
 import { MetricCard } from "@/components/dashboard-pages/admin/admissions/components/metric-card";
+import { usePagination } from "@/hooks/use-pagination";
 
 interface SalesItem {
   id: string;
@@ -13,7 +14,8 @@ interface SalesItem {
   avgDailySale: string;
 }
 
-const salesItems: SalesItem[] = [
+// Sample data - in production, this would come from an API
+const allSalesItems: SalesItem[] = [
   {
     id: "1",
     productName: "Jollof Rice",
@@ -42,9 +44,30 @@ const salesItems: SalesItem[] = [
     quantitySoldToday: "55 Units",
     avgDailySale: "78 Units",
   },
+  {
+    id: "5",
+    productName: "Fried Rice",
+    category: "Food",
+    quantitySoldToday: "45 Plates",
+    avgDailySale: "60 Plates",
+  },
+  {
+    id: "6",
+    productName: "Donuts",
+    category: "Snacks",
+    quantitySoldToday: "30 Units",
+    avgDailySale: "40 Units",
+  },
 ];
 
 export default function InventoryManagementPage() {
+  // Pagination
+  const { displayedData: salesItems, hasMore, loadMore } = usePagination({
+    data: allSalesItems,
+    initialItemsPerPage: 4,
+    itemsPerPage: 4,
+  });
+
   const columns: TableColumn<SalesItem>[] = [
     {
       key: "productName",
@@ -101,9 +124,11 @@ export default function InventoryManagementPage() {
               showActionsColumn={false}
             />
           </div>
-          <div className="flex justify-center mt-4">
-            <Button variant="outline">Load More</Button>
-          </div>
+          {hasMore && (
+            <div className="flex justify-center mt-4">
+              <Button variant="outline" onClick={loadMore}>Load More</Button>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

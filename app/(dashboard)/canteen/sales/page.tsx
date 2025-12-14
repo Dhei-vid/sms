@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DataTable, TableColumn } from "@/components/ui/data-table";
 import { MetricCard } from "@/components/dashboard-pages/admin/admissions/components/metric-card";
+import { usePagination } from "@/hooks/use-pagination";
 
 interface Transaction {
   id: string;
@@ -15,7 +16,8 @@ interface Transaction {
   status: "Completed" | "Pending" | "Cancelled";
 }
 
-const transactions: Transaction[] = [
+// Sample data - in production, this would come from an API
+const allTransactions: Transaction[] = [
   {
     id: "1",
     dateTime: new Date(2025, 9, 20, 12, 45),
@@ -48,11 +50,34 @@ const transactions: Transaction[] = [
     runningBalance: "₦1,000",
     status: "Completed",
   },
+  {
+    id: "5",
+    dateTime: new Date(2025, 9, 20, 12, 25),
+    transactionId: "WLT-10054",
+    itemCount: "Fried Rice + Chicken",
+    runningBalance: "₦2,500",
+    status: "Completed",
+  },
+  {
+    id: "6",
+    dateTime: new Date(2025, 9, 20, 12, 20),
+    transactionId: "CASH-10002",
+    itemCount: "3x Donuts",
+    runningBalance: "₦3,000",
+    status: "Completed",
+  },
 ];
 
 export default function SalesReportPage() {
   const today = new Date();
   const formattedDate = format(today, "MMM. d, yyyy");
+
+  // Pagination
+  const { displayedData: transactions, hasMore, loadMore } = usePagination({
+    data: allTransactions,
+    initialItemsPerPage: 4,
+    itemsPerPage: 4,
+  });
 
   const columns: TableColumn<Transaction>[] = [
     {
@@ -135,9 +160,11 @@ export default function SalesReportPage() {
               showActionsColumn={false}
             />
           </div>
-          <div className="flex justify-center mt-4">
-            <Button variant="outline">Load More</Button>
-          </div>
+          {hasMore && (
+            <div className="flex justify-center mt-4">
+              <Button variant="outline" onClick={loadMore}>Load More</Button>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
