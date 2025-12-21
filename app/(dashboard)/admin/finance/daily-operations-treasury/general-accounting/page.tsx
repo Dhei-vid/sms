@@ -4,13 +4,10 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  DataTable,
+  TableColumn,
+  TableAction,
+} from "@/components/ui/data-table";
 import { SelectField } from "@/components/ui/input-field";
 import { SelectItem } from "@/components/ui/select";
 import { Icon } from "@/components/general/huge-icon";
@@ -133,6 +130,55 @@ export default function GeneralAccountingPage() {
     }
     return "text-gray-600";
   };
+
+  const activityColumns: TableColumn<ActivityItem>[] = [
+    {
+      key: "date",
+      title: "Date",
+      render: (value) => (
+        <span className="text-sm text-gray-600">{value || "-"}</span>
+      ),
+    },
+    {
+      key: "type",
+      title: "Type",
+      render: (value) => (
+        <span className={cn("text-sm font-medium", getTypeColor(value))}>
+          {value}
+        </span>
+      ),
+    },
+    {
+      key: "amount",
+      title: "Amount (₦)",
+      render: (value) => (
+        <span className="font-semibold">{formattedAmount(value)}</span>
+      ),
+    },
+    {
+      key: "accountCategory",
+      title: "Account Category",
+      className: "text-sm text-gray-600",
+    },
+    {
+      key: "reference",
+      title: "Reference",
+      className: "text-sm text-gray-600",
+    },
+  ];
+
+  const actions: TableAction<ActivityItem>[] = [
+    {
+      type: "button",
+      config: {
+        label: "",
+        onClick: () => {},
+        variant: "ghost",
+        icon: <Icon icon={ViewIcon} size={16} />,
+        className: "h-8 w-8",
+      },
+    },
+  ];
 
   return (
     <div className="space-y-6">
@@ -304,62 +350,17 @@ export default function GeneralAccountingPage() {
         </CardHeader>
         <CardContent>
           <div className="border rounded-lg overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-main-blue/5">
-                  <TableHead className="px-4 py-3">Date</TableHead>
-                  <TableHead className="px-4 py-3">Type</TableHead>
-                  <TableHead className="px-4 py-3">Amount (₦)</TableHead>
-                  <TableHead className="px-4 py-3">Account Category</TableHead>
-                  <TableHead className="px-4 py-3">Reference</TableHead>
-                  <TableHead className="w-12 px-4 py-3"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredActivities.length === 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={6}
-                      className="h-32 text-center text-gray-500"
-                    >
-                      No activities found
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredActivities.map((activity) => (
-                    <TableRow key={activity.id}>
-                      <TableCell className="px-4 py-3 text-sm text-gray-600">
-                        {activity.date || "-"}
-                      </TableCell>
-                      <TableCell className="px-4 py-3">
-                        <span
-                          className={cn(
-                            "text-sm font-medium",
-                            getTypeColor(activity.type)
-                          )}
-                        >
-                          {activity.type}
-                        </span>
-                      </TableCell>
-                      <TableCell className="px-4 py-3 font-semibold">
-                        {formattedAmount(activity.amount)}
-                      </TableCell>
-                      <TableCell className="px-4 py-3 text-sm text-gray-600">
-                        {activity.accountCategory}
-                      </TableCell>
-                      <TableCell className="px-4 py-3 text-sm text-gray-600">
-                        {activity.reference}
-                      </TableCell>
-                      <TableCell className="px-4 py-3">
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <Icon icon={ViewIcon} size={16} />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+            <DataTable
+              columns={activityColumns}
+              data={filteredActivities}
+              actions={actions}
+              headerClassName="bg-main-blue/5"
+              emptyMessage="No activities found"
+              emptyMessageClassName="h-32 text-center text-gray-500"
+              showActionsColumn={true}
+              actionsColumnTitle=""
+              actionsColumnClassName="w-12"
+            />
           </div>
           <div className="flex justify-center pt-4">
             <Button variant="outline">Load More</Button>

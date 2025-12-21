@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, ChevronLeft, Menu } from "lucide-react";
 import { menuItems } from "@/common/menu-items";
 import { getRolePath } from "@/utils/menu-utils";
 import { UserRole } from "@/lib/types";
@@ -16,9 +16,16 @@ import { Button } from "../ui/button";
 interface SidebarProps {
   role: UserRole;
   onClose?: () => void;
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
-export function Sidebar({ role, onClose }: SidebarProps) {
+export function Sidebar({
+  role,
+  onClose,
+  collapsed = false,
+  onToggleCollapse,
+}: SidebarProps) {
   const pathname = usePathname();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
 
@@ -52,18 +59,27 @@ export function Sidebar({ role, onClose }: SidebarProps) {
   };
 
   return (
-    <div className="flex flex-col space-y-4 h-full w-xs">
-      {/* Logo */}
-      <div className="rounded-md flex items-center gap-3 p-6 border-b border-border h-13 bg-background">
-        <Link href="/" className="flex items-center gap-2" onClick={onClose}>
+    <div className="flex flex-col space-y-4 h-full rounded-md">
+      {/* Logo & Toggle */}
+      <div className="rounded-md flex items-center justify-between gap-3 p-4 lg:p-6 border-b border-border h-13 bg-background">
+        <Link
+          href="/"
+          className={cn(
+            "flex items-center gap-2 transition-opacity",
+            collapsed && "justify-center"
+          )}
+          onClick={onClose}
+        >
           <Image
-            className="w-7 h-7"
+            className="w-7 h-7 shrink-0"
             src={"/logo/sms_icon_blue.png"}
             alt={"logo"}
             width={40}
             height={40}
           />
-          <span className="font-bold text-lg">PH-SMS</span>
+          {!collapsed && (
+            <span className="font-bold text-lg whitespace-nowrap">PH-SMS</span>
+          )}
         </Link>
       </div>
 
@@ -91,60 +107,74 @@ export function Sidebar({ role, onClose }: SidebarProps) {
                         "cursor-pointer group w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-accent hover:text-accent-foreground",
                         active
                           ? "bg-main-blue/10 text-main-blue"
-                          : "text-muted-foreground"
+                          : "text-muted-foreground",
+                        collapsed && "justify-center"
                       )}
+                      title={collapsed ? item.label : undefined}
                     >
-                      <div className="flex items-center gap-3">
-                        {item.icon && <Icon icon={item.icon} size={18} />}
-                        {item.label}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {item.badge && (
-                          <span
-                            className={cn(
-                              "px-2 py-0.5 text-xs font-medium rounded-full",
-                              active
-                                ? "bg-primary-foreground/20 text-primary-foreground"
-                                : "bg-muted text-muted-foreground"
-                            )}
-                          >
-                            {item.badge}
-                          </span>
+                      <div className="flex items-center gap-3 min-w-0">
+                        {item.icon && (
+                          <Icon
+                            icon={item.icon}
+                            size={18}
+                            className="shrink-0"
+                          />
                         )}
+                        {!collapsed && (
+                          <>
+                            <span className="truncate">{item.label}</span>
+                            {item.badge && (
+                              <span
+                                className={cn(
+                                  "px-2 py-0.5 text-xs font-medium rounded-full shrink-0",
+                                  active
+                                    ? "bg-primary-foreground/20 text-primary-foreground"
+                                    : "bg-muted text-muted-foreground"
+                                )}
+                              >
+                                {item.badge}
+                              </span>
+                            )}
+                          </>
+                        )}
+                      </div>
+                      {!collapsed && (
                         <ChevronRight
                           className={cn(
-                            "h-4 w-4 transition-transform text-muted-foreground",
+                            "h-4 w-4 transition-transform text-muted-foreground shrink-0",
                             isExpanded && "rotate-90"
                           )}
                         />
-                      </div>
+                      )}
                     </button>
-                    {isExpanded && filteredChildren.length > 0 && (
-                      <div className="ml-6 mt-1 space-y-2">
-                        {filteredChildren.map((child) => {
-                          const childPath = getRoleSpecificPath(child.href);
-                          const childActive = isActiveRoute(childPath);
-                          return (
-                            <Link
-                              key={child.id}
-                              href={childPath}
-                              onClick={onClose}
-                              className={cn(
-                                "group flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-accent hover:text-accent-foreground",
-                                childActive
-                                  ? "bg-main-blue/10 text-main-blue"
-                                  : "text-muted-foreground"
-                              )}
-                            >
-                              {child.icon && (
-                                <Icon icon={child.icon} size={18} />
-                              )}
-                              {child.label}
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    )}
+                    {!collapsed &&
+                      isExpanded &&
+                      filteredChildren.length > 0 && (
+                        <div className="ml-6 mt-1 space-y-2">
+                          {filteredChildren.map((child) => {
+                            const childPath = getRoleSpecificPath(child.href);
+                            const childActive = isActiveRoute(childPath);
+                            return (
+                              <Link
+                                key={child.id}
+                                href={childPath}
+                                onClick={onClose}
+                                className={cn(
+                                  "group flex items-center gap-3 px-3 py-2 rounded-lg text-xs lg:text-sm transition-colors hover:bg-accent hover:text-accent-foreground",
+                                  childActive
+                                    ? "bg-main-blue/10 text-main-blue"
+                                    : "text-muted-foreground"
+                                )}
+                              >
+                                {child.icon && (
+                                  <Icon icon={child.icon} size={18} />
+                                )}
+                                {child.label}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      )}
                   </>
                 ) : (
                   <Link
@@ -154,22 +184,30 @@ export function Sidebar({ role, onClose }: SidebarProps) {
                       "group flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors hover:bg-accent hover:text-accent-foreground",
                       active
                         ? "bg-main-blue/10 text-main-blue"
-                        : "text-muted-foreground"
+                        : "text-muted-foreground",
+                      collapsed && "justify-center"
                     )}
+                    title={collapsed ? item.label : undefined}
                   >
-                    {item.icon && <Icon icon={item.icon} size={18} />}
-                    {item.label}
-                    {item.badge && (
-                      <span
-                        className={cn(
-                          "ml-auto px-2 py-0.5 text-xs font-medium rounded-full",
-                          active
-                            ? "bg-muted text-muted-foreground"
-                            : "bg-muted text-muted-foreground"
+                    {item.icon && (
+                      <Icon icon={item.icon} size={18} className="shrink-0" />
+                    )}
+                    {!collapsed && (
+                      <>
+                        <span className="truncate">{item.label}</span>
+                        {item.badge && (
+                          <span
+                            className={cn(
+                              "ml-auto px-2 py-0.5 text-xs font-medium rounded-full shrink-0",
+                              active
+                                ? "bg-muted text-muted-foreground"
+                                : "bg-muted text-muted-foreground"
+                            )}
+                          >
+                            {item.badge}
+                          </span>
                         )}
-                      >
-                        {item.badge}
-                      </span>
+                      </>
                     )}
                   </Link>
                 )}
@@ -180,7 +218,7 @@ export function Sidebar({ role, onClose }: SidebarProps) {
       </nav>
 
       {/* Help & Support */}
-      {role === "admin" && (
+      {role === "admin" && !collapsed && (
         <div className="p-4 space-y-4 bg-background rounded-md">
           {/* Header */}
           <div className="space-y-3">

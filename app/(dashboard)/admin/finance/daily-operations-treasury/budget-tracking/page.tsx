@@ -4,13 +4,10 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  DataTable,
+  TableColumn,
+  TableAction,
+} from "@/components/ui/data-table";
 import { Icon } from "@/components/general/huge-icon";
 import { AddCircleIcon, ViewIcon } from "@hugeicons/core-free-icons";
 import { FinancialMetricCard } from "@/components/dashboard-pages/admin/finance/finance-metrics";
@@ -81,6 +78,65 @@ const budgetItems: BudgetItem[] = [
 export default function BudgetTrackingPage() {
   const [createBudgetModalOpen, setCreateBudgetModalOpen] = useState(false);
 
+  const budgetColumns: TableColumn<BudgetItem>[] = [
+    {
+      key: "category",
+      title: "Account Category",
+      render: (value) => (
+        <span className="text-sm font-medium text-gray-700">{value}</span>
+      ),
+    },
+    {
+      key: "annualBudget",
+      title: "Annual Budget (₦)",
+      render: (value) => (
+        <span className="text-sm text-gray-800">
+          {value > 0 ? formattedAmount(value) : "-"}
+        </span>
+      ),
+    },
+    {
+      key: "actualSpentYTD",
+      title: "Actual Spent YTD (₦)",
+      render: (value) => (
+        <span className="text-sm text-gray-800">
+          {value > 0 ? formattedAmount(value) : "-"}
+        </span>
+      ),
+    },
+    {
+      key: "budgetConsumed",
+      title: "Budget Consumed (%)",
+      render: (value) => (
+        <span className="text-sm text-gray-800">
+          {value > 0 ? `${value}%` : "-"}
+        </span>
+      ),
+    },
+    {
+      key: "remainingBudget",
+      title: "Remaining Budget (₦)",
+      render: (value) => (
+        <span className="text-sm text-gray-800">
+          {value > 0 ? formattedAmount(value) : "-"}
+        </span>
+      ),
+    },
+  ];
+
+  const actions: TableAction<BudgetItem>[] = [
+    {
+      type: "button",
+      config: {
+        label: "",
+        onClick: () => {},
+        variant: "ghost",
+        icon: <Icon icon={ViewIcon} size={16} />,
+        className: "h-8 w-8",
+      },
+    },
+  ];
+
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -144,58 +200,15 @@ export default function BudgetTrackingPage() {
         </CardHeader>
         <CardContent>
           <div className="border rounded-lg overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-main-blue/5">
-                  <TableHead className="px-4 py-3">Account Category</TableHead>
-                  <TableHead className="px-4 py-3">Annual Budget (₦)</TableHead>
-                  <TableHead className="px-4 py-3">
-                    Actual Spent YTD (₦)
-                  </TableHead>
-                  <TableHead className="px-4 py-3">
-                    Budget Consumed (%)
-                  </TableHead>
-                  <TableHead className="px-4 py-3">
-                    Remaining Budget (₦)
-                  </TableHead>
-                  <TableHead className="w-12 px-4 py-3"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {budgetItems.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell className="px-4 py-3 text-sm font-medium text-gray-700">
-                      {item.category}
-                    </TableCell>
-                    <TableCell className="px-4 py-3 text-sm text-gray-800">
-                      {item.annualBudget > 0
-                        ? formattedAmount(item.annualBudget)
-                        : "-"}
-                    </TableCell>
-                    <TableCell className="px-4 py-3 text-sm text-gray-800">
-                      {item.actualSpentYTD > 0
-                        ? formattedAmount(item.actualSpentYTD)
-                        : "-"}
-                    </TableCell>
-                    <TableCell className="px-4 py-3 text-sm text-gray-800">
-                      {item.budgetConsumed > 0
-                        ? `${item.budgetConsumed}%`
-                        : "-"}
-                    </TableCell>
-                    <TableCell className="px-4 py-3 text-sm text-gray-800">
-                      {item.remainingBudget > 0
-                        ? formattedAmount(item.remainingBudget)
-                        : "-"}
-                    </TableCell>
-                    <TableCell className="px-4 py-3">
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Icon icon={ViewIcon} size={16} />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <DataTable
+              columns={budgetColumns}
+              data={budgetItems}
+              actions={actions}
+              headerClassName="bg-main-blue/5"
+              showActionsColumn={true}
+              actionsColumnTitle=""
+              actionsColumnClassName="w-12"
+            />
           </div>
           <div className="pt-4 flex justify-center">
             <Button variant="outline">See all Budget Categories</Button>

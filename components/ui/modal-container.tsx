@@ -47,13 +47,15 @@ const sizeClasses = {
   full: "sm:max-w-full",
 };
 
+// Map semantic maxHeight values to real Tailwind classes
+// We use custom values instead of the (non-existent) max-h-sm/md/lg utilities.
 const maxHeightClasses = {
-  sm: "max-h-sm",
-  md: "max-h-md",
-  lg: "max-h-lg",
-  xl: "max-h-xl",
-  "90vh": "max-h-[90vh]",
-  full: "max-h-full",
+  sm: "!max-h-[60vh]",
+  md: "!max-h-[70vh]",
+  lg: "!max-h-[80vh]",
+  xl: "!max-h-[85vh]",
+  "90vh": "!max-h-[90vh]",
+  full: "!max-h-screen",
 };
 
 export function ModalContainer({
@@ -78,21 +80,30 @@ export function ModalContainer({
         className={cn(
           sizeClass,
           maxHeightClass,
-          maxHeight === "90vh" && "overflow-y-auto",
           contentClassName,
-          "overflow-hidden"
+          "flex flex-col overflow-hidden scrollbar-width"
         )}
         showCloseButton={showCloseButton}
       >
         {showHeader && title && (
-          <DialogHeader>
+          <DialogHeader className="shrink-0">
             <DialogTitle>{title}</DialogTitle>
           </DialogHeader>
         )}
 
-        <div className={cn("space-y-4", className)}>{children}</div>
+        <div
+          className={cn(
+            "space-y-4 flex-1 overflow-y-auto",
+            maxHeight && "min-h-0",
+            className
+          )}
+        >
+          {children}
+        </div>
 
-        {footer && <DialogFooter>{footer}</DialogFooter>}
+        {footer && (
+          <DialogFooter className="shrink-0">{footer}</DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   );

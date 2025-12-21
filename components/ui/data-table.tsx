@@ -13,14 +13,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
-import { EllipsisVertical } from "lucide-react";
+import { EllipsisVertical, Minus } from "lucide-react";
 
 // Types
 export interface TableColumn<T = any> {
@@ -55,13 +59,20 @@ export interface ActionLink<T = any> {
   external?: boolean;
 }
 
-export interface ActionDropdownItem<T = any> {
+export interface ActionDropdownSubItem<T = any> {
   label: string;
   onClick: (row: T, index: number) => void;
+  disabled?: (row: T) => boolean;
+}
+
+export interface ActionDropdownItem<T = any> {
+  label: string;
+  onClick?: (row: T, index: number) => void;
   variant?: "default" | "destructive";
   icon?: React.ReactNode;
   disabled?: (row: T) => boolean;
   separator?: boolean;
+  subItems?: ActionDropdownSubItem<T>[];
 }
 
 export interface ActionDropdown<T = any> {
@@ -90,6 +101,10 @@ export interface DataTableProps<T = any> {
   showActionsColumn?: boolean;
   actionsColumnTitle?: string;
   actionsColumnClassName?: string;
+  enableRowSelection?: boolean;
+  selectedRows?: string[];
+  onSelectionChange?: (selectedIds: string[]) => void;
+  getRowId?: (row: T, index: number) => string;
 }
 
 // Utility function to format dates
@@ -166,8 +181,39 @@ export function DataTable<T extends Record<string, any> = Record<string, any>>({
   showActionsColumn = true,
   actionsColumnTitle = "Action",
   actionsColumnClassName,
+  enableRowSelection = false,
+  selectedRows = [],
+  onSelectionChange,
+  getRowId = (row: T, index: number) => row.id?.toString() ?? index.toString(),
 }: DataTableProps<T>) {
   const displayData = itemsPerPage ? data.slice(0, itemsPerPage) : data;
+
+  const handleSelectAll = (checked: boolean) => {
+    if (!onSelectionChange) return;
+    if (checked) {
+      onSelectionChange(displayData.map((row, index) => getRowId(row, index)));
+    } else {
+      onSelectionChange([]);
+    }
+  };
+
+  const handleSelectRow = (row: T, index: number, checked: boolean) => {
+    if (!onSelectionChange) return;
+    const rowId = getRowId(row, index);
+    if (checked) {
+      onSelectionChange([...selectedRows, rowId]);
+    } else {
+      onSelectionChange(selectedRows.filter((id) => id !== rowId));
+    }
+  };
+
+  const isAllSelected =
+    displayData.length > 0 &&
+    displayData.every((row, index) =>
+      selectedRows.includes(getRowId(row, index))
+    );
+  const isIndeterminate =
+    selectedRows.length > 0 && selectedRows.length < displayData.length;
 
   const getRowClassName = (row: T, index: number): string => {
     const baseClass = "cursor-pointer";
@@ -268,22 +314,66 @@ export function DataTable<T extends Record<string, any> = Record<string, any>>({
             <DropdownMenuContent align={config.align || "end"}>
               {config.items.map((item, itemIndex) => {
                 const isDisabled = item.disabled?.(row) ?? false;
+
+                // Handle nested submenu
+                if (item.subItems && item.subItems.length > 0) {
+                  const submenuElement = (
+                    <DropdownMenuSub key={itemIndex}>
+                      <DropdownMenuSubTrigger
+                        disabled={isDisabled}
+                        className="flex flex-row gap-3 items-center cursor-pointer"
+                      >
+                        {item.icon}
+                        <p>{item.label}</p>
+                      </DropdownMenuSubTrigger>
+                      <DropdownMenuSubContent>
+                        {item.subItems.map((subItem, subIndex) => {
+                          const isSubDisabled =
+                            subItem.disabled?.(row) ?? false;
+                          return (
+                            <DropdownMenuItem
+                              key={subIndex}
+                              onClick={() =>
+                                !isSubDisabled && subItem.onClick(row, index)
+                              }
+                              disabled={isSubDisabled}
+                              className="cursor-pointer"
+                            >
+                              {subItem.label}
+                            </DropdownMenuItem>
+                          );
+                        })}
+                      </DropdownMenuSubContent>
+                    </DropdownMenuSub>
+                  );
+
+                  return item.separator && itemIndex > 0 ? (
+                    <React.Fragment key={itemIndex}>
+                      <DropdownMenuSeparator />
+                      {submenuElement}
+                    </React.Fragment>
+                  ) : (
+                    submenuElement
+                  );
+                }
+
+                // Regular menu item
                 const itemElement = (
                   <DropdownMenuItem
                     key={itemIndex}
-                    onClick={() => !isDisabled && item.onClick(row, index)}
+                    onClick={() => !isDisabled && item.onClick?.(row, index)}
                     disabled={isDisabled}
                     variant={item.variant}
-                    className="cursor-pointer"
+                    className="flex flex-row gap-3 items-center cursor-pointer"
                   >
                     {item.icon}
-                    {item.label}
+                    <p>{item.label}</p>
                   </DropdownMenuItem>
                 );
 
-                return item.separator ? (
+                return item.separator && itemIndex > 0 ? (
                   <React.Fragment key={itemIndex}>
-                    {itemIndex > 0 && <DropdownMenuSeparator />}
+                    <DropdownMenuSeparator />
                     {itemElement}
                   </React.Fragment>
                 ) : (
@@ -305,6 +395,32 @@ export function DataTable<T extends Record<string, any> = Record<string, any>>({
       <Table className={tableClassName}>
         <TableHeader className="bg-main-blue/5">
           <TableRow className={headerClassName}>
+            {enableRowSelection && (
+              <TableHead className="w-12">
+                {isIndeterminate ? (
+                  <div className="relative">
+                    <Checkbox
+                      checked={false}
+                      onCheckedChange={handleSelectAll}
+                      className="opacity-0"
+                    />
+                    <div
+                      className="absolute inset-0 flex items-center justify-center cursor-pointer"
+                      onClick={() => handleSelectAll(true)}
+                    >
+                      <div className="size-4 rounded-[2px] border border-main-blue bg-main-blue flex items-center justify-center">
+                        <Minus className="size-3 text-white" />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <Checkbox
+                    checked={isAllSelected}
+                    onCheckedChange={handleSelectAll}
+                  />
+                )}
+              </TableHead>
+            )}
             {columns.map((column) => (
               <TableHead
                 key={column.key}
@@ -330,6 +446,7 @@ export function DataTable<T extends Record<string, any> = Record<string, any>>({
             <TableRow>
               <TableCell
                 colSpan={
+                  (enableRowSelection ? 1 : 0) +
                   columns.length +
                   (showActionsColumn && actions.length > 0 ? 1 : 0)
                 }
@@ -342,47 +459,64 @@ export function DataTable<T extends Record<string, any> = Record<string, any>>({
               </TableCell>
             </TableRow>
           ) : (
-            displayData.map((row, rowIndex) => (
-              <TableRow
-                key={rowIndex}
-                className={getRowClassName(row, rowIndex)}
-                onClick={() => onRowClick?.(row, rowIndex)}
-              >
-                {columns.map((column, colIndex) => {
-                  const value = row[column.key];
-                  const isLastColumn =
-                    colIndex === columns.length - 1 &&
-                    (!showActionsColumn || actions.length === 0);
-                  return (
+            displayData.map((row, rowIndex) => {
+              const rowId = getRowId(row, rowIndex);
+              const isSelected = selectedRows.includes(rowId);
+              return (
+                <TableRow
+                  key={rowIndex}
+                  className={getRowClassName(row, rowIndex)}
+                  onClick={() => onRowClick?.(row, rowIndex)}
+                >
+                  {enableRowSelection && (
                     <TableCell
-                      key={column.key}
-                      className={cn(
-                        column.align === "center" && "text-center",
-                        column.align === "right" && "text-right",
-                        !isLastColumn && "border-r border-gray-200",
-                        column.className
-                      )}
+                      className="border-r"
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      {renderCell(value, column, row, rowIndex)}
+                      <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={(checked) =>
+                          handleSelectRow(row, rowIndex, checked as boolean)
+                        }
+                      />
                     </TableCell>
-                  );
-                })}
-                {showActionsColumn && actions.length > 0 && (
-                  <TableCell
-                    className={cn("text-center", actionsColumnClassName)}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <div className="flex items-center justify-center gap-2">
-                      {actions.map((action, actionIndex) => (
-                        <React.Fragment key={actionIndex}>
-                          {renderAction(action, row, rowIndex)}
-                        </React.Fragment>
-                      ))}
-                    </div>
-                  </TableCell>
-                )}
-              </TableRow>
-            ))
+                  )}
+                  {columns.map((column, colIndex) => {
+                    const value = row[column.key];
+                    const isLastColumn =
+                      colIndex === columns.length - 1 &&
+                      (!showActionsColumn || actions.length === 0);
+                    return (
+                      <TableCell
+                        key={column.key}
+                        className={cn(
+                          column.align === "center" && "text-center",
+                          column.align === "right" && "text-right",
+                          !isLastColumn && "border-r border-gray-200",
+                          column.className
+                        )}
+                      >
+                        {renderCell(value, column, row, rowIndex)}
+                      </TableCell>
+                    );
+                  })}
+                  {showActionsColumn && actions.length > 0 && (
+                    <TableCell
+                      className={cn("text-center", actionsColumnClassName)}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        {actions.map((action, actionIndex) => (
+                          <React.Fragment key={actionIndex}>
+                            {renderAction(action, row, rowIndex)}
+                          </React.Fragment>
+                        ))}
+                      </div>
+                    </TableCell>
+                  )}
+                </TableRow>
+              );
+            })
           )}
         </TableBody>
       </Table>

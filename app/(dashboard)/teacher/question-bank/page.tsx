@@ -115,7 +115,9 @@ export default function QuestionBankPage() {
   const filteredQuestions = allQuestions.filter((question) => {
     const matchesSearch =
       !searchQuery ||
-      question.questionSnippet.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      question.questionSnippet
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
       question.subjectTopic.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus =
       statusFilter === "all" || question.status.toLowerCase() === statusFilter;
@@ -123,7 +125,11 @@ export default function QuestionBankPage() {
   });
 
   // Pagination
-  const { displayedData: questions, hasMore, loadMore } = usePagination({
+  const {
+    displayedData: questions,
+    hasMore,
+    loadMore,
+  } = usePagination({
     data: filteredQuestions,
     initialItemsPerPage: 4,
     itemsPerPage: 4,

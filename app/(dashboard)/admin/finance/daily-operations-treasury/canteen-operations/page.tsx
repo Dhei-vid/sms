@@ -5,13 +5,10 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  DataTable,
+  TableColumn,
+  TableAction,
+} from "@/components/ui/data-table";
 import { SelectField } from "@/components/ui/input-field";
 import { SelectItem } from "@/components/ui/select";
 import { Icon } from "@/components/general/huge-icon";
@@ -185,6 +182,85 @@ export default function CanteenOperationsPage() {
     }
   };
 
+  const topSellingColumns: TableColumn<TopSellingItem>[] = [
+    {
+      key: "item",
+      title: "Item",
+      render: (value) => <span className="font-medium">{value}</span>,
+    },
+    {
+      key: "totalRevenue",
+      title: "Total Revenue (7 Days)",
+      render: (value) => (
+        <span className="font-semibold">{formattedAmount(value)}</span>
+      ),
+    },
+    {
+      key: "studentConsumption",
+      title: "Student Consumption",
+      render: (value) => (
+        <span className="text-sm text-gray-600">{value}%</span>
+      ),
+    },
+  ];
+
+  const activityColumns: TableColumn<RecentActivity>[] = [
+    {
+      key: "time",
+      title: "Time",
+    },
+    {
+      key: "name",
+      title: "Name & Student ID",
+      render: (_, row) => (
+        <span>
+          {row.name} ({row.studentId})
+        </span>
+      ),
+    },
+    {
+      key: "transactionType",
+      title: "Transaction Type",
+    },
+    {
+      key: "amount",
+      title: "Amount",
+      render: (value) => (
+        <span className="font-semibold">{formattedAmount(value)}</span>
+      ),
+    },
+    {
+      key: "item",
+      title: "Item",
+    },
+    {
+      key: "reconciliationStatus",
+      title: "Reconciliation Status",
+      render: (value) => (
+        <span className={cn("text-sm font-medium", getStatusColor(value))}>
+          {value}
+        </span>
+      ),
+    },
+  ];
+
+  const actions: TableAction<RecentActivity>[] = [
+    {
+      type: "button",
+      config: {
+        label: "",
+        onClick: (row) => {
+          router.push(
+            `/admin/finance/daily-operations-treasury/canteen-operations/${row.id}`
+          );
+        },
+        variant: "ghost",
+        icon: <Icon icon={ViewIcon} size={16} />,
+        className: "h-8 w-8",
+      },
+    },
+  ];
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -237,34 +313,12 @@ export default function CanteenOperationsPage() {
           </CardHeader>
           <CardContent>
             <div className="border rounded-lg overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-main-blue/5">
-                    <TableHead className="px-4 py-3">Item</TableHead>
-                    <TableHead className="px-4 py-3">
-                      Total Revenue (7 Days)
-                    </TableHead>
-                    <TableHead className="px-4 py-3">
-                      Student Consumption
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {topSellingItems.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell className="px-4 py-3 font-medium">
-                        {item.item}
-                      </TableCell>
-                      <TableCell className="px-4 py-3 font-semibold">
-                        {formattedAmount(item.totalRevenue)}
-                      </TableCell>
-                      <TableCell className="px-4 py-3 text-sm text-gray-600">
-                        {item.studentConsumption}%
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <DataTable
+                columns={topSellingColumns}
+                data={topSellingItems}
+                headerClassName="bg-main-blue/5"
+                showActionsColumn={false}
+              />
             </div>
           </CardContent>
         </Card>
@@ -325,84 +379,17 @@ export default function CanteenOperationsPage() {
         </CardHeader>
         <CardContent>
           <div className="border rounded-lg overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-main-blue/5">
-                  <TableHead className="px-4 py-3">Time</TableHead>
-                  <TableHead className="px-4 py-3">Name & Student ID</TableHead>
-                  <TableHead className="px-4 py-3">Transaction Type</TableHead>
-                  <TableHead className="px-4 py-3">Amount</TableHead>
-                  <TableHead className="px-4 py-3">Item</TableHead>
-                  <TableHead className="px-4 py-3">
-                    Reconciliation Status
-                  </TableHead>
-                  <TableHead className="w-12 px-4 py-3"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredActivities.length === 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={7}
-                      className="h-32 text-center text-gray-500"
-                    >
-                      No activities found
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredActivities.map((activity) => (
-                    <TableRow key={activity.id}>
-                      <TableCell className="px-4 py-3 text-sm text-gray-600">
-                        {activity.time}
-                      </TableCell>
-                      <TableCell className="px-4 py-3">
-                        <div className="flex flex-col">
-                          <span className="font-medium text-sm">
-                            {activity.name}
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            ({activity.studentId})
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-4 py-3 text-sm">
-                        {activity.transactionType}
-                      </TableCell>
-                      <TableCell className="px-4 py-3 font-semibold">
-                        {formattedAmount(activity.amount)}
-                      </TableCell>
-                      <TableCell className="px-4 py-3 text-sm text-gray-600">
-                        {activity.item}
-                      </TableCell>
-                      <TableCell className="px-4 py-3">
-                        <span
-                          className={cn(
-                            "text-sm font-medium",
-                            getStatusColor(activity.reconciliationStatus)
-                          )}
-                        >
-                          {activity.reconciliationStatus}
-                        </span>
-                      </TableCell>
-                      <TableCell className="px-4 py-3">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() =>
-                            router.push(
-                              `/admin/finance/daily-operations-treasury/canteen-operations/${activity.id}`
-                            )
-                          }
-                        >
-                          <Icon icon={ViewIcon} size={16} />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+            <DataTable
+              columns={activityColumns}
+              data={filteredActivities}
+              actions={actions}
+              headerClassName="bg-main-blue/5"
+              emptyMessage="No activities found"
+              emptyMessageClassName="h-32 text-center text-gray-500"
+              showActionsColumn={true}
+              actionsColumnTitle=""
+              actionsColumnClassName="w-12"
+            />
           </div>
           <div className="flex justify-center pt-4">
             <Button variant="outline">Load More</Button>

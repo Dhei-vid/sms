@@ -59,8 +59,10 @@ export function ReviewersNotesView() {
           <TableBody>
             {reviewersNotes.map((note, index) => (
               <TableRow key={index}>
-                <TableCell className="text-gray-600">{note.dateTime}</TableCell>
-                <TableCell className="font-medium text-gray-700">
+                <TableCell className="text-gray-600 border-r">
+                  {note.dateTime}
+                </TableCell>
+                <TableCell className="font-medium text-gray-700 border-r">
                   {note.reviewer}
                 </TableCell>
                 <TableCell className="text-gray-600">{note.notes}</TableCell>

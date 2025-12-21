@@ -20,6 +20,88 @@ import {
 export default function StaffDashboardPage() {
   const router = useRouter();
 
+  // Quick Actions Configuration
+  interface QuickAction {
+    title: string;
+    description: string;
+    icon: any;
+    onClick: () => void;
+  }
+
+  const quickActions: QuickAction[] = [
+    {
+      title: "Manage All Staff Directory",
+      description: "Complete database table of all staffs",
+      icon: DocumentValidationIcon,
+      onClick: () => router.push("/admin/staff-management/all"),
+    },
+    {
+      title: "Applicant Tracking",
+      description: "Tracks candidates currently in the interviewing process for open vacancies.",
+      icon: UserCheck01Icon,
+      onClick: () => router.push("/admin/staff-management/applicant-tracking"),
+    },
+    {
+      title: "Schedule & Assignments",
+      description: "Formally document a staff member's new duty, task, or the allocation of a school asset.",
+      icon: FileUploadIcon,
+      onClick: () => router.push("/admin/staff-management/schedule"),
+    },
+    {
+      title: "Staff Leave Requests Management",
+      description: "For reviewing, prioritizing, and acting on pending staff leave requests.",
+      icon: Alert01Icon,
+      onClick: () => router.push("/admin/staff-management/leave"),
+    },
+  ];
+
+  // Recent Activities Configuration
+  interface StaffActivity {
+    type: "hired" | "absent" | "resignation" | "leave" | "appraisal";
+    title: string;
+    description: string;
+    timestamp: string;
+    icon: any;
+  }
+
+  const recentActivities: StaffActivity[] = [
+    {
+      type: "hired",
+      title: "New Teacher Hired",
+      description: "Mr. Chinadu Okafor (JSS Science) - Start Date: 2025-11-01",
+      timestamp: "10:00 AM",
+      icon: UserAdd01Icon,
+    },
+    {
+      type: "absent",
+      title: "Absent Staff",
+      description: "Ms. Sola Adeniyi (SS3 History) - Reason: Annual Leave",
+      timestamp: "8:15 AM",
+      icon: Alert01Icon,
+    },
+    {
+      type: "resignation",
+      title: "Resignation",
+      description: "Mrs. Helen Davies (SS2 English) - Last Day: 2025-12-15",
+      timestamp: "Oct. 22, 8:15 AM",
+      icon: UserMinus01Icon,
+    },
+    {
+      type: "leave",
+      title: "Leave Approved",
+      description: "Ms. Tolu Adebayo (Admin) - Annual Leave: 2025-10-28 to 2025-11-04",
+      timestamp: "Oct. 21, 9:32 AM",
+      icon: TeamviewerIcon,
+    },
+    {
+      type: "appraisal",
+      title: "Appraisal Due",
+      description: "Mr. Biodun Blue (P4 Teacher) - Due: 2025-11-10",
+      timestamp: "Oct. 21, 9:32 AM",
+      icon: TeamviewerIcon,
+    },
+  ];
+
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -117,41 +199,16 @@ export default function StaffDashboardPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <StaffActivityItem
-                type="hired"
-                title="New Teacher Hired"
-                description="Mr. Chinadu Okafor (JSS Science) - Start Date: 2025-11-01"
-                timestamp="10:00 AM"
-                icon={UserAdd01Icon}
-              />
-              <StaffActivityItem
-                type="absent"
-                title="Absent Staff"
-                description="Ms. Sola Adeniyi (SS3 History) - Reason: Annual Leave"
-                timestamp="8:15 AM"
-                icon={Alert01Icon}
-              />
-              <StaffActivityItem
-                type="resignation"
-                title="Resignation"
-                description="Mrs. Helen Davies (SS2 English) - Last Day: 2025-12-15"
-                timestamp="Oct. 22, 8:15 AM"
-                icon={UserMinus01Icon}
-              />
-              <StaffActivityItem
-                type="leave"
-                title="Leave Approved"
-                description="Ms. Tolu Adebayo (Admin) - Annual Leave: 2025-10-28 to 2025-11-04"
-                timestamp="Oct. 21, 9:32 AM"
-                icon={TeamviewerIcon}
-              />
-              <StaffActivityItem
-                type="appraisal"
-                title="Appraisal Due"
-                description="Mr. Biodun Blue (P4 Teacher) - Due: 2025-11-10"
-                timestamp="Oct. 21, 9:32 AM"
-                icon={TeamviewerIcon}
-              />
+              {recentActivities.map((activity, index) => (
+                <StaffActivityItem
+                  key={index}
+                  type={activity.type}
+                  title={activity.title}
+                  description={activity.description}
+                  timestamp={activity.timestamp}
+                  icon={activity.icon}
+                />
+              ))}
               <div className="flex justify-center pt-4">
                 <Button variant="outline" size="sm">
                   Load more
@@ -171,37 +228,17 @@ export default function StaffDashboardPage() {
             </CardHeader>
             <CardContent className="px-1">
               <div className="space-y-0">
-                <QuickActionCard
-                  title="Manage All Staff Directory"
-                  description="Complete database table of all staffs"
-                  icon={DocumentValidationIcon}
-                  onClick={() => router.push("/admin/staff-management/all")}
-                />
-                <Separator />
-                <QuickActionCard
-                  title="Applicant Tracking"
-                  description="Tracks candidates currently in the interviewing process for open vacancies."
-                  icon={UserCheck01Icon}
-                  onClick={() =>
-                    router.push("/admin/staff-management/applicant-tracking")
-                  }
-                />
-                <Separator />
-                <QuickActionCard
-                  title="Schedule & Assignments"
-                  description="Formally document a staff member's new duty, task, or the allocation of a school asset."
-                  icon={FileUploadIcon}
-                  onClick={() =>
-                    router.push("/admin/staff-management/schedule")
-                  }
-                />
-                <Separator />
-                <QuickActionCard
-                  title="Staff Leave Requests Management"
-                  description="For reviewing, prioritizing, and acting on pending staff leave requests."
-                  icon={Alert01Icon}
-                  onClick={() => router.push("/admin/staff-management/leave")}
-                />
+                {quickActions.map((action, index) => (
+                  <div key={index}>
+                    <QuickActionCard
+                      title={action.title}
+                      description={action.description}
+                      icon={action.icon}
+                      onClick={action.onClick}
+                    />
+                    {index < quickActions.length - 1 && <Separator />}
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>

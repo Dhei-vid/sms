@@ -1,11 +1,14 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { menuItems } from "@/common/menu-items";
 import { matchMenuItemByPath } from "@/utils";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { Header } from "@/components/dashboard/header";
 import { UserRole } from "@/lib/types";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
 
 // Extract role from pathname
 function getRoleFromPath(pathname: string): UserRole {
@@ -39,15 +42,78 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const role = getRoleFromPath(pathname);
   const hideSidebar = shouldHideSidebar(pathname);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const path = matchMenuItemByPath(pathname, role);
 
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
+  // Handle window resize to manage sidebar state
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        // Desktop: restore sidebar if it was collapsed
+        setMobileMenuOpen(false);
+      } else {
+        // Mobile: close mobile menu on resize
+        setMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
-    <div className="flex space-x-4 h-screen overflow-hidden py-2 pl-2 bg-main-bg">
-      {!hideSidebar && <Sidebar role={role} />}
-      <div className="flex-1 flex flex-col overflow-y-scroll scrollbar-width">
-        <Header metaData={path} />
-        <main className="flex-1 bg-main-bg py-4">{children}</main>
+    <div className="flex h-screen overflow-hidden bg-main-bg">
+      {/* Desktop Sidebar */}
+      {!hideSidebar && (
+        <>
+          <aside
+            className={cn(
+              "hidden lg:flex flex-col transition-all duration-300 ease-in-out shrink-0",
+              sidebarCollapsed ? "w-16" : "w-sm"
+            )}
+          >
+            <div className="h-full p-2">
+              <Sidebar
+                role={role}
+                collapsed={sidebarCollapsed}
+                onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+              />
+            </div>
+          </aside>
+
+          {/* Mobile Sidebar Sheet */}
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetContent side="left" className="w-64 p-0 sm:max-w-sm">
+              <Sidebar
+                role={role}
+                collapsed={false}
+                onClose={() => setMobileMenuOpen(false)}
+              />
+            </SheetContent>
+          </Sheet>
+        </>
+      )}
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        <div className="p-2">
+          <Header
+            metaData={path}
+            onMenuClick={() => setMobileMenuOpen(true)}
+            onSidebarToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+            sidebarCollapsed={sidebarCollapsed}
+          />
+        </div>
+        <main className="flex-1 overflow-y-auto scrollbar-width bg-main-bg p-2">
+          {children}
+        </main>
       </div>
     </div>
   );

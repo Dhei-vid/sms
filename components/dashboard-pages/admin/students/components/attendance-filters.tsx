@@ -28,9 +28,9 @@ export function AttendanceFilters({
   onClassChange,
 }: AttendanceFiltersProps) {
   return (
-    <div className="flex flex-wrap items-center gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 items-center gap-4 w-full">
       <Select value={month} onValueChange={onMonthChange}>
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className="w-full">
           <Icon icon={Calendar03Icon} size={16} className="shrink-0" />
           <SelectValue placeholder="Select month" />
         </SelectTrigger>
@@ -42,7 +42,7 @@ export function AttendanceFilters({
       </Select>
 
       <Select value={week} onValueChange={onWeekChange}>
-        <SelectTrigger className="w-[200px]">
+        <SelectTrigger className="w-full">
           <SelectValue placeholder="Select week" />
         </SelectTrigger>
         <SelectContent>
@@ -53,7 +53,7 @@ export function AttendanceFilters({
       </Select>
 
       <Select value={className} onValueChange={onClassChange}>
-        <SelectTrigger className="w-[120px]">
+        <SelectTrigger className="w-full">
           <SelectValue placeholder="Select class" />
         </SelectTrigger>
         <SelectContent>

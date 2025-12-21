@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MetricCard } from "@/components/dashboard-pages/admin/admissions/components/metric-card";
 import { QuickActionCard } from "@/components/dashboard-pages/admin/admissions/components/quick-action-card";
@@ -10,8 +12,43 @@ import {
   PendulumIcon,
   UserAdd01Icon,
 } from "@hugeicons/core-free-icons";
+import {
+  initialApplications,
+  type Application,
+} from "@/components/dashboard-pages/admin/admissions/data/applications-data";
 
 export default function AdmissionsPage() {
+  const router = useRouter();
+  const [applications, setApplications] = useState<Application[]>(initialApplications);
+
+  // Quick Actions Configuration
+  interface QuickAction {
+    title: string;
+    description: string;
+    icon: any;
+    onClick: () => void;
+  }
+
+  const quickActions: QuickAction[] = [
+    {
+      title: "New Applications",
+      description: "Review new applications.",
+      icon: DocumentValidationIcon,
+      onClick: () => router.push("admissions/add"),
+    },
+    {
+      title: "Pending Fees",
+      description: "See applications awaiting enrollment payment.",
+      icon: PendulumIcon,
+      onClick: () => console.log("Pending Fees clicked"),
+    },
+    {
+      title: "Add New Applicant",
+      description: "Manually add an applicant.",
+      icon: UserAdd01Icon,
+      onClick: () => router.push("admissions/add"),
+    },
+  ];
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -80,26 +117,17 @@ export default function AdmissionsPage() {
             </CardHeader>
             <CardContent className="px-1">
               <div className="space-y-0">
-                <QuickActionCard
-                  title="New Applications"
-                  description="Review new applications."
-                  icon={DocumentValidationIcon}
-                  onClick={() => console.log("New Applications clicked")}
-                />
-                <Separator />
-                <QuickActionCard
-                  title="Pending Fees"
-                  description="See applications awaiting enrollment payment."
-                  icon={PendulumIcon}
-                  onClick={() => console.log("Pending Fees clicked")}
-                />
-                <Separator />
-                <QuickActionCard
-                  title="Add New Applicant"
-                  description="Manually add an applicant."
-                  icon={UserAdd01Icon}
-                  onClick={() => console.log("Add New Applicant clicked")}
-                />
+                {quickActions.map((action, index) => (
+                  <div key={index}>
+                    <QuickActionCard
+                      title={action.title}
+                      description={action.description}
+                      icon={action.icon}
+                      onClick={action.onClick}
+                    />
+                    {index < quickActions.length - 1 && <Separator />}
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
@@ -115,7 +143,10 @@ export default function AdmissionsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ApplicationTable />
+            <ApplicationTable
+              applications={applications}
+              onApplicationsChange={setApplications}
+            />
           </CardContent>
         </Card>
       </div>

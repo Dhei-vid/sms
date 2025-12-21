@@ -7,10 +7,7 @@ import { StepNavigation, Step } from "@/components/ui/step-navigation";
 import { InputField } from "@/components/ui/input-field";
 import { SelectField } from "@/components/ui/input-field";
 import { SelectItem } from "@/components/ui/select";
-import {
-  SaleTag01Icon,
-  UserAdd01Icon,
-} from "@hugeicons/core-free-icons";
+import { AssignmentsIcon, ResourcesAddIcon } from "@hugeicons/core-free-icons";
 import { useRouter } from "next/navigation";
 
 type StepId = "identity" | "scope" | "automation";
@@ -19,17 +16,17 @@ const steps: Step[] = [
   {
     id: "identity",
     label: "Rule Identity and Value",
-    icon: SaleTag01Icon,
+    icon: AssignmentsIcon,
   },
   {
     id: "scope",
     label: "Scope and Exclusions",
-    icon: UserAdd01Icon,
+    icon: ResourcesAddIcon,
   },
   {
     id: "automation",
     label: "Automation Criteria",
-    icon: UserAdd01Icon,
+    icon: ResourcesAddIcon,
   },
 ];
 
@@ -108,7 +105,9 @@ export default function CreateDiscountRulePage() {
       ...formData,
     });
     // In a real app, this would submit to an API
-    router.push("/admin/finance/fee-revenue-management/discount-policy-management");
+    router.push(
+      "/admin/finance/fee-revenue-management/discount-policy-management"
+    );
   };
 
   const renderStepContent = () => {
@@ -339,4 +338,3 @@ export default function CreateDiscountRulePage() {
     </div>
   );
 }
-

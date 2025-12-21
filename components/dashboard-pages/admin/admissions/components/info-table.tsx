@@ -37,10 +37,12 @@ export function InfoTable({ rows, className }: InfoTableProps) {
         <TableBody>
           {rows.map((row, index) => (
             <TableRow key={index}>
-              <TableCell className="font-medium text-gray-700">
+              <TableCell className="font-medium text-gray-700 border-r">
                 {row.field}
               </TableCell>
-              <TableCell className="text-gray-600">{row.content}</TableCell>
+              <TableCell className="text-gray-600 border-r">
+                {row.content}
+              </TableCell>
               <TableCell>
                 {row.status === "verified" && (
                   <div className="flex items-center gap-2 ">

@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MetricCard } from "@/components/dashboard-pages/admin/admissions/components/metric-card";
 import { QuickActionCard } from "@/components/dashboard-pages/admin/admissions/components/quick-action-card";
 import { ActivityItem } from "@/components/dashboard-pages/admin/students/components/activity-item";
+import { ReportGenerationModal } from "@/components/dashboard-pages/admin/students/modals/report-generation-modal";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +21,76 @@ import {
 
 export default function StudentsPage() {
   const router = useRouter();
+  const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
+
+  // Quick Actions Configuration
+  interface QuickAction {
+    title: string;
+    description: string;
+    icon: any;
+    onClick: () => void;
+  }
+
+  const quickActions: QuickAction[] = [
+    {
+      title: "Manage All Students",
+      description: "Complete database table of all students.",
+      icon: DocumentValidationIcon,
+      onClick: () => router.push("/admin/students/all"),
+    },
+    {
+      title: "Attendance Tracking",
+      description: "Daily/weekly attendance reports.",
+      icon: ContractsIcon,
+      onClick: () => router.push("/admin/students/attendance-tracking"),
+    },
+    {
+      title: "Generate Report Card",
+      description: "Key academic function for term-end work.",
+      icon: SchoolReportCardIcon,
+      onClick: () => setIsReportModalOpen(true),
+    },
+  ];
+
+  // Recent Activities Configuration
+  interface StudentActivity {
+    type: "withdrawn" | "registered" | "attendance" | "grade";
+    title: string;
+    description: string;
+    timestamp: string;
+    icon: any;
+  }
+
+  const recentActivities: StudentActivity[] = [
+    {
+      type: "withdrawn",
+      title: "Student Withdrawn",
+      description: "Kemi Adekunle (JS 1) was withdrawn from the school on Oct. 22",
+      timestamp: "Oct. 22, 10:00 AM",
+      icon: UserMinus01Icon,
+    },
+    {
+      type: "registered",
+      title: "Newly Registered",
+      description: "Student Funke Ojo (JSS1) successfully completed enrollment payment.",
+      timestamp: "Oct. 21, 9:32 AM",
+      icon: UserCheck01Icon,
+    },
+    {
+      type: "attendance",
+      title: "New Attendance Flag",
+      description: "Taiwo Musa (SS2) marked Unexcused Absent for the third consecutive day.",
+      timestamp: "8:15 AM",
+      icon: Alert01Icon,
+    },
+    {
+      type: "grade",
+      title: "Grade Change/Update",
+      description: "Grade for Math Test 2 for All SS2 Students was updated by Mr. Nnamdi.",
+      timestamp: "8:15 AM",
+      icon: FileUploadIcon,
+    },
+  ];
 
   return (
     <div className="space-y-6">
@@ -97,34 +169,16 @@ export default function StudentsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <ActivityItem
-                type="withdrawn"
-                title="Student Withdrawn"
-                description="Kemi Adekunle (JS 1) was withdrawn from the school on Oct. 22"
-                timestamp="Oct. 22, 10:00 AM"
-                icon={UserMinus01Icon}
-              />
-              <ActivityItem
-                type="registered"
-                title="Newly Registered"
-                description="Student Funke Ojo (JSS1) successfully completed enrollment payment."
-                timestamp="Oct. 21, 9:32 AM"
-                icon={UserCheck01Icon}
-              />
-              <ActivityItem
-                type="attendance"
-                title="New Attendance Flag"
-                description="Taiwo Musa (SS2) marked Unexcused Absent for the third consecutive day."
-                timestamp="8:15 AM"
-                icon={Alert01Icon}
-              />
-              <ActivityItem
-                type="grade"
-                title="Grade Change/Update"
-                description="Grade for Math Test 2 for All SS2 Students was updated by Mr. Nnamdi."
-                timestamp="8:15 AM"
-                icon={FileUploadIcon}
-              />
+              {recentActivities.map((activity, index) => (
+                <ActivityItem
+                  key={index}
+                  type={activity.type}
+                  title={activity.title}
+                  description={activity.description}
+                  timestamp={activity.timestamp}
+                  icon={activity.icon}
+                />
+              ))}
               <div className="flex justify-center pt-4">
                 <Button variant="outline" size="sm">
                   Load more
@@ -144,31 +198,30 @@ export default function StudentsPage() {
             </CardHeader>
             <CardContent className="px-1">
               <div className="space-y-0">
-                <QuickActionCard
-                  title="Manage All Students"
-                  description="Complete database table of all students."
-                  icon={DocumentValidationIcon}
-                  onClick={() => router.push("/admin/students/all")}
-                />
-                <Separator />
-                <QuickActionCard
-                  title="Attendance Tracking"
-                  description="Daily/weekly attendance reports."
-                  icon={ContractsIcon}
-                  onClick={() => console.log("Attendance Tracking clicked")}
-                />
-                <Separator />
-                <QuickActionCard
-                  title="Generate Report Card"
-                  description="Key academic function for term-end work."
-                  icon={SchoolReportCardIcon}
-                  onClick={() => console.log("Generate Report Card clicked")}
-                />
+                {quickActions.map((action, index) => (
+                  <div key={index}>
+                    <QuickActionCard
+                      title={action.title}
+                      description={action.description}
+                      icon={action.icon}
+                      onClick={action.onClick}
+                    />
+                    {index < quickActions.length - 1 && <Separator />}
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
         </div>
       </div>
+
+      {/* Generate report Modal */}
+      {isReportModalOpen && (
+        <ReportGenerationModal
+          isOpen={isReportModalOpen}
+          onOpenChange={setIsReportModalOpen}
+        />
+      )}
     </div>
   );
 }

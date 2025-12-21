@@ -150,9 +150,9 @@ export default function LeaveRequestsPage() {
     const matchesSearch =
       request.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       request.staffId.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     const matchesSort = sortBy === "all" || request.status === sortBy;
-    
+
     return matchesSearch && matchesSort;
   });
 
@@ -279,7 +279,12 @@ export default function LeaveRequestsPage() {
                         {request.startDate} - {request.endDate}
                       </TableCell>
                       <TableCell>
-                        <span className={cn("font-medium", getStatusColor(request.status))}>
+                        <span
+                          className={cn(
+                            "font-medium",
+                            getStatusColor(request.status)
+                          )}
+                        >
                           {request.statusLabel}
                         </span>
                       </TableCell>
@@ -289,19 +294,27 @@ export default function LeaveRequestsPage() {
                             {request.coverage}
                           </button>
                         ) : (
-                          <span className="text-gray-600">{request.coverage}</span>
+                          <span className="text-gray-600">
+                            {request.coverage}
+                          </span>
                         )}
                       </TableCell>
                       <TableCell>{request.duration} Days</TableCell>
                       <TableCell>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                            >
                               <MoreVertical className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <Link href={`/admin/staff-management/leave/${request.id}`}>
+                            <Link
+                              href={`/admin/staff-management/leave/${request.id}`}
+                            >
                               <DropdownMenuItem className="flex flex-row gap-3 items-center">
                                 <Icon icon={ElearningExchangeIcon} size={16} />
                                 <p>View Details</p>

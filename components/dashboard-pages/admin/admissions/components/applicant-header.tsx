@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 
 interface ApplicantHeaderProps {
   name: string;
-  status: "new" | "pending" | "accepted" | "rejected";
+  status: "new" | "pending" | "accepted" | "rejected" | "enrolled";
   statusLabel: string;
   applicationId: string;
   classApplyingFor: string;

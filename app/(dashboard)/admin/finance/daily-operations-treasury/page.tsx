@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SelectField } from "@/components/ui/input-field";
 import { SelectItem } from "@/components/ui/select";
-import { Icon } from "@/components/general/huge-icon";
 import {
   Tick01Icon,
   ArrowUp02Icon,
@@ -20,15 +19,11 @@ import { FinancialMetricCard } from "@/components/dashboard-pages/admin/finance/
 import { formattedAmount } from "@/common/helper";
 
 import { QuickActionCard } from "@/components/dashboard-pages/admin/admissions/components/quick-action-card";
-import { cn } from "@/lib/utils";
+import { ActivityItem } from "@/components/ui/activity-item";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  DataTable,
+  TableColumn,
+} from "@/components/ui/data-table";
 import { ProgressBar } from "@/components/ui/progress-bar";
 
 interface BudgetItem {
@@ -163,6 +158,37 @@ export default function DailyOperationsTreasuryPage() {
   const router = useRouter();
   const [timeRange, setTimeRange] = useState("weekly");
 
+  const budgetColumns: TableColumn<BudgetItem>[] = [
+    {
+      key: "category",
+      title: "Categories",
+      render: (value) => (
+        <span className="text-sm font-medium text-gray-700">{value}</span>
+      ),
+    },
+    {
+      key: "annualBudget",
+      title: "Annual Budget",
+      render: (value) => (
+        <span className="text-sm text-gray-800">{formattedAmount(value)}</span>
+      ),
+    },
+    {
+      key: "budgetConsumed",
+      title: "Budget Consumed",
+      className: "min-w-[400px]",
+      render: (value, row) => (
+        <ProgressBar
+          value={value}
+          total={row.annualBudget}
+          barColor={row.color}
+          displayAmount={value}
+          showLabel={false}
+        />
+      ),
+    },
+  ];
+
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -226,38 +252,12 @@ export default function DailyOperationsTreasuryPage() {
           </CardHeader>
           <CardContent>
             <div className="border rounded-lg overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-main-blue/5">
-                    <TableHead className="px-4 py-3">Categories</TableHead>
-                    <TableHead className="px-4 py-3">Annual Budget</TableHead>
-                    <TableHead className="px-4 py-3 min-w-[400px]">
-                      Budget Consumed
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {budgetItems.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell className="px-4 py-3 text-sm font-medium text-gray-700">
-                        {item.category}
-                      </TableCell>
-                      <TableCell className="px-4 py-3 text-sm text-gray-800">
-                        {formattedAmount(item.annualBudget)}
-                      </TableCell>
-                      <TableCell className="px-4 py-3">
-                        <ProgressBar
-                          value={item.budgetConsumed}
-                          total={item.annualBudget}
-                          barColor={item.color}
-                          displayAmount={item.budgetConsumed}
-                          showLabel={false}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <DataTable
+                columns={budgetColumns}
+                data={budgetItems}
+                headerClassName="bg-main-blue/5"
+                showActionsColumn={false}
+              />
             </div>
             <div className={"pt-4 w-full flex justify-center"}>
               <Button variant={"outline"} className={"w-full"}>
@@ -344,42 +344,17 @@ export default function DailyOperationsTreasuryPage() {
               Recent Financial Activities
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
-            {activities.map((activity) => {
-              const bgColor = activity.iconColor.includes("green")
-                ? "bg-green-100"
-                : "bg-red-100";
-
-              return (
-                <div key={activity.id} className="flex gap-3">
-                  <div
-                    className={cn(
-                      "h-5 w-5 rounded-full flex items-center justify-center shrink-0",
-                      bgColor
-                    )}
-                  >
-                    <Icon
-                      icon={activity.icon}
-                      size={15}
-                      className={activity.iconColor}
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2 mb-1">
-                      <p className="text-sm font-medium text-gray-800">
-                        {activity.title}
-                      </p>
-                      <span className="text-xs text-gray-500 shrink-0">
-                        {activity.time}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-600">
-                      {activity.description}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
+          <CardContent className="flex flex-col gap-4 divide-y divide-gray-200">
+            {activities.map((activity) => (
+              <ActivityItem
+                key={activity.id}
+                icon={activity.icon}
+                iconColor={activity.iconColor}
+                title={activity.title}
+                description={activity.description}
+                time={activity.time}
+              />
+            ))}
             <div className="flex justify-center pt-2">
               <Button variant="outline">Load more</Button>
             </div>

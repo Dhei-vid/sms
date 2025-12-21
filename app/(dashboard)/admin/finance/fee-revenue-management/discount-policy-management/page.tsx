@@ -5,28 +5,13 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  DataTable,
+  TableColumn,
+  TableAction,
+} from "@/components/ui/data-table";
 import { Icon } from "@/components/general/huge-icon";
-import {
-  Clock01Icon,
-  MoreVerticalIcon,
-  PencilEdit02Icon,
-  PolicyIcon,
-} from "@hugeicons/core-free-icons";
+import { PencilEdit02Icon, PolicyIcon } from "@hugeicons/core-free-icons";
 import { FinancialMetricCard } from "@/components/dashboard-pages/admin/finance/finance-metrics";
-import { cn } from "@/lib/utils";
 import { RuleModificationModal } from "@/components/dashboard-pages/admin/finance/components/rule-modification-modal";
 
 interface DiscountRule {
@@ -102,6 +87,74 @@ export default function DiscountPolicyManagementPage() {
     },
   ]);
 
+  const columns: TableColumn<DiscountRule>[] = [
+    {
+      key: "ruleName",
+      title: "Rule Name",
+      render: (value) => <span className="font-medium">{value}</span>,
+    },
+    {
+      key: "discountValue",
+      title: "Discount Value",
+    },
+    {
+      key: "applicableTo",
+      title: "Applicable To",
+    },
+    {
+      key: "policyType",
+      title: "Policy Type",
+      render: (value) => (
+        <span
+          className={`px-2 py-1 rounded-md text-xs font-medium ${
+            value === "Automated"
+              ? "bg-green-100 text-green-700"
+              : "bg-orange-100 text-orange-700"
+          }`}
+        >
+          {value}
+        </span>
+      ),
+    },
+    {
+      key: "lastModified",
+      title: "Last Modified",
+      render: (_, row) => (
+        <span className="text-sm text-gray-600">
+          {row.lastModified} by {row.modifiedBy}
+        </span>
+      ),
+    },
+    {
+      key: "triggerCriteria",
+      title: "Trigger Criteria",
+      className: "text-sm text-gray-600",
+    },
+  ];
+
+  const actions: TableAction<DiscountRule>[] = [
+    {
+      type: "dropdown",
+      config: {
+        items: ruleActions.map((action) => ({
+          label: action.label,
+          onClick: (row) => {
+            if (action.action === "edit") {
+              setSelectedRule(row);
+              setEditModalOpen(true);
+            } else {
+              console.log(action.action, row.id);
+            }
+          },
+          icon: action.icon && <Icon icon={action.icon} size={16} />,
+          variant: action.variant,
+          separator: action.action === "deactivate",
+        })),
+        align: "end",
+      },
+    },
+  ];
+
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -161,108 +214,17 @@ export default function DiscountPolicyManagementPage() {
         </CardHeader>
         <CardContent>
           <div className="border rounded-lg overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-main-blue/5">
-                  <TableHead className="px-4 py-3">Rule Name</TableHead>
-                  <TableHead className="px-4 py-3">Discount Value</TableHead>
-                  <TableHead className="px-4 py-3">Applicable To</TableHead>
-                  <TableHead className="px-4 py-3">Policy Type</TableHead>
-                  <TableHead className="px-4 py-3">Last Modified</TableHead>
-                  <TableHead className="px-4 py-3">Trigger Criteria</TableHead>
-                  <TableHead className="w-12 px-4 py-3"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {rules.length === 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={7}
-                      className="h-32 text-center text-gray-500"
-                    >
-                      No discount rules found
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  rules.map((rule) => (
-                    <TableRow key={rule.id}>
-                      <TableCell className="px-4 py-3 font-medium">
-                        {rule.ruleName}
-                      </TableCell>
-                      <TableCell className="px-4 py-3">
-                        {rule.discountValue}
-                      </TableCell>
-                      <TableCell className="px-4 py-3">
-                        {rule.applicableTo}
-                      </TableCell>
-                      <TableCell className="px-4 py-3">
-                        <span
-                          className={`px-2 py-1 rounded-md text-xs font-medium ${
-                            rule.policyType === "Automated"
-                              ? "bg-green-100 text-green-700"
-                              : "bg-orange-100 text-orange-700"
-                          }`}
-                        >
-                          {rule.policyType}
-                        </span>
-                      </TableCell>
-                      <TableCell className="px-4 py-3 text-sm text-gray-600">
-                        {rule.lastModified} by {rule.modifiedBy}
-                      </TableCell>
-                      <TableCell className="px-4 py-3 text-sm text-gray-600">
-                        {rule.triggerCriteria}
-                      </TableCell>
-                      <TableCell className="px-4 py-3">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                            >
-                              <Icon icon={MoreVerticalIcon} size={16} />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            {ruleActions.map((action) => (
-                              <DropdownMenuItem
-                                key={action.action}
-                                className={cn(
-                                  action.variant === "destructive" &&
-                                    "text-red-600",
-                                  "group"
-                                )}
-                                onClick={() => {
-                                  if (action.action === "edit") {
-                                    setSelectedRule(rule);
-                                    setEditModalOpen(true);
-                                  } else {
-                                    // Handle other actions
-                                    console.log(action.action, rule.id);
-                                  }
-                                }}
-                              >
-                                {action.icon && (
-                                  <Icon
-                                    icon={action.icon}
-                                    size={16}
-                                    className={cn(
-                                      action.variant === "destructive" &&
-                                        "text-red-600 group-hover:text-gray-600"
-                                    )}
-                                  />
-                                )}
-                                {action.label}
-                              </DropdownMenuItem>
-                            ))}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+            <DataTable
+              columns={columns}
+              data={rules}
+              actions={actions}
+              headerClassName="bg-main-blue/5"
+              emptyMessage="No discount rules found"
+              emptyMessageClassName="h-32 text-center text-gray-500"
+              showActionsColumn={true}
+              actionsColumnTitle=""
+              actionsColumnClassName="w-12"
+            />
           </div>
         </CardContent>
       </Card>

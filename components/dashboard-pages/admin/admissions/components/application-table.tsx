@@ -1,108 +1,49 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  DataTable,
+  TableColumn,
+  TableAction,
+} from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { StatusBadge } from "./status-badge";
 import { Search, Filter, MoreVertical } from "lucide-react";
 import { Icon } from "@/components/general/huge-icon";
-import { cn } from "@/lib/utils";
 
 import {
   ElearningExchangeIcon,
   ViewIcon,
   PrinterIcon,
 } from "@hugeicons/core-free-icons";
+import type { Application } from "../data/applications-data";
 
-interface Application {
-  id: string;
-  name: string;
-  classApplyingFor: string;
-  dateSubmitted: string;
-  timeSubmitted: string;
-  status: "new" | "pending" | "accepted" | "rejected";
-  statusLabel: string;
+interface ApplicationTableProps {
+  applications: Application[];
+  onApplicationsChange: (applications: Application[]) => void;
 }
 
-const applications: Application[] = [
-  {
-    id: "1",
-    name: "Chinedu Nwokodi",
-    classApplyingFor: "JS 2",
-    dateSubmitted: "Oct. 10, 2025",
-    timeSubmitted: "08:15 AM",
-    status: "new",
-    statusLabel: "New Applicant",
-  },
-  {
-    id: "2",
-    name: "Adebisi Deborah",
-    classApplyingFor: "JS 1",
-    dateSubmitted: "Oct. 10, 2025",
-    timeSubmitted: "08:15 AM",
-    status: "pending",
-    statusLabel: "Pending Interview",
-  },
-  {
-    id: "3",
-    name: "Dauda Ahfiz",
-    classApplyingFor: "SS 1",
-    dateSubmitted: "Oct. 10, 2025",
-    timeSubmitted: "08:15 AM",
-    status: "accepted",
-    statusLabel: "Application Accepted",
-  },
-  {
-    id: "4",
-    name: "Sarah Collins",
-    classApplyingFor: "SS 1",
-    dateSubmitted: "Oct. 10, 2025",
-    timeSubmitted: "08:15 AM",
-    status: "accepted",
-    statusLabel: "Application Accepted",
-  },
-  {
-    id: "5",
-    name: "John Terjiri",
-    classApplyingFor: "JS 3",
-    dateSubmitted: "Oct. 10, 2025",
-    timeSubmitted: "08:15 AM",
-    status: "rejected",
-    statusLabel: "Application Rejected",
-  },
-];
-
-export function ApplicationTable() {
+export function ApplicationTable({
+  applications,
+  onApplicationsChange,
+}: ApplicationTableProps) {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
 
-  const toggleRowSelection = (id: string) => {
-    setSelectedRows((prev) =>
-      prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]
+  const handleStatusChange = (
+    applicationId: string,
+    newStatus: "new" | "pending" | "accepted" | "enrolled" | "rejected",
+    statusLabel: string
+  ) => {
+    const updatedApplications = applications.map((app) =>
+      app.id === applicationId
+        ? { ...app, status: newStatus, statusLabel }
+        : app
     );
-  };
-
-  const toggleAllSelection = () => {
-    if (selectedRows.length === applications.length) {
-      setSelectedRows([]);
-    } else {
-      setSelectedRows(applications.map((app) => app.id));
-    }
+    onApplicationsChange(updatedApplications);
   };
 
   const filteredApplications = applications.filter(
@@ -110,6 +51,105 @@ export function ApplicationTable() {
       app.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       app.id.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const columns: TableColumn<Application>[] = [
+    {
+      key: "name",
+      title: "Applicant Name",
+      render: (_, row) => <span className="font-medium">{row.name}</span>,
+      className: "border-r",
+    },
+    {
+      key: "classApplyingFor",
+      title: "Class Applying For:",
+      className: "border-r",
+    },
+    {
+      key: "dateSubmitted",
+      title: "Date/Time Submitted",
+      render: (_, row) => (
+        <span>
+          {row.dateSubmitted}, {row.timeSubmitted}
+        </span>
+      ),
+      className: "border-r",
+    },
+    {
+      key: "status",
+      title: "Status",
+      render: (_, row) => (
+        <StatusBadge status={row.status} label={row.statusLabel} />
+      ),
+      className: "border-r",
+    },
+  ];
+
+  const actions: TableAction<Application>[] = [
+    {
+      type: "dropdown",
+      config: {
+        items: [
+          {
+            label: "View details",
+            onClick: (row) => router.push(`/admin/admissions/${row.id}`),
+            icon: <Icon icon={ViewIcon} size={16} />,
+          },
+          {
+            label: "Change status",
+            icon: <Icon icon={ElearningExchangeIcon} size={16} />,
+            subItems: [
+              {
+                label: "New Applicant",
+                onClick: (row) =>
+                  handleStatusChange(row.id, "new", "New Applicant"),
+              },
+              {
+                label: "Pending Interview",
+                onClick: (row) =>
+                  handleStatusChange(row.id, "pending", "Pending Interview"),
+              },
+              {
+                label: "Application Accepted",
+                onClick: (row) =>
+                  handleStatusChange(
+                    row.id,
+                    "accepted",
+                    "Application Accepted"
+                  ),
+              },
+              {
+                label: "Enrolled",
+                onClick: (row) =>
+                  handleStatusChange(row.id, "enrolled", "Enrolled"),
+              },
+              {
+                label: "Application Rejected",
+                onClick: (row) =>
+                  handleStatusChange(
+                    row.id,
+                    "rejected",
+                    "Application Rejected"
+                  ),
+              },
+            ],
+            separator: true,
+          },
+          {
+            label: "Print document",
+            onClick: () => {},
+            icon: <Icon icon={PrinterIcon} size={16} />,
+            separator: true,
+          },
+        ],
+        trigger: (
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <MoreVertical className="h-4 w-4" />
+          </Button>
+        ),
+        align: "end",
+      },
+    },
+  ];
 
   return (
     <div className="space-y-4">
@@ -133,77 +173,19 @@ export function ApplicationTable() {
 
       {/* Table */}
       <div className="border rounded-lg overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-12">
-                <Checkbox
-                  checked={
-                    selectedRows.length === applications.length &&
-                    applications.length > 0
-                  }
-                  onCheckedChange={toggleAllSelection}
-                />
-              </TableHead>
-              <TableHead>Applicant Name</TableHead>
-              <TableHead>Class Applying For:</TableHead>
-              <TableHead>Date/Time Submitted</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="w-12"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredApplications.map((application) => (
-              <TableRow key={application.id}>
-                <TableCell>
-                  <Checkbox
-                    checked={selectedRows.includes(application.id)}
-                    onCheckedChange={() => toggleRowSelection(application.id)}
-                  />
-                </TableCell>
-                <TableCell className="font-medium">
-                  {application.name}
-                </TableCell>
-                <TableCell>{application.classApplyingFor}</TableCell>
-                <TableCell>
-                  {application.dateSubmitted}, {application.timeSubmitted}
-                </TableCell>
-                <TableCell>
-                  <StatusBadge
-                    status={application.status}
-                    label={application.statusLabel}
-                  />
-                </TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem className="flex flex-row gap-3 items-center">
-                        <Icon icon={ElearningExchangeIcon} size={16} />
-                        <p>View Details</p>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="flex flex-row gap-3 items-center">
-                        <Icon icon={ViewIcon} size={16} />
-                        <p>Edit Application</p>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="flex flex-row gap-3 items-center">
-                        <Icon icon={PrinterIcon} size={16} />
-                        <p>Print Document</p>
-                      </DropdownMenuItem>
-                      {/* <DropdownMenuItem variant="destructive">
-                        Delete
-                      </DropdownMenuItem> */}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <DataTable
+          columns={columns}
+          data={filteredApplications}
+          actions={actions}
+          enableRowSelection={true}
+          selectedRows={selectedRows}
+          onSelectionChange={setSelectedRows}
+          getRowId={(row) => row.id}
+          headerClassName="bg-main-blue/5"
+          showActionsColumn={true}
+          actionsColumnTitle=""
+          actionsColumnClassName="w-12"
+        />
       </div>
 
       {/* Load More */}

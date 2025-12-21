@@ -32,9 +32,7 @@ export default function AllStudentsPage() {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg font-semibold">
-              All Classes
-            </CardTitle>
+            <CardTitle className="text-lg font-semibold">All Classes</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
@@ -44,4 +42,3 @@ export default function AllStudentsPage() {
     </div>
   );
 }
-

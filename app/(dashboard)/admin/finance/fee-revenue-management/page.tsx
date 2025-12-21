@@ -9,19 +9,23 @@ import {
   TableColumn,
   TableAction,
 } from "@/components/ui/data-table";
-import { cn } from "@/lib/utils";
-import { Icon } from "@/components/general/huge-icon";
 import {
   Tick01Icon,
   ArrowUp02Icon,
   DocumentValidationIcon,
   Tag01Icon,
   Settings02Icon,
+  RepositoryIcon,
+  AddInvoiceIcon,
+  Payment01Icon,
+  PayByCheckIcon,
+  DiscountIcon,
 } from "@hugeicons/core-free-icons";
-import { formattedAmount } from "@/common/helper";
 import { FinancialMetricCard } from "@/components/dashboard-pages/admin/finance/finance-metrics";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { QuickActionCard } from "@/components/dashboard-pages/admin/admissions/components/quick-action-card";
+import { ActivityItem } from "@/components/ui/activity-item";
+import { Separator } from "@/components/ui/separator";
 
 // Modals
 import { ViewStudentsModal } from "@/components/dashboard-pages/admin/finance/components/view-students-modal";
@@ -108,6 +112,99 @@ export default function FinancePage() {
     setSelectedPeriod(period);
     setViewStudentsModalOpen(true);
   };
+
+  // Recent Activities Configuration
+  interface Activity {
+    icon: any;
+    iconColor: string;
+    title: string;
+    description: string;
+    time: string;
+  }
+
+  const recentActivities: Activity[] = [
+    {
+      icon: Tick01Icon,
+      iconColor: "text-green-600",
+      title: "Payment of Fees",
+      description:
+        "Mr Nwokolo Emmanuel paid school fees for Chinedu Nwokolo (nwokolo.m178023). Total sum of ₩450,000.",
+      time: "10:00 AM",
+    },
+    {
+      icon: ArrowUp02Icon,
+      iconColor: "text-red-600",
+      title: "Expenses",
+      description: "₩120,000 logged for IT Maintenance.",
+      time: "10:00 AM",
+    },
+    {
+      icon: DocumentValidationIcon,
+      iconColor: "text-blue-600",
+      title: "Batch Invoice Generation",
+      description:
+        "Batch invoice for Second Term (T2) of 2025/2026 academic year generated for Primary 4.",
+      time: "Oct. 22, 8:15 AM",
+    },
+    {
+      icon: Tag01Icon,
+      iconColor: "text-blue-400",
+      title: "Discount Approval",
+      description:
+        "₩50,000 Hardship Discount approved for Sarah Adebisi (adebisi.m178024).",
+      time: "Oct. 21, 9:32 AM",
+    },
+    {
+      icon: Tag01Icon,
+      iconColor: "text-orange-600",
+      title: "Price Change for Canteen Sales",
+      description:
+        "The price for Meat pie purchase has changed from ₩600.00 to ₩700.00.",
+      time: "Oct. 21, 9:32 AM",
+    },
+  ];
+
+  // Quick Actions Configuration
+  interface QuickAction {
+    icon: any;
+    title: string;
+    description: string;
+    onClick: () => void;
+  }
+
+  const quickActions: QuickAction[] = [
+    {
+      icon: RepositoryIcon,
+      title: "Set Fee Structures",
+      description:
+        "This is the configuration area that determines what a student owes.",
+      onClick: () => setSetFeeStructureModalOpen(true),
+    },
+    {
+      icon: AddInvoiceIcon,
+      title: "Generate Bulk Invoices",
+      description: "Issue fees for a new term.",
+      onClick: () => router.push("fee-revenue-management/bulk-invoices"),
+    },
+    {
+      icon: Payment01Icon,
+      title: "Log Payment",
+      description: "Records a physical payment.",
+      onClick: () => setLogPaymentModalOpen(true),
+    },
+    {
+      icon: PayByCheckIcon,
+      title: "Track Payment",
+      description: "Entry form for recording non-fee transactions.",
+      onClick: () => setTrackPaymentsModalOpen(true),
+    },
+    {
+      icon: DiscountIcon,
+      title: "Pending Discount Requests",
+      description: "Review Discount Requests.",
+      onClick: () => router.push("fee-revenue-management/discount-requests"),
+    },
+  ];
 
   // Fee Ageing Report Data
   interface FeeAgeingData {
@@ -256,42 +353,21 @@ export default function FinancePage() {
               Recent Financial Activities
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <ActivityItem
-              icon={Tick01Icon}
-              iconColor="text-green-600"
-              title="Payment of Fees"
-              description="Mr Nwokolo Emmanuel paid school fees for Chinedu Nwokolo (nwokolo.m178023). Total sum of ₩450,000."
-              time="10:00 AM"
-            />
-            <ActivityItem
-              icon={ArrowUp02Icon}
-              iconColor="text-red-600"
-              title="Expenses"
-              description="₩120,000 logged for IT Maintenance."
-              time="10:00 AM"
-            />
-            <ActivityItem
-              icon={DocumentValidationIcon}
-              iconColor="text-blue-600"
-              title="Batch Invoice Generation"
-              description="Batch invoice for Second Term (T2) of 2025/2026 academic year generated for Primary 4."
-              time="Oct. 22, 8:15 AM"
-            />
-            <ActivityItem
-              icon={Tag01Icon}
-              iconColor="text-blue-400"
-              title="Discount Approval"
-              description="₩50,000 Hardship Discount approved for Sarah Adebisi (adebisi.m178024)."
-              time="Oct. 21, 9:32 AM"
-            />
-            <ActivityItem
-              icon={Tag01Icon}
-              iconColor="text-orange-600"
-              title="Price Change for Canteen Sales"
-              description="The price for Meat pie purchase has changed from ₩600.00 to ₩700.00."
-              time="Oct. 21, 9:32 AM"
-            />
+          <CardContent className="p-0">
+            <div className="space-y-0">
+              {recentActivities.map((activity, index) => (
+                <div key={index}>
+                  <ActivityItem
+                    icon={activity.icon}
+                    iconColor={activity.iconColor}
+                    title={activity.title}
+                    description={activity.description}
+                    time={activity.time}
+                  />
+                  {index < recentActivities.length - 1 && <Separator />}
+                </div>
+              ))}
+            </div>
             <div className="flex justify-center pt-2">
               <Button variant="outline">Load more</Button>
             </div>
@@ -306,38 +382,19 @@ export default function FinancePage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <QuickActionCard
-              icon={Settings02Icon}
-              title="Set Fee Structures"
-              description="This is the configuration area that determines what a student owes."
-              onClick={() => setSetFeeStructureModalOpen(true)}
-            />
-            <QuickActionCard
-              icon={Settings02Icon}
-              title="Generate Bulk Invoices"
-              description="Issue fees for a new term."
-              onClick={() =>
-                router.push("fee-revenue-management/bulk-invoices")
-              }
-            />
-            <QuickActionCard
-              icon={Settings02Icon}
-              title="Log Payment"
-              description="Records a physical payment."
-              onClick={() => setLogPaymentModalOpen(true)}
-            />
-            <QuickActionCard
-              icon={Settings02Icon}
-              title="Track Payment"
-              description="Entry form for recording non-fee transactions."
-              onClick={() => setTrackPaymentsModalOpen(true)}
-            />
-            <QuickActionCard
-              icon={Settings02Icon}
-              title="Pending Discount Requests"
-              description="Review Discount Requests."
-              onClick={() => router.push("finance/discount-requests")}
-            />
+            <div className="space-y-0">
+              {quickActions.map((action, index) => (
+                <div key={index}>
+                  <QuickActionCard
+                    icon={action.icon}
+                    title={action.title}
+                    description={action.description}
+                    onClick={action.onClick}
+                  />
+                  {index < quickActions.length - 1 && <Separator />}
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -373,54 +430,6 @@ export default function FinancePage() {
         open={setFeeStructureModalOpen}
         onOpenChange={setSetFeeStructureModalOpen}
       />
-    </div>
-  );
-}
-
-interface ActivityItemProps {
-  icon: any;
-  iconColor: string;
-  title: string;
-  description: string;
-  time: string;
-}
-
-function ActivityItem({
-  icon: IconComponent,
-  iconColor,
-  title,
-  description,
-  time,
-}: ActivityItemProps) {
-  const bgColor = iconColor.includes("green")
-    ? "bg-green-100"
-    : iconColor.includes("red")
-    ? "bg-red-100"
-    : iconColor.includes("blue-400")
-    ? "bg-blue-100"
-    : iconColor.includes("blue")
-    ? "bg-blue-100"
-    : iconColor.includes("orange")
-    ? "bg-orange-100"
-    : "bg-gray-100";
-
-  return (
-    <div className="flex gap-3">
-      <div
-        className={cn(
-          "h-10 w-10 rounded-lg flex items-center justify-center shrink-0",
-          bgColor
-        )}
-      >
-        <Icon icon={IconComponent} size={20} className={iconColor} />
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-start justify-between gap-2 mb-1">
-          <p className="text-sm font-medium text-gray-800">{title}</p>
-          <span className="text-xs text-gray-500 shrink-0">{time}</span>
-        </div>
-        <p className="text-sm text-gray-600">{description}</p>
-      </div>
     </div>
   );
 }

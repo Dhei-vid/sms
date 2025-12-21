@@ -69,109 +69,106 @@ export function ViewStudentsModal({
       contentClassName="flex flex-col"
     >
       <div className="space-y-4 flex-1 overflow-hidden flex flex-col">
-          {/* Summary */}
-          <div className="flex items-center gap-5 text-sm text-gray-600">
-            <div className="border px-4 py-2 rounded-md">
-              <span>
-                Total number of students:{" "}
-                <span className="font-semibold">
-                  {students.length} student{students.length > 1 ? "s" : ""}{" "}
-                </span>
+        {/* Summary */}
+        <div className="flex items-center gap-5 text-sm text-gray-600">
+          <div className="border px-4 py-2 rounded-md">
+            <span>
+              Total number of students:{" "}
+              <span className="font-semibold">
+                {students.length} student{students.length > 1 ? "s" : ""}{" "}
               </span>
-            </div>
-            <div className="border px-4 py-2 rounded-md">
-              <span>
-                Total amount:{" "}
-                <span className="font-semibold text-gray-800">
-                  {formatCurrency(
-                    filteredStudents.reduce(
-                      (sum, s) => sum + s.overdueAmount,
-                      0
-                    )
-                  )}
-                </span>
-              </span>
-            </div>
+            </span>
           </div>
-          {/* Search */}
-          {/* <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              type="search"
-              placeholder="Search by student name, ID, or parent name"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div> */}
-
-          {/* Table */}
-          <div className="border rounded-lg overflow-hidden flex-1 overflow-y-auto">
-            <Table>
-              <TableHeader className="sticky top-0 bg-white z-10">
-                <TableRow className="bg-main-blue/5">
-                  <TableHead>Full Name + School ID</TableHead>
-                  <TableHead>Days Overdue</TableHead>
-                  <TableHead>Overdue Amount</TableHead>
-                  <TableHead>Primary Contact</TableHead>
-                  <TableHead>Latest Payment</TableHead>
-                  <TableHead className="w-12">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredStudents.length === 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={6}
-                      className="h-32 text-center text-gray-500"
-                    >
-                      No students found
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredStudents.map((student) => (
-                    <TableRow key={student.id}>
-                      <TableCell className="flex flex-col gap-1 font-medium text-xs">
-                        <span>{student.name}</span>
-                        <span className="text-muted-foreground">
-                          ({student.studentId})
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-xs">
-                        {student.daysOverdue} Days
-                      </TableCell>
-                      <TableCell className="font-semibold text-gray-800 text-xs">
-                        {formatCurrency(student.overdueAmount)}
-                      </TableCell>
-                      <TableCell className="flex flex-col gap-1 text-xs">
-                        <span>{student.primaryContactName}</span>
-                        <span className="text-muted-foreground">
-                          {student.primaryContactNumber}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-xs">
-                        {student.latestPayment}
-                      </TableCell>
-                      <TableCell>
-                        <Link
-                          href="#"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            // Handle send reminder action
-                            console.log("Send reminder for", student.id);
-                          }}
-                          className="text-main-blue hover:underline text-sm"
-                        >
-                          Send Reminder
-                        </Link>
-                      </TableCell>
-                    </TableRow>
-                  ))
+          <div className="border px-4 py-2 rounded-md">
+            <span>
+              Total amount:{" "}
+              <span className="font-semibold text-gray-800">
+                {formatCurrency(
+                  filteredStudents.reduce((sum, s) => sum + s.overdueAmount, 0)
                 )}
-              </TableBody>
-            </Table>
+              </span>
+            </span>
           </div>
         </div>
+        {/* Search */}
+        {/* <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Input
+            type="search"
+            placeholder="Search by student name, ID, or parent name"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div> */}
+
+        {/* Table */}
+        <div className="border rounded-lg overflow-hidden flex-1 overflow-y-auto">
+          <Table>
+            <TableHeader className="sticky top-0 bg-white z-10">
+              <TableRow className="bg-main-blue/5">
+                <TableHead>Full Name + School ID</TableHead>
+                <TableHead>Days Overdue</TableHead>
+                <TableHead>Overdue Amount</TableHead>
+                <TableHead>Primary Contact</TableHead>
+                <TableHead>Latest Payment</TableHead>
+                <TableHead className="w-12">Action</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredStudents.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={6}
+                    className="h-32 text-center text-gray-500"
+                  >
+                    No students found
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredStudents.map((student) => (
+                  <TableRow key={student.id}>
+                    <TableCell className="flex flex-col gap-1 font-medium text-xs border-r">
+                      <span>{student.name}</span>
+                      <span className="text-muted-foreground">
+                        ({student.studentId})
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-xs border-r">
+                      {student.daysOverdue} Days
+                    </TableCell>
+                    <TableCell className="font-semibold text-gray-800 text-xs border-r">
+                      {formatCurrency(student.overdueAmount)}
+                    </TableCell>
+                    <TableCell className="flex flex-col gap-1 text-xs border-r">
+                      <span>{student.primaryContactName}</span>
+                      <span className="text-muted-foreground">
+                        {student.primaryContactNumber}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-xs border-r">
+                      {student.latestPayment}
+                    </TableCell>
+                    <TableCell>
+                      <Link
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          // Handle send reminder action
+                          console.log("Send reminder for", student.id);
+                        }}
+                        className="text-main-blue hover:underline text-sm"
+                      >
+                        Send Reminder
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
     </ModalContainer>
   );
 }

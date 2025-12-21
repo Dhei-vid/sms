@@ -5,19 +5,10 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  DataTable,
+  TableColumn,
+  TableAction,
+} from "@/components/ui/data-table";
 import { SelectField } from "@/components/ui/input-field";
 import { SelectItem } from "@/components/ui/select";
 import { Icon } from "@/components/general/huge-icon";
@@ -137,6 +128,79 @@ export default function DiscountRequestsPage() {
     return sum + value;
   }, 0);
 
+  const columns: TableColumn<DiscountRequest>[] = [
+    {
+      key: "name",
+      title: "Name & Grade",
+      render: (_, row) => (
+        <span className="font-medium">
+          {row.name} ({row.grade})
+        </span>
+      ),
+    },
+    {
+      key: "requestType",
+      title: "Request Type",
+    },
+    {
+      key: "dateSubmitted",
+      title: "Date Submitted",
+      className: "text-sm text-gray-600",
+    },
+    {
+      key: "requestedValue",
+      title: "Requested Value",
+      render: (value) => <span className="font-semibold">{value}</span>,
+    },
+    {
+      key: "policyRule",
+      title: "Policy/Rule",
+      className: "text-sm text-gray-600",
+    },
+    {
+      key: "supportingDocs",
+      title: "Supporting Docs",
+      render: (value, row) =>
+        value === "View Docs" ? (
+          <Button
+            variant="link"
+            className="text-main-blue p-0 h-auto"
+            onClick={(e) => {
+              e.stopPropagation();
+              console.log("View docs for", row.id);
+            }}
+          >
+            {value}
+          </Button>
+        ) : (
+          <span className="text-gray-500">{value}</span>
+        ),
+    },
+  ];
+
+  const actions: TableAction<DiscountRequest>[] = [
+    {
+      type: "dropdown",
+      config: {
+        items: requestActions.map((action, index) => ({
+          label: action.label,
+          onClick: (row) => {
+            if (action.action === "view") {
+              setSelectedRequest(row);
+              setReviewModalOpen(true);
+            } else {
+              console.log(action.action, row.id);
+            }
+          },
+          icon: <Icon icon={action.icon} size={15} />,
+          variant: action.variant,
+          separator: index > 0,
+        })),
+        align: "end",
+      },
+    },
+  ];
+
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -204,115 +268,17 @@ export default function DiscountRequestsPage() {
         </CardHeader>
         <CardContent>
           <div className="border rounded-lg overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-main-blue/5">
-                  <TableHead className="px-4 py-3">Name & Grade</TableHead>
-                  <TableHead className="px-4 py-3">Request Type</TableHead>
-                  <TableHead className="px-4 py-3">Date Submitted</TableHead>
-                  <TableHead className="px-4 py-3">Requested Value</TableHead>
-                  <TableHead className="px-4 py-3">Policy/Rule</TableHead>
-                  <TableHead className="px-4 py-3">Supporting Docs</TableHead>
-                  <TableHead className="w-12 px-4 py-3"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {requests.length === 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={7}
-                      className="h-32 text-center text-gray-500"
-                    >
-                      No pending requests found
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  requests.map((request) => (
-                    <TableRow key={request.id}>
-                      <TableCell className="px-4 py-3 font-medium">
-                        {request.name} ({request.grade})
-                      </TableCell>
-                      <TableCell className="px-4 py-3">
-                        {request.requestType}
-                      </TableCell>
-                      <TableCell className="px-4 py-3 text-sm text-gray-600">
-                        {request.dateSubmitted}
-                      </TableCell>
-                      <TableCell className="px-4 py-3 font-semibold">
-                        {request.requestedValue}
-                      </TableCell>
-                      <TableCell className="px-4 py-3 text-sm text-gray-600">
-                        {request.policyRule}
-                      </TableCell>
-                      <TableCell className="px-4 py-3">
-                        {request.supportingDocs === "View Docs" ? (
-                          <Button
-                            variant="link"
-                            className="text-main-blue p-0 h-auto"
-                            onClick={() => {
-                              // Handle view docs
-                              console.log("View docs for", request.id);
-                            }}
-                          >
-                            {request.supportingDocs}
-                          </Button>
-                        ) : (
-                          <span className="text-gray-500">
-                            {request.supportingDocs}
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell className="px-4 py-3">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                            >
-                              <Icon icon={MoreVerticalIcon} size={16} />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            {requestActions.map((action) => (
-                              <DropdownMenuItem
-                                key={action.action}
-                                className={cn(
-                                  action.variant === "destructive"
-                                    ? "text-red-600"
-                                    : "",
-                                  "group"
-                                )}
-                                onClick={() => {
-                                  if (action.action === "view") {
-                                    setSelectedRequest(request);
-                                    setReviewModalOpen(true);
-                                  } else {
-                                    // Handle other actions
-                                    console.log(action.action, request.id);
-                                  }
-                                }}
-                              >
-                                <Icon
-                                  icon={action.icon}
-                                  size={15}
-                                  className={cn(
-                                    "group-hover:text-gray-700",
-                                    action.variant === "destructive" &&
-                                      "text-red-600"
-                                  )}
-                                />
-                                {action.label}
-                              </DropdownMenuItem>
-                            ))}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+            <DataTable
+              columns={columns}
+              data={requests}
+              actions={actions}
+              headerClassName="bg-main-blue/5"
+              emptyMessage="No pending requests found"
+              emptyMessageClassName="h-32 text-center text-gray-500"
+              showActionsColumn={true}
+              actionsColumnTitle=""
+              actionsColumnClassName="w-12"
+            />
           </div>
         </CardContent>
       </Card>

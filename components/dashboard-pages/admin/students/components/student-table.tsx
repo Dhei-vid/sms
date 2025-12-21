@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { DataTable, TableColumn, TableAction } from "@/components/ui/data-table";
+import {
+  DataTable,
+  TableColumn,
+  TableAction,
+} from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -11,6 +15,9 @@ import { Icon } from "@/components/general/huge-icon";
 import { cn } from "@/lib/utils";
 import {
   ElearningExchangeIcon,
+  PencilEdit02Icon,
+  UserStatusIcon,
+  LockPasswordIcon,
   ViewIcon,
   Csv02Icon,
   PrinterIcon,
@@ -122,7 +129,7 @@ const students: Student[] = [
 
 export function StudentTable() {
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
 
   const toggleRowSelection = (id: string) => {
@@ -136,6 +143,18 @@ export function StudentTable() {
       student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       student.schoolId.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleStatusChange = (
+    applicationId: string,
+    newStatus: "active" | "on-leave" | "suspended" | "graduated" | "withdrawn",
+    statusLabel: string
+  ) => {
+    const updatedStudents = students.map((app) =>
+      app.id === applicationId
+        ? { ...app, status: newStatus, statusLabel }
+        : app
+    );
+  };
 
   const getStatusColor = (status: Student["status"]) => {
     switch (status) {
@@ -201,7 +220,12 @@ export function StudentTable() {
       key: "status",
       title: "Status",
       render: (value) => (
-        <span className={cn("text-sm font-medium", getStatusColor(value as Student["status"]))}>
+        <span
+          className={cn(
+            "text-sm font-medium",
+            getStatusColor(value as Student["status"])
+          )}
+        >
           {getStatusLabel(value as Student["status"])}
         </span>
       ),
@@ -219,18 +243,64 @@ export function StudentTable() {
       config: {
         items: [
           {
-            label: "View Details",
+            label: "View student profile",
             onClick: (row) => router.push(`/admin/students/${row.id}`),
-            icon: <Icon icon={ElearningExchangeIcon} size={16} />,
-          },
-          {
-            label: "Edit Student",
-            onClick: (row) => router.push(`/admin/students/${row.id}/edit`),
             icon: <Icon icon={ViewIcon} size={16} />,
           },
           {
             separator: true,
-            label: "Print Document",
+            label: "Edit student file",
+            onClick: (row) => router.push(`/admin/students/${row.id}/edit`),
+            icon: <Icon icon={PencilEdit02Icon} size={16} />,
+          },
+          {
+            separator: true,
+            label: "Log majority activity",
+            onClick: (row) => console.log("Print", row),
+            icon: <Icon icon={ElearningExchangeIcon} size={16} />,
+          },
+          {
+            separator: true,
+            label: "Update status",
+            onClick: (row) => console.log("Print", row),
+            icon: <Icon icon={UserStatusIcon} size={16} />,
+            subItems: [
+              {
+                label: "Active",
+                onClick: (row) =>
+                  handleStatusChange(row.id, "active", "Active"),
+              },
+              {
+                label: "On Leave",
+                onClick: (row) =>
+                  handleStatusChange(row.id, "on-leave", "On Leave"),
+              },
+              {
+                label: "Suspended",
+                onClick: (row) =>
+                  handleStatusChange(row.id, "suspended", "Suspended"),
+              },
+              {
+                label: "Graduated",
+                onClick: (row) =>
+                  handleStatusChange(row.id, "graduated", "Graduated"),
+              },
+              {
+                label: "Withdrawn",
+                onClick: (row) =>
+                  handleStatusChange(row.id, "withdrawn", "Withdrawn"),
+              },
+            ],
+          },
+          {
+            separator: true,
+            label: "Reset Password",
+            onClick: (row) => console.log("Print", row),
+            icon: <Icon icon={LockPasswordIcon} size={16} />,
+          },
+          {
+            separator: true,
+            label: "Print school ID",
             onClick: (row) => console.log("Print", row),
             icon: <Icon icon={PrinterIcon} size={16} />,
           },

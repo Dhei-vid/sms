@@ -113,11 +113,13 @@ export function DocumentsView() {
           <TableBody>
             {documents.map((doc, index) => (
               <TableRow key={index}>
-                <TableCell className="font-medium text-gray-700">
+                <TableCell className="font-medium text-gray-700 border-r">
                   {doc.type}
                 </TableCell>
-                <TableCell className="text-gray-600">{doc.fileName}</TableCell>
-                <TableCell>
+                <TableCell className="text-gray-600 border-r">
+                  {doc.fileName}
+                </TableCell>
+                <TableCell className="border-r">
                   <div className="flex items-center gap-2">
                     {getStatusIcon(doc.status)}
                     <span className={cn("text-xs font-medium")}>

@@ -67,7 +67,7 @@ export function AttendanceTable({ students, dates }: AttendanceTableProps) {
         <Table>
           <TableHeader>
             <TableRow className="bg-main-blue/5">
-              <TableHead className="min-w-[250px] sticky left-0 bg-main-blue/5 z-10 border-r">
+              <TableHead className="min-w-[250px] sticky left-0 z-10 border-r">
                 Full Name + School ID
               </TableHead>
               {dates.map((date) => (
@@ -80,8 +80,11 @@ export function AttendanceTable({ students, dates }: AttendanceTableProps) {
           <TableBody>
             {students.map((student) => (
               <TableRow key={student.id}>
-                <TableCell className="font-medium text-gray-700 sticky left-0 bg-white z-10 border-r">
-                  {student.name} {student.schoolId}
+                <TableCell className="flex flex-col font-medium text-gray-700 sticky left-0 bg-white z-10 border-r">
+                  <span>{student.name}</span>
+                  <span className="text-light text-xs text-gray-400">
+                    {student.schoolId}
+                  </span>
                 </TableCell>
                 {dates.map((date) => (
                   <TableCell key={date} className="text-center">

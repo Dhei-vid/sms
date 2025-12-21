@@ -3,17 +3,14 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-type StatusType = "new" | "pending" | "accepted" | "rejected";
+type StatusType = "new" | "pending" | "accepted" | "rejected" | "enrolled";
 
 interface StatusBadgeProps {
   status: StatusType;
   label: string;
 }
 
-const statusConfig: Record<
-  StatusType,
-  { className: string }
-> = {
+const statusConfig: Record<StatusType, { className: string }> = {
   new: {
     className: "bg-purple-100 text-purple-700 border-purple-200",
   },
@@ -22,6 +19,9 @@ const statusConfig: Record<
   },
   accepted: {
     className: "bg-green-100 text-green-700 border-green-200",
+  },
+  enrolled: {
+    className: "bg-blue-100 text-blue-700 border-blue-200",
   },
   rejected: {
     className: "bg-red-100 text-red-700 border-red-200",
@@ -40,4 +40,3 @@ export function StatusBadge({ status, label }: StatusBadgeProps) {
     </Badge>
   );
 }
-
