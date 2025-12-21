@@ -4,17 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { DataTable, TableColumn } from "@/components/ui/data-table";
 import {
-  DataTable,
-  TableColumn,
-  TableAction,
-} from "@/components/ui/data-table";
-import {
-  Tick01Icon,
-  ArrowUp02Icon,
-  DocumentValidationIcon,
+  ArrowDownLeft01Icon,
+  ArrowUpRight01Icon,
   Tag01Icon,
-  Settings02Icon,
   RepositoryIcon,
   AddInvoiceIcon,
   Payment01Icon,
@@ -124,7 +118,7 @@ export default function FinancePage() {
 
   const recentActivities: Activity[] = [
     {
-      icon: Tick01Icon,
+      icon: ArrowUpRight01Icon,
       iconColor: "text-green-600",
       title: "Payment of Fees",
       description:
@@ -132,31 +126,31 @@ export default function FinancePage() {
       time: "10:00 AM",
     },
     {
-      icon: ArrowUp02Icon,
+      icon: ArrowDownLeft01Icon,
       iconColor: "text-red-600",
       title: "Expenses",
       description: "₩120,000 logged for IT Maintenance.",
       time: "10:00 AM",
     },
     {
-      icon: DocumentValidationIcon,
-      iconColor: "text-blue-600",
+      icon: ArrowUpRight01Icon,
+      iconColor: "text-green-600",
       title: "Batch Invoice Generation",
       description:
         "Batch invoice for Second Term (T2) of 2025/2026 academic year generated for Primary 4.",
       time: "Oct. 22, 8:15 AM",
     },
     {
-      icon: Tag01Icon,
-      iconColor: "text-blue-400",
+      icon: ArrowUpRight01Icon,
+      iconColor: "text-green-400",
       title: "Discount Approval",
       description:
         "₩50,000 Hardship Discount approved for Sarah Adebisi (adebisi.m178024).",
       time: "Oct. 21, 9:32 AM",
     },
     {
-      icon: Tag01Icon,
-      iconColor: "text-orange-600",
+      icon: ArrowDownLeft01Icon,
+      iconColor: "text-red-600",
       title: "Price Change for Canteen Sales",
       description:
         "The price for Meat pie purchase has changed from ₩600.00 to ₩700.00.",
@@ -286,7 +280,7 @@ export default function FinancePage() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header */}
       <div className="bg-background rounded-md p-6">
         <h2 className="text-2xl font-bold text-gray-800">
@@ -345,7 +339,7 @@ export default function FinancePage() {
       </Card>
 
       {/* Bottom Section: Recent Activities and Quick Actions */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Recent Financial Activities */}
         <Card>
           <CardHeader>
@@ -363,6 +357,7 @@ export default function FinancePage() {
                     title={activity.title}
                     description={activity.description}
                     time={activity.time}
+                    iconBg
                   />
                   {index < recentActivities.length - 1 && <Separator />}
                 </div>
@@ -375,7 +370,7 @@ export default function FinancePage() {
         </Card>
 
         {/* Quick Actions */}
-        <Card>
+        <Card className="h-fit">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-gray-800">
               Quick Actions

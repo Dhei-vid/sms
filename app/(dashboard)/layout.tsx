@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { menuItems } from "@/common/menu-items";
 import { matchMenuItemByPath } from "@/utils";
 import { Sidebar } from "@/components/dashboard/sidebar";
@@ -9,6 +9,8 @@ import { Header } from "@/components/dashboard/header";
 import { UserRole } from "@/lib/types";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { useAppSelector } from "@/store/hooks";
+import { selectIsAuthenticated, selectUser } from "@/store/slices/authSlice";
 
 // Extract role from pathname
 function getRoleFromPath(pathname: string): UserRole {
@@ -34,18 +36,42 @@ function shouldHideSidebar(pathname: string): boolean {
   return false;
 }
 
+/**
+ * Dashboard Layout Component
+ * Main layout wrapper for all dashboard pages
+ * Handles authentication, sidebar, and responsive navigation
+ */
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const role = getRoleFromPath(pathname);
+  const router = useRouter();
+  
+  // Get authentication state from Redux
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const authUser = useAppSelector(selectUser);
+  
+  // Determine role from pathname or authenticated user
+  const roleFromPath = getRoleFromPath(pathname);
+  const role = authUser?.role || roleFromPath;
+  
   const hideSidebar = shouldHideSidebar(pathname);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const path = matchMenuItemByPath(pathname, role);
+
+  /**
+   * Redirect to login if user is not authenticated
+   * Runs on mount and when authentication state changes
+   */
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push("/signin");
+    }
+  }, [isAuthenticated, router]);
 
   // Close mobile menu when route changes
   useEffect(() => {

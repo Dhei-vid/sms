@@ -9,6 +9,7 @@ export interface ActivityItemProps {
   title: string;
   description: string;
   time: string;
+  iconBg?: boolean;
 }
 
 export function ActivityItem({
@@ -17,6 +18,7 @@ export function ActivityItem({
   title,
   description,
   time,
+  iconBg = false,
 }: ActivityItemProps) {
   const bgColor = iconColor.includes("green")
     ? "bg-green-100"
@@ -34,11 +36,11 @@ export function ActivityItem({
     <div className="flex gap-3 p-4">
       <div
         className={cn(
-          "h-10 w-10 rounded-lg flex items-center justify-center shrink-0",
-          bgColor
+          "rounded-full flex items-center justify-center shrink-0",
+          iconBg && `${bgColor} h-6 w-6`
         )}
       >
-        <Icon icon={IconComponent} size={20} className={iconColor} />
+        <Icon icon={IconComponent} size={18} className={iconColor} />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2 mb-1">

@@ -1,11 +1,21 @@
 "use client";
 
-import { Search, Menu, ChevronLeft, ChevronRight } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Search, Menu, ChevronLeft, ChevronRight, LogOut } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { MenuItem } from "@/lib/types";
 import { Icon } from "../general/huge-icon";
 import { cn } from "@/lib/utils";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { selectUser } from "@/store/slices/authSlice";
+import { logout } from "@/store/slices/authSlice";
 
 interface HeaderProps {
   metaData?: MenuItem | null;
@@ -19,14 +29,38 @@ interface HeaderProps {
   sidebarCollapsed?: boolean;
 }
 
+/**
+ * Header Component
+ * Displays page title, search bar, and user information
+ * Integrates with Redux to show authenticated user and handle logout
+ */
 export function Header({
   metaData,
   searchPlaceholder = "Search students name/ID, staff name/ID",
-  user = { name: "Admin" },
+  user: userProp,
   onMenuClick,
   onSidebarToggle,
   sidebarCollapsed = false,
 }: HeaderProps) {
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+  
+  // Get authenticated user from Redux store
+  const authUser = useAppSelector(selectUser);
+  
+  // Use Redux user if available, otherwise fall back to prop
+  const user = authUser
+    ? { name: authUser.name, avatar: userProp?.avatar }
+    : userProp || { name: "Guest" };
+
+  /**
+   * Handle logout action
+   * Clears authentication state and redirects to login page
+   */
+  const handleLogout = () => {
+    dispatch(logout());
+    router.push("/signin");
+  };
   return (
     <header className="max-h-32 lg:h-13 items-center gap-2 w-full p-2 lg:p-0">
       <div className="flex flex-wrap lg:grid lg:grid-cols-6 items-center gap-2 w-full">
@@ -73,23 +107,36 @@ export function Header({
           </div>
         </div>
 
-        {/* User Info */}
-        <div className="bg-background rounded-md h-9 lg:h-full px-3 lg:px-4 flex items-center gap-2 lg:gap-3 shrink-0 ml-auto lg:ml-0 lg:col-span-1">
-          {user.avatar ? (
-            <img
-              src={user.avatar}
-              alt={user.name}
-              className="h-7 w-7 lg:h-8 lg:w-8 rounded-full shrink-0"
-            />
-          ) : (
-            <div className="h-7 w-7 lg:h-8 lg:w-8 rounded-full bg-purple-600 flex items-center justify-center text-white text-xs lg:text-sm font-medium shrink-0">
-              {user.name.charAt(0).toUpperCase()}
+        {/* User Info with Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <div className="bg-background rounded-md h-9 lg:h-full px-3 lg:px-4 flex items-center gap-2 lg:gap-3 shrink-0 ml-auto lg:ml-0 lg:col-span-1 cursor-pointer hover:bg-accent transition-colors">
+              {user.avatar ? (
+                <img
+                  src={user.avatar}
+                  alt={user.name}
+                  className="h-7 w-7 lg:h-8 lg:w-8 rounded-full shrink-0"
+                />
+              ) : (
+                <div className="h-7 w-7 lg:h-8 lg:w-8 rounded-full bg-purple-600 flex items-center justify-center text-white text-xs lg:text-sm font-medium shrink-0">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <span className="text-xs lg:text-sm font-medium text-gray-700 truncate">
+                {user.name}
+              </span>
             </div>
-          )}
-          <span className="text-xs lg:text-sm font-medium text-gray-700 truncate">
-            {user.name}
-          </span>
-        </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem
+              onClick={handleLogout}
+              className="text-red-600 focus:text-red-600 cursor-pointer"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );

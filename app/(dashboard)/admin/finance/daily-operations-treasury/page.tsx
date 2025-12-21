@@ -17,14 +17,21 @@ import {
 } from "@hugeicons/core-free-icons";
 import { FinancialMetricCard } from "@/components/dashboard-pages/admin/finance/finance-metrics";
 import { formattedAmount } from "@/common/helper";
-
+import { Separator } from "@/components/ui/separator";
 import { QuickActionCard } from "@/components/dashboard-pages/admin/admissions/components/quick-action-card";
 import { ActivityItem } from "@/components/ui/activity-item";
-import {
-  DataTable,
-  TableColumn,
-} from "@/components/ui/data-table";
+import { DataTable, TableColumn } from "@/components/ui/data-table";
 import { ProgressBar } from "@/components/ui/progress-bar";
+import { ChartConfig, ChartContainer } from "@/components/ui/chart";
+import {
+  Bar,
+  BarChart,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 interface BudgetItem {
   id: string;
@@ -154,9 +161,73 @@ const timeRangeOptions = [
   { value: "yearly", label: "Yearly" },
 ];
 
+interface CashFlowData {
+  period: string;
+  income: number;
+  expenses: number;
+}
+
+// Sample data for different time ranges
+const weeklyData: CashFlowData[] = [
+  { period: "Mon", income: 450000, expenses: 320000 },
+  { period: "Tue", income: 520000, expenses: 380000 },
+  { period: "Wed", income: 480000, expenses: 350000 },
+  { period: "Thurs", income: 610000, expenses: 420000 },
+  { period: "Fri", income: 550000, expenses: 390000 },
+];
+
+const monthlyData: CashFlowData[] = [
+  { period: "Week 1", income: 2500000, expenses: 1800000 },
+  { period: "Week 2", income: 2800000, expenses: 2100000 },
+  { period: "Week 3", income: 3200000, expenses: 2400000 },
+  { period: "Week 4", income: 2900000, expenses: 2200000 },
+];
+
+const yearlyData: CashFlowData[] = [
+  { period: "Jan", income: 12000000, expenses: 8500000 },
+  { period: "Feb", income: 13500000, expenses: 9200000 },
+  { period: "Mar", income: 14200000, expenses: 9800000 },
+  { period: "Apr", income: 13800000, expenses: 9500000 },
+  { period: "May", income: 15000000, expenses: 10500000 },
+  { period: "Jun", income: 14500000, expenses: 10000000 },
+];
+
 export default function DailyOperationsTreasuryPage() {
   const router = useRouter();
   const [timeRange, setTimeRange] = useState("weekly");
+
+  // Get data based on selected time range
+  const getCashFlowData = (): CashFlowData[] => {
+    switch (timeRange) {
+      case "weekly":
+        return weeklyData;
+      case "monthly":
+        return monthlyData;
+      case "yearly":
+        return yearlyData;
+      default:
+        return weeklyData;
+    }
+  };
+
+  const cashFlowData = getCashFlowData();
+
+  // Calculate max value for scaling
+  const maxValue = Math.max(
+    ...cashFlowData.flatMap((d) => [d.income, d.expenses])
+  );
+
+  // Chart configuration
+  const chartConfig = {
+    income: {
+      label: "Income",
+      color: "#22c55e", // green-500
+    },
+    expenses: {
+      label: "Expenses",
+      color: "#f97316", // orange-500
+    },
+  } satisfies ChartConfig;
 
   const budgetColumns: TableColumn<BudgetItem>[] = [
     {
@@ -304,30 +375,132 @@ export default function DailyOperationsTreasuryPage() {
                 </div>
               </div>
 
-              {/* Chart Placeholder */}
-              <div className="h-64 flex items-end justify-between gap-2 border rounded-lg p-4">
-                {["Mon", "Tue", "Wed", "Thurs", "Fri"].map((day, index) => (
-                  <div
-                    key={day}
-                    className="flex-1 flex flex-col items-center gap-2"
-                  >
-                    <div className="w-full flex gap-1 items-end justify-center h-full">
-                      <div
-                        className="w-full bg-green-500 rounded-t"
-                        style={{
-                          height: `${40 + index * 10}%`,
-                        }}
-                      />
-                      <div
-                        className="w-full bg-orange-500 rounded-t"
-                        style={{
-                          height: `${35 + index * 8}%`,
-                        }}
-                      />
-                    </div>
-                    <span className="text-xs text-gray-600">{day}</span>
-                  </div>
-                ))}
+              {/* Bar Chart */}
+              <ChartContainer config={chartConfig} className="h-64 w-full">
+                <BarChart
+                  data={cashFlowData}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <XAxis
+                    dataKey="period"
+                    tick={{ fontSize: 12 }}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 12 }}
+                    tickLine={false}
+                    tickFormatter={(value) => {
+                      if (value >= 1000000) {
+                        return `₦${(value / 1000000).toFixed(1)}M`;
+                      } else if (value >= 1000) {
+                        return `₦${(value / 1000).toFixed(0)}K`;
+                      }
+                      return `₦${value}`;
+                    }}
+                  />
+                  <Tooltip
+                    content={({ active, payload }) => {
+                      if (!active || !payload?.length) return null;
+                      return (
+                        <div className="border-border/50 bg-background rounded-lg border px-3 py-2 text-xs shadow-lg">
+                          <div className="font-medium mb-2">
+                            {payload[0]?.payload?.period}
+                          </div>
+                          <div className="space-y-1">
+                            {payload.map((item, index) => (
+                              <div
+                                key={index}
+                                className="flex items-center justify-between gap-4"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <div
+                                    className="h-2 w-2 rounded-full"
+                                    style={{
+                                      backgroundColor: item.color,
+                                    }}
+                                  />
+                                  <span className="text-muted-foreground">
+                                    {item.name === "income"
+                                      ? "Income"
+                                      : "Expenses"}
+                                  </span>
+                                </div>
+                                <span className="font-semibold">
+                                  {formattedAmount(item.value as number)}
+                                </span>
+                              </div>
+                            ))}
+                            <div className="pt-1 mt-1 border-t border-border/50">
+                              <div className="flex items-center justify-between gap-4">
+                                <span className="text-muted-foreground">
+                                  Net
+                                </span>
+                                <span
+                                  className={`font-semibold ${
+                                    (payload[0]?.payload as CashFlowData)
+                                      .income -
+                                      (payload[0]?.payload as CashFlowData)
+                                        .expenses >=
+                                    0
+                                      ? "text-green-600"
+                                      : "text-red-600"
+                                  }`}
+                                >
+                                  {(payload[0]?.payload as CashFlowData)
+                                    .income -
+                                    (payload[0]?.payload as CashFlowData)
+                                      .expenses >=
+                                  0
+                                    ? "+"
+                                    : ""}
+                                  {formattedAmount(
+                                    (payload[0]?.payload as CashFlowData)
+                                      .income -
+                                      (payload[0]?.payload as CashFlowData)
+                                        .expenses
+                                  )}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    }}
+                  />
+                  <Bar
+                    dataKey="income"
+                    fill="#22c55e"
+                    radius={[4, 4, 0, 0]}
+                    barSize={24}
+                  />
+                  <Bar
+                    dataKey="expenses"
+                    fill="#f97316"
+                    radius={[4, 4, 0, 0]}
+                    barSize={24}
+                  />
+                </BarChart>
+              </ChartContainer>
+
+              {/* Summary Stats */}
+              <div className="grid grid-cols-2 gap-4 pt-2">
+                <div className="text-center p-3 bg-green-50 rounded-lg">
+                  <p className="text-xs text-gray-600 mb-1">Total Income</p>
+                  <p className="text-sm font-semibold text-green-700">
+                    {formattedAmount(
+                      cashFlowData.reduce((sum, d) => sum + d.income, 0)
+                    )}
+                  </p>
+                </div>
+                <div className="text-center p-3 bg-orange-50 rounded-lg">
+                  <p className="text-xs text-gray-600 mb-1">Total Expenses</p>
+                  <p className="text-sm font-semibold text-orange-700">
+                    {formattedAmount(
+                      cashFlowData.reduce((sum, d) => sum + d.expenses, 0)
+                    )}
+                  </p>
+                </div>
               </div>
 
               <Button variant="outline" className="w-full">
@@ -344,7 +517,7 @@ export default function DailyOperationsTreasuryPage() {
               Recent Financial Activities
             </CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-col gap-4 divide-y divide-gray-200">
+          <CardContent className="flex flex-col gap-4 divide-y divide-gray-200 p-0">
             {activities.map((activity) => (
               <ActivityItem
                 key={activity.id}
@@ -353,6 +526,7 @@ export default function DailyOperationsTreasuryPage() {
                 title={activity.title}
                 description={activity.description}
                 time={activity.time}
+                iconBg
               />
             ))}
             <div className="flex justify-center pt-2">
@@ -370,26 +544,34 @@ export default function DailyOperationsTreasuryPage() {
           </CardHeader>
           <CardContent className="p-0">
             {quickActions.map((action, index) => (
-              <QuickActionCard
-                key={index}
-                title={action.title}
-                icon={action.icon}
-                description={action.description}
-                onClick={() => {
-                  if (action.title === "Add New Expense/Income") {
-                    console.log("Modal should open here");
-                  }
-                  if (action.title === "Wallet & Canteen Sales") {
-                    router.push("daily-operations-treasury/canteen-operations");
-                  }
-                  if (action.title === "Process Creditor Payment") {
-                    router.push("daily-operations-treasury/canteen-operations");
-                  }
-                  if (action.title === "Add Wallet Top-Up (Manual)") {
-                    router.push("daily-operations-treasury/canteen-operations");
-                  }
-                }}
-              />
+              <div key={index}>
+                <QuickActionCard
+                  title={action.title}
+                  icon={action.icon}
+                  description={action.description}
+                  onClick={() => {
+                    if (action.title === "Add New Expense/Income") {
+                      console.log("Modal should open here");
+                    }
+                    if (action.title === "Wallet & Canteen Sales") {
+                      router.push(
+                        "daily-operations-treasury/canteen-operations"
+                      );
+                    }
+                    if (action.title === "Process Creditor Payment") {
+                      router.push(
+                        "daily-operations-treasury/canteen-operations"
+                      );
+                    }
+                    if (action.title === "Add Wallet Top-Up (Manual)") {
+                      router.push(
+                        "daily-operations-treasury/canteen-operations"
+                      );
+                    }
+                  }}
+                />
+                {index < quickActions.length - 1 && <Separator />}
+              </div>
             ))}
           </CardContent>
         </Card>
