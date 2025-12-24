@@ -17,20 +17,39 @@ import {
   MailOpenIcon,
   CancelCircleIcon,
 } from "@hugeicons/core-free-icons";
+
+/**
+ * Interface for assessment display in the interview view
+ * Matches the structure expected by InterviewAssessmentView component
+ */
+interface Assessment {
+  assessment: string;
+  interviewer: string;
+  date: string;
+  rating: string;
+  note: string;
+}
 import { MetricCard } from "@/components/dashboard-pages/admin/admissions/components/metric-card";
 import { QuickActionCard } from "@/components/dashboard-pages/admin/admissions/components/quick-action-card";
 
 type TabId = "details" | "documents" | "interview";
 
+/**
+ * Applicant Detail Page Component
+ * Displays detailed information about a job applicant
+ * Handles dynamic route params which may be a Promise in Next.js 15+
+ * 
+ * @param params - Route parameters containing applicant ID
+ */
 export default function ApplicantDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: { id: string } | Promise<{ id: string }>;
 }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabId>("details");
   const [isRecordAssessmentOpen, setIsRecordAssessmentOpen] = useState(false);
-  const [assessments, setAssessments] = useState<AssessmentData[]>([]);
+  const [assessments, setAssessments] = useState<Assessment[]>([]);
 
   // In a real app, fetch applicant data based on params.id
   const applicant = {
@@ -66,16 +85,22 @@ export default function ApplicantDetailPage({
     ],
   };
 
+  /**
+   * Handle recording a new assessment
+   * Converts AssessmentData from modal to Assessment format for display
+   * 
+   * @param data - Assessment data from the record assessment modal
+   */
   const handleRecordAssessment = (data: AssessmentData) => {
-    // Add the assessment to the list
-    const newAssessment = {
+    // Convert AssessmentData to Assessment format
+    const newAssessment: Assessment = {
       assessment: data.assessmentType,
       interviewer: data.interviewer,
       date: new Date().toLocaleDateString(),
       rating: data.rating,
       note: data.note,
     };
-    setAssessments([...assessments, newAssessment as any]);
+    setAssessments([...assessments, newAssessment]);
   };
 
   const handleSendOfferEmail = () => {
@@ -116,7 +141,7 @@ export default function ApplicantDetailPage({
       case "interview":
         return (
           <InterviewAssessmentView
-            assessments={assessments as any}
+            assessments={assessments}
             onRecordAssessment={() => setIsRecordAssessmentOpen(true)}
           />
         );
