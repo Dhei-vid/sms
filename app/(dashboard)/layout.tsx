@@ -74,9 +74,9 @@ export default function DashboardLayout({
   }, [isAuthenticated, router]);
 
   // Close mobile menu when route changes
-  useEffect(() => {
-    setMobileMenuOpen(false);
-  }, [pathname]);
+  // useEffect(() => {
+  //   setMobileMenuOpen(false);
+  // }, [pathname]);
 
   // Handle window resize to manage sidebar state
   useEffect(() => {
