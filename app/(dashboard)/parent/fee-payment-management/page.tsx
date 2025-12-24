@@ -92,6 +92,21 @@ export default function FeePaymentManagementPage() {
     new Set()
   );
 
+  /**
+   * Pagination hook for payment history table
+   * Manages displaying payments in batches with "Load More" functionality
+   * Initially shows 3 items, loads 3 more per click
+   */
+  const {
+    displayedData: displayedPayments,
+    hasMore,
+    loadMore,
+  } = usePagination({
+    data: allPayments,
+    initialItemsPerPage: 3,
+    itemsPerPage: 3,
+  });
+
   const handleToggleInvoice = (invoiceId: string) => {
     setSelectedInvoices((prev) => {
       const newSet = new Set(prev);
@@ -342,13 +357,15 @@ export default function FeePaymentManagementPage() {
           <div className="border rounded-lg overflow-hidden">
             <DataTable
               columns={paymentColumns}
-              data={payments}
+              data={displayedPayments}
               showActionsColumn={false}
             />
           </div>
           {hasMore && (
             <div className="flex justify-center mt-4">
-              <Button variant="outline" onClick={loadMore}>Load More</Button>
+              <Button variant="outline" onClick={loadMore}>
+                Load More
+              </Button>
             </div>
           )}
         </CardContent>
