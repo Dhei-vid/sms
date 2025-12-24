@@ -48,15 +48,15 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  
+
   // Get authentication state from Redux
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const authUser = useAppSelector(selectUser);
-  
+
   // Determine role from pathname or authenticated user
   const roleFromPath = getRoleFromPath(pathname);
   const role = authUser?.role || roleFromPath;
-  
+
   const hideSidebar = shouldHideSidebar(pathname);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -68,9 +68,9 @@ export default function DashboardLayout({
    * Runs on mount and when authentication state changes
    */
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/signin");
-    }
+    // if (!isAuthenticated) {
+    //   router.push("/signin");
+    // }
   }, [isAuthenticated, router]);
 
   // Close mobile menu when route changes
