@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, Dispatch, SetStateAction } from "react";
 import { ModalContainer } from "@/components/ui/modal-container";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -66,14 +66,37 @@ export function TeacherLeaveRequestModal({
     setDuration(`${diffDays} day${diffDays > 1 ? "s" : ""}`);
   };
 
-  const handleStartDateChange = (date: Date | undefined) => {
-    setStartDate(date);
-    calculateDuration(date, endDate);
+  /**
+   * Handle start date change
+   * Updates start date state and recalculates duration
+   * Accepts SetStateAction to match DatePickerIcon's expected type
+   * 
+   * @param value - New date value or updater function
+   */
+  const handleStartDateChange: Dispatch<SetStateAction<Date | undefined>> = (
+    value
+  ) => {
+    // Handle both direct value and updater function
+    const newDate =
+      typeof value === "function" ? value(startDate) : value;
+    setStartDate(newDate);
+    calculateDuration(newDate, endDate);
   };
 
-  const handleEndDateChange = (date: Date | undefined) => {
-    setEndDate(date);
-    calculateDuration(startDate, date);
+  /**
+   * Handle end date change
+   * Updates end date state and recalculates duration
+   * Accepts SetStateAction to match DatePickerIcon's expected type
+   * 
+   * @param value - New date value or updater function
+   */
+  const handleEndDateChange: Dispatch<SetStateAction<Date | undefined>> = (
+    value
+  ) => {
+    // Handle both direct value and updater function
+    const newDate = typeof value === "function" ? value(endDate) : value;
+    setEndDate(newDate);
+    calculateDuration(startDate, newDate);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
