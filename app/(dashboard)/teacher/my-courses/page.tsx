@@ -51,7 +51,8 @@ export default function MyCoursesPage() {
   const { data, isLoading, isError } = useGetTeacherCoursesQuery();
   const appError = useAppSelector((state) => state.error.lastError);
 
-  const tableData = data ?? mockCourses;
+  // Ensure tableData is always an array, fallback to mockCourses if API data is unavailable
+  const tableData = (data ?? mockCourses) || [];
 
   const columns: TableColumn<TeacherCourse>[] = [
     {
@@ -192,20 +193,24 @@ export default function MyCoursesPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="border rounded-lg overflow-hidden">
-            <DataTable
-              columns={columns}
-              data={tableData}
-              showActionsColumn={false}
-              loading={isLoading}
-              showEmptyMessage={!isLoading && (isError || tableData.length === 0)}
-              emptyMessage={
-                isError
-                  ? "Unable to load courses at the moment."
-                  : "No courses found."
-              }
-            />
-          </div>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <span className="text-muted-foreground">Loading courses...</span>
+            </div>
+          ) : (
+            <div className="border rounded-lg overflow-hidden">
+              <DataTable
+                columns={columns}
+                data={tableData}
+                showActionsColumn={false}
+                emptyMessage={
+                  isError
+                    ? "Unable to load courses at the moment."
+                    : "No courses found."
+                }
+              />
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
