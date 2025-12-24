@@ -7,6 +7,7 @@ import { Icon } from "@/components/general/huge-icon";
 import { Eye, EyeOff } from "lucide-react";
 import { WalletAdd02Icon, Download02Icon } from "@hugeicons/core-free-icons";
 import { TopUpWalletModal } from "@/components/dashboard-pages/parent/dashboard/top-up-wallet-modal";
+import { usePagination } from "@/hooks/use-pagination";
 
 interface Transaction {
   id: string;
@@ -90,7 +91,11 @@ export default function WalletPage() {
   const [topUpModalOpen, setTopUpModalOpen] = useState(false);
 
   // Pagination
-  const { displayedData: transactions, hasMore, loadMore } = usePagination({
+  const {
+    displayedData: transactions,
+    hasMore,
+    loadMore,
+  } = usePagination({
     data: allTransactions,
     initialItemsPerPage: 5,
     itemsPerPage: 5,
@@ -201,7 +206,11 @@ export default function WalletPage() {
         </div>
         {hasMore && (
           <div className="flex justify-center mt-4">
-            <Button variant="outline" className="bg-gray-100" onClick={loadMore}>
+            <Button
+              variant="outline"
+              className="bg-gray-100"
+              onClick={loadMore}
+            >
               Load More
             </Button>
           </div>
