@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { useLoginMutation } from "@/services/auth";
+import { useLoginMutation } from "@/services/auth/auth";
 import { useAppDispatch } from "@/store/hooks";
 import { setCredentials } from "@/store/slices/authSlice";
 import { getRolePath } from "@/utils/menu-utils";
@@ -23,11 +23,11 @@ export default function SignInPage() {
   const dispatch = useAppDispatch();
   
   // Local state for form inputs
-  const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // RTK Query mutation hook for login API call
   const [login, { isLoading: isLoginLoading }] = useLoginMutation();

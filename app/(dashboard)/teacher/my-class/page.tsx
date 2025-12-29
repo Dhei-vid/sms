@@ -228,6 +228,7 @@ export default function MyClassPage() {
 
       {/* Mark Attendance Button */}
       <Button
+      variant={"outline"}
         onClick={() => setAttendanceModalOpen(true)}
         className="w-full h-11"
       >

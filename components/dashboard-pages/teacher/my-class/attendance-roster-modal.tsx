@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import DatePickerIcon from "@/components/ui/date-picker";
 import { format } from "date-fns";
+import { SelectField } from "@/components/ui/input-field";
 
 interface Student {
   id: string;
@@ -149,31 +150,23 @@ export function AttendanceRosterModal({
       <div className="space-y-4">
         {/* Header with Date and Class */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label className="text-sm font-medium text-gray-700">Date</Label>
             <DatePickerIcon
-              label=""
+              label="Date"
               date={selectedDate}
               setDate={setSelectedDate}
               placeholder="Select date"
             />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-sm font-medium text-gray-700">Class</Label>
-            <Select value={selectedClass} onValueChange={setSelectedClass}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select class" />
-              </SelectTrigger>
-              <SelectContent>
+          
+            <SelectField label="Class" value={selectedClass} onValueChange={setSelectedClass}>
                 <SelectItem value="jss1-math">JSS 1 Mathematics</SelectItem>
                 <SelectItem value="jss1-english">JSS 1 English</SelectItem>
                 <SelectItem value="jss2-science">JSS 2 Science</SelectItem>
                 <SelectItem value="jss3-arts">JSS 3 Arts & Culture</SelectItem>
                 <SelectItem value="ss1-physics">SS 1 Physics</SelectItem>
                 <SelectItem value="ss2-chemistry">SS 2 Chemistry</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+           
+            </SelectField>
+  
         </div>
 
         {/* Student List Table */}

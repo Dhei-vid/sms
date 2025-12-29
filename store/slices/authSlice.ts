@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { AuthUser } from "@/services/auth";
+import { AuthUser } from "@/services/auth/auth";
 
 /**
  * Interface for the authentication state in Redux store

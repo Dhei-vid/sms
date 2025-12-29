@@ -1,4 +1,4 @@
-import { baseApi } from "./baseApi";
+import { baseApi } from "../baseApi";
 
 /**
  * Interface for authenticated user data
@@ -27,6 +27,31 @@ export interface LoginRequest {
 export interface LoginResponse {
   token: string; // JWT token for authenticated requests
   user: AuthUser; // User information
+}
+
+/**
+ * Interface for Google login request payload
+ * Sent to the API when user attempts to log in with Google
+ */
+export interface GoogleLoginRequest {
+  idToken: string; // Google ID token
+  accessToken?: string; // Optional Google access token
+}
+
+/**
+ * Interface for forget password request payload
+ * Sent to the API when user requests password reset
+ */
+export interface ForgetPasswordRequest {
+  email: string; // User's email address
+}
+
+/**
+ * Interface for forget password response
+ */
+export interface ForgetPasswordResponse {
+  message: string; // Success message
+  success: boolean; // Whether the request was successful
 }
 
 /**
@@ -63,11 +88,48 @@ export const authApi = baseApi.injectEndpoints({
       // Cache profile data with Auth tag for automatic refetching
       providesTags: ["Auth"],
     }),
+
+    /**
+     * Google login mutation endpoint
+     * Authenticates user using Google OAuth token
+     * 
+     * @param body - Google login credentials (idToken, accessToken)
+     * @returns LoginResponse with token and user data
+     */
+    googleLogin: build.mutation<LoginResponse, GoogleLoginRequest>({
+      query: (body) => ({
+        url: "/auth/google",
+        method: "POST",
+        body,
+      }),
+      // Invalidate auth cache on login to refresh user data
+      invalidatesTags: ["Auth"],
+    }),
+
+    /**
+     * Forget password mutation endpoint
+     * Sends password reset email to user
+     * 
+     * @param body - Forget password request (email)
+     * @returns ForgetPasswordResponse with success message
+     */
+    forgetPassword: build.mutation<ForgetPasswordResponse, ForgetPasswordRequest>({
+      query: (body) => ({
+        url: "/auth/forget-password",
+        method: "POST",
+        body,
+      }),
+    }),
   }),
 });
 
 // Export hooks for use in React components
-export const { useLoginMutation, useGetProfileQuery } = authApi;
+export const {
+  useLoginMutation,
+  useGetProfileQuery,
+  useGoogleLoginMutation,
+  useForgetPasswordMutation,
+} = authApi;
 
 
 

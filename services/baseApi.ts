@@ -14,7 +14,7 @@ import { clearError, setError } from "@/store/errorSlice";
  */
 const rawBaseQuery = fetchBaseQuery({
   baseUrl:
-    process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://api.example.com/api",
+    process.env.NEXT_PUBLIC_API_BASE_URL_LOCAL ?? process.env.NEXT_PUBLIC_API_BASE_URL_LOCAL,
   /**
    * Function to prepare headers for each API request
    * Automatically attaches authentication token if user is logged in
@@ -81,6 +81,30 @@ const baseQueryWithErrorHandling: BaseQueryFn<
 export const baseApi = createApi({
   reducerPath: "api",
   baseQuery: baseQueryWithErrorHandling,
-  tagTypes: ["TeacherCourse", "TeacherQuestion", "CanteenProduct", "Auth"],
+  tagTypes: [
+    "TeacherCourse",
+    "TeacherQuestion",
+    "CanteenProduct",
+    "Auth",
+    "User",
+    "Product",
+    "Order",
+    "School",
+    "Student",
+    "Class",
+    "Course",
+    "Assignment",
+    "Grade",
+    "Attendance",
+    "CalendarEvent",
+    "Message",
+    "Notice",
+    "Timetable",
+    "Fee",
+    "Wallet",
+    "WalletTransaction",
+    "Admission",
+    "LeaveRequest",
+  ],
   endpoints: () => ({}),
 });
