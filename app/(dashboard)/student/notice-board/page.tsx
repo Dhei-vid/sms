@@ -9,77 +9,30 @@ import {
   WorkoutRunIcon,
   Agreement02Icon,
 } from "@hugeicons/core-free-icons";
-
-interface Notice {
-  id: number;
-  title: string;
-  description: string;
-  postedBy: string;
-  viewed: string;
-  posted: string;
-  postedLabel?: string; // Optional label override (e.g., "Date Posted:" vs "Posted:")
-  icon: any;
-  isUnread?: boolean;
-}
-
-const notices: Notice[] = [
-  {
-    id: 1,
-    title: "Election Manifestos",
-    description:
-      "Today is the D-Day for every of our aspirants. Time is 12:00 PM - 1:30 PM",
-    postedBy: "Admin Academics",
-    viewed: "2,934",
-    posted: "October 22, 10:32 AM",
-    icon: LibrariesIcon,
-    isUnread: true,
-  },
-  {
-    id: 2,
-    title: "Mid-Term Exams Begin",
-    description:
-      "Schedule for all grades is now finalized and posted in the Academic Management module.",
-    postedBy: "Principal",
-    viewed: "2,934",
-    posted: "October 22, 9:32 AM",
-    postedLabel: "Date Posted:",
-    icon: ComputerTerminal01Icon,
-    isUnread: true,
-  },
-  {
-    id: 3,
-    title: "Annual Inter-House Sports Day",
-    description:
-      "Next Friday, 9:00 AM - 3:00 PM. All staff attendance is mandatory.",
-    postedBy: "Principal",
-    viewed: "2,934",
-    posted: "October 22, 8:30 AM",
-    icon: WorkoutRunIcon,
-    isUnread: true,
-  },
-  {
-    id: 4,
-    title: "PTA General Meeting: Topic",
-    description:
-      "New Digital Learning Initiatives. Wednesday at 3:00 PM in the Assembly Hall.",
-    postedBy: "Principal",
-    viewed: "2,934",
-    posted: "October 17, 9:32 AM",
-    icon: Agreement02Icon,
-  },
-  {
-    id: 5,
-    title: "Election Manifestos",
-    description:
-      "We get the chance to hear from the aspirants of each position in the Student Union Government. Date of Manifesto 22 - Oct. - 2025",
-    postedBy: "Admin Academics",
-    viewed: "2,934",
-    posted: "October 17, 9:32 AM",
-    icon: LibrariesIcon,
-  },
-];
+import { useGetNoticesQuery } from "@/services/shared";
+import { format } from "date-fns";
 
 export default function NoticeBoardPage() {
+  const { data: noticesData, isLoading } = useGetNoticesQuery({ 
+    isPublished: true,
+    limit: 100 
+  });
+
+  const notices = noticesData?.data || [];
+
+  const getIconForPriority = (priority?: string) => {
+    switch (priority) {
+      case "urgent":
+        return ComputerTerminal01Icon;
+      case "high":
+        return WorkoutRunIcon;
+      case "medium":
+        return Agreement02Icon;
+      default:
+        return LibrariesIcon;
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Page Header */}
@@ -93,57 +46,66 @@ export default function NoticeBoardPage() {
       {/* Notices List */}
       <Card className="bg-background py-0 overflow-hidden">
         <CardContent className="p-0">
-          {notices.map((notice, index) => (
-            <div key={notice.id} className="relative cursor-pointer">
-              {index > 0 && <Separator className="my-0" />}
-              <div className="p-6 hover:bg-main-blue/5 transition-colors">
-                <div className="flex gap-4">
-                  {/* Icon */}
-                  <div className="flex items-start text-main-blue">
-                    <Icon icon={notice.icon} size={24} />
-                  </div>
+          {isLoading ? (
+            <div className="p-8 text-center text-gray-500">Loading notices...</div>
+          ) : notices.length === 0 ? (
+            <div className="p-8 text-center text-gray-500">No notices found</div>
+          ) : (
+            notices.map((notice, index) => {
+              const icon = getIconForPriority(notice.priority);
+              const isRecent = notice.createdAt 
+                ? new Date(notice.createdAt).getTime() > Date.now() - 24 * 60 * 60 * 1000
+                : false;
+              
+              return (
+                <div key={notice.id} className="relative cursor-pointer">
+                  {index > 0 && <Separator className="my-0" />}
+                  <div className="p-6 hover:bg-main-blue/5 transition-colors">
+                    <div className="flex gap-4">
+                      {/* Icon */}
+                      <div className="flex items-start text-main-blue">
+                        <Icon icon={icon} size={24} />
+                      </div>
 
-                  {/* Content */}
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between">
-                      <h3 className="font-semibold text-gray-800">
-                        {notice.title}
-                      </h3>
-                      {notice.isUnread && (
-                        <div className="h-3 w-3 rounded-full bg-main-blue" />
-                      )}
-                    </div>
-                    <p className="text-sm text-gray-600 mb-4">
-                      {notice.description}
-                    </p>
-
-                    {/* Footer - Meta Data */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2 bg-gray-100 rounded-full px-3 py-1">
-                          <span className="text-xs text-gray-500">
-                            Posted by:
-                          </span>
-                          <span className="text-xs font-medium text-gray-700">
-                            {notice.postedBy}
-                          </span>
+                      {/* Content */}
+                      <div className="flex-1">
+                        <div className="flex items-start justify-between">
+                          <h3 className="font-semibold text-gray-800">
+                            {notice.title}
+                          </h3>
+                          {isRecent && (
+                            <div className="h-3 w-3 rounded-full bg-main-blue" />
+                          )}
                         </div>
-                        <div className="flex items-center gap-2 bg-gray-100 rounded-full px-3 py-1">
-                          <span className="text-xs text-gray-500">Viewed:</span>
-                          <span className="text-xs font-medium text-gray-700">
-                            {notice.viewed}
+                        <p className="text-sm text-gray-600 mb-4">
+                          {notice.content}
+                        </p>
+
+                        {/* Footer - Meta Data */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2 bg-gray-100 rounded-full px-3 py-1">
+                              <span className="text-xs text-gray-500">
+                                Posted by:
+                              </span>
+                              <span className="text-xs font-medium text-gray-700">
+                                {notice.authorName || "Admin"}
+                              </span>
+                            </div>
+                          </div>
+                          <span className="text-xs text-gray-500">
+                            Posted: {notice.createdAt 
+                              ? format(new Date(notice.createdAt), "MMM d, yyyy; h:mm a")
+                              : "N/A"}
                           </span>
                         </div>
                       </div>
-                      <span className="text-xs text-gray-500">
-                        {notice.postedLabel || "Posted:"} {notice.posted}
-                      </span>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              );
+            })
+          )}
         </CardContent>
       </Card>
     </div>

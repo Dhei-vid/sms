@@ -1,14 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   MessageThreadsList,
   ChatConversation,
 } from "@/components/dashboard-pages/admin/messages/components";
 import { Icon } from "@/components/general/huge-icon";
-import { Building01Icon, SharedDriveIcon } from "@hugeicons/core-free-icons";
+import {
+  SharedDriveIcon,
+  MessageCancel01Icon,
+} from "@hugeicons/core-free-icons";
 import { ChatHeader } from "@/components/dashboard-pages/admin/messages/components";
 import { MessageInput } from "@/components/dashboard-pages/admin/messages/components";
+import {
+  useGetChatsQuery,
+  useGetChatByIdQuery,
+  useSendChatMutation,
+} from "@/services/chats/chats";
+import { useGetUsersQuery } from "@/services/users/users";
+import { useAppSelector } from "@/store/hooks";
+import { selectUser } from "@/store/slices/authSlice";
+import { format } from "date-fns";
+import type {
+  Chat,
+  ChatMessages,
+  ChatParticipants,
+  SendChatPayload,
+} from "@/services/chats/chat-types";
 
 interface MessageThread {
   id: string;
@@ -33,10 +51,22 @@ interface Message {
 }
 
 export default function MessagesPage() {
-  const [selectedThreadId, setSelectedThreadId] = useState<string>("general");
+  const user = useAppSelector(selectUser);
+  const [selectedThreadId, setSelectedThreadId] = useState<string>("");
+  const [teacherThreads, setTeacherThreads] = useState<MessageThread[]>([]);
 
-  // Sample threads data
-  const threads: MessageThread[] = [
+  const { data: chatsData } = useGetChatsQuery({ limit: 50 });
+  const { data: selectedChatData } = useGetChatByIdQuery(selectedThreadId, {
+    skip: !selectedThreadId,
+  });
+  const { data: teachersData } = useGetUsersQuery({
+    role: "teacher",
+    limit: 100,
+  });
+  const [sendChat] = useSendChatMutation();
+
+  // Static threads (General Conversation and Academic Staffs)
+  const staticThreads: MessageThread[] = [
     {
       id: "general",
       name: "General Conversation",
@@ -51,93 +81,131 @@ export default function MessagesPage() {
       icon: SharedDriveIcon,
       type: "group",
     },
-    {
-      id: "patrick",
-      name: "Mr. Patrick",
-      description: "",
-      lastMessage: "Reminder: Major IT system maintenance...",
-      timestamp: "4:00 PM",
-      unreadCount: 2,
-      avatar:
-        "https://images.pexels.com/photos/697509/pexels-photo-697509.jpeg",
-      type: "individual",
-    },
-    {
-      id: "tina",
-      name: "Ms. Tina G.",
-      description: "",
-      lastMessage: "Following up on th$53 graduation fees,...",
-      timestamp: "4:00 PM",
-      unreadCount: 1,
-      avatar:
-        "https://images.pexels.com/photos/1674752/pexels-photo-1674752.jpeg",
-      type: "individual",
-    },
-    {
-      id: "reed",
-      name: "Mr. Reed",
-      description: "",
-      lastMessage: "Review the updated security protocols effectiv...",
-      timestamp: "1d",
-      avatar:
-        "https://images.pexels.com/photos/1674752/pexels-photo-1674752.jpeg",
-      type: "individual",
-    },
   ];
 
-  // Sample messages for selected thread
-  const getMessagesForThread = (threadId: string): Message[] => {
-    if (threadId === "general") {
-      return [
-        {
-          id: "1",
-          senderName: "Mrs. Adebayo",
-          senderEmail: "sec.adebayo@penetrallahub.edu",
-          message:
-            "Good morning everyone! Please remember to update your calendars. The school board meeting has been rescheduled to November 4th, 2025 at 10:00 AM.",
-          timestamp: "8/15/2025, 3:30:00 PM",
-        },
-        {
-          id: "2",
-          senderName: "Ms. Sarah",
-          senderEmail: "admin@penetraliahub.edu",
-          message:
-            "Thanks for the heads-up, Mrs. Adebayo. I will get on with the agenda for the meeting. Everyone is expected to be available, it is crucial.",
-          timestamp: "8/15/2025, 3:30:00 PM",
-          isOwnMessage: true,
-        },
-        {
-          id: "3",
-          senderName: "Robert Johnson",
-          senderEmail: "johnsonum1222@penetrallahub.edu",
-          message:
-            "Maintenance update: The gyms air conditioning system is back online and ready to go. Gym classes can now resume again",
-          timestamp: "8/15/2025, 3:30:00 PM",
-        },
-        {
-          id: "4",
-          senderName: "Ms. Tina",
-          senderEmail: "hr.tina@penetrallahub.edu",
-          message:
-            "All staff performance reviews are due by the end of the month. Please submit your reports to HR as soon as possible. Thank you!",
-          timestamp: "8/15/2025, 3:30:00 PM",
-        },
-      ];
+  // Map Chat[] to MessageThread[] using participants and messages structure
+  const apiThreads: MessageThread[] = useMemo(() => {
+    if (!chatsData?.data) return [];
+
+    return chatsData.data.map((chat: Chat) => {
+      const lastMessage = chat.messages?.[chat.messages.length - 1];
+      const participantsNames =
+        chat.participants
+          ?.map((p: ChatParticipants) => `${p.first_name} ${p.last_name}`)
+          .join(", ") || "";
+
+      return {
+        id: chat.id,
+        name: chat.title,
+        description: participantsNames,
+        lastMessage: lastMessage?.content,
+        timestamp: lastMessage?.created_at
+          ? format(new Date(lastMessage.created_at), "h:mm a")
+          : undefined,
+        icon: SharedDriveIcon,
+        type: chat.type === "general" ? "general" : "group",
+      };
+    });
+  }, [chatsData]);
+
+  // Combine static threads, teacher threads, and API-loaded threads
+  const threads: MessageThread[] = useMemo(() => {
+    return [...staticThreads, ...teacherThreads, ...apiThreads];
+  }, [teacherThreads, apiThreads]);
+
+  // Handle teacher selection - add teacher thread to list
+  const handleTeacherSelect = (teacherId: string) => {
+    const teacher = teachersData?.data?.find((t) => t.id === teacherId);
+    if (!teacher) return;
+
+    // Check if thread already exists
+    const existingThread = teacherThreads.find((t) => t.id === teacherId);
+    if (existingThread) {
+      setSelectedThreadId(teacherId);
+      return;
     }
-    return [];
+
+    // Create new thread from teacher data
+    const newThread: MessageThread = {
+      id: teacher.id,
+      name: `${teacher.first_name} ${teacher.last_name}`,
+      description: teacher.email || "",
+      avatar: teacher.profile_image_url || undefined,
+      type: "individual",
+    };
+
+    setTeacherThreads((prev) => [...prev, newThread]);
+    setSelectedThreadId(teacherId);
   };
 
-  const selectedThread = threads.find((t) => t.id === selectedThreadId);
-  const messages = getMessagesForThread(selectedThreadId);
+  // Map ChatMessages[] to Message[] using sender structure
+  const messages: Message[] = useMemo(() => {
+    if (!selectedChatData?.data?.messages) return [];
 
-  const handleSendMessage = (message: string) => {
-    console.log("Sending message:", message);
-    // Handle message sending
+    return selectedChatData.data.messages.map((msg: ChatMessages) => {
+      const isOwnMessage = msg.sender?.id === user?.id;
+      return {
+        id: msg.id,
+        senderName: msg.sender
+          ? `${msg.sender.first_name} ${msg.sender.last_name}`
+          : "Unknown",
+        senderEmail: msg.sender?.username || "",
+        message: msg.content,
+        timestamp: msg.created_at
+          ? format(new Date(msg.created_at), "M/d/yyyy, h:mm:ss a")
+          : "",
+        isOwnMessage,
+      };
+    });
+  }, [selectedChatData, user]);
+
+  const selectedThread = threads.find((t) => t.id === selectedThreadId);
+
+  const handleSendMessage = async (message: string) => {
+    if (!selectedThreadId || !message.trim()) return;
+
+    try {
+      // Build history from existing messages - use actual data from API
+      const history =
+        selectedChatData?.data?.messages?.map((msg: ChatMessages) => ({
+          role: msg.role,
+          message: msg.content,
+          model_type: msg.model_type,
+        })) || [];
+
+      // Build payload matching SendChatPayload structure
+      const payload: SendChatPayload = {
+        message: message.trim(),
+        history,
+        content_type: "text/plain",
+      };
+
+      // Only include id if it's a valid chat ID (not general/academic)
+      if (selectedThreadId !== "general" && selectedThreadId !== "academic") {
+        payload.id = selectedThreadId;
+      }
+
+      // Optional fields
+      payload.save_chat = true;
+      payload.type = "general";
+
+      // Use model_type from API or default, but don't use "text"
+      const lastMessage =
+        selectedChatData?.data?.messages?.[
+          selectedChatData.data.messages.length - 1
+        ];
+      if (lastMessage?.model_type) {
+        payload.model_type = lastMessage.model_type;
+      }
+
+      await sendChat(payload).unwrap();
+    } catch (error) {
+      console.error("Failed to send message:", error);
+    }
   };
 
   const handleNewMessage = () => {
-    console.log("New message clicked");
-    // Handle new message creation
+    // No-op - dropdown handles teacher selection
   };
 
   return (
@@ -158,6 +226,8 @@ export default function MessagesPage() {
           selectedThreadId={selectedThreadId}
           onThreadSelect={setSelectedThreadId}
           onNewMessage={handleNewMessage}
+          teachers={teachersData?.data || []}
+          onTeacherSelect={handleTeacherSelect}
         />
 
         {/* Chat Conversation */}
@@ -173,7 +243,7 @@ export default function MessagesPage() {
 
               <ChatConversation
                 messages={messages}
-                onSendMessage={handleSendMessage}
+                onSendMessage={() => {}}
                 onLoadPrevious={() => console.log("Load previous")}
               />
 
@@ -181,14 +251,14 @@ export default function MessagesPage() {
               <MessageInput onSend={handleSendMessage} />
             </div>
           ) : (
-            <div className="flex-1 flex items-center justify-center bg-white">
-              <div className="text-center">
+            <div className="flex-1 flex items-center justify-center bg-white rounded-md">
+              <div className="text-center p-6">
                 <Icon
-                  icon={Building01Icon}
+                  icon={MessageCancel01Icon}
                   size={48}
                   className="mx-auto text-gray-400 mb-4"
                 />
-                <p className="text-gray-600">
+                <p className="text-base text-gray-600">
                   Select a conversation to start messaging
                 </p>
               </div>

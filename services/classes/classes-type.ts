@@ -1,3 +1,11 @@
+import type {
+  GeneralStatus,
+  ApiResponse,
+  ApiListResponse,
+  ApiDeleteResponse,
+  BaseQueryParams,
+} from "../shared-types";
+
 /**
  * Type definitions for Classes API responses
  */
@@ -12,7 +20,7 @@ export interface Class {
   studentCount?: number;
   capacity?: number;
   schoolId?: string;
-  status?: "active" | "inactive";
+  status?: GeneralStatus;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -32,23 +40,30 @@ export interface UpdateClassRequest {
   level?: string;
   teacherId?: string;
   capacity?: number;
-  status?: "active" | "inactive";
+  status?: GeneralStatus;
 }
 
-export interface ClassesListResponse {
-  data: Class[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
+/**
+ * Classes list response with pagination
+ */
+export type ClassesListResponse = ApiListResponse<Class>;
 
-export interface ClassesQueryParams {
-  page?: number;
-  limit?: number;
+/**
+ * Class response for single entity operations
+ */
+export type ClassResponse = ApiResponse<Class>;
+
+/**
+ * Delete class response
+ */
+export type DeleteClassResponse = ApiDeleteResponse;
+
+/**
+ * Class query parameters for filtering and pagination
+ */
+export interface ClassesQueryParams extends BaseQueryParams {
   level?: string;
   teacherId?: string;
-  status?: "active" | "inactive";
-  search?: string;
+  status?: GeneralStatus;
 }
 

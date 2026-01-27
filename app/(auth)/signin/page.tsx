@@ -43,36 +43,106 @@ export default function SignInPage() {
     setError(null);
     setIsLoading(true);
 
-    // Basic client-side validation
+    // Enhanced client-side validation
     if (!email || !password) {
       setError("Please fill in all fields");
       setIsLoading(false);
       return;
     }
 
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address");
+      setIsLoading(false);
+      return;
+    }
+
+    // Password length validation
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      setIsLoading(false);
+      return;
+    }
+
     try {
+      // Log login attempt
+      console.log("🔑 Attempting login:", {
+        email,
+        passwordLength: password.length,
+        timestamp: new Date().toISOString(),
+      });
+
       // Call login API endpoint
       const result = await login({ email, password }).unwrap();
 
+      // Validate response structure
+      if (!result?.data) {
+        throw new Error("Invalid response from server");
+      }
+
+      if (!result.data.access_token) {
+        throw new Error("No access token received");
+      }
+
+      if (!result.data.user) {
+        throw new Error("No user data received");
+      }
+
+      // Log the response for debugging
+      console.log("🔐 Login Response:", {
+        hasToken: !!result.data.access_token,
+        hasUser: !!result.data.user,
+        userId: result.data.user?.id,
+        userEmail: result.data.user?.email,
+        userRole: result.data.user?.role,
+        tokenLength: result.data.access_token?.length,
+      });
+
       // Dispatch credentials to Redux store
-      // This updates the auth state and persists to localStorage
       dispatch(
         setCredentials({
-          token: result.token,
-          user: result.user,
+          token: result.data.access_token,
+          user: result.data.user,
         })
       );
 
+      // Verify Redux state was updated
+      console.log("✅ Credentials dispatched to Redux");
+
+      // Small delay to ensure state is updated before navigation
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
       // Navigate to appropriate dashboard based on user role
-      const dashboardPath = getRolePath(result.user.role, "dashboard");
+      const dashboardPath = getRolePath(result.data.user.role, "dashboard");
+      console.log("🚀 Navigating to:", dashboardPath);
       router.push(dashboardPath);
     } catch (err: any) {
-      // Handle login errors
-      setError(
-        err?.data?.message ||
-          err?.message ||
-          "Invalid email or password. Please try again."
-      );
+      // Enhanced error handling
+      console.error("❌ Login Error:", err);
+
+      let errorMessage = "Invalid email or password. Please try again.";
+
+      if (err?.data) {
+        // API error response
+        errorMessage = err.data.message || err.data.error || errorMessage;
+      } else if (err?.message) {
+        // JavaScript error
+        errorMessage = err.message;
+      } else if (err?.status) {
+        // HTTP status error
+        if (err.status === 401) {
+          errorMessage = "Invalid email or password.";
+        } else if (err.status === 403) {
+          errorMessage = "Access forbidden. Please contact support.";
+        } else if (err.status === 404) {
+          errorMessage = "Authentication service not found.";
+        } else if (err.status >= 500) {
+          errorMessage = "Server error. Please try again later.";
+        }
+      }
+
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }

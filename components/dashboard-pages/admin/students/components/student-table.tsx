@@ -127,7 +127,15 @@ const students: Student[] = [
   },
 ];
 
-export function StudentTable() {
+interface StudentTableProps {
+  studentsData?: { data: any[]; total?: number };
+  isLoading?: boolean;
+}
+
+export function StudentTable({ studentsData, isLoading }: StudentTableProps = {}) {
+  if (isLoading) {
+    return <div className="p-8 text-center text-gray-500">Loading students...</div>;
+  }
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
@@ -138,7 +146,22 @@ export function StudentTable() {
     );
   };
 
-  const filteredStudents = students.filter(
+  // Transform API students data to component format
+  const apiStudents = studentsData?.data?.map((student) => ({
+    id: student.id,
+    name: student.name || `${student.first_name || ''} ${student.last_name || ''}`.trim() || "N/A",
+    schoolId: student.studentId || student.id,
+    grade: student.className || student.class?.name || "N/A",
+    attendance: "N/A",
+    academicAvg: "N/A",
+    outstandingFees: "N/A",
+    status: (student.status || "active") as Student["status"],
+    latestActivity: "N/A",
+  })) || [];
+
+  const allStudents = apiStudents.length > 0 ? apiStudents : students;
+
+  const filteredStudents = allStudents.filter(
     (student) =>
       student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       student.schoolId.toLowerCase().includes(searchQuery.toLowerCase())
@@ -149,9 +172,11 @@ export function StudentTable() {
     newStatus: "active" | "on-leave" | "suspended" | "graduated" | "withdrawn",
     statusLabel: string
   ) => {
-    const updatedStudents = students.map((app) =>
+    // Status changes would typically trigger an API mutation
+    // For now, this is handled locally or will be integrated with updateStudent mutation
+    const updatedStudents = allStudents.map((app) =>
       app.id === applicationId
-        ? { ...app, status: newStatus, statusLabel }
+        ? { ...app, status: newStatus }
         : app
     );
   };

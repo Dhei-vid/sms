@@ -7,34 +7,99 @@ import {
 } from "@reduxjs/toolkit/query/react";
 import type { RootState } from "@/store";
 import { clearError, setError } from "@/store/errorSlice";
+import { logout, selectToken } from "@/store/slices/authSlice";
+import { toast } from "sonner";
 
 /**
- * Base query configuration for RTK Query
- * Sets up the base URL and prepares headers for all API requests
+ * API Configuration
+ * All API-related configuration is centralized here
+ */
+const getBaseUrl = () => {
+  const rawUrl =
+    process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL;
+
+  if (!rawUrl) {
+    if (typeof window !== "undefined") {
+      console.error("❌ API base URL not configured!");
+      console.error(
+        "Please set NEXT_PUBLIC_API_URL or NEXT_PUBLIC_API_BASE_URL environment variable.",
+      );
+    }
+    return "https://api-placeholder.invalid";
+  }
+
+  const url = rawUrl.replace(/\/+$/, "");
+
+  if (!url.startsWith("http://") && !url.startsWith("https://")) {
+    if (typeof window !== "undefined") {
+      console.error(
+        "❌ API baseUrl must be a full URL (starting with http:// or https://)",
+      );
+      console.error("Current value:", url);
+    }
+    return "https://api-placeholder.invalid";
+  }
+
+  if (typeof window !== "undefined") {
+    // console.log("🔗 API Base URL:", url);
+  }
+
+  return url;
+};
+
+const getApiKey = () => {
+  const apiKey = process.env.NEXT_PUBLIC_AUTH_API_KEY;
+  if (!apiKey && typeof window !== "undefined") {
+    console.error(
+      "❌ x-api-key is NOT configured! Set NEXT_PUBLIC_AUTH_API_KEY environment variable.",
+    );
+  }
+  return apiKey || "";
+};
+
+/**
+ * Base Query Configuration
+ * Sets up base URL and prepares headers matching Postman requirements
  */
 const rawBaseQuery = fetchBaseQuery({
-  baseUrl:
-    process.env.NEXT_PUBLIC_API_BASE_URL_LOCAL ?? process.env.NEXT_PUBLIC_API_BASE_URL_LOCAL,
+  baseUrl: getBaseUrl(),
   /**
-   * Function to prepare headers for each API request
-   * Automatically attaches authentication token if user is logged in
-   * 
-   * @param headers - Headers object to modify
-   * @param getState - Function to get current Redux state
-   * @returns Modified headers with auth token and content type
+   * Prepare headers for each API request
+   * Matches Postman configuration:
+   * - x-api-key: Required for all requests
+   * - Content-Type: application/json
+   * - Authorization: Bearer token (from cookie, for authenticated requests)
    */
   prepareHeaders: (headers, { getState }) => {
-    const state = getState() as RootState;
-    // Get authentication token from Redux auth slice
-    const token = state.auth?.token;
-
-    // Attach Bearer token to Authorization header if token exists
-    if (token) {
-      headers.set("authorization", `Bearer ${token}`);
+    if (typeof window === "undefined") {
+      return headers;
     }
 
-    // Set content type for all requests
+    // 1. Add x-api-key header
+    const apiKey = getApiKey();
+    if (apiKey) {
+      headers.set("x-api-key", apiKey);
+    }
+
+    // 2. Get authentication token from Redux state
+    const state = getState() as RootState;
+    const token = selectToken(state);
+
+    if (token) {
+      headers.set("authorization", `Bearer ${token}`);
+
+      if (typeof window !== "undefined") {
+        // console.log("🔑 Token added to request headers");
+      }
+    } else {
+      if (typeof window !== "undefined") {
+        // console.warn("⚠️ No token found in Redux state");
+      }
+    }
+
+    // 3. Set content type
     headers.set("Content-Type", "application/json");
+
     return headers;
   },
 });
@@ -42,33 +107,178 @@ const rawBaseQuery = fetchBaseQuery({
 /**
  * Enhanced base query with error handling
  * Intercepts all API responses and handles errors globally
- * Dispatches error actions to Redux store for UI error display
- * 
- * @param args - API endpoint URL or fetch arguments
- * @param api - RTK Query API object with dispatch and getState
- * @param extraOptions - Additional options for the query
- * @returns Query result with error handling applied
+ * Matches axios interceptor behavior with toast notifications and logout on 401
  */
 const baseQueryWithErrorHandling: BaseQueryFn<
   string | FetchArgs,
   unknown,
   FetchBaseQueryError
 > = async (args, api, extraOptions) => {
-  // Execute the base query
-  const result = await rawBaseQuery(args, api, extraOptions);
+  const baseUrl = getBaseUrl();
+  const requestUrl = typeof args === "string" ? args : args.url;
+  const method = typeof args === "string" ? "GET" : args.method || "GET";
+  const fullUrl = `${baseUrl}${requestUrl}`;
 
-  // Handle errors by dispatching to error slice
+  // Log request
+  if (typeof window !== "undefined") {
+    const isLoginRequest = fullUrl.includes("/auth/login");
+    const headers: Record<string, string> = {};
+    if (typeof args !== "string" && args.headers) {
+      Object.entries(args.headers).forEach(([key, value]) => {
+        if (key.toLowerCase() !== "authorization") {
+          headers[key] = String(value);
+        } else {
+          headers[key] = "Bearer [REDACTED]";
+        }
+      });
+    }
+
+    // console.group(`🚀 ${method} ${requestUrl}`);
+    // console.log("Full URL:", fullUrl);
+    // console.log("Headers:", headers);
+    if (isLoginRequest) {
+      const body = typeof args !== "string" ? args.body : undefined;
+      if (body && typeof body === "object") {
+        const safeBody = { ...(body as Record<string, unknown>) };
+        if ("password" in safeBody) {
+          safeBody.password = "[REDACTED]";
+        }
+        // console.log("Body:", safeBody);
+      }
+    } else {
+      // console.log("Body:", typeof args !== "string" ? args.body : undefined);
+    }
+    // console.log("Timestamp:", new Date().toISOString());
+    console.groupEnd();
+  }
+
+  const startTime = Date.now();
+  const result = await rawBaseQuery(args, api, extraOptions);
+  const duration = Date.now() - startTime;
+
+  // Log response
+  if (typeof window !== "undefined") {
+    if (result.data) {
+      const response = result.data as
+        | { status?: boolean; status_code?: number }
+        | undefined;
+      const isSuccess =
+        response?.status === true ||
+        (response?.status_code && response.status_code < 400);
+
+      if (isSuccess) {
+        // console.group(`✅ ${method} ${requestUrl} - Success (${duration}ms)`);
+        // console.log(
+        //   "Response Status:",
+        //   response?.status,
+        //   response?.status_code,
+        // );
+        // console.log("Response Data:", result.data);
+        console.groupEnd();
+      } else {
+        console.group(`❌ ${method} ${requestUrl} - Failed (${duration}ms)`);
+        console.error(
+          "Response Status:",
+          response?.status,
+          response?.status_code,
+        );
+        console.error("Response:", result.data);
+        console.groupEnd();
+      }
+    } else if (result.error) {
+      console.group(`❌ ${method} ${requestUrl} - Error (${duration}ms)`);
+      console.error("Status:", result.error.status);
+      console.error("Error Data:", result.error.data);
+      console.groupEnd();
+    }
+  }
+
+  // Check response status field - if status is false, treat as error
+  if (result.data) {
+    const response = result.data as
+      | { status?: boolean; status_code?: number; message?: string }
+      | undefined;
+
+    if (
+      response?.status === false ||
+      (response?.status_code && response.status_code >= 400)
+    ) {
+      const errorMessage = response?.message || "Request failed";
+      return {
+        error: {
+          status: response?.status_code || 400,
+          data: { message: errorMessage },
+        } as FetchBaseQueryError,
+      };
+    }
+
+    // Show success toast if message is present
+    if (response?.status === true && response?.message) {
+      // toast.success(response.message);
+    }
+  }
+
+  // Handle errors
   if (result.error) {
     const status = result.error.status;
     const data = result.error.data as { message?: string } | undefined;
+
+    // Check if we got an HTML response (404 from Next.js routing)
+    const isHtmlResponse =
+      typeof data === "string" && (data as string).includes("<!DOCTYPE html>");
+
+    let errorMessage =
+      data?.message || "Something went wrong. Please try again.";
+
+    // If we got HTML, it means Next.js routed the request (baseUrl issue)
+    if (isHtmlResponse || (status === 404 && !data?.message)) {
+      errorMessage = `API endpoint not found. Check API configuration. Attempted: ${fullUrl}`;
+      console.error("❌ API Request Failed:", {
+        baseUrl,
+        endpoint: requestUrl,
+        fullUrl,
+        status,
+      });
+    }
+
+    // Handle specific error status codes
+    if (status === 401) {
+      // Unauthorized - only logout if already authenticated
+      const state = api.getState() as RootState;
+      const isAuthenticated = state.auth.isAuthenticated;
+
+      if (isAuthenticated) {
+        toast.error(`Session expired. Please log in again.`);
+        api.dispatch(logout());
+      } else {
+        // Don't show toast for login page errors (handled by form)
+        if (
+          typeof window !== "undefined" &&
+          !window.location.pathname.includes("/signin")
+        ) {
+          toast.error(`Unauthorized: ${errorMessage}`);
+        }
+      }
+    } else if (status === 403) {
+      // Forbidden
+      toast.error(`Forbidden: ${errorMessage}`);
+    } else {
+      // Other errors - don't show toast for login page (handled by form)
+      if (
+        typeof window !== "undefined" &&
+        !window.location.pathname.includes("/signin")
+      ) {
+        toast.error(errorMessage);
+      }
+    }
 
     // Dispatch error to global error state
     api.dispatch(
       setError({
         code: status,
-        message: data?.message ?? "Something went wrong. Please try again.",
+        message: errorMessage,
         details: data,
-      })
+      }),
     );
   } else {
     // Clear any previous errors on successful request
@@ -78,6 +288,18 @@ const baseQueryWithErrorHandling: BaseQueryFn<
   return result;
 };
 
+/**
+ * Shared API Instance
+ *
+ * All services inject endpoints into this single baseApi instance.
+ * This ensures data is cached globally and shared across all dashboards.
+ *
+ * Key Benefits:
+ * - Data fetched in admin dashboard is immediately available in parent/teacher dashboards
+ * - Single source of truth for cached API responses
+ * - Tag-based invalidation keeps cache synchronized across the app
+ * - Reduces redundant API calls when same data is accessed from different dashboards
+ */
 export const baseApi = createApi({
   reducerPath: "api",
   baseQuery: baseQueryWithErrorHandling,
@@ -99,12 +321,18 @@ export const baseApi = createApi({
     "CalendarEvent",
     "Message",
     "Notice",
+    "Notification",
     "Timetable",
     "Fee",
     "Wallet",
     "WalletTransaction",
     "Admission",
     "LeaveRequest",
+    "Note",
+    "Schedule",
+    "Subject",
+    "Stakeholder",
+    "Chat",
   ],
   endpoints: () => ({}),
 });

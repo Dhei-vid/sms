@@ -1,3 +1,11 @@
+import type {
+  AdmissionStatus,
+  ApiResponse,
+  ApiListResponse,
+  ApiDeleteResponse,
+  BaseQueryParams,
+} from "../shared-types";
+
 /**
  * Type definitions for Admissions API responses
  */
@@ -10,7 +18,7 @@ export interface Admission {
   dateOfBirth?: string;
   classId?: string;
   className?: string;
-  status: "pending" | "approved" | "rejected" | "enrolled";
+  status: AdmissionStatus;
   applicationDate: string;
   documents?: string[];
   remarks?: string;
@@ -39,20 +47,27 @@ export interface UpdateAdmissionRequest {
   remarks?: string;
 }
 
-export interface AdmissionsListResponse {
-  data: Admission[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
+/**
+ * Admissions list response with pagination
+ */
+export type AdmissionsListResponse = ApiListResponse<Admission>;
 
-export interface AdmissionsQueryParams {
-  page?: number;
-  limit?: number;
-  status?: "pending" | "approved" | "rejected" | "enrolled";
+/**
+ * Admission response for single entity operations
+ */
+export type AdmissionResponse = ApiResponse<Admission>;
+
+/**
+ * Delete admission response
+ */
+export type DeleteAdmissionResponse = ApiDeleteResponse;
+
+/**
+ * Admission query parameters for filtering and pagination
+ */
+export interface AdmissionsQueryParams extends BaseQueryParams {
+  status?: AdmissionStatus;
   classId?: string;
-  search?: string;
   startDate?: string;
   endDate?: string;
 }

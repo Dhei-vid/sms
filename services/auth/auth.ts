@@ -1,58 +1,22 @@
 import { baseApi } from "../baseApi";
+import type {
+  AuthUser,
+  LoginRequest,
+  LoginResponse,
+  GoogleLoginRequest,
+  ForgetPasswordRequest,
+  ForgetPasswordResponse,
+} from "./auth-type";
 
-/**
- * Interface for authenticated user data
- * Contains user identification and role information
- */
-export interface AuthUser {
-  id: string; // Unique user identifier
-  name: string; // User's display name
-  role: "teacher" | "student" | "parent" | "admin" | "canteen"; // User's role for access control
-  email: string; // User's email address
-}
-
-/**
- * Interface for login request payload
- * Sent to the API when user attempts to log in
- */
-export interface LoginRequest {
-  email: string; // User's email address
-  password: string; // User's password (plain text, will be encrypted in transit)
-}
-
-/**
- * Interface for login response from API
- * Contains authentication token and user information
- */
-export interface LoginResponse {
-  token: string; // JWT token for authenticated requests
-  user: AuthUser; // User information
-}
-
-/**
- * Interface for Google login request payload
- * Sent to the API when user attempts to log in with Google
- */
-export interface GoogleLoginRequest {
-  idToken: string; // Google ID token
-  accessToken?: string; // Optional Google access token
-}
-
-/**
- * Interface for forget password request payload
- * Sent to the API when user requests password reset
- */
-export interface ForgetPasswordRequest {
-  email: string; // User's email address
-}
-
-/**
- * Interface for forget password response
- */
-export interface ForgetPasswordResponse {
-  message: string; // Success message
-  success: boolean; // Whether the request was successful
-}
+// Re-export types for convenience
+export type {
+  AuthUser,
+  LoginRequest,
+  LoginResponse,
+  GoogleLoginRequest,
+  ForgetPasswordRequest,
+  ForgetPasswordResponse,
+} from "./auth-type";
 
 /**
  * RTK Query API endpoints for authentication

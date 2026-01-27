@@ -1,62 +1,18 @@
 "use client";
 
+import { useAppSelector } from "@/store/hooks";
+import { selectUser } from "@/store/slices/authSlice";
 import { MetricCard } from "@/components/dashboard-pages/admin/admissions/components/metric-card";
 import { CourseCard } from "@/components/dashboard-pages/student/my-courses/course-card";
-
-interface Course {
-  courseCode: string;
-  courseName: string;
-  teacher: string;
-  currentUnit: string;
-  latestActivity: string;
-}
-
-const courses: Course[] = [
-  {
-    courseCode: "CD-JS-01",
-    courseName: "Mathematics",
-    teacher: "Mr. Femi T.",
-    currentUnit: "Unit 4: Algebra",
-    latestActivity: "Algebra Unit Review Video",
-  },
-  {
-    courseCode: "CD-JS-02",
-    courseName: "English Language",
-    teacher: "Ms. Sarah D.",
-    currentUnit: "Unit 4: Words & Synonyms",
-    latestActivity: "Word Mapping Study",
-  },
-  {
-    courseCode: "CD-JS-03",
-    courseName: "Arts & Culture",
-    teacher: "Ms. Zara",
-    currentUnit: "Unit 6: Atire",
-    latestActivity: "Algebra Unit Review Video",
-  },
-  {
-    courseCode: "CD-JS-01",
-    courseName: "Integrated Science",
-    teacher: "Mr. Femi T.",
-    currentUnit: "Unit 4: Algebra",
-    latestActivity: "Algebra Unit Review Video",
-  },
-  {
-    courseCode: "CD-JS-02",
-    courseName: "Information Computer Technology",
-    teacher: "Ms. Sarah D.",
-    currentUnit: "Unit 4: Words & Synonyms",
-    latestActivity: "Word Mapping Study",
-  },
-  {
-    courseCode: "CD-JS-04",
-    courseName: "History",
-    teacher: "Mr. Femi T.",
-    currentUnit: "Unit 4: Algebra (4/10 Units)",
-    latestActivity: "Algebra Unit Review Video",
-  },
-];
+import { useGetCoursesQuery } from "@/services/shared";
 
 export default function MyCoursesPage() {
+  const user = useAppSelector(selectUser);
+  const { data: coursesData, isLoading } = useGetCoursesQuery({ limit: 100 });
+
+  const courses = coursesData?.data || [];
+  const totalCourses = courses.length;
+
   return (
     <div className="space-y-4">
       {/* Page Title and Description */}
@@ -73,35 +29,41 @@ export default function MyCoursesPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <MetricCard
           title="Total Enrolled Courses"
-          value="9 Subjects"
+          value={`${totalCourses} ${totalCourses === 1 ? 'Subject' : 'Subjects'}`}
           trend="up"
         />
         <MetricCard
           title="Average Course Progress"
-          value="65% Complete"
+          value="N/A"
           trend="up"
         />
         <MetricCard
           title="Total New Resources"
-          value="12 New Resources"
+          value="N/A"
           trend="up"
         />
       </div>
 
       {/* Course Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {courses.map((course, index) => (
-          <CourseCard
-            key={`${course.courseCode}-${index}`}
-            courseCode={course.courseCode}
-            courseName={course.courseName}
-            teacher={course.teacher}
-            currentUnit={course.currentUnit}
-            latestActivity={course.latestActivity}
-            courseId={String(index + 1)}
-          />
-        ))}
-      </div>
+      {isLoading ? (
+        <div className="text-center p-8 text-gray-500">Loading courses...</div>
+      ) : courses.length === 0 ? (
+        <div className="text-center p-8 text-gray-500">No courses found</div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {courses.map((course) => (
+            <CourseCard
+              key={course.id}
+              courseCode={course.code || course.id}
+              courseName={course.name || course.title || "Unnamed Course"}
+              teacher={course.teacherName || course.instructor || "N/A"}
+              currentUnit={course.currentUnit || "N/A"}
+              latestActivity={course.description || "No recent activity"}
+              courseId={course.id}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
