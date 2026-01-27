@@ -1,3 +1,10 @@
+import type {
+  ApiResponse,
+  ApiListResponse,
+  ApiDeleteResponse,
+  BaseQueryParams,
+} from "../shared-types";
+
 /**
  * Type definitions for Messages API responses
  */
@@ -21,20 +28,27 @@ export interface CreateMessageRequest {
   content: string;
 }
 
-export interface MessagesListResponse {
-  data: Message[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
+/**
+ * Messages list response with pagination
+ */
+export type MessageListResponse = ApiListResponse<Message>;
 
-export interface MessagesQueryParams {
-  page?: number;
-  limit?: number;
+/**
+ * Message response for single entity operations
+ */
+export type MessageResponse = ApiResponse<Message>;
+
+/**
+ * Delete message response
+ */
+export type DeleteMessageResponse = ApiDeleteResponse;
+
+/**
+ * Message query parameters for filtering and pagination
+ */
+export interface MessageQueryParams extends BaseQueryParams {
   senderId?: string;
   recipientId?: string;
   isRead?: boolean;
-  search?: string;
 }
 

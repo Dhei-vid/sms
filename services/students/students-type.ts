@@ -1,10 +1,25 @@
+import { User } from "../users/users-type";
+import type {
+  StudentStatus,
+  ApiResponse,
+  ApiListResponse,
+  ApiDeleteResponse,
+  BaseQueryParams,
+} from "../shared-types";
+
 /**
  * Type definitions for Students API responses
  */
 
 export interface Student {
   id: string;
-  name: string;
+  creator_id: string;
+  updated_by_id: string | null;
+  username: string | null;
+  first_name: string;
+  last_name: string;
+  middle_name: string;
+  date_of_birth: string | null;
   email: string;
   phone?: string;
   studentId: string;
@@ -15,7 +30,7 @@ export interface Student {
   dateOfBirth?: string;
   address?: string;
   avatar?: string;
-  status?: "active" | "inactive" | "graduated" | "suspended";
+  status?: StudentStatus;
   admissionDate?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -40,22 +55,29 @@ export interface UpdateStudentRequest {
   classId?: string;
   parentId?: string;
   address?: string;
-  status?: "active" | "inactive" | "graduated" | "suspended";
+  status?: StudentStatus;
 }
 
-export interface StudentsListResponse {
-  data: Student[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
+/**
+ * Students list response with pagination
+ */
+export type StudentsListResponse = ApiListResponse<Student>;
 
-export interface StudentsQueryParams {
-  page?: number;
-  limit?: number;
+/**
+ * Student response for single entity operations
+ */
+export type StudentResponse = ApiResponse<Student>;
+
+/**
+ * Delete student response
+ */
+export type DeleteStudentResponse = ApiDeleteResponse;
+
+/**
+ * Student query parameters for filtering and pagination
+ */
+export interface StudentsQueryParams extends BaseQueryParams {
   classId?: string;
-  status?: "active" | "inactive" | "graduated" | "suspended";
-  search?: string;
+  status?: StudentStatus;
 }
 

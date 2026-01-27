@@ -52,4 +52,3 @@ export interface LeaveRequestsQueryParams {
   startDate?: string;
   endDate?: string;
 }
-

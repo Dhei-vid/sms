@@ -1,3 +1,10 @@
+import type {
+  ApiResponse,
+  ApiListResponse,
+  ApiDeleteResponse,
+  BaseQueryParams,
+} from "../shared-types";
+
 /**
  * Type definitions for Attendance API responses
  */
@@ -37,17 +44,25 @@ export interface BulkAttendanceRequest {
   }[];
 }
 
-export interface AttendanceListResponse {
-  data: Attendance[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
+/**
+ * Attendance list response with pagination
+ */
+export type AttendanceListResponse = ApiListResponse<Attendance>;
 
-export interface AttendanceQueryParams {
-  page?: number;
-  limit?: number;
+/**
+ * Attendance response for single entity operations
+ */
+export type AttendanceResponse = ApiResponse<Attendance>;
+
+/**
+ * Delete attendance response
+ */
+export type DeleteAttendanceResponse = ApiDeleteResponse;
+
+/**
+ * Attendance query parameters for filtering and pagination
+ */
+export interface AttendanceQueryParams extends BaseQueryParams {
   studentId?: string;
   classId?: string;
   courseId?: string;

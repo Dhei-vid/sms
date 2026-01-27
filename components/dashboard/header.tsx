@@ -44,13 +44,16 @@ export function Header({
 }: HeaderProps) {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  
+
   // Get authenticated user from Redux store
   const authUser = useAppSelector(selectUser);
-  
+
   // Use Redux user if available, otherwise fall back to prop
   const user = authUser
-    ? { name: authUser.name, avatar: userProp?.avatar }
+    ? {
+        name: authUser.first_name + " " + authUser?.last_name,
+        avatar: userProp?.avatar,
+      }
     : userProp || { name: "Guest" };
 
   /**
@@ -92,7 +95,7 @@ export function Header({
         </div>
 
         {/* Search Bar */}
-        <div className="w-full lg:w-auto lg:col-span-4 h-13 lg:h-full rounded-md min-w-0 order-last lg:order-none">
+        <div className="w-full lg:w-auto lg:col-span-4 h-13 lg:h-full rounded-md min-w-0 order-last lg:order-0">
           <div className="flex h-full">
             <div className="relative w-full h-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -100,7 +103,7 @@ export function Header({
                 type="search"
                 placeholder={searchPlaceholder}
                 className={cn(
-                  "pl-10 h-full w-full bg-background focus:bg-white text-sm lg:text-base"
+                  "pl-10 h-full w-full bg-background focus:bg-white text-sm lg:text-base",
                 )}
               />
             </div>
@@ -113,12 +116,12 @@ export function Header({
             <div className="bg-background rounded-md h-9 lg:h-full px-3 lg:px-4 flex items-center gap-2 lg:gap-3 shrink-0 ml-auto lg:ml-0 lg:col-span-1 cursor-pointer hover:bg-accent transition-colors">
               {user.avatar ? (
                 <img
-                  src={user.avatar}
-                  alt={user.name}
+                  src={user?.avatar}
+                  alt={user?.name}
                   className="h-7 w-7 lg:h-8 lg:w-8 rounded-full shrink-0"
                 />
               ) : (
-                <div className="h-7 w-7 lg:h-8 lg:w-8 rounded-full bg-purple-600 flex items-center justify-center text-white text-xs lg:text-sm font-medium shrink-0">
+                <div className="h-7 w-7 lg:h-8 lg:w-8 rounded-full bg-gray-600 flex items-center justify-center text-white text-xs lg:text-sm font-medium shrink-0">
                   {user.name.charAt(0).toUpperCase()}
                 </div>
               )}

@@ -1,3 +1,10 @@
+import type {
+  ApiResponse,
+  ApiListResponse,
+  ApiDeleteResponse,
+  BaseQueryParams,
+} from "../shared-types";
+
 /**
  * Type definitions for Calendar/Events API responses
  */
@@ -39,20 +46,27 @@ export interface UpdateCalendarEventRequest {
   isAllDay?: boolean;
 }
 
-export interface CalendarEventsListResponse {
-  data: CalendarEvent[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
+/**
+ * Calendar events list response with pagination
+ */
+export type CalendarEventListResponse = ApiListResponse<CalendarEvent>;
 
-export interface CalendarEventsQueryParams {
-  page?: number;
-  limit?: number;
+/**
+ * Calendar event response for single entity operations
+ */
+export type CalendarEventResponse = ApiResponse<CalendarEvent>;
+
+/**
+ * Delete calendar event response
+ */
+export type DeleteCalendarEventResponse = ApiDeleteResponse;
+
+/**
+ * Calendar event query parameters for filtering and pagination
+ */
+export interface CalendarEventQueryParams extends BaseQueryParams {
   startDate?: string;
   endDate?: string;
   type?: "event" | "holiday" | "exam" | "meeting" | "deadline";
-  search?: string;
 }
 

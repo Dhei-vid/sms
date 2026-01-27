@@ -5,6 +5,8 @@ import type {
   UpdateAdmissionRequest,
   AdmissionsListResponse,
   AdmissionsQueryParams,
+  AdmissionResponse,
+  DeleteAdmissionResponse,
 } from "./admissions-type";
 
 export const admissionsApi = baseApi.injectEndpoints({
@@ -27,12 +29,12 @@ export const admissionsApi = baseApi.injectEndpoints({
       providesTags: ["Admission"],
     }),
 
-    getAdmissionById: build.query<Admission, string>({
+    getAdmissionById: build.query<AdmissionResponse, string>({
       query: (id) => `/admissions/${id}`,
       providesTags: (result, error, id) => [{ type: "Admission", id }],
     }),
 
-    createAdmission: build.mutation<Admission, CreateAdmissionRequest>({
+    createAdmission: build.mutation<AdmissionResponse, CreateAdmissionRequest>({
       query: (body) => ({
         url: "/admissions",
         method: "POST",
@@ -41,7 +43,7 @@ export const admissionsApi = baseApi.injectEndpoints({
       invalidatesTags: ["Admission"],
     }),
 
-    updateAdmission: build.mutation<Admission, { id: string; data: UpdateAdmissionRequest }>({
+    updateAdmission: build.mutation<AdmissionResponse, { id: string; data: UpdateAdmissionRequest }>({
       query: ({ id, data }) => ({
         url: `/admissions/${id}`,
         method: "PUT",
@@ -50,7 +52,7 @@ export const admissionsApi = baseApi.injectEndpoints({
       invalidatesTags: (result, error, { id }) => [{ type: "Admission", id }, "Admission"],
     }),
 
-    deleteAdmission: build.mutation<{ success: boolean; message: string }, string>({
+    deleteAdmission: build.mutation<DeleteAdmissionResponse, string>({
       query: (id) => ({
         url: `/admissions/${id}`,
         method: "DELETE",

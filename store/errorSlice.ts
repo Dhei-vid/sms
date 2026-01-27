@@ -18,16 +18,20 @@ export const errorSlice = createSlice({
   name: "error",
   initialState,
   reducers: {
-    setError(state, action: PayloadAction<AppError | null>) {
+    setError: (state, action: PayloadAction<AppError | null>) => {
       state.lastError = action.payload;
     },
-    clearError(state) {
+    clearError: (state) => {
       state.lastError = null;
     },
   },
 });
 
 export const { setError, clearError } = errorSlice.actions;
+
+
+
+
 
 
 

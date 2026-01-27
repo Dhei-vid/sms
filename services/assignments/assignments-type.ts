@@ -1,3 +1,11 @@
+import type {
+  GeneralStatus,
+  ApiResponse,
+  ApiListResponse,
+  ApiDeleteResponse,
+  BaseQueryParams,
+} from "../shared-types";
+
 /**
  * Type definitions for Assignments API responses
  */
@@ -13,7 +21,7 @@ export interface Assignment {
   dueDate: string;
   maxScore?: number;
   type?: "assignment" | "quiz" | "exam";
-  status?: "draft" | "published" | "closed";
+  status?: "draft" | "published" | "closed" | GeneralStatus;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -33,25 +41,32 @@ export interface UpdateAssignmentRequest {
   dueDate?: string;
   maxScore?: number;
   type?: "assignment" | "quiz" | "exam";
-  status?: "draft" | "published" | "closed";
+  status?: "draft" | "published" | "closed" | GeneralStatus;
 }
 
-export interface AssignmentsListResponse {
-  data: Assignment[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
+/**
+ * Assignments list response with pagination
+ */
+export type AssignmentListResponse = ApiListResponse<Assignment>;
 
-export interface AssignmentsQueryParams {
-  page?: number;
-  limit?: number;
+/**
+ * Assignment response for single entity operations
+ */
+export type AssignmentResponse = ApiResponse<Assignment>;
+
+/**
+ * Delete assignment response
+ */
+export type DeleteAssignmentResponse = ApiDeleteResponse;
+
+/**
+ * Assignment query parameters for filtering and pagination
+ */
+export interface AssignmentQueryParams extends BaseQueryParams {
   courseId?: string;
   teacherId?: string;
   studentId?: string;
   type?: "assignment" | "quiz" | "exam";
-  status?: "draft" | "published" | "closed";
-  search?: string;
+  status?: "draft" | "published" | "closed" | GeneralStatus;
 }
 

@@ -30,10 +30,14 @@ export function MetricCard({
           <div className="flex flex-col gap-4">
             <p className="text-sm text-gray-600 mb-1">{title}</p>
             <div>
-              <p className="text-2xl font-bold text-gray-800 mb-1">{value}</p>
-              <p className={cn("text-xs", trendColor || "text-gray-500")}>
-                {subtitle}
-              </p>
+              <span className="text-2xl font-bold text-gray-800 mb-1">
+                {value || 0}
+              </span>
+              {subtitle && (
+                <p className={cn("text-xs", trendColor || "text-gray-500")}>
+                  {subtitle}
+                </p>
+              )}
             </div>
           </div>
           {trend && (

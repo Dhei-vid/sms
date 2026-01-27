@@ -1,82 +1,103 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useAppSelector } from "@/store/hooks";
+import { selectUser } from "@/store/slices/authSlice";
 import { MetricCard } from "@/components/dashboard-pages/admin/admissions/components/metric-card";
 import { DetailedGradeViewModal } from "@/components/dashboard-pages/student/my-grades/detailed-grade-view-modal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable, TableColumn } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
+import { useGetGradesQuery } from "@/services/shared";
+import { useGetCoursesQuery } from "@/services/shared";
+import type { Grade } from "@/services/grades/grades-type";
 
 interface SubjectPerformance {
   subject: string;
+  courseId: string;
   assignedTeacher: string;
   termAverageScore: string;
   latestGrade: string;
 }
 
-const subjectPerformances: SubjectPerformance[] = [
-  {
-    subject: "English Language",
-    assignedTeacher: "Mr. Femi T.",
-    termAverageScore: "88%",
-    latestGrade: "92% (Quiz 4)",
-  },
-  {
-    subject: "Mathematics",
-    assignedTeacher: "Ms. Zara A.",
-    termAverageScore: "95%",
-    latestGrade: "92% (Quiz 4)",
-  },
-  {
-    subject: "Arts & Culture",
-    assignedTeacher: "Mr. D. Edeh",
-    termAverageScore: "78%",
-    latestGrade: "85% (CA 2)",
-  },
-  {
-    subject: "History",
-    assignedTeacher: "Ms. Sarah D.",
-    termAverageScore: "82%",
-    latestGrade: "92% (Quiz 4)",
-  },
-  {
-    subject: "Integrated Science",
-    assignedTeacher: "Mr. Femi T.",
-    termAverageScore: "55%",
-    latestGrade: "85% (CA 2)",
-  },
-  {
-    subject: "Information Technology",
-    assignedTeacher: "Ms. Zara A.",
-    termAverageScore: "88%",
-    latestGrade: "50% (Project)",
-  },
-  {
-    subject: "Social Studies",
-    assignedTeacher: "Mr. D. Edeh",
-    termAverageScore: "95%",
-    latestGrade: "92% (Quiz 4)",
-  },
-  {
-    subject: "Physical Education",
-    assignedTeacher: "Ms. Sarah D.",
-    termAverageScore: "78%",
-    latestGrade: "92% (Quiz 4)",
-  },
-  {
-    subject: "Yoruba Language",
-    assignedTeacher: "Ms. Sarah D.",
-    termAverageScore: "82%",
-    latestGrade: "85% (CA 2)",
-  },
-];
-
 export default function MyGradesPage() {
+  const user = useAppSelector(selectUser);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
+  const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
 
-  const handleViewDetails = (subject: string) => {
+  const { data: gradesData, isLoading: gradesLoading } = useGetGradesQuery(
+    user?.id ? { studentId: user.id } : undefined
+  );
+  const { data: coursesData } = useGetCoursesQuery();
+
+  const subjectPerformances = useMemo(() => {
+    if (!gradesData?.data || !coursesData?.data) return [];
+
+    const courseMap = new Map(coursesData.data.map((c) => [c.id, c]));
+    const gradesByCourse = new Map<string, Grade[]>();
+
+    gradesData.data.forEach((grade) => {
+      if (grade.courseId) {
+        if (!gradesByCourse.has(grade.courseId)) {
+          gradesByCourse.set(grade.courseId, []);
+        }
+        gradesByCourse.get(grade.courseId)!.push(grade);
+      }
+    });
+
+    return Array.from(gradesByCourse.entries()).map(([courseId, grades]) => {
+      const course = courseMap.get(courseId);
+      const sortedGrades = grades.sort((a, b) => {
+        if (!a.createdAt || !b.createdAt) return 0;
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+      const latestGrade = sortedGrades[0];
+
+      const averageScore = grades.reduce((sum, g) => {
+        if (g.maxScore) {
+          return sum + (g.score / g.maxScore) * 100;
+        }
+        return sum + (g.percentage || 0);
+      }, 0) / grades.length;
+
+      const latestGradeText = latestGrade?.maxScore
+        ? `${Math.round((latestGrade.score / latestGrade.maxScore) * 100)}% ${latestGrade.assignmentName ? `(${latestGrade.assignmentName})` : ''}`
+        : latestGrade?.percentage
+        ? `${latestGrade.percentage}%`
+        : "N/A";
+
+      return {
+        subject: course?.name || "Unknown Course",
+        courseId,
+        assignedTeacher: latestGrade?.teacherName || course?.teacherName || "N/A",
+        termAverageScore: `${Math.round(averageScore)}%`,
+        latestGrade: latestGradeText,
+      };
+    });
+  }, [gradesData, coursesData]);
+
+  const overallAverage = useMemo(() => {
+    if (subjectPerformances.length === 0) return 0;
+    const sum = subjectPerformances.reduce(
+      (acc, subj) => acc + parseFloat(subj.termAverageScore.replace("%", "")),
+      0
+    );
+    return Math.round(sum / subjectPerformances.length);
+  }, [subjectPerformances]);
+
+  const lowestSubject = useMemo(() => {
+    if (subjectPerformances.length === 0) return null;
+    return subjectPerformances.reduce((lowest, current) => {
+      const currentScore = parseFloat(current.termAverageScore.replace("%", ""));
+      const lowestScore = parseFloat(lowest.termAverageScore.replace("%", ""));
+      return currentScore < lowestScore ? current : lowest;
+    });
+  }, [subjectPerformances]);
+
+  const handleViewDetails = (subject: string, courseId: string) => {
     setSelectedSubject(subject);
+    setSelectedCourseId(courseId);
     setModalOpen(true);
   };
 
@@ -108,7 +129,7 @@ export default function MyGradesPage() {
           <Button
             variant="link"
             className="h-auto p-0 text-main-blue"
-            onClick={() => handleViewDetails(row.subject)}
+            onClick={() => handleViewDetails(row.subject, row.courseId)}
           >
             View Details
           </Button>
@@ -133,10 +154,14 @@ export default function MyGradesPage() {
 
       {/* Performance Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <MetricCard title="Overall Average Score" value="82%" trend="up" />
+        <MetricCard 
+          title="Overall Average Score" 
+          value={`${overallAverage}%`} 
+          trend="up" 
+        />
         <MetricCard
           title="Lowest Subject Score"
-          value="Integrated Science: 55%"
+          value={lowestSubject ? `${lowestSubject.subject}: ${lowestSubject.termAverageScore}` : "N/A"}
           trend="up"
         />
       </div>
@@ -156,21 +181,42 @@ export default function MyGradesPage() {
         </CardHeader>
         <CardContent>
           <div className="border rounded-lg overflow-hidden">
-            <DataTable
-              columns={columns}
-              data={subjectPerformances}
-              showActionsColumn={false}
-            />
+            {gradesLoading ? (
+              <div className="p-8 text-center text-gray-500">Loading grades...</div>
+            ) : subjectPerformances.length === 0 ? (
+              <div className="p-8 text-center text-gray-500">No grades found</div>
+            ) : (
+              <DataTable
+                columns={columns}
+                data={subjectPerformances}
+                showActionsColumn={false}
+              />
+            )}
           </div>
         </CardContent>
       </Card>
 
       {/* Detailed Grade View Modal */}
-      {selectedSubject && (
+      {selectedSubject && selectedCourseId && (
         <DetailedGradeViewModal
           open={modalOpen}
           onOpenChange={setModalOpen}
           subject={selectedSubject}
+          assessments={gradesData?.data
+            ?.filter((grade) => grade.courseId === selectedCourseId)
+            .map((grade) => ({
+              assessmentName: grade.assignmentName || "N/A",
+              assessmentType: grade.assignmentName?.includes("Quiz") 
+                ? "Continuous Assessment (Quiz)"
+                : grade.assignmentName?.includes("CA")
+                ? "Continuous Assessment"
+                : grade.assignmentName?.includes("Exam")
+                ? "Examination"
+                : "Assignment",
+              totalMarks: grade.maxScore || 0,
+              studentScore: grade.score || 0,
+              teacherFeedback: grade.remarks || "No feedback available",
+            })) || []}
         />
       )}
     </div>

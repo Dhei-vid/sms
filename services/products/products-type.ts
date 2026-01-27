@@ -1,3 +1,12 @@
+import { User } from "../users/users-type";
+import { School } from "../schools/schools-type";
+import type {
+  ApiResponse,
+  ApiListResponse,
+  ApiDeleteResponse,
+  BaseQueryParams,
+} from "../shared-types";
+
 /**
  * Type definitions for Products API responses
  * These types are based on the API response structure from the backend
@@ -8,15 +17,38 @@
  */
 export interface Product {
   id: string;
+  creator_id: string;
+  updated_by_id: string | null;
+  school_id: string | null;
+
   name: string;
-  description?: string;
-  price: number;
-  category?: string;
-  image?: string;
-  stock?: number;
-  status?: "active" | "inactive" | "out_of_stock";
-  createdAt?: string;
-  updatedAt?: string;
+  description: string;
+
+  price: string; // comes as string
+  sale_price: string; // comes as string
+
+  image: string;
+  category: string;
+
+  rating: number;
+  stock: number;
+
+  featured: boolean;
+  in_stock: boolean;
+  best_seller: boolean;
+
+  type: string | null;
+  slug: string | null;
+
+  status: "available" | "unavailable" | "out_of_stock" | string; // extensible
+  is_deleted: boolean;
+  creator: User;
+  updated_by?: null | User;
+
+  school: null | School;
+  created_at?: string | null;
+  updated_at?: string | null;
+  deleted_at?: string | null;
 }
 
 /**
@@ -25,10 +57,8 @@ export interface Product {
 export interface CreateProductRequest {
   name: string;
   description?: string;
-  price: number;
+  sale_price: number;
   category?: string;
-  image?: string;
-  stock?: number;
 }
 
 /**
@@ -41,30 +71,30 @@ export interface UpdateProductRequest {
   category?: string;
   image?: string;
   stock?: number;
-  status?: "active" | "inactive" | "out_of_stock";
+  rating?: number;
+  in_stock: boolean;
+  type: string;
+  best_seller?: boolean;
+  slug?: string;
+  status?: "active" | "inactive" | "out_of_stock" | string;
 }
 
 /**
  * Products list response with pagination
  */
-export interface ProductsListResponse {
-  data: Product[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
+export type ProductsListResponse = ApiListResponse<Product>;
+
+/**
+ * Product response for single entity operations
+ */
+export type ProductResponse = ApiResponse<Product>;
+
+/**
+ * Delete product response
+ */
+export type DeleteProductResponse = ApiDeleteResponse;
 
 /**
  * Product query parameters for filtering and pagination
  */
-export interface ProductsQueryParams {
-  page?: number;
-  limit?: number;
-  category?: string;
-  status?: "active" | "inactive" | "out_of_stock";
-  search?: string;
-  minPrice?: number;
-  maxPrice?: number;
-}
-
+export interface ProductsQueryParams extends BaseQueryParams {}

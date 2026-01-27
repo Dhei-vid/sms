@@ -1,3 +1,10 @@
+import type {
+  ApiResponse,
+  ApiListResponse,
+  ApiDeleteResponse,
+  BaseQueryParams,
+} from "../shared-types";
+
 /**
  * Type definitions for Grades API responses
  */
@@ -36,21 +43,28 @@ export interface UpdateGradeRequest {
   remarks?: string;
 }
 
-export interface GradesListResponse {
-  data: Grade[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
+/**
+ * Grades list response with pagination
+ */
+export type GradeListResponse = ApiListResponse<Grade>;
 
-export interface GradesQueryParams {
-  page?: number;
-  limit?: number;
+/**
+ * Grade response for single entity operations
+ */
+export type GradeResponse = ApiResponse<Grade>;
+
+/**
+ * Delete grade response
+ */
+export type DeleteGradeResponse = ApiDeleteResponse;
+
+/**
+ * Grade query parameters for filtering and pagination
+ */
+export interface GradeQueryParams extends BaseQueryParams {
   studentId?: string;
   courseId?: string;
   assignmentId?: string;
   teacherId?: string;
-  search?: string;
 }
 

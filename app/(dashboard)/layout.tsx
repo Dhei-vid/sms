@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { menuItems } from "@/common/menu-items";
 import { matchMenuItemByPath } from "@/utils";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { Header } from "@/components/dashboard/header";
@@ -63,15 +62,29 @@ export default function DashboardLayout({
 
   const path = matchMenuItemByPath(pathname, role);
 
-  /**
-   * Redirect to login if user is not authenticated
-   * Runs on mount and when authentication state changes
-   */
+  // Debug: Log auth state
+  if (typeof window !== "undefined") {
+    // console.log("👤 Auth State in Layout:", {
+    //   isAuthenticated,
+    //   hasUser: !!authUser,
+    //   userId: authUser?.id,
+    //   userEmail: authUser?.email,
+    //   userRole: authUser?.role,
+    //   roleFromPath,
+    //   finalRole: role,
+    // });
+  }
+
+  // Redirect to login if user is not authenticated
   useEffect(() => {
-    // if (!isAuthenticated) {
-    //   router.push("/signin");
-    // }
-  }, [isAuthenticated, router]);
+    if (!isAuthenticated && typeof window !== "undefined") {
+      // Only redirect if we're not already on the signin page
+      if (!pathname.includes("/signin")) {
+        console.log("🔒 Not authenticated, redirecting to signin");
+        router.push("/signin");
+      }
+    }
+  }, [isAuthenticated, router, pathname]);
 
   // Close mobile menu when route changes
   // useEffect(() => {
@@ -102,7 +115,7 @@ export default function DashboardLayout({
           <aside
             className={cn(
               "hidden lg:flex flex-col transition-all duration-300 ease-in-out shrink-0",
-              sidebarCollapsed ? "w-16" : "w-sm"
+              sidebarCollapsed ? "w-16" : "w-sm",
             )}
           >
             <div className="h-full p-2">
@@ -131,6 +144,7 @@ export default function DashboardLayout({
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         <div className="p-2">
           <Header
+            // user={authUser}
             metaData={path}
             onMenuClick={() => setMobileMenuOpen(true)}
             onSidebarToggle={() => setSidebarCollapsed(!sidebarCollapsed)}

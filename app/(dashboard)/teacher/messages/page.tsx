@@ -6,7 +6,10 @@ import {
   ChatConversation,
 } from "@/components/dashboard-pages/admin/messages/components";
 import { Icon } from "@/components/general/huge-icon";
-import { Building01Icon, SharedDriveIcon } from "@hugeicons/core-free-icons";
+import {
+  MessageCancel01Icon,
+  SharedDriveIcon,
+} from "@hugeicons/core-free-icons";
 import { ChatHeader } from "@/components/dashboard-pages/admin/messages/components";
 import { MessageInput } from "@/components/dashboard-pages/admin/messages/components";
 
@@ -184,11 +187,11 @@ export default function MessagesPage() {
             <div className="flex-1 flex items-center justify-center bg-white">
               <div className="text-center">
                 <Icon
-                  icon={Building01Icon}
+                  icon={MessageCancel01Icon}
                   size={48}
                   className="mx-auto text-gray-400 mb-4"
                 />
-                <p className="text-gray-600">
+                <p className="text-gray-600 text-sm">
                   Select a conversation to start messaging
                 </p>
               </div>
