@@ -1,6 +1,8 @@
 import { User } from "../users/users-type";
 import { School } from "../schools/schools-type";
 import { Pagination, Currency } from "@/common/types";
+import { PaymentMethod, PaymentType, TransactionType, PaymentGateway } from "../shared-types";
+import type { ApiResponse, BaseQueryParams } from "../shared-types";
 
 export interface TransactionResponse {
   status: boolean;
@@ -10,6 +12,9 @@ export interface TransactionResponse {
   pagination: Pagination;
 }
 
+type TransactionCategory = "salaries" | string;
+type TransactionStatus = "completed" | "pending" | string;
+
 export interface Transaction {
   id: string;
   creator_id: string;
@@ -17,41 +22,33 @@ export interface Transaction {
   receiver_id: string;
   school_id?: null | string;
   wallet_id: string;
-  payment_type: "deposit" | string;
-  payment_method: "fund" | string;
-  transaction_type: "income" | string;
+  payment_type: PaymentType;
+  payment_method: PaymentMethod;
+  transaction_type: TransactionType;
   amount: string;
   date?: string | null;
   reference: string;
   description: string;
   category: null;
   currency: Currency;
-  channel: null;
-  authorization_url: null;
-  access_code: null;
-  payment_status: "not complete" | string;
-  status: "completed" | string;
-  is_deleted: false;
+  status: TransactionStatus;
   creator: User;
   updated_by?: null | User;
   receiver?: User | null;
-
   school?: School | null;
   wallet: TransactionWallet;
-
   created_at: string | null;
   updated_at: string | null;
-  deleted_at: string | null;
 }
 
-interface TransactionWallet {
+export interface TransactionWallet {
   id: string;
   creator_id: string;
   updated_by_id: null;
   school_id: null;
   user_id: string;
   balance: string;
-  currency: "NGN" | string;
+  currency: Currency;
   status: null | string;
   created_at?: string | null;
   updated_at?: string | null;
@@ -66,16 +63,16 @@ export interface UpdateTransactions {
   receiver_id: string;
   school_id: string;
   wallet_id: string;
-  payment_type: "deposit" | string;
-  payment_method: "manual" | string;
-  transaction_type: "expense" | "income" | string;
+  payment_type: PaymentType;
+  payment_method: PaymentMethod;
+  transaction_type: TransactionType;
   amount: number;
   date?: string | null;
   reference: string;
   description: string;
-  category: "salaries" | string;
-  currency: "USD" | string;
-  status: "completed" | string;
+  category: TransactionCategory;
+  currency: Currency;
+  status: TransactionStatus;
 }
 
 export interface InitializePayment {
@@ -83,7 +80,7 @@ export interface InitializePayment {
   // "receiver_id": "01jyrdaab3r7chxs74zgcrmryd",
   // "sender_id": "01jyrdaafjsxp4neh45parbsq5",
   // "payment_type": "payment",
-  payment_gateway: "flutterwave" | string;
+  payment_gateway: PaymentGateway;
   amount: number;
 }
 
@@ -96,4 +93,29 @@ export interface TransferMoney {
   account_number: string;
   bank_code: string;
   amount: number;
+}
+
+
+export type TransactionSingleResponse = ApiResponse<Transaction>;
+
+export interface TransactionsQueryParams extends BaseQueryParams {
+  wallet_id?: string;
+  status?: TransactionStatus;
+  payment_type?: PaymentType;
+  transaction_type?: TransactionType;
+  start_date?: string;
+  end_date?: string;
+}
+
+export interface InitializePaymentData extends Transaction {
+  channel: string;
+  authorization_url: string;
+  access_code: string;
+}
+
+export interface InitializePaymentResponse {
+  status: boolean;
+  status_code: number;
+  message: string;
+  data: InitializePaymentData;
 }

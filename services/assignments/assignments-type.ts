@@ -1,72 +1,27 @@
-import type {
-  GeneralStatus,
-  ApiResponse,
-  ApiListResponse,
-  ApiDeleteResponse,
-  BaseQueryParams,
-} from "../shared-types";
-
-/**
- * Type definitions for Assignments API responses
- */
+import type { ApiListResponse, ApiResponse, ApiDeleteResponse, BaseQueryParams } from "../shared-types";
 
 export interface Assignment {
   id: string;
-  title: string;
-  description?: string;
-  courseId: string;
-  courseName?: string;
-  teacherId: string;
-  teacherName?: string;
-  dueDate: string;
-  maxScore?: number;
-  type?: "assignment" | "quiz" | "exam";
-  status?: "draft" | "published" | "closed" | GeneralStatus;
-  createdAt?: string;
-  updatedAt?: string;
+  title?: string;
+  dueDate?: string;
+  studentId?: string;
+  [key: string]: unknown;
 }
 
 export interface CreateAssignmentRequest {
-  title: string;
-  description?: string;
-  courseId: string;
-  dueDate: string;
-  maxScore?: number;
-  type?: "assignment" | "quiz" | "exam";
+  school_id?: string;
+  title?: string;
+  [key: string]: unknown;
 }
 
 export interface UpdateAssignmentRequest {
   title?: string;
-  description?: string;
   dueDate?: string;
-  maxScore?: number;
-  type?: "assignment" | "quiz" | "exam";
-  status?: "draft" | "published" | "closed" | GeneralStatus;
+  [key: string]: unknown;
 }
 
-/**
- * Assignments list response with pagination
- */
-export type AssignmentListResponse = ApiListResponse<Assignment>;
-
-/**
- * Assignment response for single entity operations
- */
-export type AssignmentResponse = ApiResponse<Assignment>;
-
-/**
- * Delete assignment response
- */
-export type DeleteAssignmentResponse = ApiDeleteResponse;
-
-/**
- * Assignment query parameters for filtering and pagination
- */
-export interface AssignmentQueryParams extends BaseQueryParams {
-  courseId?: string;
-  teacherId?: string;
+export type AssignmentsListResponse = ApiListResponse<Assignment>;
+export interface AssignmentsQueryParams extends BaseQueryParams {
   studentId?: string;
-  type?: "assignment" | "quiz" | "exam";
-  status?: "draft" | "published" | "closed" | GeneralStatus;
+  limit?: number;
 }
-

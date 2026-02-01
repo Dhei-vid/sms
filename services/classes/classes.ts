@@ -1,60 +1,30 @@
 import { baseApi } from "../baseApi";
-import type {
-  Class,
-  CreateClassRequest,
-  UpdateClassRequest,
-  ClassesListResponse,
-  ClassesQueryParams,
-} from "./classes-type";
+import type { Class, CreateClassRequest, UpdateClassRequest, ClassesListResponse, ClassesQueryParams } from "./classes-type";
+
+const BASE = "/classes";
 
 export const classesApi = baseApi.injectEndpoints({
+  overrideExisting: true,
   endpoints: (build) => ({
     getClasses: build.query<ClassesListResponse, ClassesQueryParams | void>({
-      query: (params) => {
-        const queryParams = new URLSearchParams();
-        if (params) {
-          if (params.page) queryParams.set("page", params.page.toString());
-          if (params.limit) queryParams.set("limit", params.limit.toString());
-          if (params.level) queryParams.set("level", params.level);
-          if (params.teacherId) queryParams.set("teacherId", params.teacherId);
-          if (params.status) queryParams.set("status", params.status);
-          if (params.search) queryParams.set("search", params.search);
-        }
-        const queryString = queryParams.toString();
-        return `/classes${queryString ? `?${queryString}` : ""}`;
-      },
+      query: (params) => ({ url: BASE, params: params ?? {} }),
       providesTags: ["Class"],
     }),
-
     getClassById: build.query<Class, string>({
-      query: (id) => `/classes/${id}`,
-      providesTags: (result, error, id) => [{ type: "Class", id }],
+      query: (id) => ({ url: `${BASE}/${id}` }),
+      providesTags: (_, __, id) => [{ type: "Class", id }],
     }),
-
     createClass: build.mutation<Class, CreateClassRequest>({
-      query: (body) => ({
-        url: "/classes",
-        method: "POST",
-        body,
-      }),
+      query: (body) => ({ url: BASE, method: "POST", body }),
       invalidatesTags: ["Class"],
     }),
-
     updateClass: build.mutation<Class, { id: string; data: UpdateClassRequest }>({
-      query: ({ id, data }) => ({
-        url: `/classes/${id}`,
-        method: "PUT",
-        body: data,
-      }),
-      invalidatesTags: (result, error, { id }) => [{ type: "Class", id }, "Class"],
+      query: ({ id, data }) => ({ url: `${BASE}/${id}`, method: "PUT", body: data }),
+      invalidatesTags: (_, __, { id }) => [{ type: "Class", id }, "Class"],
     }),
-
-    deleteClass: build.mutation<{ success: boolean; message: string }, string>({
-      query: (id) => ({
-        url: `/classes/${id}`,
-        method: "DELETE",
-      }),
-      invalidatesTags: ["Class"],
+    deleteClass: build.mutation<{ success: boolean; message?: string }, string>({
+      query: (id) => ({ url: `${BASE}/${id}`, method: "DELETE" }),
+      invalidatesTags: (_, __, id) => [{ type: "Class", id }, "Class"],
     }),
   }),
 });
@@ -66,4 +36,3 @@ export const {
   useUpdateClassMutation,
   useDeleteClassMutation,
 } = classesApi;
-

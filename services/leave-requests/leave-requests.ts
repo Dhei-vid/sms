@@ -7,54 +7,33 @@ import type {
   LeaveRequestsQueryParams,
 } from "./leave-requests-type";
 
+const BASE = "/leave-requests";
+
 export const leaveRequestsApi = baseApi.injectEndpoints({
+  overrideExisting: true,
   endpoints: (build) => ({
     getLeaveRequests: build.query<LeaveRequestsListResponse, LeaveRequestsQueryParams | void>({
-      query: (params) => {
-        const queryParams = new URLSearchParams();
-        if (params) {
-          if (params.page) queryParams.set("page", params.page.toString());
-          if (params.limit) queryParams.set("limit", params.limit.toString());
-          if (params.userId) queryParams.set("userId", params.userId);
-          if (params.status) queryParams.set("status", params.status);
-          if (params.leaveType) queryParams.set("leaveType", params.leaveType);
-          if (params.startDate) queryParams.set("startDate", params.startDate);
-          if (params.endDate) queryParams.set("endDate", params.endDate);
-        }
-        const queryString = queryParams.toString();
-        return `/leave-requests${queryString ? `?${queryString}` : ""}`;
-      },
+      query: (params) => ({ url: BASE, params: params ?? {} }),
       providesTags: ["LeaveRequest"],
     }),
 
     getLeaveRequestById: build.query<LeaveRequest, string>({
-      query: (id) => `/leave-requests/${id}`,
-      providesTags: (result, error, id) => [{ type: "LeaveRequest", id }],
+      query: (id) => ({ url: `${BASE}/${id}` }),
+      providesTags: (_, __, id) => [{ type: "LeaveRequest", id }],
     }),
 
     createLeaveRequest: build.mutation<LeaveRequest, CreateLeaveRequestRequest>({
-      query: (body) => ({
-        url: "/leave-requests",
-        method: "POST",
-        body,
-      }),
+      query: (body) => ({ url: BASE, method: "POST", body }),
       invalidatesTags: ["LeaveRequest"],
     }),
 
     updateLeaveRequest: build.mutation<LeaveRequest, { id: string; data: UpdateLeaveRequestRequest }>({
-      query: ({ id, data }) => ({
-        url: `/leave-requests/${id}`,
-        method: "PUT",
-        body: data,
-      }),
-      invalidatesTags: (result, error, { id }) => [{ type: "LeaveRequest", id }, "LeaveRequest"],
+      query: ({ id, data }) => ({ url: `${BASE}/${id}`, method: "PUT", body: data }),
+      invalidatesTags: (_, __, { id }) => [{ type: "LeaveRequest", id }, "LeaveRequest"],
     }),
 
     deleteLeaveRequest: build.mutation<{ success: boolean; message: string }, string>({
-      query: (id) => ({
-        url: `/leave-requests/${id}`,
-        method: "DELETE",
-      }),
+      query: (id) => ({ url: `${BASE}/${id}`, method: "DELETE" }),
       invalidatesTags: ["LeaveRequest"],
     }),
   }),
@@ -67,4 +46,3 @@ export const {
   useUpdateLeaveRequestMutation,
   useDeleteLeaveRequestMutation,
 } = leaveRequestsApi;
-

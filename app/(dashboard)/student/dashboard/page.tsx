@@ -12,7 +12,7 @@ import { useGetAssignmentsQuery } from "@/services/shared";
 import { useGetNoticesQuery } from "@/services/shared";
 import { useGetCalendarEventsQuery } from "@/services/shared";
 import { useGetStudentByIdQuery } from "@/services/shared";
-import { useGetWalletQuery } from "@/services/wallet/wallet";
+import { useGetWalletBalanceQuery } from "@/services/wallet/wallet";
 import { format } from "date-fns";
 
 export default function StudentDashboard() {
@@ -35,7 +35,7 @@ export default function StudentDashboard() {
   );
   const { data: noticesData } = useGetNoticesQuery({ limit: 2 });
   const { data: calendarData } = useGetCalendarEventsQuery({ limit: 2 });
-  const { data: walletData } = useGetWalletQuery();
+  const { data: walletData } = useGetWalletBalanceQuery(user?.id ?? undefined, { skip: !user?.id });
 
   const upcomingAssignments =
     assignmentsData?.data?.filter((assignment) => {
@@ -115,16 +115,16 @@ export default function StudentDashboard() {
         </div>
         <WalletBalanceCard
           balance={
-            walletData?.balance
-              ? `₦ ${parseFloat(walletData.balance.toString()).toLocaleString(
+            walletData?.data?.balance
+              ? `₦ ${parseFloat(String(walletData.data.balance)).toLocaleString(
                   "en-NG",
                   { minimumFractionDigits: 2, maximumFractionDigits: 2 }
                 )}`
               : undefined
           }
           lastTransaction={
-            walletData?.updatedAt
-              ? format(new Date(walletData.updatedAt), "MMM d, yyyy; h:mm a")
+            walletData?.data?.updated_at
+              ? format(new Date(walletData.data.updated_at), "MMM d, yyyy; h:mm a")
               : undefined
           }
         />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,9 @@ import {
   KanbanIcon,
   WalletAdd02Icon,
   ContractsIcon,
+
+  ArrowUpRight01Icon,
+  ArrowDownLeft01Icon
 } from "@hugeicons/core-free-icons";
 import { FinancialMetricCard } from "@/components/dashboard-pages/admin/finance/finance-metrics";
 import { formattedAmount } from "@/common/helper";
@@ -30,8 +33,24 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
 } from "recharts";
+
+// APIs & selectors
+import { useGetAllTransactionsQuery } from "@/services/transactions/transactions";
+import { selectTransactionsGroupedByCategory } from "@/services/transactions/transaction-selectors";
+import { useAppSelector } from "@/store/hooks";
+
+/** Category bar colors for Budget vs Actual (consistent order) */
+const BUDGET_CATEGORY_COLORS = [
+  "bg-teal-500",
+  "bg-orange-500",
+  "bg-blue-500",
+  "bg-violet-500",
+  "bg-amber-500",
+  "bg-rose-500",
+  "bg-emerald-500",
+  "bg-sky-500",
+];
 
 interface BudgetItem {
   id: string;
@@ -57,7 +76,8 @@ interface QuickAction {
   description: string;
 }
 
-const budgetItems: BudgetItem[] = [
+/** Fallback when no transaction data (e.g. loading or empty) */
+const FALLBACK_BUDGET_ITEMS: BudgetItem[] = [
   {
     id: "1",
     category: "Utilities",
@@ -196,6 +216,22 @@ export default function DailyOperationsTreasuryPage() {
   const router = useRouter();
   const [timeRange, setTimeRange] = useState("weekly");
 
+  const { data: allTransactionsData, isLoading: isTransactionLoading } = useGetAllTransactionsQuery();
+  const transactionsGroupedByCategory = useAppSelector(selectTransactionsGroupedByCategory);
+
+  // Map selector output (grouped by category) to table rows; fallback when empty
+  const budgetTableData = useMemo((): BudgetItem[] => {
+    if (!transactionsGroupedByCategory.length) return FALLBACK_BUDGET_ITEMS;
+    return transactionsGroupedByCategory.map((g, i) => ({
+      id: g.category,
+      category: g.category,
+      annualBudget: 0,
+      budgetConsumed: g.totalAmount,
+      consumedPercentage: g.percentageOfTotal,
+      color: BUDGET_CATEGORY_COLORS[i % BUDGET_CATEGORY_COLORS.length],
+    }));
+  }, [transactionsGroupedByCategory]);
+
   // Get data based on selected time range
   const getCashFlowData = (): CashFlowData[] => {
     switch (timeRange) {
@@ -229,6 +265,7 @@ export default function DailyOperationsTreasuryPage() {
     },
   } satisfies ChartConfig;
 
+  const totalConsumed = budgetTableData.reduce((sum, row) => sum + row.budgetConsumed, 0) || 1;
   const budgetColumns: TableColumn<BudgetItem>[] = [
     {
       key: "category",
@@ -241,17 +278,19 @@ export default function DailyOperationsTreasuryPage() {
       key: "annualBudget",
       title: "Annual Budget",
       render: (value) => (
-        <span className="text-sm text-gray-800">{formattedAmount(value)}</span>
+        <span className="text-sm text-gray-800">
+          {value > 0 ? formattedAmount(value) : "—"}
+        </span>
       ),
     },
     {
       key: "budgetConsumed",
-      title: "Budget Consumed",
+      title: "Actual (YTD)",
       className: "min-w-[400px]",
       render: (value, row) => (
         <ProgressBar
           value={value}
-          total={row.annualBudget}
+          total={row.annualBudget > 0 ? row.annualBudget : totalConsumed}
           barColor={row.color}
           displayAmount={value}
           showLabel={false}
@@ -310,27 +349,32 @@ export default function DailyOperationsTreasuryPage() {
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Budget vs. Actuals Summary */}
+        {/* Budget vs. Actuals Summary – grouped by category from transactions */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-gray-800">
               Budget vs. Actuals Summary
             </CardTitle>
             <p className="text-sm text-gray-600 mt-1">
-              A simple report showing consumption against the allocated budget,
-              critical for cost control.
+              Expense by category from transactions. Annual budget shown when available.
             </p>
           </CardHeader>
           <CardContent>
-            <div className="border rounded-lg overflow-hidden">
-              <DataTable
-                columns={budgetColumns}
-                data={budgetItems}
-                headerClassName="bg-main-blue/5"
-                showActionsColumn={false}
-              />
-            </div>
-            <div className={"pt-4 w-full flex justify-center"}>
+            {isTransactionLoading ? (
+              <div className="border rounded-lg p-8 text-center text-muted-foreground text-sm">
+                Loading transaction data…
+              </div>
+            ) : (
+              <div className="border rounded-lg overflow-hidden">
+                <DataTable
+                  columns={budgetColumns}
+                  data={budgetTableData}
+                  headerClassName="bg-main-blue/5"
+                  showActionsColumn={false}
+                />
+              </div>
+            )}
+            <div className={"pt-4 w-full flex justify-center mt-0"}>
               <Button variant={"outline"} className={"w-full"}>
                 View Full Budget Breakdown
               </Button>
@@ -503,7 +547,7 @@ export default function DailyOperationsTreasuryPage() {
                 </div>
               </div>
 
-              <Button variant="outline" className="w-full">
+              <Button variant="outline" className="w-full mt-auto">
                 View Statistics
               </Button>
             </div>
@@ -517,19 +561,23 @@ export default function DailyOperationsTreasuryPage() {
               Recent Financial Activities
             </CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-col gap-4 divide-y divide-gray-200 p-0">
-            {activities.map((activity) => (
-              <ActivityItem
-                key={activity.id}
-                icon={activity.icon}
-                iconColor={activity.iconColor}
-                title={activity.title}
-                description={activity.description}
-                time={activity.time}
-                iconBg
-              />
-            ))}
-            <div className="flex justify-center pt-2">
+          <CardContent className="flex flex-col items-stretch gap-4 divide-y divide-gray-200 p-0 h-full">
+            <div className="space-y-0">
+              {allTransactionsData?.data?.slice(0, 5).map((transactions, index) => (
+                <div key={index}>
+                  <ActivityItem
+                    icon={transactions?.transaction_type === "income" ? ArrowUpRight01Icon :  ArrowDownLeft01Icon}
+                    iconColor={transactions?.transaction_type === "income" ? "text-green-600" : "text-red-600"}
+                    title={transactions?.description || "No description"}
+                    description={transactions?.amount ? `₦${Number(transactions.amount).toLocaleString()}` : "No amount"}
+                    time={transactions?.created_at ?? null}
+                    iconBg
+                  />
+                  {index < allTransactionsData?.data.length - 1 && <Separator />}
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-center pt-2 mt-auto">
               <Button variant="outline">Load more</Button>
             </div>
           </CardContent>

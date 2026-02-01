@@ -11,8 +11,8 @@ import { logout, selectToken } from "@/store/slices/authSlice";
 import { toast } from "sonner";
 
 /**
- * API Configuration
- * All API-related configuration is centralized here
+ * API Configuration (centralized here).
+ * Services: endpoints = url/params/body only (lean). Use *-selectors.ts + createSelector to derive/transform cached data for UI.
  */
 const getBaseUrl = () => {
   const rawUrl =
@@ -326,6 +326,7 @@ export const baseApi = createApi({
     "Fee",
     "Wallet",
     "WalletTransaction",
+    "Transaction",
     "Admission",
     "LeaveRequest",
     "Note",
@@ -333,6 +334,13 @@ export const baseApi = createApi({
     "Subject",
     "Stakeholder",
     "Chat",
+    "Attachment",
+    "CbtExam",
+    "CbtResult",
+    "CbtQuestion",
+    "Subscription",
+    "Transport",
+    "Hostel",
   ],
   endpoints: () => ({}),
 });

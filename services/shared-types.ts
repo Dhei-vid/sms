@@ -31,6 +31,14 @@ export type OrderStatus = "pending" | "processing" | "completed" | "cancelled" |
 export type PaymentStatus = "pending" | "paid" | "failed" | "refunded" | string;
 export type FeeStatus = "pending" | "paid" | "overdue" | "partial" | string;
 export type GeneralStatus = "active" | "inactive" | string;
+export type PaymentMethod = "manual" | "fund" | string;
+export type PaymentType = "deposit" | "fund" | string;
+export type TransactionType = "income" | "expense" | string;
+
+/**
+ * Payment response structure
+ */
+export type PaymentGateway = "paystack" | "flutterwave" | string;
 
 /**
  * Standard API response wrapper for single entity responses

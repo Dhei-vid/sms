@@ -7,65 +7,38 @@ import type {
   AttendanceQueryParams,
 } from "./attendance-type";
 
+const BASE = "/attendance";
+
 export const attendanceApi = baseApi.injectEndpoints({
+  overrideExisting: true,
   endpoints: (build) => ({
     getAttendance: build.query<AttendanceListResponse, AttendanceQueryParams | void>({
-      query: (params) => {
-        const queryParams = new URLSearchParams();
-        if (params) {
-          if (params.page) queryParams.set("page", params.page.toString());
-          if (params.limit) queryParams.set("limit", params.limit.toString());
-          if (params.studentId) queryParams.set("studentId", params.studentId);
-          if (params.classId) queryParams.set("classId", params.classId);
-          if (params.courseId) queryParams.set("courseId", params.courseId);
-          if (params.date) queryParams.set("date", params.date);
-          if (params.startDate) queryParams.set("startDate", params.startDate);
-          if (params.endDate) queryParams.set("endDate", params.endDate);
-          if (params.status) queryParams.set("status", params.status);
-        }
-        const queryString = queryParams.toString();
-        return `/attendance${queryString ? `?${queryString}` : ""}`;
-      },
+      query: (params) => ({ url: BASE, params: params ?? {} }),
       providesTags: ["Attendance"],
     }),
 
     getAttendanceById: build.query<Attendance, string>({
-      query: (id) => `/attendance/${id}`,
-      providesTags: (result, error, id) => [{ type: "Attendance", id }],
+      query: (id) => ({ url: `${BASE}/${id}` }),
+      providesTags: (_, __, id) => [{ type: "Attendance", id }],
     }),
 
     createAttendance: build.mutation<Attendance, CreateAttendanceRequest>({
-      query: (body) => ({
-        url: "/attendance",
-        method: "POST",
-        body,
-      }),
+      query: (body) => ({ url: BASE, method: "POST", body }),
       invalidatesTags: ["Attendance"],
     }),
 
     bulkCreateAttendance: build.mutation<{ success: boolean; message: string }, BulkAttendanceRequest>({
-      query: (body) => ({
-        url: "/attendance/bulk",
-        method: "POST",
-        body,
-      }),
+      query: (body) => ({ url: `${BASE}/bulk`, method: "POST", body }),
       invalidatesTags: ["Attendance"],
     }),
 
     updateAttendance: build.mutation<Attendance, { id: string; data: Partial<CreateAttendanceRequest> }>({
-      query: ({ id, data }) => ({
-        url: `/attendance/${id}`,
-        method: "PUT",
-        body: data,
-      }),
-      invalidatesTags: (result, error, { id }) => [{ type: "Attendance", id }, "Attendance"],
+      query: ({ id, data }) => ({ url: `${BASE}/${id}`, method: "PUT", body: data }),
+      invalidatesTags: (_, __, { id }) => [{ type: "Attendance", id }, "Attendance"],
     }),
 
     deleteAttendance: build.mutation<{ success: boolean; message: string }, string>({
-      query: (id) => ({
-        url: `/attendance/${id}`,
-        method: "DELETE",
-      }),
+      query: (id) => ({ url: `${BASE}/${id}`, method: "DELETE" }),
       invalidatesTags: ["Attendance"],
     }),
   }),
@@ -79,4 +52,3 @@ export const {
   useUpdateAttendanceMutation,
   useDeleteAttendanceMutation,
 } = attendanceApi;
-

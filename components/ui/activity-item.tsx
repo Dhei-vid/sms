@@ -1,6 +1,7 @@
 "use client";
 
 import { Icon } from "@/components/general/huge-icon";
+import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
 export interface ActivityItemProps {
@@ -8,8 +9,15 @@ export interface ActivityItemProps {
   iconColor: string;
   title: string;
   description: string;
-  time: string;
+  time?: string | Date | null;
   iconBg?: boolean;
+}
+
+function formatTimeSafe(time: string | Date | null | undefined): string {
+  if (time == null || time === "") return "No date";
+  const d = time instanceof Date ? time : new Date(time);
+  if (Number.isNaN(d.getTime())) return typeof time === "string" ? time : "No date";
+  return format(d, "MMM dd, yyyy");
 }
 
 export function ActivityItem({
@@ -45,7 +53,7 @@ export function ActivityItem({
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2 mb-1">
           <p className="text-sm font-medium text-gray-800">{title}</p>
-          <span className="text-xs text-gray-500 shrink-0">{time}</span>
+          <span className="text-xs text-gray-500 shrink-0">{formatTimeSafe(time)}</span>
         </div>
         <p className="text-sm text-gray-600">{description}</p>
       </div>

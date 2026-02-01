@@ -1,56 +1,76 @@
 import { baseApi } from "../baseApi";
 import type {
   Wallet,
-  WalletTransaction,
-  CreateWalletTransactionRequest,
-  WalletTransactionsListResponse,
-  WalletTransactionsQueryParams,
+  CreateWalletRequest,
+  UpdateWalletRequest,
+  WalletResponse,
+  DeleteWalletResponse,
+  FundWalletPayload,
+  TransferFundsPayload,
+  MakePaymentsPayload,
 } from "./wallet-type";
+import type { ApiListResponse, ApiResponse } from "../shared-types";
+
+const BASE = "/wallets";
 
 export const walletApi = baseApi.injectEndpoints({
+  overrideExisting: true,
   endpoints: (build) => ({
-    getWallet: build.query<Wallet, string | void>({
-      query: (userId) => {
-        if (userId) {
-          return `/wallet?userId=${userId}`;
-        }
-        return "/wallet";
-      },
+    getWallets: build.query<ApiListResponse<Wallet>, void>({
+      query: () => ({ url: BASE }),
       providesTags: ["Wallet"],
     }),
 
-    getWalletTransactions: build.query<WalletTransactionsListResponse, WalletTransactionsQueryParams | void>({
-      query: (params) => {
-        const queryParams = new URLSearchParams();
-        if (params) {
-          if (params.page) queryParams.set("page", params.page.toString());
-          if (params.limit) queryParams.set("limit", params.limit.toString());
-          if (params.walletId) queryParams.set("walletId", params.walletId);
-          if (params.type) queryParams.set("type", params.type);
-          if (params.status) queryParams.set("status", params.status);
-          if (params.startDate) queryParams.set("startDate", params.startDate);
-          if (params.endDate) queryParams.set("endDate", params.endDate);
-        }
-        const queryString = queryParams.toString();
-        return `/wallet/transactions${queryString ? `?${queryString}` : ""}`;
-      },
-      providesTags: ["WalletTransaction"],
+    getWalletById: build.query<WalletResponse, string>({
+      query: (id) => ({ url: `${BASE}/${id}` }),
+      providesTags: (_, __, id) => [{ type: "Wallet", id }],
     }),
 
-    createWalletTransaction: build.mutation<WalletTransaction, CreateWalletTransactionRequest>({
-      query: (body) => ({
-        url: "/wallet/transactions",
-        method: "POST",
-        body,
-      }),
-      invalidatesTags: ["Wallet", "WalletTransaction"],
+    createWallet: build.mutation<WalletResponse, CreateWalletRequest>({
+      query: (body) => ({ url: BASE, method: "POST", body }),
+      invalidatesTags: ["Wallet"],
+    }),
+
+    updateWallet: build.mutation<WalletResponse, { id: string; data: UpdateWalletRequest }>({
+      query: ({ id, data }) => ({ url: `${BASE}/${id}`, method: "PUT", body: data }),
+      invalidatesTags: (_, __, { id }) => [{ type: "Wallet", id }, "Wallet"],
+    }),
+
+    deleteWallet: build.mutation<DeleteWalletResponse, string>({
+      query: (id) => ({ url: `${BASE}/${id}`, method: "DELETE" }),
+      invalidatesTags: (_, __, id) => [{ type: "Wallet", id }, "Wallet"],
+    }),
+
+    getWalletBalance: build.query<ApiResponse<Wallet> | ApiResponse<{ balance: string }>, string | void>({
+      query: (userId) => ({ url: `${BASE}/account/balance`, params: userId ? { user_id: userId } : {} }),
+      providesTags: ["Wallet"],
+    }),
+
+    fundWallet: build.mutation<ApiResponse<Wallet>, FundWalletPayload>({
+      query: (body) => ({ url: `${BASE}/account/fund`, method: "POST", body }),
+      invalidatesTags: ["Wallet"],
+    }),
+
+    transferFunds: build.mutation<ApiResponse<Wallet>, TransferFundsPayload>({
+      query: (body) => ({ url: `${BASE}/account/transfer`, method: "POST", body }),
+      invalidatesTags: ["Wallet"],
+    }),
+
+    makePayment: build.mutation<ApiResponse<Wallet>, MakePaymentsPayload>({
+      query: (body) => ({ url: `${BASE}/account/payment`, method: "POST", body }),
+      invalidatesTags: ["Wallet"],
     }),
   }),
 });
 
 export const {
-  useGetWalletQuery,
-  useGetWalletTransactionsQuery,
-  useCreateWalletTransactionMutation,
+  useGetWalletsQuery,
+  useGetWalletByIdQuery,
+  useCreateWalletMutation,
+  useUpdateWalletMutation,
+  useDeleteWalletMutation,
+  useGetWalletBalanceQuery,
+  useFundWalletMutation,
+  useTransferFundsMutation,
+  useMakePaymentMutation,
 } = walletApi;
-

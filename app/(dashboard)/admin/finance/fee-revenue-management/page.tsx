@@ -8,7 +8,6 @@ import { DataTable, TableColumn } from "@/components/ui/data-table";
 import {
   ArrowDownLeft01Icon,
   ArrowUpRight01Icon,
-  Tag01Icon,
   RepositoryIcon,
   AddInvoiceIcon,
   Payment01Icon,
@@ -21,12 +20,13 @@ import { QuickActionCard } from "@/components/dashboard-pages/admin/admissions/c
 import { ActivityItem } from "@/components/ui/activity-item";
 import { Separator } from "@/components/ui/separator";
 
-// Modals
 import { ViewStudentsModal } from "@/components/dashboard-pages/admin/finance/components/view-students-modal";
 import { TrackPaymentsModal } from "@/components/dashboard-pages/admin/finance/components/track-payments-modal";
 import { LogPaymentModal } from "@/components/dashboard-pages/admin/finance/components/log-payment-modal";
 import { PostCanteenItemModal } from "@/components/dashboard-pages/admin/finance/components/post-canteen-item-modal";
 import { SetFeeStructureModal } from "@/components/dashboard-pages/admin/finance/components/set-fee-structure-modal";
+import { useGetAllTransactionsQuery } from "@/services/transactions/transactions";
+
 
 export default function FinancePage() {
   const router = useRouter();
@@ -37,11 +37,12 @@ export default function FinancePage() {
   const [postCanteenItemModalOpen, setPostCanteenItemModalOpen] =
     useState(false);
   const [setFeeStructureModalOpen, setSetFeeStructureModalOpen] =
-    useState(false);
+    useState(false); 
 
-  // Mock student data - in real app, this would come from API based on period
+  
+  const { data: allTransactionsData } = useGetAllTransactionsQuery();
+
   const getStudentsForPeriod = (period: string) => {
-    // Sample data - would be fetched based on period
     if (period === "15 - 30 Days Overdue") {
       return [
         {
@@ -107,58 +108,6 @@ export default function FinancePage() {
     setViewStudentsModalOpen(true);
   };
 
-  // Recent Activities Configuration
-  interface Activity {
-    icon: any;
-    iconColor: string;
-    title: string;
-    description: string;
-    time: string;
-  }
-
-  const recentActivities: Activity[] = [
-    {
-      icon: ArrowUpRight01Icon,
-      iconColor: "text-green-600",
-      title: "Payment of Fees",
-      description:
-        "Mr Nwokolo Emmanuel paid school fees for Chinedu Nwokolo (nwokolo.m178023). Total sum of ₩450,000.",
-      time: "10:00 AM",
-    },
-    {
-      icon: ArrowDownLeft01Icon,
-      iconColor: "text-red-600",
-      title: "Expenses",
-      description: "₩120,000 logged for IT Maintenance.",
-      time: "10:00 AM",
-    },
-    {
-      icon: ArrowUpRight01Icon,
-      iconColor: "text-green-600",
-      title: "Batch Invoice Generation",
-      description:
-        "Batch invoice for Second Term (T2) of 2025/2026 academic year generated for Primary 4.",
-      time: "Oct. 22, 8:15 AM",
-    },
-    {
-      icon: ArrowUpRight01Icon,
-      iconColor: "text-green-400",
-      title: "Discount Approval",
-      description:
-        "₩50,000 Hardship Discount approved for Sarah Adebisi (adebisi.m178024).",
-      time: "Oct. 21, 9:32 AM",
-    },
-    {
-      icon: ArrowDownLeft01Icon,
-      iconColor: "text-red-600",
-      title: "Price Change for Canteen Sales",
-      description:
-        "The price for Meat pie purchase has changed from ₩600.00 to ₩700.00.",
-      time: "Oct. 21, 9:32 AM",
-    },
-  ];
-
-  // Quick Actions Configuration
   interface QuickAction {
     icon: any;
     title: string;
@@ -200,7 +149,6 @@ export default function FinancePage() {
     },
   ];
 
-  // Fee Ageing Report Data
   interface FeeAgeingData {
     period: string;
     value: number;
@@ -281,7 +229,6 @@ export default function FinancePage() {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
       <div className="bg-background rounded-md p-6">
         <h2 className="text-2xl font-bold text-gray-800">
           Fee & Revenue Management Overview Dashboard
@@ -292,7 +239,6 @@ export default function FinancePage() {
         </p>
       </div>
 
-      {/* Key Financial Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <FinancialMetricCard
           title="Net Available Cash"
@@ -319,7 +265,6 @@ export default function FinancePage() {
         />
       </div>
 
-      {/* Fee Ageing Report */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-gray-800">
@@ -338,9 +283,7 @@ export default function FinancePage() {
         </CardContent>
       </Card>
 
-      {/* Bottom Section: Recent Activities and Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Recent Financial Activities */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-gray-800">
@@ -349,17 +292,17 @@ export default function FinancePage() {
           </CardHeader>
           <CardContent className="p-0">
             <div className="space-y-0">
-              {recentActivities.map((activity, index) => (
+              {allTransactionsData?.data?.slice(0, 5).map((transactions, index) => (
                 <div key={index}>
                   <ActivityItem
-                    icon={activity.icon}
-                    iconColor={activity.iconColor}
-                    title={activity.title}
-                    description={activity.description}
-                    time={activity.time}
+                    icon={transactions?.transaction_type === "income" ? ArrowUpRight01Icon : ArrowDownLeft01Icon}
+                    iconColor={transactions?.transaction_type === "income" ? "text-green-600" : "text-red-600"}
+                    title={transactions?.description || "No description"}
+                    description={transactions?.amount ? `₦${Number(transactions.amount).toLocaleString()}` : "No amount"}
+                    time={transactions?.created_at ?? null}
                     iconBg
                   />
-                  {index < recentActivities.length - 1 && <Separator />}
+                  {index < allTransactionsData?.data.length - 1 && <Separator />}
                 </div>
               ))}
             </div>
@@ -369,7 +312,6 @@ export default function FinancePage() {
           </CardContent>
         </Card>
 
-        {/* Quick Actions */}
         <Card className="h-fit">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-gray-800">
@@ -394,7 +336,6 @@ export default function FinancePage() {
         </Card>
       </div>
 
-      {/* View Students Modal */}
       <ViewStudentsModal
         open={viewStudentsModalOpen}
         onOpenChange={setViewStudentsModalOpen}
@@ -402,25 +343,21 @@ export default function FinancePage() {
         students={getStudentsForPeriod(selectedPeriod)}
       />
 
-      {/* Track Payments Modal */}
       <TrackPaymentsModal
         open={trackPaymentsModalOpen}
         onOpenChange={setTrackPaymentsModalOpen}
       />
 
-      {/* Log Payment Modal */}
       <LogPaymentModal
         open={logPaymentModalOpen}
         onOpenChange={setLogPaymentModalOpen}
       />
 
-      {/* Post Canteen Item Modal */}
       <PostCanteenItemModal
         open={postCanteenItemModalOpen}
         onOpenChange={setPostCanteenItemModalOpen}
       />
 
-      {/* Set Fee Structure Modal */}
       <SetFeeStructureModal
         open={setFeeStructureModalOpen}
         onOpenChange={setSetFeeStructureModalOpen}

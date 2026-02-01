@@ -84,6 +84,21 @@ export const authApi = baseApi.injectEndpoints({
         body,
       }),
     }),
+
+    /**
+     * Change password mutation endpoint
+     * Changes user's password using a token
+     * 
+     * @param body - Change password request (token and new password)
+     * @returns ForgetPasswordResponse with success message
+     */
+    changePassword: build.mutation<ForgetPasswordResponse, { token: string; newPassword: string }>({
+      query: ({ token, newPassword }) => ({
+        url: `/auth/change-password?token=${token}`,
+        method: "POST",
+        body: { newPassword },
+      }),
+    }),
   }),
 });
 
