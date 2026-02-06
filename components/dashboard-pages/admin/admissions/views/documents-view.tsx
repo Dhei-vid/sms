@@ -132,8 +132,8 @@ export function DocumentsView() {
                     {doc.status === "missing"
                       ? "Upload"
                       : doc.status === "pending"
-                      ? "Review"
-                      : "View"}
+                        ? "Review"
+                        : "View"}
                   </Button>
                 </TableCell>
               </TableRow>

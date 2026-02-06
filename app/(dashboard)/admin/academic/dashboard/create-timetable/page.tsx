@@ -210,10 +210,7 @@ export default function CreateTimetablePage() {
               <Label className="text-sm font-medium">School Days</Label>
               <div className="flex flex-wrap gap-4">
                 {schoolDaysOptions.map((day) => (
-                  <div
-                    key={day.value}
-                    className="flex items-center gap-2"
-                  >
+                  <div key={day.value} className="flex items-center gap-2">
                     <Checkbox
                       id={day.value}
                       checked={formData.schoolDays.includes(day.value)}
@@ -367,4 +364,3 @@ export default function CreateTimetablePage() {
     </div>
   );
 }
-

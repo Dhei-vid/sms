@@ -27,15 +27,24 @@ export const schoolsApi = baseApi.injectEndpoints({
       invalidatesTags: ["School"],
     }),
 
-    updateSchool: build.mutation<School, { id: string; data: UpdateSchoolRequest }>({
-      query: ({ id, data }) => ({ url: `${BASE}/${id}`, method: "PUT", body: data }),
+    updateSchool: build.mutation<
+      School,
+      { id: string; data: UpdateSchoolRequest }
+    >({
+      query: ({ id, data }) => ({
+        url: `${BASE}/${id}`,
+        method: "PUT",
+        body: data,
+      }),
       invalidatesTags: (_, __, { id }) => [{ type: "School", id }, "School"],
     }),
 
-    deleteSchool: build.mutation<{ success: boolean; message: string }, string>({
-      query: (id) => ({ url: `${BASE}/${id}`, method: "DELETE" }),
-      invalidatesTags: ["School"],
-    }),
+    deleteSchool: build.mutation<{ success: boolean; message: string }, string>(
+      {
+        query: (id) => ({ url: `${BASE}/${id}`, method: "DELETE" }),
+        invalidatesTags: ["School"],
+      },
+    ),
   }),
 });
 

@@ -30,10 +30,11 @@ PH-SMS is a full-featured school management system designed to streamline admini
 ## ✨ Features
 
 ### Admin Dashboard
+
 - **Admissions Management**: Application tracking, status management, interview scheduling, and applicant details
 - **Student Management**: Student profiles, attendance tracking, report generation, and school files
 - **Staff Management**: Staff profiles, applicant tracking, leave management, resource logging, and compliance
-- **Academic Management**: 
+- **Academic Management**:
   - Assessment grading and final result approval
   - Curriculum management with lesson plan review
   - Timetable creation and exam scheduling
@@ -46,6 +47,7 @@ PH-SMS is a full-featured school management system designed to streamline admini
 - **Settings**: Application configuration and role management
 
 ### Teacher Dashboard
+
 - **My Courses**: Course management with student enrollment
 - **Question Bank**: Create and manage questions for assessments
 - **Grade Entry Portal**: Submit and manage student grades
@@ -57,6 +59,7 @@ PH-SMS is a full-featured school management system designed to streamline admini
 - **My Wallet**: Financial transactions
 
 ### Parent Dashboard
+
 - **Dashboard**: Overview of children's academic progress
 - **Grades & Report Card**: View children's academic performance
 - **Fee Payment Management**: View invoices, make payments, and track payment history
@@ -67,6 +70,7 @@ PH-SMS is a full-featured school management system designed to streamline admini
 - **Wallet**: Manage wallet balance and transactions
 
 ### Student Dashboard
+
 - **Dashboard**: Personal academic overview
 - **My Courses**: Enrolled courses and course details
 - **Assignments & Quizzes**: View and submit assignments
@@ -77,6 +81,7 @@ PH-SMS is a full-featured school management system designed to streamline admini
 - **My Wallet**: Manage wallet balance
 
 ### Canteen Module
+
 - **Store**: Browse and purchase items
 - **Sales**: Sales management and tracking
 - **Inventory**: Product inventory management
@@ -86,6 +91,7 @@ PH-SMS is a full-featured school management system designed to streamline admini
 ## 🛠 Tech Stack
 
 ### Core Technologies
+
 - **Framework**: Next.js 16.0.5 (App Router)
 - **UI Library**: React 19.2.0
 - **Language**: TypeScript 5
@@ -93,22 +99,26 @@ PH-SMS is a full-featured school management system designed to streamline admini
 - **State Management**: Redux Toolkit 2.11.2 with RTK Query
 
 ### UI Components
+
 - **Shadcn UI**: Component library built on Radix UI primitives
 - **Radix UI**: Accessible component primitives (Dialog, Dropdown, Select, etc.)
 - **Lucide React**: Icon library
 - **HugeIcons**: Additional icon set (@hugeicons/react)
 
 ### Data Visualization
+
 - **Recharts**: Professional charting library for data visualization
 - **React Big Calendar**: Calendar component for scheduling
 
 ### Utilities
+
 - **date-fns**: Date manipulation and formatting
 - **currency.js**: Currency formatting
 - **class-variance-authority**: Component variant management
 - **clsx & tailwind-merge**: Conditional class name utilities
 
 ### Development Tools
+
 - **ESLint**: Code linting
 - **TypeScript**: Type checking
 - **PostCSS**: CSS processing
@@ -176,7 +186,9 @@ sms-frontend/
 ## 🧩 Key Components
 
 ### DataTable Component
+
 A reusable, feature-rich data table component used throughout the application:
+
 - Column-based configuration
 - Sorting and filtering capabilities
 - Row selection with checkboxes
@@ -188,7 +200,9 @@ A reusable, feature-rich data table component used throughout the application:
 **Location**: `components/ui/data-table.tsx`
 
 ### Sidebar Component
+
 Collapsible navigation sidebar with:
+
 - Role-based menu filtering
 - Collapsible/expandable state (desktop)
 - Mobile sheet integration
@@ -199,7 +213,9 @@ Collapsible navigation sidebar with:
 **Location**: `components/dashboard/sidebar.tsx`
 
 ### Header Component
+
 Dashboard header with:
+
 - Dynamic page title and icon
 - Global search functionality
 - User profile dropdown with logout
@@ -209,7 +225,9 @@ Dashboard header with:
 **Location**: `components/dashboard/header.tsx`
 
 ### ActivityItem Component
+
 Reusable activity feed item component:
+
 - Icon support with customizable background
 - Title and description
 - Timestamp display
@@ -218,7 +236,9 @@ Reusable activity feed item component:
 **Location**: `components/ui/activity-item.tsx`
 
 ### ModalContainer Component
+
 Consistent modal wrapper:
+
 - Standardized modal structure
 - Header, body, and footer sections
 - Consistent styling and behavior
@@ -232,7 +252,9 @@ Consistent modal wrapper:
 The application uses Redux Toolkit with the following slices:
 
 #### Auth Slice (`store/slices/authSlice.ts`)
+
 Manages authentication state:
+
 - `token`: JWT authentication token
 - `user`: Current authenticated user information
 - `isAuthenticated`: Boolean flag for quick auth checks
@@ -240,13 +262,17 @@ Manages authentication state:
 - **Actions**: `setCredentials`, `logout`, `updateUser`
 
 #### Error Slice (`store/errorSlice.ts`)
+
 Global error state management:
+
 - `lastError`: Most recent application error
 - **Actions**: `setError`, `clearError`
 - Integrated with API error handling
 
 #### RTK Query API (`services/baseApi.ts`)
+
 Base API configuration with:
+
 - Automatic token attachment to requests
 - Global error handling
 - Base URL configuration
@@ -255,6 +281,7 @@ Base API configuration with:
 ### Typed Hooks
 
 Custom typed hooks for Redux interaction:
+
 - `useAppDispatch`: Typed dispatch function
 - `useAppSelector`: Typed selector hook
 
@@ -299,6 +326,7 @@ Custom typed hooks for Redux interaction:
 **Location**: `services/baseApi.ts`
 
 Features:
+
 - **Base URL**: Configurable via `NEXT_PUBLIC_API_BASE_URL` environment variable
 - **Token Attachment**: Automatically attaches Bearer token from Redux state
 - **Error Handling**: Intercepts API errors and dispatches to error slice
@@ -307,16 +335,19 @@ Features:
 ### API Services
 
 #### Teacher Courses (`services/teacherCourses.ts`)
+
 - `getTeacherCourses`: Fetch teacher's courses
 - `getTeacherCourseById`: Fetch specific course details
 
 #### Question Bank (`services/teacherQuestions.ts`)
+
 - `getTeacherQuestions`: Fetch teacher's questions
 - `createQuestion`: Create new question
 - `updateQuestion`: Update existing question
 - `deleteQuestion`: Delete question
 
 #### Canteen (`services/canteen.ts`)
+
 - Canteen product management endpoints
 
 ### RTK Query Features
@@ -333,21 +364,25 @@ Features:
 The application is fully responsive with mobile-first design principles:
 
 #### Sidebar
+
 - **Desktop**: Collapsible sidebar with toggle button (64px collapsed, 256px expanded)
 - **Mobile**: Hidden by default, accessible via Sheet component (Shadcn UI)
 - **Menu Button**: Mobile menu button in header opens sidebar sheet
 
 #### Header
+
 - **Desktop**: Fixed grid layout with 6 columns
 - **Mobile**: Flexible wrapping layout allowing items to wrap to new lines
 - **Search Bar**: Full width on mobile, spans 4 columns on desktop
 - **User Info**: Wraps to new line on mobile if needed
 
 #### Tables
+
 - Responsive data tables with horizontal scrolling on mobile
 - Pagination with "Load More" functionality for better mobile UX
 
 #### Components
+
 - All UI components are responsive
 - Touch-friendly button sizes on mobile
 - Adjusted font sizes for mobile (`text-xs` for nested items)
@@ -361,18 +396,20 @@ The application is fully responsive with mobile-first design principles:
 
 ### Prerequisites
 
-- Node.js 20+ 
+- Node.js 20+
 - pnpm (recommended) or npm/yarn
 
 ### Installation
 
 1. **Clone the repository**:
+
    ```bash
    git clone <repository-url>
    cd sms-frontend
    ```
 
 2. **Install dependencies**:
+
    ```bash
    pnpm install
    # or
@@ -381,11 +418,13 @@ The application is fully responsive with mobile-first design principles:
 
 3. **Set up environment variables**:
    Create a `.env.local` file in the root directory:
+
    ```env
    NEXT_PUBLIC_API_BASE_URL=https://api.example.com/api
    ```
 
 4. **Run the development server**:
+
    ```bash
    pnpm dev
    # or
@@ -455,6 +494,7 @@ The application is fully responsive with mobile-first design principles:
 The application uses **Recharts** for professional data visualization:
 
 #### Cash Flow Trend Chart
+
 - **Location**: `app/(dashboard)/admin/finance/daily-operations-treasury/page.tsx`
 - **Features**:
   - Dual-bar comparison (Income vs Expenses)
@@ -465,6 +505,7 @@ The application uses **Recharts** for professional data visualization:
   - Responsive design
 
 #### Grade Distribution Chart
+
 - Bar chart with grid lines
 - Used in admin dashboard
 
@@ -483,21 +524,16 @@ The application uses **Recharts** for professional data visualization:
 A reusable hook for implementing "Load More" pagination:
 
 ```typescript
-const {
-  displayedData,
-  hasMore,
-  loadMore,
-  reset,
-  totalItems,
-  displayedCount
-} = usePagination({
-  data: allPayments,
-  initialItemsPerPage: 3,
-  itemsPerPage: 3,
-});
+const { displayedData, hasMore, loadMore, reset, totalItems, displayedCount } =
+  usePagination({
+    data: allPayments,
+    initialItemsPerPage: 3,
+    itemsPerPage: 3,
+  });
 ```
 
 **Features**:
+
 - Initial items display
 - Load more functionality
 - Reset capability

@@ -224,7 +224,7 @@ export default function MonitorTestSessionsPage() {
   const [selectedSession, setSelectedSession] =
     useState<LiveTestSession | null>(null);
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(
-    null
+    null,
   );
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 

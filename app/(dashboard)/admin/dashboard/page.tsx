@@ -167,11 +167,11 @@ export default function AdminDashboard() {
                 event.startDate && event.endDate
                   ? `${format(new Date(event.startDate), "h:mm a")} - ${format(
                       new Date(event.endDate),
-                      "h:mm a"
+                      "h:mm a",
                     )}`
                   : event.startDate
-                  ? format(new Date(event.startDate), "h:mm a")
-                  : "",
+                    ? format(new Date(event.startDate), "h:mm a")
+                    : "",
               color: event.type === "event" ? "bg-purple-600" : "bg-blue-600",
             }))}
           />

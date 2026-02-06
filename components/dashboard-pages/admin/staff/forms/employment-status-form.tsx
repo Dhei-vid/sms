@@ -62,7 +62,7 @@ export function EmploymentStatusForm({
                 "inline-flex items-center px-3 py-1 rounded-md text-xs font-medium",
                 formData.currentStatus === "Active"
                   ? "bg-green-100 text-green-700 border border-green-600"
-                  : "bg-gray-100 text-gray-700 border border-gray-600"
+                  : "bg-gray-100 text-gray-700 border border-gray-600",
               )}
             >
               {formData.currentStatus}

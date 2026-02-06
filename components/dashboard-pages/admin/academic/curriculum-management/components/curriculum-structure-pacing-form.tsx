@@ -25,7 +25,9 @@ interface CurriculumStructurePacingFormProps {
     }>;
     plannedPacing: string;
   };
-  onFormDataChange: (data: Partial<CurriculumStructurePacingFormProps["formData"]>) => void;
+  onFormDataChange: (
+    data: Partial<CurriculumStructurePacingFormProps["formData"]>,
+  ) => void;
   onBack: () => void;
   onSaveDraft: () => void;
   onSaveContinue: () => void;
@@ -50,7 +52,7 @@ export function CurriculumStructurePacingForm({
 
   const updateContentOutlineWithData = (
     currentUnits: string[],
-    currentTopics: string[]
+    currentTopics: string[],
   ) => {
     const maxLength = Math.max(currentUnits.length, currentTopics.length);
     const outline: { unit: string; topic: string; plannedPeriods: string }[] =
@@ -90,7 +92,9 @@ export function CurriculumStructurePacingForm({
       <SelectField
         label="Curriculum Standard"
         value={formData.curriculumStandard}
-        onValueChange={(value) => onFormDataChange({ curriculumStandard: value })}
+        onValueChange={(value) =>
+          onFormDataChange({ curriculumStandard: value })
+        }
         placeholder="Select: National (NERDC) / International (IGCSE) / School Custom"
       >
         {curriculumStandardOptions.map((option) => (
@@ -262,7 +266,7 @@ export function CurriculumStructurePacingForm({
                       {item.plannedPeriods
                         ? `${
                             pacingOptions.find(
-                              (opt) => opt.value === item.plannedPeriods
+                              (opt) => opt.value === item.plannedPeriods,
                             )?.label || item.plannedPeriods
                           }`
                         : "-"}
@@ -280,4 +284,3 @@ export function CurriculumStructurePacingForm({
     </div>
   );
 }
-

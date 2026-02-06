@@ -36,4 +36,3 @@ export function usePagination<T>({
     displayedCount: displayedData.length,
   };
 }
-

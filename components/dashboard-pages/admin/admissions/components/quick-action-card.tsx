@@ -24,7 +24,7 @@ export function QuickActionCard({
     <div
       className={cn(
         "cursor-pointer hover:bg-main-blue/5 transition-shadow",
-        className
+        className,
       )}
       onClick={onClick}
     >
@@ -37,7 +37,7 @@ export function QuickActionCard({
             <h3
               className={cn(
                 textColor ? textColor : "text-gray-800",
-                "text-sm font-semibold"
+                "text-sm font-semibold",
               )}
             >
               {title}

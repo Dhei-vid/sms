@@ -42,7 +42,7 @@ export function ReportTable({ students }: ReportTableProps) {
 
   const toggleRowSelection = (id: string) => {
     setSelectedRows((prev) =>
-      prev.includes(id) ? prev.filter((rowId) => id !== rowId) : [...prev, id]
+      prev.includes(id) ? prev.filter((rowId) => id !== rowId) : [...prev, id],
     );
   };
 

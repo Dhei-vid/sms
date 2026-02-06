@@ -17,8 +17,7 @@ const assignmentsRows = [
   },
   {
     field: "Official Duties",
-    content:
-      "House Master (Green House) | Discipline Committee Member",
+    content: "House Master (Green House) | Discipline Committee Member",
   },
   {
     field: "Office No.",
@@ -27,10 +26,7 @@ const assignmentsRows = [
   {
     field: "Current Timetable",
     content: (
-      <Link
-        href="#"
-        className="text-main-blue hover:underline"
-      >
+      <Link href="#" className="text-main-blue hover:underline">
         View Full Timetable
       </Link>
     ),
@@ -68,4 +64,3 @@ export function AssignmentsScheduleView() {
     </div>
   );
 }
-

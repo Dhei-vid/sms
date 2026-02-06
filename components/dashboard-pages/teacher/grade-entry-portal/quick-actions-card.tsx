@@ -31,7 +31,9 @@ export function GradeEntryQuickActionsCard() {
           title="View Submitted History"
           description="Links to a read-only log of all previously submitted assignments."
           icon={TransactionHistoryIcon}
-          onClick={() => router.push("/teacher/grade-entry-portal/submitted-grades")}
+          onClick={() =>
+            router.push("/teacher/grade-entry-portal/submitted-grades")
+          }
           className="border-b"
         />
         <QuickActionCard

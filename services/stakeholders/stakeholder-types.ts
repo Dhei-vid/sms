@@ -1,13 +1,109 @@
-import type { ApiListResponse } from "../shared-types";
+import type { ApiListResponse, Roles } from "../shared-types";
+import { School } from "../schools/schools-type";
+import { User } from "../users/users-type";
+import { Notes } from "../notes/note-types";
+import { ApiResponse } from "../shared-types";
 
 export interface Stakeholders {
   id: string;
-  user_id?: string;
-  school_id?: string;
-  type?: string;
-  status?: string;
+  user_id: string;
+  creator_id: string;
+  updated_by_id: string | null;
+  school_id: string;
+  primary_contact_id: string | null;
+  emergency_contact_id: string | null;
+  type: Roles;
+  status: string;
+  position: string | null;
+  admission_number: string | null;
+
+  school_fees: SchoolFees;
+  hostel: Record<string, any>;
+  hostel_details: any | null;
+  transport: Record<string, any>;
+  transport_details: any | null;
+  subjects: string[];
+  class_assigned: string | null;
+  assigned_classes: string[];
+  qualification: string | null;
+  salary: string | null;
+  business: string | null;
+  services: string[];
+  contracts: Contract[];
+  grade: string | null;
+  age: number | null;
+  performance: any;
+  bank: Record<string, any>;
+
+  teaching_duty?: TeachingDuty | null;
+  non_teaching_duty?: NonTeachingDuty | null;
+  teaching_duty_details?: TeachingDutyDetails | null;
+  non_teaching_duty_details?: NonTeachingDutyDetails | null;
+
+  children?: Stakeholders[];
+  children_details?: string[];
+  relationship_to_student: string | null;
+
+  occupation: string | null;
+  stage: number;
+  stage_text: string;
+  notifications: any[];
+  performance_highlights: any | null;
+  common_exam_score: any | null;
+  last_grade_completed: any | null;
+  current_previous_school: any | null;
+  transfer_reason: any | null;
+  admin_notes: string | null;
+
+  emergency_contact_and_phone: string | null;
+  employment_type: string | null;
+  contract_start_date: string | null;
+  contract_end_date: string | null;
+  annual_leave_entitlement: string | null;
+  school_email: string | null;
+  initial_status: string | null;
+  parent_name: string | null;
+  date_joined: string;
+  is_deleted: boolean;
+  user: User;
+  creator: User;
+  updated_by: User | null;
+  school: School;
+  primary_contact: Stakeholders | null;
+  emergency_contact: Stakeholders | null;
+  attachments: any[];
+  notes: Notes[];
+
   created_at?: string;
   updated_at?: string;
+  deleted_at?: string | null;
+}
+
+export interface TeachingDuty {
+  day: string;
+  period: string;
+  subject: string;
+  classroom: string;
+  created_at: string;
+  creator_id: string;
+  class_grade: string;
+}
+
+export interface TeachingDutyDetails extends TeachingDuty {
+  creator: User;
+}
+
+export interface NonTeachingDuty {
+  date: string;
+  start_time: string;
+  end_time: string;
+  duty_type: string;
+  created_at: string;
+  creator_id: string;
+}
+
+export interface NonTeachingDutyDetails extends NonTeachingDuty {
+  creator: User;
 }
 
 export interface CreateStakeholdersRequest {
@@ -88,44 +184,25 @@ export interface AssignDutyStakeholder {
 export interface UpdateStakeholdersRequest {
   user_id: string;
   school_id: string;
-  // "type": "student",
-  // "phone": "+2348012345678",
-  // "status": "active",
-  // "position": "Senior Mathematics Teacher",
-  // "subjects": ["Mathematics", "Physics", "Further Mathematics"],
-  // "class_assigned": "12A",
-  // "qualification": "M.Sc. Mathematics Education",
-  // "salary": 75000.00,
-  // "business": "TechEdu Solutions Ltd",
-  // "services": ["Computer Hardware", "Software Licenses", "IT Training"],
-  // "contracts": [
-  //     {
-  //         "id": "cnt-001",
-  //         "title": "Annual IT Equipment Supply",
-  //         "value": 250000.00,
-  //         "start_date": "2024-01-01",
-  //         "end_date": "2024-12-31",
-  //         "status": "active"
-  //     }
-  // ],
-  // "grade": "10B",
-  // "age": 15,
   guardian_id: string;
-  // "performance": {
-  //     "gpa": 3.85,
-  //     "attendance": 98.5
-  // },
-  // "children": [
-  //     "01jx22yx1zptx0cdpxb1vkkwhg"
-  // ]
-  // "relationship_to_student": "Father",
-  // "occupation": "Software Engineer",
-  // "address": "123 Lagos Street, Victoria Island, Lagos",
-  // "date_joined": "2024-01-01",
   admission_number: string;
   school_fees: {
     paid: number;
     total: number;
     last_payment: string;
   };
+}
+
+export interface StakeholderMetrics {
+  total: number;
+  inquiries: number; // Stage 1
+  applicationStarted: number; // Stage 2
+  submittedForms: number; // Stage 3
+  underReview: number; // Stage 4
+  acceptedOffers: number; // Stage 5
+  enrolled: number; // Stage 6
+}
+
+export interface StakeholderListResponseWithMetrics extends ApiListResponse<Stakeholders> {
+  metrics: StakeholderMetrics;
 }

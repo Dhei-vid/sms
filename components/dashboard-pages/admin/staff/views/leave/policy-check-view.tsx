@@ -87,10 +87,7 @@ export function PolicyCheckView({ onAssignCoverage }: PolicyCheckViewProps) {
                   {row.field}
                 </TableCell>
                 <TableCell
-                  className={cn(
-                    "text-gray-600",
-                    getContentColor(row.content)
-                  )}
+                  className={cn("text-gray-600", getContentColor(row.content))}
                 >
                   {row.content}
                 </TableCell>
@@ -104,7 +101,9 @@ export function PolicyCheckView({ onAssignCoverage }: PolicyCheckViewProps) {
                       {row.status}
                     </Button>
                   ) : (
-                    <span className={cn("font-medium", getStatusColor(row.status))}>
+                    <span
+                      className={cn("font-medium", getStatusColor(row.status))}
+                    >
                       {row.status}
                     </span>
                   )}
@@ -117,4 +116,3 @@ export function PolicyCheckView({ onAssignCoverage }: PolicyCheckViewProps) {
     </div>
   );
 }
-

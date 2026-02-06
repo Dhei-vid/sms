@@ -49,7 +49,7 @@ export function ViewStudentsModal({
         .includes(searchQuery.toLowerCase()) ||
       student.primaryContactNumber
         .toLowerCase()
-        .includes(searchQuery.toLowerCase())
+        .includes(searchQuery.toLowerCase()),
   );
 
   const formatCurrency = (amount: number) => {
@@ -84,7 +84,7 @@ export function ViewStudentsModal({
               Total amount:{" "}
               <span className="font-semibold text-gray-800">
                 {formatCurrency(
-                  filteredStudents.reduce((sum, s) => sum + s.overdueAmount, 0)
+                  filteredStudents.reduce((sum, s) => sum + s.overdueAmount, 0),
                 )}
               </span>
             </span>

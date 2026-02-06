@@ -37,19 +37,22 @@ export default function StaffDashboardPage() {
     },
     {
       title: "Applicant Tracking",
-      description: "Tracks candidates currently in the interviewing process for open vacancies.",
+      description:
+        "Tracks candidates currently in the interviewing process for open vacancies.",
       icon: UserCheck01Icon,
       onClick: () => router.push("/admin/staff-management/applicant-tracking"),
     },
     {
       title: "Schedule & Assignments",
-      description: "Formally document a staff member's new duty, task, or the allocation of a school asset.",
+      description:
+        "Formally document a staff member's new duty, task, or the allocation of a school asset.",
       icon: FileUploadIcon,
       onClick: () => router.push("/admin/staff-management/schedule"),
     },
     {
       title: "Staff Leave Requests Management",
-      description: "For reviewing, prioritizing, and acting on pending staff leave requests.",
+      description:
+        "For reviewing, prioritizing, and acting on pending staff leave requests.",
       icon: Alert01Icon,
       onClick: () => router.push("/admin/staff-management/leave"),
     },
@@ -89,7 +92,8 @@ export default function StaffDashboardPage() {
     {
       type: "leave",
       title: "Leave Approved",
-      description: "Ms. Tolu Adebayo (Admin) - Annual Leave: 2025-10-28 to 2025-11-04",
+      description:
+        "Ms. Tolu Adebayo (Admin) - Annual Leave: 2025-10-28 to 2025-11-04",
       timestamp: "Oct. 21, 9:32 AM",
       icon: TeamviewerIcon,
     },

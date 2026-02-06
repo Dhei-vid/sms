@@ -1,6 +1,11 @@
 import { School } from "../schools/schools-type";
 import { User, Roles } from "../users/users-type";
-import type { ApiListResponse, ApiResponse, ApiDeleteResponse, BaseQueryParams } from "../shared-types";
+import type {
+  ApiListResponse,
+  ApiResponse,
+  ApiDeleteResponse,
+  BaseQueryParams,
+} from "../shared-types";
 
 export type NotificationsListResponse = ApiListResponse<Notifications>;
 

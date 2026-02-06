@@ -230,7 +230,7 @@ export function StudentWalletHistoryForm({
                     <span
                       className={cn(
                         "text-sm font-medium",
-                        getTransactionTypeColor(transaction.transactionType)
+                        getTransactionTypeColor(transaction.transactionType),
                       )}
                     >
                       {transaction.transactionType}

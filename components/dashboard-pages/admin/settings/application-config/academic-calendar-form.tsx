@@ -41,7 +41,7 @@ export function AcademicCalendarForm() {
               date={startDate}
               setDate={(date) => {
                 setStartDate(
-                  typeof date === "function" ? date(startDate) : date
+                  typeof date === "function" ? date(startDate) : date,
                 );
               }}
               open={startDateOpen}
@@ -80,7 +80,7 @@ export function AcademicCalendarForm() {
                 date={holidayDate}
                 setDate={(date) => {
                   setHolidayDate(
-                    typeof date === "function" ? date(holidayDate) : date
+                    typeof date === "function" ? date(holidayDate) : date,
                   );
                 }}
                 open={holidayDateOpen}
@@ -97,4 +97,3 @@ export function AcademicCalendarForm() {
     </div>
   );
 }
-

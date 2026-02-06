@@ -51,9 +51,7 @@ export function EmploymentRoleForm({
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold text-gray-800">
-        Employment & Role
-      </h2>
+      <h2 className="text-xl font-semibold text-gray-800">Employment & Role</h2>
 
       <div className="space-y-6">
         <SelectField
@@ -127,4 +125,3 @@ export function EmploymentRoleForm({
     </div>
   );
 }
-

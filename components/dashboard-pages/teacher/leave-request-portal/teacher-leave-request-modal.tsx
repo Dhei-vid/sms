@@ -48,7 +48,7 @@ export function TeacherLeaveRequestModal({
 
   const calculateDuration = (
     start: Date | undefined,
-    end: Date | undefined
+    end: Date | undefined,
   ) => {
     if (!start || !end) {
       setDuration("");
@@ -57,7 +57,7 @@ export function TeacherLeaveRequestModal({
     const diffMs = end.getTime() - start.getTime();
     const diffDays = Math.max(
       Math.round(diffMs / (1000 * 60 * 60 * 24)) + 1,
-      0
+      0,
     );
     if (!Number.isFinite(diffDays) || diffDays <= 0) {
       setDuration("");
@@ -70,15 +70,14 @@ export function TeacherLeaveRequestModal({
    * Handle start date change
    * Updates start date state and recalculates duration
    * Accepts SetStateAction to match DatePickerIcon's expected type
-   * 
+   *
    * @param value - New date value or updater function
    */
   const handleStartDateChange: Dispatch<SetStateAction<Date | undefined>> = (
-    value
+    value,
   ) => {
     // Handle both direct value and updater function
-    const newDate =
-      typeof value === "function" ? value(startDate) : value;
+    const newDate = typeof value === "function" ? value(startDate) : value;
     setStartDate(newDate);
     calculateDuration(newDate, endDate);
   };
@@ -87,11 +86,11 @@ export function TeacherLeaveRequestModal({
    * Handle end date change
    * Updates end date state and recalculates duration
    * Accepts SetStateAction to match DatePickerIcon's expected type
-   * 
+   *
    * @param value - New date value or updater function
    */
   const handleEndDateChange: Dispatch<SetStateAction<Date | undefined>> = (
-    value
+    value,
   ) => {
     // Handle both direct value and updater function
     const newDate = typeof value === "function" ? value(endDate) : value;

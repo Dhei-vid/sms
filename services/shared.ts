@@ -73,14 +73,22 @@ export type {
 } from "./assignments/assignments-type";
 
 export { useGetNoticesQuery, useGetNoticeByIdQuery } from "./notices/notices";
-export type { Notice, NoticesListResponse, NoticesQueryParams } from "./notices/notice-types";
+export type {
+  Notice,
+  NoticesListResponse,
+  NoticesQueryParams,
+} from "./notices/notice-types";
 
 // Calendar Events - Used in: Admin, Teacher, Parent, Student dashboards
 export {
   useGetCalendarEventsQuery,
   useGetCalendarEventByIdQuery,
 } from "./calendar/calendar";
-export type { CalendarEvent, CalendarEventsListResponse, CalendarEventsQueryParams } from "./calendar/calendar-type";
+export type {
+  CalendarEvent,
+  CalendarEventsListResponse,
+  CalendarEventsQueryParams,
+} from "./calendar/calendar-type";
 
 export {
   useGetMessagesQuery,
@@ -111,4 +119,3 @@ export type {
   CreateNotifications,
   UpdateNotifications,
 } from "./notifications/notification-types";
-

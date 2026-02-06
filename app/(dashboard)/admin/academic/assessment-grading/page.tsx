@@ -146,9 +146,7 @@ export default function AssessmentGradingDashboardPage() {
             description="Define all grading components (CA, Exam), set grading scales, and manage weighting rules."
             icon={PayByCheckIcon}
             onClick={() =>
-              router.push(
-                "/admin/academic/assessment-grading/setup-assessment"
-              )
+              router.push("/admin/academic/assessment-grading/setup-assessment")
             }
             className="border-b"
           />
@@ -158,7 +156,7 @@ export default function AssessmentGradingDashboardPage() {
             icon={PassportValidIcon}
             onClick={() =>
               router.push(
-                "/admin/academic/assessment-grading/final-result-approval-queue"
+                "/admin/academic/assessment-grading/final-result-approval-queue",
               )
             }
           />

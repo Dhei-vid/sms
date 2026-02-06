@@ -70,35 +70,26 @@ const rawBaseQuery = fetchBaseQuery({
    * - Content-Type: application/json
    * - Authorization: Bearer token (from cookie, for authenticated requests)
    */
-  prepareHeaders: (headers, { getState }) => {
+  prepareHeaders: (headers, { getState, endpoint }) => {
     if (typeof window === "undefined") {
       return headers;
     }
 
-    // 1. Add x-api-key header
     const apiKey = getApiKey();
     if (apiKey) {
       headers.set("x-api-key", apiKey);
     }
 
-    // 2. Get authentication token from Redux state
     const state = getState() as RootState;
     const token = selectToken(state);
-
     if (token) {
       headers.set("authorization", `Bearer ${token}`);
-
-      if (typeof window !== "undefined") {
-        // console.log("🔑 Token added to request headers");
-      }
-    } else {
-      if (typeof window !== "undefined") {
-        // console.warn("⚠️ No token found in Redux state");
-      }
     }
 
-    // 3. Set content type
-    headers.set("Content-Type", "application/json");
+    const isMultipart = endpoint === "admissionRegister";
+    if (!isMultipart) {
+      headers.set("Content-Type", "application/json");
+    }
 
     return headers;
   },

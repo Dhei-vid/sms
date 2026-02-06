@@ -81,7 +81,7 @@ export function ModalContainer({
           sizeClass,
           maxHeightClass,
           contentClassName,
-          "flex flex-col overflow-hidden scrollbar-width"
+          "flex flex-col overflow-hidden scrollbar-width",
         )}
         showCloseButton={showCloseButton}
       >
@@ -95,15 +95,13 @@ export function ModalContainer({
           className={cn(
             "space-y-4 flex-1 overflow-y-auto",
             maxHeight && "min-h-0",
-            className
+            className,
           )}
         >
           {children}
         </div>
 
-        {footer && (
-          <DialogFooter className="shrink-0">{footer}</DialogFooter>
-        )}
+        {footer && <DialogFooter className="shrink-0">{footer}</DialogFooter>}
       </DialogContent>
     </Dialog>
   );

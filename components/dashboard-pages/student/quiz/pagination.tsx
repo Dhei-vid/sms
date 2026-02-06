@@ -81,7 +81,7 @@ export function Pagination({
                 "w-10 h-10 rounded-md text-sm font-medium transition-colors",
                 currentPage === pageNum
                   ? "bg-main-blue text-white"
-                  : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
+                  : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50",
               )}
             >
               {pageNum}
@@ -100,4 +100,3 @@ export function Pagination({
     </div>
   );
 }
-

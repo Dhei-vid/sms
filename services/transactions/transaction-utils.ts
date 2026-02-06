@@ -16,9 +16,7 @@ const UNCATEGORIZED = "Uncategorized";
 /**
  * Normalize category for grouping (API may return null or empty).
  */
-export function normalizeCategory(
-  category: string | null | undefined
-): string {
+export function normalizeCategory(category: string | null | undefined): string {
   const value = (category ?? "").toString().trim();
   return value || UNCATEGORIZED;
 }
@@ -29,12 +27,12 @@ export function normalizeCategory(
  * Returns groups sorted by totalAmount descending, with percentageOfTotal.
  */
 export function groupTransactionsByCategory(
-  transactions: Transaction[] | undefined
+  transactions: Transaction[] | undefined,
 ): TransactionsByCategoryGroup[] {
   if (!transactions?.length) return [];
 
   const expenseOnly = transactions.filter(
-    (t) => (t.transaction_type ?? "").toLowerCase() === "expense"
+    (t) => (t.transaction_type ?? "").toLowerCase() === "expense",
   );
   const byCategory = new Map<string, { total: number; count: number }>();
 
@@ -50,7 +48,7 @@ export function groupTransactionsByCategory(
 
   const totalSpend = Array.from(byCategory.values()).reduce(
     (sum, { total }) => sum + total,
-    0
+    0,
   );
 
   return Array.from(byCategory.entries())
@@ -58,8 +56,7 @@ export function groupTransactionsByCategory(
       category,
       totalAmount: total,
       count,
-      percentageOfTotal:
-        totalSpend > 0 ? (total / totalSpend) * 100 : 0,
+      percentageOfTotal: totalSpend > 0 ? (total / totalSpend) * 100 : 0,
     }))
     .sort((a, b) => b.totalAmount - a.totalAmount);
 }

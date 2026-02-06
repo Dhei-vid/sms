@@ -61,7 +61,7 @@ export function ScheduleGrid({
 
   const getEventsForDayAndPeriod = (day: Date, period: number) => {
     return events.filter(
-      (event) => isSameDay(event.day, day) && event.period === period
+      (event) => isSameDay(event.day, day) && event.period === period,
     );
   };
 
@@ -72,8 +72,6 @@ export function ScheduleGrid({
   const handleNextWeek = () => {
     onWeekChange(addWeeks(currentWeek, 1));
   };
-
-  
 
   return (
     <div className="bg-white rounded-lg border overflow-hidden">
@@ -116,7 +114,7 @@ export function ScheduleGrid({
                     "p-3 text-center text-sm font-semibold border-r",
                     isToday
                       ? "bg-red-50 text-red-700"
-                      : "bg-gray-50 text-gray-700"
+                      : "bg-gray-50 text-gray-700",
                   )}
                 >
                   <div>{format(day, "EEE")}</div>
@@ -144,7 +142,7 @@ export function ScheduleGrid({
                     key={`${dayIndex}-${slotIndex}`}
                     className={cn(
                       "min-h-[80px] border-r border-b p-2",
-                      isToday && "bg-red-50"
+                      isToday && "bg-red-50",
                     )}
                   >
                     {dayEvents.map((event) => (
@@ -152,7 +150,7 @@ export function ScheduleGrid({
                         key={event.id}
                         className={cn(
                           "text-xs px-2 py-1 rounded mb-1 truncate",
-                          colorClasses[event.color]
+                          colorClasses[event.color],
                         )}
                         title={event.title}
                       >

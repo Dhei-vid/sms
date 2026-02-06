@@ -61,7 +61,11 @@ export function RequestDetailsView({
                       className="text-main-blue p-0 h-auto font-normal"
                       onClick={onViewDocument}
                     >
-                      <Icon icon={FileDownloadIcon} size={16} className="mr-2" />
+                      <Icon
+                        icon={FileDownloadIcon}
+                        size={16}
+                        className="mr-2"
+                      />
                       {row.content}
                     </Button>
                   ) : (
@@ -76,4 +80,3 @@ export function RequestDetailsView({
     </div>
   );
 }
-

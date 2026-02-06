@@ -47,7 +47,7 @@ export function TransactionTabs({
             "cursor-pointer flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors rounded-md",
             activeTab === tab.id
               ? "bg-main-blue/5 text-main-blue"
-              : "text-gray-600 hover:bg-main-blue/5 hover:text-main-blue"
+              : "text-gray-600 hover:bg-main-blue/5 hover:text-main-blue",
           )}
         >
           <Icon icon={tab.icon} size={18} />
@@ -57,4 +57,3 @@ export function TransactionTabs({
     </div>
   );
 }
-

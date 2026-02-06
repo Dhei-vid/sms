@@ -11,7 +11,7 @@ interface DescriptionRequirementsFormProps {
     preferredQualifications: string;
   };
   onFormDataChange: (
-    data: Partial<DescriptionRequirementsFormProps["formData"]>
+    data: Partial<DescriptionRequirementsFormProps["formData"]>,
   ) => void;
   onNext: () => void;
   onBack: () => void;

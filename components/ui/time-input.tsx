@@ -24,7 +24,7 @@ const periods = ["AM", "PM"] as const;
 
 // Parse time string to extract hour, minute, and period
 const parseTime = (
-  time: string
+  time: string,
 ): { hour: string; minute: string; period: "AM" | "PM" } => {
   const match = time.match(/(\d{1,2}):(\d{2})\s?(AM|PM)/i);
   if (match) {
@@ -41,7 +41,7 @@ const parseTime = (
 const formatTime = (
   hour: string,
   minute: string,
-  period: "AM" | "PM"
+  period: "AM" | "PM",
 ): string => {
   if (hour && minute && period) {
     // Ensure hour is 2 digits and minute is 2 digits
@@ -90,7 +90,10 @@ export function TimeInput({
   const handleHourChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     // Only allow numbers and limit to 2 digits, max 12
-    if (value === "" || (/^\d{1,2}$/.test(value) && parseInt(value) <= 12 && parseInt(value) >= 1)) {
+    if (
+      value === "" ||
+      (/^\d{1,2}$/.test(value) && parseInt(value) <= 12 && parseInt(value) >= 1)
+    ) {
       setHour(value);
     }
   };
@@ -170,4 +173,3 @@ export function TimeInput({
     </div>
   );
 }
-

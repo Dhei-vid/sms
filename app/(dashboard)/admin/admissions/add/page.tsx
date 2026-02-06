@@ -1,65 +1,58 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { StepNavigation } from "@/components/dashboard-pages/admin/admissions/components/step-navigation";
 import { ApplicantDetailsForm } from "@/components/dashboard-pages/admin/admissions/forms/applicant-details-form";
 import { DocumentUploadForm } from "@/components/dashboard-pages/admin/admissions/forms/document-upload-form";
 import { ApplicationStatusForm } from "@/components/dashboard-pages/admin/admissions/forms/application-status-form";
+import {
+  getInitialAdmissionFormState,
+  buildAdmissionFormData,
+} from "@/components/dashboard-pages/admin/admissions/forms/admission-form-state";
+import { useAdmissionRegisterMutation } from "@/services/users/users";
+import { useAppSelector } from "@/store/hooks";
+import { selectUser } from "@/store/slices/authSlice";
+import { generateSchoolID } from "@/common/helper";
 
-type StepId = "details" | "documents" | "status";
+// API
+
+const STEPS = ["details", "documents", "status"] as const;
+type StepId = (typeof STEPS)[number];
 
 export default function AddApplicantPage() {
-  const [currentStep, setCurrentStep] = useState<StepId>("details");
+  const router = useRouter();
+  const user = useAppSelector(selectUser);
+  const [step, setStep] = useState<StepId>("details");
+  const [formState, setFormState] = useState(getInitialAdmissionFormState());
+  const [register, { isLoading: isRegistering }] =
+    useAdmissionRegisterMutation();
 
-  const handleNext = () => {
-    if (currentStep === "details") setCurrentStep("documents");
-    else if (currentStep === "documents") setCurrentStep("status");
+  const go = (dir: 1 | -1) => {
+    const i = STEPS.indexOf(step) + dir;
+    if (i >= 0 && i < STEPS.length) setStep(STEPS[i]);
   };
 
-  const handleBack = () => {
-    if (currentStep === "status") setCurrentStep("documents");
-    else if (currentStep === "documents") setCurrentStep("details");
-  };
+  const update = <K extends keyof typeof formState>(
+    key: K,
+    value: (typeof formState)[K],
+  ) => setFormState((s) => ({ ...s, [key]: value }));
 
-  const handleStepChange = (step: StepId) => {
-    setCurrentStep(step);
-  };
+  const handleSubmit = async () => {
+    const schoolID = generateSchoolID();
+    const schoolId = user?.school_id ?? schoolID;
+    if (!schoolID) {
+      console.error("School ID is required");
+      return;
+    }
 
-  const handleCancel = () => {
-    // Navigate back to admissions list
-    window.history.back();
-  };
-
-  const handleSubmit = () => {
-    // Handle form submission
-    console.log("Application submitted");
-    // Navigate back to admissions list
-    window.history.back();
-  };
-
-  const renderStepContent = () => {
-    switch (currentStep) {
-      case "details":
-        return (
-          <ApplicantDetailsForm onNext={handleNext} onCancel={handleCancel} />
-        );
-      case "documents":
-        return (
-          <DocumentUploadForm
-            onNext={handleNext}
-            onBack={handleBack}
-            onCancel={handleCancel}
-          />
-        );
-      case "status":
-        return (
-          <ApplicationStatusForm
-            onBack={handleBack}
-            onCancel={handleCancel}
-            onSubmit={handleSubmit}
-          />
-        );
+    try {
+      const formData = buildAdmissionFormData(formState, schoolId);
+      await register(formData).unwrap();
+      router.push("/admin/admissions");
+    } catch (err) {
+      console.error("Admission register failed:", err);
     }
   };
 
@@ -72,22 +65,48 @@ export default function AddApplicantPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {/* Left Sidebar - Steps */}
         <div className="lg:col-span-1">
           <Card className="bg-background p-0">
             <CardContent className="px-2 py-4">
               <StepNavigation
-                activeStep={currentStep}
-                onStepChange={handleStepChange}
+                activeStep={step}
+                onStepChange={(s) => setStep(s)}
               />
             </CardContent>
           </Card>
         </div>
 
-        {/* Right Content - Form */}
         <div className="lg:col-span-3">
           <Card className="p-0 bg-background">
-            <CardContent className="p-6">{renderStepContent()}</CardContent>
+            <CardContent className="p-6">
+              {step === "details" && (
+                <ApplicantDetailsForm
+                  value={formState.details}
+                  onChange={(v) => update("details", v)}
+                  onNext={() => go(1)}
+                  onCancel={() => router.back()}
+                />
+              )}
+              {step === "documents" && (
+                <DocumentUploadForm
+                  value={formState.documents}
+                  onChange={(v) => update("documents", v)}
+                  onNext={() => go(1)}
+                  onBack={() => go(-1)}
+                  onCancel={() => router.back()}
+                />
+              )}
+              {step === "status" && (
+                <ApplicationStatusForm
+                  value={formState.status}
+                  onChange={(v) => update("status", v)}
+                  onBack={() => go(-1)}
+                  onCancel={() => router.back()}
+                  onSubmit={handleSubmit}
+                  isSubmitting={isRegistering}
+                />
+              )}
+            </CardContent>
           </Card>
         </div>
       </div>

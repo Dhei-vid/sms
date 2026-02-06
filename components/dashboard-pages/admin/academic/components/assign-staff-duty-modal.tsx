@@ -35,7 +35,6 @@ interface DutyAssignmentData {
   endTime?: string;
 }
 
-
 const classOptions = [
   { value: "primary-1", label: "Primary 1" },
   { value: "primary-2", label: "Primary 2" },
@@ -161,202 +160,202 @@ export function AssignStaffDutyModal({
       maxHeight="90vh"
     >
       <div className="space-y-6 py-4">
-          {/* Duty Type Toggle */}
-          <div className="flex gap-2 border rounded-md p-1">
-            <Button
-              type="button"
-              variant={dutyType === "teaching" ? "default" : "outline"}
-              onClick={() => {
-                setDutyType("teaching");
-                setFormData({ dutyType: "teaching" });
-              }}
-              className={cn(
-                "flex-1",
-                dutyType === "teaching"
-                  ? "bg-main-blue/5 text-main-blue hover:bg-main-blue/10"
-                  : "bg-white text-gray-700 hover:bg-main-blue/5 border-0 shadow-none"
-              )}
-            >
-              Teaching Duty
-            </Button>
-            <Button
-              type="button"
-              variant={dutyType === "non-teaching" ? "default" : "outline"}
-              onClick={() => {
-                setDutyType("non-teaching");
-                setFormData({ dutyType: "non-teaching" });
-              }}
-              className={cn(
-                "flex-1",
-                dutyType === "non-teaching"
-                  ? "bg-main-blue/5 text-main-blue hover:bg-main-blue/10"
-                  : "bg-white text-gray-700 hover:bg-main-blue/5 border-0 shadow-none"
-              )}
-            >
-              Non-Teaching Duty
-            </Button>
-          </div>
-
-          {/* Teaching Duty Form */}
-          {dutyType === "teaching" && (
-            <div className="space-y-6">
-              <SelectField
-                label="Select Teacher"
-                value={formData.teacher || ""}
-                onValueChange={(value) =>
-                  setFormData((prev) => ({ ...prev, teacher: value }))
-                }
-                placeholder="Search by staff name/ID."
-              >
-                {teacherOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectField>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                <SelectField
-                  label="Select Class"
-                  value={formData.class || ""}
-                  onValueChange={(value) =>
-                    setFormData((prev) => ({ ...prev, class: value }))
-                  }
-                  placeholder="Select school class"
-                >
-                  {classOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectField>
-
-                <SelectField
-                  label="Select Subject"
-                  value={formData.subject || ""}
-                  onValueChange={(value) =>
-                    setFormData((prev) => ({ ...prev, subject: value }))
-                  }
-                  placeholder="Select subject"
-                >
-                  {subjectOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectField>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                <SelectField
-                  label="Select Day"
-                  value={formData.day || ""}
-                  onValueChange={(value) =>
-                    setFormData((prev) => ({ ...prev, day: value }))
-                  }
-                  placeholder="Select day"
-                >
-                  {dayOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectField>
-
-                <SelectField
-                  label="Select Period"
-                  value={formData.period || ""}
-                  onValueChange={(value) =>
-                    setFormData((prev) => ({ ...prev, period: value }))
-                  }
-                  placeholder="Select period"
-                >
-                  {periodOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectField>
-              </div>
-
-              <SelectField
-                label="Select Classroom"
-                value={formData.classroom || ""}
-                onValueChange={(value) =>
-                  setFormData((prev) => ({ ...prev, classroom: value }))
-                }
-                placeholder="Select classroom"
-              >
-                {classroomOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectField>
-            </div>
-          )}
-
-          {/* Non-Teaching Duty Form */}
-          {dutyType === "non-teaching" && (
-            <div className="space-y-6">
-              <SelectField
-                label="Select Staff Member"
-                value={formData.staffMember || ""}
-                onValueChange={(value) =>
-                  setFormData((prev) => ({ ...prev, staffMember: value }))
-                }
-                placeholder="Search by staff name/ID."
-              >
-                {staffOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectField>
-
-              <InputField
-                label="Duty Type"
-                placeholder="E.g., Morning Gate Duty, Lunch Supervision, Library Duty."
-                value={formData.dutyTypeName || ""}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    dutyTypeName: e.target.value,
-                  }))
-                }
-              />
-
-              <DatePickerIcon
-                label="Date Picker"
-                date={formData.date}
-                setDate={(date) =>
-                  setFormData((prev) => ({ ...prev, date: date as Date }))
-                }
-                placeholder="mm/dd/yy"
-              />
-
-              <TimeRangeInput
-                label="Time Input"
-                startTime={startTime}
-                endTime={endTime}
-                onStartTimeChange={setStartTime}
-                onEndTimeChange={setEndTime}
-              />
-            </div>
-          )}
-
-          {/* Action Buttons */}
-          <div className="grid grid-cols-2 gap-3 pt-4">
-            <Button variant="outline" onClick={() => handleClose(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSubmit}>
-              {dutyType === "teaching"
-                ? "Confirm & Update Timetable"
-                : "Confirm Duty Assignment"}
-            </Button>
-          </div>
+        {/* Duty Type Toggle */}
+        <div className="flex gap-2 border rounded-md p-1">
+          <Button
+            type="button"
+            variant={dutyType === "teaching" ? "default" : "outline"}
+            onClick={() => {
+              setDutyType("teaching");
+              setFormData({ dutyType: "teaching" });
+            }}
+            className={cn(
+              "flex-1",
+              dutyType === "teaching"
+                ? "bg-main-blue/5 text-main-blue hover:bg-main-blue/10"
+                : "bg-white text-gray-700 hover:bg-main-blue/5 border-0 shadow-none",
+            )}
+          >
+            Teaching Duty
+          </Button>
+          <Button
+            type="button"
+            variant={dutyType === "non-teaching" ? "default" : "outline"}
+            onClick={() => {
+              setDutyType("non-teaching");
+              setFormData({ dutyType: "non-teaching" });
+            }}
+            className={cn(
+              "flex-1",
+              dutyType === "non-teaching"
+                ? "bg-main-blue/5 text-main-blue hover:bg-main-blue/10"
+                : "bg-white text-gray-700 hover:bg-main-blue/5 border-0 shadow-none",
+            )}
+          >
+            Non-Teaching Duty
+          </Button>
         </div>
+
+        {/* Teaching Duty Form */}
+        {dutyType === "teaching" && (
+          <div className="space-y-6">
+            <SelectField
+              label="Select Teacher"
+              value={formData.teacher || ""}
+              onValueChange={(value) =>
+                setFormData((prev) => ({ ...prev, teacher: value }))
+              }
+              placeholder="Search by staff name/ID."
+            >
+              {teacherOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectField>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <SelectField
+                label="Select Class"
+                value={formData.class || ""}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, class: value }))
+                }
+                placeholder="Select school class"
+              >
+                {classOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectField>
+
+              <SelectField
+                label="Select Subject"
+                value={formData.subject || ""}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, subject: value }))
+                }
+                placeholder="Select subject"
+              >
+                {subjectOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectField>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <SelectField
+                label="Select Day"
+                value={formData.day || ""}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, day: value }))
+                }
+                placeholder="Select day"
+              >
+                {dayOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectField>
+
+              <SelectField
+                label="Select Period"
+                value={formData.period || ""}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, period: value }))
+                }
+                placeholder="Select period"
+              >
+                {periodOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectField>
+            </div>
+
+            <SelectField
+              label="Select Classroom"
+              value={formData.classroom || ""}
+              onValueChange={(value) =>
+                setFormData((prev) => ({ ...prev, classroom: value }))
+              }
+              placeholder="Select classroom"
+            >
+              {classroomOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectField>
+          </div>
+        )}
+
+        {/* Non-Teaching Duty Form */}
+        {dutyType === "non-teaching" && (
+          <div className="space-y-6">
+            <SelectField
+              label="Select Staff Member"
+              value={formData.staffMember || ""}
+              onValueChange={(value) =>
+                setFormData((prev) => ({ ...prev, staffMember: value }))
+              }
+              placeholder="Search by staff name/ID."
+            >
+              {staffOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectField>
+
+            <InputField
+              label="Duty Type"
+              placeholder="E.g., Morning Gate Duty, Lunch Supervision, Library Duty."
+              value={formData.dutyTypeName || ""}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  dutyTypeName: e.target.value,
+                }))
+              }
+            />
+
+            <DatePickerIcon
+              label="Date Picker"
+              date={formData.date}
+              setDate={(date) =>
+                setFormData((prev) => ({ ...prev, date: date as Date }))
+              }
+              placeholder="mm/dd/yy"
+            />
+
+            <TimeRangeInput
+              label="Time Input"
+              startTime={startTime}
+              endTime={endTime}
+              onStartTimeChange={setStartTime}
+              onEndTimeChange={setEndTime}
+            />
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        <div className="grid grid-cols-2 gap-3 pt-4">
+          <Button variant="outline" onClick={() => handleClose(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleSubmit}>
+            {dutyType === "teaching"
+              ? "Confirm & Update Timetable"
+              : "Confirm Duty Assignment"}
+          </Button>
+        </div>
+      </div>
     </ModalContainer>
   );
 }

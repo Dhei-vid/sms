@@ -28,7 +28,8 @@ export default function ApplicantDetailPage({
     const resolveParams = async () => {
       try {
         // Handle both sync and async params
-        const resolvedParams = params instanceof Promise ? await params : params;
+        const resolvedParams =
+          params instanceof Promise ? await params : params;
         const id = resolvedParams?.id;
         if (id) {
           setApplicantId(id);
@@ -45,7 +46,7 @@ export default function ApplicantDetailPage({
   // Find applicant data based on params.id
   const applicant = useMemo(() => {
     if (!applicantId) return null;
-    
+
     const found = initialApplications.find((app) => app.id === applicantId);
     if (!found) {
       return null;

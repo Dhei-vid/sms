@@ -187,7 +187,7 @@ export default function AcademicManagementPage() {
                     <div
                       className={cn(
                         "w-full rounded-t transition-all",
-                        grade.color
+                        grade.color,
                       )}
                       style={{ height: `${grade.value}%` }}
                     />
@@ -283,7 +283,7 @@ export default function AcademicManagementPage() {
                       .slice(0, index)
                       .reduce(
                         (sum, s) => sum + (s.value / total) * circumference,
-                        0
+                        0,
                       );
                     const dashArray = (segment.value / total) * circumference;
                     const colorMap: Record<string, string> = {

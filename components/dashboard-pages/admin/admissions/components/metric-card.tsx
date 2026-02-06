@@ -45,7 +45,7 @@ export function MetricCard({
               {trend === "up" ? (
                 <div className="relative">
                   <Icon
-                    size={25}
+                    size={18}
                     icon={ArrowUpRight01Icon}
                     className={cn(trendColor || "text-gray-400")}
                   />

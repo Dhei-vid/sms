@@ -9,7 +9,9 @@ interface GradingWeightingFormProps {
     continuousAssessment: string;
     finalExam: string;
   };
-  onFormDataChange: (data: Partial<GradingWeightingFormProps["formData"]>) => void;
+  onFormDataChange: (
+    data: Partial<GradingWeightingFormProps["formData"]>,
+  ) => void;
   onBack: () => void;
   onSaveDraft: () => void;
   onSaveContinue: () => void;
@@ -73,4 +75,3 @@ export function GradingWeightingForm({
     </div>
   );
 }
-

@@ -31,8 +31,15 @@ export const walletApi = baseApi.injectEndpoints({
       invalidatesTags: ["Wallet"],
     }),
 
-    updateWallet: build.mutation<WalletResponse, { id: string; data: UpdateWalletRequest }>({
-      query: ({ id, data }) => ({ url: `${BASE}/${id}`, method: "PUT", body: data }),
+    updateWallet: build.mutation<
+      WalletResponse,
+      { id: string; data: UpdateWalletRequest }
+    >({
+      query: ({ id, data }) => ({
+        url: `${BASE}/${id}`,
+        method: "PUT",
+        body: data,
+      }),
       invalidatesTags: (_, __, { id }) => [{ type: "Wallet", id }, "Wallet"],
     }),
 
@@ -41,8 +48,14 @@ export const walletApi = baseApi.injectEndpoints({
       invalidatesTags: (_, __, id) => [{ type: "Wallet", id }, "Wallet"],
     }),
 
-    getWalletBalance: build.query<ApiResponse<Wallet> | ApiResponse<{ balance: string }>, string | void>({
-      query: (userId) => ({ url: `${BASE}/account/balance`, params: userId ? { user_id: userId } : {} }),
+    getWalletBalance: build.query<
+      ApiResponse<Wallet> | ApiResponse<{ balance: string }>,
+      string | void
+    >({
+      query: (userId) => ({
+        url: `${BASE}/account/balance`,
+        params: userId ? { user_id: userId } : {},
+      }),
       providesTags: ["Wallet"],
     }),
 
@@ -52,12 +65,20 @@ export const walletApi = baseApi.injectEndpoints({
     }),
 
     transferFunds: build.mutation<ApiResponse<Wallet>, TransferFundsPayload>({
-      query: (body) => ({ url: `${BASE}/account/transfer`, method: "POST", body }),
+      query: (body) => ({
+        url: `${BASE}/account/transfer`,
+        method: "POST",
+        body,
+      }),
       invalidatesTags: ["Wallet"],
     }),
 
     makePayment: build.mutation<ApiResponse<Wallet>, MakePaymentsPayload>({
-      query: (body) => ({ url: `${BASE}/account/payment`, method: "POST", body }),
+      query: (body) => ({
+        url: `${BASE}/account/payment`,
+        method: "POST",
+        body,
+      }),
       invalidatesTags: ["Wallet"],
     }),
   }),

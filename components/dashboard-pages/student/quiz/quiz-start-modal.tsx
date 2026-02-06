@@ -32,9 +32,9 @@ export function QuizStartModal({
 }: QuizStartModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent 
-        className="sm:max-w-md" 
-        onInteractOutside={(e) => e.preventDefault()} 
+      <DialogContent
+        className="sm:max-w-md"
+        onInteractOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
         <DialogHeader>
@@ -45,7 +45,10 @@ export function QuizStartModal({
           {/* Time Limit */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="timeLimit" className="text-sm font-medium text-gray-700">
+              <Label
+                htmlFor="timeLimit"
+                className="text-sm font-medium text-gray-700"
+              >
                 Time Limit:
               </Label>
               <span className="text-xs text-gray-500">Read-Only</span>
@@ -104,4 +107,3 @@ export function QuizStartModal({
     </Dialog>
   );
 }
-

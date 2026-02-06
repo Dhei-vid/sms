@@ -94,7 +94,7 @@ export function ScriptReviewModal({
   }
 
   const scorePercentage = Math.round(
-    (student.rawScore / student.totalScore) * 100
+    (student.rawScore / student.totalScore) * 100,
   );
 
   return (

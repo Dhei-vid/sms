@@ -30,7 +30,7 @@ export function AnswerOptions({
               "border-2 rounded-md p-4 text-left transition-all hover:border-main-blue hover:bg-main-blue/5",
               selectedAnswer === option.value
                 ? "border-main-blue bg-main-blue/10"
-                : "border-gray-200"
+                : "border-gray-200",
             )}
           >
             <div className="flex items-center gap-3">
@@ -45,4 +45,3 @@ export function AnswerOptions({
     </div>
   );
 }
-

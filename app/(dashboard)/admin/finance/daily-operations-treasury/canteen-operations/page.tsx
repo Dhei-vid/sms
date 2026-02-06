@@ -166,7 +166,8 @@ export default function CanteenOperationsPage() {
       ? recentActivities
       : recentActivities.filter(
           (activity) =>
-            activity.reconciliationStatus.toLowerCase() === filter.toLowerCase()
+            activity.reconciliationStatus.toLowerCase() ===
+            filter.toLowerCase(),
         );
 
   const getStatusColor = (status: string) => {
@@ -251,7 +252,7 @@ export default function CanteenOperationsPage() {
         label: "",
         onClick: (row) => {
           router.push(
-            `/admin/finance/daily-operations-treasury/canteen-operations/${row.id}`
+            `/admin/finance/daily-operations-treasury/canteen-operations/${row.id}`,
           );
         },
         variant: "ghost",

@@ -14,7 +14,7 @@ import {
 const hours = Array.from({ length: 12 }, (_, i) => i + 1);
 // Generate minutes (00-59)
 const minutes = Array.from({ length: 60 }, (_, i) =>
-  i.toString().padStart(2, "0")
+  i.toString().padStart(2, "0"),
 );
 const periods = ["AM", "PM"] as const;
 
@@ -41,7 +41,7 @@ export function TimeRangeInput({
 }: TimeRangeInputProps) {
   const updateStartTime = (
     field: "hour" | "minute" | "period",
-    value: string
+    value: string,
   ) => {
     onStartTimeChange({
       ...startTime,
@@ -51,7 +51,7 @@ export function TimeRangeInput({
 
   const updateEndTime = (
     field: "hour" | "minute" | "period",
-    value: string
+    value: string,
   ) => {
     onEndTimeChange({
       ...endTime,

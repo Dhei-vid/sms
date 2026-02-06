@@ -119,7 +119,11 @@ export default function MyClassPage() {
   });
 
   // Pagination
-  const { displayedData: students, hasMore, loadMore } = usePagination({
+  const {
+    displayedData: students,
+    hasMore,
+    loadMore,
+  } = usePagination({
     data: filteredStudents,
     initialItemsPerPage: 5,
     itemsPerPage: 5,
@@ -199,8 +203,8 @@ export default function MyClassPage() {
           My Class Roster
         </h1>
         <p className="text-gray-600">
-          This screen provides the teacher with an immediate, actionable overview
-          of all students they teach.
+          This screen provides the teacher with an immediate, actionable
+          overview of all students they teach.
         </p>
       </div>
 
@@ -228,7 +232,7 @@ export default function MyClassPage() {
 
       {/* Mark Attendance Button */}
       <Button
-      variant={"outline"}
+        variant={"outline"}
         onClick={() => setAttendanceModalOpen(true)}
         className="w-full h-11"
       >
@@ -299,4 +303,3 @@ export default function MyClassPage() {
     </div>
   );
 }
-

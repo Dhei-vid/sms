@@ -11,5 +11,5 @@ export const selectGetWalletsResult = (state: RootState) =>
 /** Stable ref when no data (Reselect v5 input stability). */
 export const selectWalletsData = createSelector(
   [selectGetWalletsResult],
-  (result): Wallet[] => result.data?.data ?? STABLE_EMPTY
+  (result): Wallet[] => result.data?.data ?? STABLE_EMPTY,
 );

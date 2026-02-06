@@ -38,7 +38,7 @@ type TabId = "details" | "documents" | "interview";
  * Applicant Detail Page Component
  * Displays detailed information about a job applicant
  * Handles dynamic route params which may be a Promise in Next.js 15+
- * 
+ *
  * @param params - Route parameters containing applicant ID
  */
 export default function ApplicantDetailPage({
@@ -88,7 +88,7 @@ export default function ApplicantDetailPage({
   /**
    * Handle recording a new assessment
    * Converts AssessmentData from modal to Assessment format for display
-   * 
+   *
    * @param data - Assessment data from the record assessment modal
    */
   const handleRecordAssessment = (data: AssessmentData) => {

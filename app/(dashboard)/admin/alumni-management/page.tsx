@@ -211,9 +211,7 @@ export default function AlumniManagementPage() {
           {/* Table Controls */}
           <div className="flex gap-4 items-center mb-4">
             <div className="flex-1 relative">
-              <Search
-                className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none"
-              />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
               <Input
                 type="search"
                 placeholder="Search students name/ID"

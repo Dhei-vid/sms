@@ -166,21 +166,27 @@ export default function LearningManagementDashboardPage() {
             title="Create New Course Shell"
             description="Initiates the process to set up a new subject/class for digital content"
             icon={PayByCheckIcon}
-            onClick={() => router.push("/admin/learning-management/course-structure")}
+            onClick={() =>
+              router.push("/admin/learning-management/course-structure")
+            }
             className="border-b"
           />
           <QuickActionCard
             title="Content Library & Repository"
             description="Direct access to manage all uploaded resources: PDFs, videos, presentations"
             icon={LibrariesIcon}
-            onClick={() => router.push("/admin/learning-management/content-library")}
+            onClick={() =>
+              router.push("/admin/learning-management/content-library")
+            }
             className="border-b"
           />
           <QuickActionCard
             title="Teacher Activity Audit"
             description="Links to a log tracking teacher lesson plan submissions and content uploads"
             icon={TransactionHistoryIcon}
-            onClick={() => router.push("/admin/learning-management/teacher-activity")}
+            onClick={() =>
+              router.push("/admin/learning-management/teacher-activity")
+            }
           />
         </CardContent>
       </Card>

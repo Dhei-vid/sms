@@ -4,5 +4,3 @@ export {
   getMenuItemsByRole,
   matchMenuItemByPath,
 } from "./menu-utils";
-
-

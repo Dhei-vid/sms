@@ -36,7 +36,7 @@ export function AccessDocumentationForm({
 
   const handleFileChange = (
     field: "medicalReport" | "passportPhoto",
-    file: File | null
+    file: File | null,
   ) => {
     setFormData({ ...formData, [field]: file });
   };

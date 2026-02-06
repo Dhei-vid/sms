@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  DataTable,
-  TableColumn,
-} from "@/components/ui/data-table";
+import { DataTable, TableColumn } from "@/components/ui/data-table";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { MetricCard } from "@/components/dashboard-pages/admin/admissions/components/metric-card";
@@ -99,7 +96,11 @@ const getActionLabel = (status: GradingTask["submissionStatus"]) => {
 
 export default function GradeEntryPortalPage() {
   // Pagination
-  const { displayedData: gradingTasks, hasMore, loadMore } = usePagination({
+  const {
+    displayedData: gradingTasks,
+    hasMore,
+    loadMore,
+  } = usePagination({
     data: allGradingTasks,
     initialItemsPerPage: 4,
     itemsPerPage: 4,
@@ -116,12 +117,16 @@ export default function GradeEntryPortalPage() {
     {
       key: "subjectClass",
       title: "Subject/Class",
-      render: (value) => <span className="text-gray-700">{value as string}</span>,
+      render: (value) => (
+        <span className="text-gray-700">{value as string}</span>
+      ),
     },
     {
       key: "totalMarks",
       title: "Total Marks",
-      render: (value) => <span className="text-gray-700">{value as number}</span>,
+      render: (value) => (
+        <span className="text-gray-700">{value as number}</span>
+      ),
     },
     {
       key: "submissionStatus",
@@ -138,7 +143,9 @@ export default function GradeEntryPortalPage() {
     {
       key: "deadline",
       title: "Deadline",
-      render: (value) => <span className="text-gray-700">{value as string}</span>,
+      render: (value) => (
+        <span className="text-gray-700">{value as string}</span>
+      ),
     },
     {
       key: "action",
@@ -150,10 +157,7 @@ export default function GradeEntryPortalPage() {
             ? `/teacher/grade-entry-portal/view/${row.id}`
             : "/teacher/grade-entry-portal/entry";
         return (
-          <Link
-            href={href}
-            className="text-main-blue hover:underline"
-          >
+          <Link href={href} className="text-main-blue hover:underline">
             {actionLabel}
           </Link>
         );
@@ -222,4 +226,3 @@ export default function GradeEntryPortalPage() {
     </div>
   );
 }
-

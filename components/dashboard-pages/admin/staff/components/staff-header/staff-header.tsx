@@ -87,7 +87,7 @@ export function StaffHeader({
             <div
               className={cn(
                 "flex items-center text-white text-xs font-medium rounded-md h-9 px-4 py-2",
-                getStatusColor()
+                getStatusColor(),
               )}
             >
               {statusLabel}

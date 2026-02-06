@@ -106,7 +106,7 @@ export default function CreateDiscountRulePage() {
     });
     // In a real app, this would submit to an API
     router.push(
-      "/admin/finance/fee-revenue-management/discount-policy-management"
+      "/admin/finance/fee-revenue-management/discount-policy-management",
     );
   };
 

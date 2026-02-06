@@ -65,28 +65,32 @@ export default function StudentsPage() {
     {
       type: "withdrawn",
       title: "Student Withdrawn",
-      description: "Kemi Adekunle (JS 1) was withdrawn from the school on Oct. 22",
+      description:
+        "Kemi Adekunle (JS 1) was withdrawn from the school on Oct. 22",
       timestamp: "Oct. 22, 10:00 AM",
       icon: UserMinus01Icon,
     },
     {
       type: "registered",
       title: "Newly Registered",
-      description: "Student Funke Ojo (JSS1) successfully completed enrollment payment.",
+      description:
+        "Student Funke Ojo (JSS1) successfully completed enrollment payment.",
       timestamp: "Oct. 21, 9:32 AM",
       icon: UserCheck01Icon,
     },
     {
       type: "attendance",
       title: "New Attendance Flag",
-      description: "Taiwo Musa (SS2) marked Unexcused Absent for the third consecutive day.",
+      description:
+        "Taiwo Musa (SS2) marked Unexcused Absent for the third consecutive day.",
       timestamp: "8:15 AM",
       icon: Alert01Icon,
     },
     {
       type: "grade",
       title: "Grade Change/Update",
-      description: "Grade for Math Test 2 for All SS2 Students was updated by Mr. Nnamdi.",
+      description:
+        "Grade for Math Test 2 for All SS2 Students was updated by Mr. Nnamdi.",
       timestamp: "8:15 AM",
       icon: FileUploadIcon,
     },

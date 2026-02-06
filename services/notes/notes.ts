@@ -1,6 +1,10 @@
 import { baseApi } from "../baseApi";
 import type { CreateNotesRequest, UpdateNotesRequest } from "./note-types";
-import type { ApiResponse, ApiListResponse, ApiDeleteResponse } from "../shared-types";
+import type {
+  ApiResponse,
+  ApiListResponse,
+  ApiDeleteResponse,
+} from "../shared-types";
 
 const BASE = "/notes";
 
@@ -22,8 +26,15 @@ export const notesApi = baseApi.injectEndpoints({
       invalidatesTags: ["Note"],
     }),
 
-    updateNote: build.mutation<ApiResponse<unknown>, { id: string; data: UpdateNotesRequest }>({
-      query: ({ id, data }) => ({ url: `${BASE}/${id}`, method: "PUT", body: data }),
+    updateNote: build.mutation<
+      ApiResponse<unknown>,
+      { id: string; data: UpdateNotesRequest }
+    >({
+      query: ({ id, data }) => ({
+        url: `${BASE}/${id}`,
+        method: "PUT",
+        body: data,
+      }),
       invalidatesTags: (_, __, { id }) => [{ type: "Note", id }, "Note"],
     }),
 

@@ -1,4 +1,8 @@
-import type { ApiListResponse, ApiResponse, BaseQueryParams } from "../shared-types";
+import type {
+  ApiListResponse,
+  ApiResponse,
+  BaseQueryParams,
+} from "../shared-types";
 
 export interface Notice {
   id: string;

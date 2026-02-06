@@ -22,13 +22,9 @@ export function CheckboxField({
   return (
     <div className={cn("flex items-center space-x-2", className)}>
       <Checkbox id={id} checked={checked} onCheckedChange={onCheckedChange} />
-      <Label
-        htmlFor={id}
-        className="text-sm font-normal cursor-pointer"
-      >
+      <Label htmlFor={id} className="text-sm font-normal cursor-pointer">
         {label}
       </Label>
     </div>
   );
 }
-

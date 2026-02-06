@@ -51,7 +51,7 @@ export function MessageThreadsList({
   const filteredThreads = threads.filter(
     (thread) =>
       thread.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      thread.description.toLowerCase().includes(searchQuery.toLowerCase())
+      thread.description.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const handleTeacherClick = (teacherId: string) => {
@@ -86,9 +86,14 @@ export function MessageThreadsList({
                   <Icon icon={Add01Icon} size={23} />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-64 max-h-96 overflow-y-auto">
+              <DropdownMenuContent
+                align="end"
+                className="w-64 max-h-96 overflow-y-auto"
+              >
                 {teachers.length === 0 ? (
-                  <DropdownMenuItem disabled>No teachers found</DropdownMenuItem>
+                  <DropdownMenuItem disabled>
+                    No teachers found
+                  </DropdownMenuItem>
                 ) : (
                   teachers.map((teacher) => (
                     <DropdownMenuItem

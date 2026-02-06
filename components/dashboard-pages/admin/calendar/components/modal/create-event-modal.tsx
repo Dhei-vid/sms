@@ -102,7 +102,7 @@ export function CreateEventModal({
 
   // handling date
   const handleDateChange: Dispatch<SetStateAction<Date | undefined>> = (
-    date
+    date,
   ) => {
     setFormData((prev) => ({
       ...prev,
@@ -119,123 +119,121 @@ export function CreateEventModal({
       maxHeight="90vh"
     >
       <div className="space-y-6 py-4">
-          {/* Event Title */}
-          <InputField
-            id="event-title"
-            label="Event Title"
-            placeholder="E.g., Q4 Budget Review Meeting, Annual Science Fair"
-            value={formData.title}
-            onChange={(e) =>
-              setFormData({ ...formData, title: e.target.value })
-            }
+        {/* Event Title */}
+        <InputField
+          id="event-title"
+          label="Event Title"
+          placeholder="E.g., Q4 Budget Review Meeting, Annual Science Fair"
+          value={formData.title}
+          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+        />
+
+        {/* Description */}
+        <TextareaField
+          id="description"
+          label="Description"
+          placeholder="Briefly describe the event purpose and key agenda points."
+          value={formData.description}
+          onChange={(e) =>
+            setFormData({ ...formData, description: e.target.value })
+          }
+          rows={4}
+        />
+
+        {/* Date, Start Time and End Time */}
+        <div className="grid grid-cols-3 gap-2">
+          {/* Date */}
+          <DatePickerIcon
+            label="Date"
+            open={openDatePicker}
+            setOpen={setOpenDatePicker}
+            date={formData.date}
+            setDate={handleDateChange}
           />
 
-          {/* Description */}
-          <TextareaField
-            id="description"
-            label="Description"
-            placeholder="Briefly describe the event purpose and key agenda points."
-            value={formData.description}
-            onChange={(e) =>
-              setFormData({ ...formData, description: e.target.value })
+          {/* Start Time */}
+          <TimePicker
+            label="Start Time"
+            time={formData.startTime}
+            setTime={(value) =>
+              setFormData((prev) => ({
+                ...prev,
+                startTime:
+                  typeof value === "function" ? value(prev.startTime) : value,
+              }))
             }
-            rows={4}
+            id="start-time"
           />
 
-          {/* Date, Start Time and End Time */}
-          <div className="grid grid-cols-3 gap-2">
-            {/* Date */}
-            <DatePickerIcon
-              label="Date"
-              open={openDatePicker}
-              setOpen={setOpenDatePicker}
-              date={formData.date}
-              setDate={handleDateChange}
-            />
-
-            {/* Start Time */}
-            <TimePicker
-              label="Start Time"
-              time={formData.startTime}
-              setTime={(value) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  startTime:
-                    typeof value === "function" ? value(prev.startTime) : value,
-                }))
-              }
-              id="start-time"
-            />
-
-            {/* End Time */}
-            <TimePicker
-              label="End Time"
-              time={formData.endTime}
-              setTime={(value) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  endTime:
-                    typeof value === "function" ? value(prev.endTime) : value,
-                }))
-              }
-              id="end-time"
-            />
-          </div>
-
-          {/* Location */}
-          <InputField
-            id="location"
-            label="Location"
-            placeholder="E.g., Main Assembly Hall, Board Room (or Text Input: External Venue Address)"
-            value={formData.location}
-            onChange={(e) =>
-              setFormData({ ...formData, location: e.target.value })
+          {/* End Time */}
+          <TimePicker
+            label="End Time"
+            time={formData.endTime}
+            setTime={(value) =>
+              setFormData((prev) => ({
+                ...prev,
+                endTime:
+                  typeof value === "function" ? value(prev.endTime) : value,
+              }))
             }
+            id="end-time"
           />
+        </div>
 
-          {/* Audience Visibility */}
-          <div className="space-y-3">
-            <Label className="text-sm font-medium text-gray-700">
-              Audience Visibility
-            </Label>
-            <div className="flex flex-row gap-6">
-              <CheckboxField
-                id="general-announcement"
-                label="General announcement"
-                checked={formData.audienceVisibility.general}
-                onCheckedChange={() => handleAudienceChange("general")}
-              />
-              <CheckboxField
-                id="private"
-                label="Private"
-                checked={formData.audienceVisibility.private}
-                onCheckedChange={() => handleAudienceChange("private")}
-              />
-            </div>
-          </div>
+        {/* Location */}
+        <InputField
+          id="location"
+          label="Location"
+          placeholder="E.g., Main Assembly Hall, Board Room (or Text Input: External Venue Address)"
+          value={formData.location}
+          onChange={(e) =>
+            setFormData({ ...formData, location: e.target.value })
+          }
+        />
 
-          {/* Send Notification */}
-          <div className="space-y-3">
-            <Label className="text-sm font-medium text-gray-700">
-              Send Notification
-            </Label>
-            <div className="flex items-center gap-3">
-              <p className="text-sm text-gray-600 flex-1">
-                Send notification (Email/SMS) 24 hours prior
-              </p>
-              <Checkbox
-                id="send-notification"
-                checked={formData.sendNotification}
-                onCheckedChange={(checked) =>
-                  setFormData({
-                    ...formData,
-                    sendNotification: checked as boolean,
-                  })
-                }
-              />
-            </div>
+        {/* Audience Visibility */}
+        <div className="space-y-3">
+          <Label className="text-sm font-medium text-gray-700">
+            Audience Visibility
+          </Label>
+          <div className="flex flex-row gap-6">
+            <CheckboxField
+              id="general-announcement"
+              label="General announcement"
+              checked={formData.audienceVisibility.general}
+              onCheckedChange={() => handleAudienceChange("general")}
+            />
+            <CheckboxField
+              id="private"
+              label="Private"
+              checked={formData.audienceVisibility.private}
+              onCheckedChange={() => handleAudienceChange("private")}
+            />
           </div>
         </div>
+
+        {/* Send Notification */}
+        <div className="space-y-3">
+          <Label className="text-sm font-medium text-gray-700">
+            Send Notification
+          </Label>
+          <div className="flex items-center gap-3">
+            <p className="text-sm text-gray-600 flex-1">
+              Send notification (Email/SMS) 24 hours prior
+            </p>
+            <Checkbox
+              id="send-notification"
+              checked={formData.sendNotification}
+              onCheckedChange={(checked) =>
+                setFormData({
+                  ...formData,
+                  sendNotification: checked as boolean,
+                })
+              }
+            />
+          </div>
+        </div>
+      </div>
 
       <div className="grid grid-cols-2 gap-3 pt-4">
         <Button variant="outline" onClick={handleCancel}>

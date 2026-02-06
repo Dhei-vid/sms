@@ -186,18 +186,13 @@ export function QuestionReviewModal({
               <TableCell>
                 <div className="space-y-2">
                   {currentQuestion.answerOptions.map((option, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-4"
-                    >
+                    <div key={index} className="flex items-center gap-4">
                       <span className="font-medium w-6">{option.label}:</span>
                       <span className="flex-1">{option.text}</span>
                       <span
                         className={cn(
                           "text-sm font-medium",
-                          option.isCorrect
-                            ? "text-green-600"
-                            : "text-gray-600"
+                          option.isCorrect ? "text-green-600" : "text-gray-600",
                         )}
                       >
                         {option.isCorrect ? "Yes" : "No"}
@@ -234,4 +229,3 @@ export function QuestionReviewModal({
     </ModalContainer>
   );
 }
-

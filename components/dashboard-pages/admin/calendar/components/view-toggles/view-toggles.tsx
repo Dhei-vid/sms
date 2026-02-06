@@ -20,7 +20,7 @@ export function ViewToggles({ currentView, onViewChange }: ViewTogglesProps) {
         className={cn(
           currentView === "day" &&
             "bg-main-blue/5 text-main-blue hover:bg-main-blue/10",
-          "border-none"
+          "border-none",
         )}
       >
         Day
@@ -32,7 +32,7 @@ export function ViewToggles({ currentView, onViewChange }: ViewTogglesProps) {
         className={cn(
           currentView === "week" &&
             "bg-main-blue/5 text-main-blue hover:bg-main-blue/10",
-          "border-none"
+          "border-none",
         )}
       >
         Week
@@ -44,7 +44,7 @@ export function ViewToggles({ currentView, onViewChange }: ViewTogglesProps) {
         className={cn(
           currentView === "month" &&
             "bg-main-blue/5 text-main-blue hover:bg-main-blue/10",
-          "border-none"
+          "border-none",
         )}
       >
         Month

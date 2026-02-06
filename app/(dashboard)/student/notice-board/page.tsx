@@ -13,9 +13,9 @@ import { useGetNoticesQuery } from "@/services/shared";
 import { format } from "date-fns";
 
 export default function NoticeBoardPage() {
-  const { data: noticesData, isLoading } = useGetNoticesQuery({ 
+  const { data: noticesData, isLoading } = useGetNoticesQuery({
     isPublished: true,
-    limit: 100 
+    limit: 100,
   });
 
   const notices = noticesData?.data || [];
@@ -47,16 +47,21 @@ export default function NoticeBoardPage() {
       <Card className="bg-background py-0 overflow-hidden">
         <CardContent className="p-0">
           {isLoading ? (
-            <div className="p-8 text-center text-gray-500">Loading notices...</div>
+            <div className="p-8 text-center text-gray-500">
+              Loading notices...
+            </div>
           ) : notices.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">No notices found</div>
+            <div className="p-8 text-center text-gray-500">
+              No notices found
+            </div>
           ) : (
             notices.map((notice, index) => {
               const icon = getIconForPriority(notice.priority);
-              const isRecent = notice.createdAt 
-                ? new Date(notice.createdAt).getTime() > Date.now() - 24 * 60 * 60 * 1000
+              const isRecent = notice.createdAt
+                ? new Date(notice.createdAt).getTime() >
+                  Date.now() - 24 * 60 * 60 * 1000
                 : false;
-              
+
               return (
                 <div key={notice.id} className="relative cursor-pointer">
                   {index > 0 && <Separator className="my-0" />}
@@ -94,8 +99,12 @@ export default function NoticeBoardPage() {
                             </div>
                           </div>
                           <span className="text-xs text-gray-500">
-                            Posted: {notice.createdAt 
-                              ? format(new Date(notice.createdAt), "MMM d, yyyy; h:mm a")
+                            Posted:{" "}
+                            {notice.createdAt
+                              ? format(
+                                  new Date(notice.createdAt),
+                                  "MMM d, yyyy; h:mm a",
+                                )
                               : "N/A"}
                           </span>
                         </div>

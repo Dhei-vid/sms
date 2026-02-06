@@ -1,5 +1,9 @@
 import { baseApi } from "../baseApi";
-import type { Notice, NoticesListResponse, NoticesQueryParams } from "./notice-types";
+import type {
+  Notice,
+  NoticesListResponse,
+  NoticesQueryParams,
+} from "./notice-types";
 
 const BASE = "/notices";
 
@@ -17,7 +21,4 @@ export const noticesApi = baseApi.injectEndpoints({
   }),
 });
 
-export const {
-  useGetNoticesQuery,
-  useGetNoticeByIdQuery,
-} = noticesApi;
+export const { useGetNoticesQuery, useGetNoticeByIdQuery } = noticesApi;

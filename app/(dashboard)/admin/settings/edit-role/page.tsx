@@ -54,12 +54,12 @@ export default function EditRolePage() {
       readOnly: false,
       readWrite: false,
       none: true,
-    }))
+    })),
   );
 
   const handlePermissionChange = (
     moduleIndex: number,
-    permissionType: "readOnly" | "readWrite" | "none"
+    permissionType: "readOnly" | "readWrite" | "none",
   ) => {
     const newPermissions = [...permissions];
     const module = newPermissions[moduleIndex];

@@ -16,5 +16,6 @@ const selectAllTransactionsData = (state: RootState): Transaction[] =>
 /** Memoized: expense transactions grouped by category (totals + %). Use after useGetAllTransactionsQuery(). */
 export const selectTransactionsGroupedByCategory = createSelector(
   [selectAllTransactionsData],
-  (transactions): TransactionsByCategoryGroup[] => groupTransactionsByCategory(transactions)
+  (transactions): TransactionsByCategoryGroup[] =>
+    groupTransactionsByCategory(transactions),
 );

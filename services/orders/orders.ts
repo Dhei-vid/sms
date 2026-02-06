@@ -27,8 +27,15 @@ export const ordersApi = baseApi.injectEndpoints({
       invalidatesTags: ["Order"],
     }),
 
-    updateOrder: build.mutation<Order, { id: string; data: UpdateOrderRequest }>({
-      query: ({ id, data }) => ({ url: `${BASE}/${id}`, method: "PUT", body: data }),
+    updateOrder: build.mutation<
+      Order,
+      { id: string; data: UpdateOrderRequest }
+    >({
+      query: ({ id, data }) => ({
+        url: `${BASE}/${id}`,
+        method: "PUT",
+        body: data,
+      }),
       invalidatesTags: (_, __, { id }) => [{ type: "Order", id }, "Order"],
     }),
 

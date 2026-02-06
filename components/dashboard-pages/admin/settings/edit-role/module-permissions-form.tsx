@@ -13,7 +13,7 @@ interface ModulePermissionsFormProps {
   permissions: ModulePermission[];
   onPermissionChange: (
     moduleIndex: number,
-    permissionType: "readOnly" | "readWrite" | "none"
+    permissionType: "readOnly" | "readWrite" | "none",
   ) => void;
 }
 
@@ -48,18 +48,14 @@ export function ModulePermissionsForm({
               <label className="flex items-center gap-2 cursor-pointer">
                 <Checkbox
                   checked={modulePermission.readOnly}
-                  onCheckedChange={() =>
-                    onPermissionChange(index, "readOnly")
-                  }
+                  onCheckedChange={() => onPermissionChange(index, "readOnly")}
                 />
                 <span className="text-sm text-gray-700">Read-Only</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <Checkbox
                   checked={modulePermission.readWrite}
-                  onCheckedChange={() =>
-                    onPermissionChange(index, "readWrite")
-                  }
+                  onCheckedChange={() => onPermissionChange(index, "readWrite")}
                 />
                 <span className="text-sm text-gray-700">Read & Write</span>
               </label>
@@ -77,4 +73,3 @@ export function ModulePermissionsForm({
     </div>
   );
 }
-

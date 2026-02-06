@@ -19,7 +19,7 @@ interface ScopeSelectionFormProps {
     note: string;
   };
   onFormDataChange: (
-    data: Partial<ScopeSelectionFormProps["formData"]>
+    data: Partial<ScopeSelectionFormProps["formData"]>,
   ) => void;
   onNext: () => void;
   onCancel: () => void;

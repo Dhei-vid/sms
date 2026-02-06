@@ -202,7 +202,7 @@ export default function CanteenTerminalPage() {
   const getTotalItems = () => {
     return Object.values(cart).reduce(
       (total, item) => total + item.quantity,
-      0
+      0,
     );
   };
 
@@ -213,7 +213,7 @@ export default function CanteenTerminalPage() {
 
   const handleCompleteTransaction = (
     studentId: string,
-    paymentMethod: "cash" | "wallet"
+    paymentMethod: "cash" | "wallet",
   ) => {
     // Handle transaction completion
     console.log("Completing transaction:", {

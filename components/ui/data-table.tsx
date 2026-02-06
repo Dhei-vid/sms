@@ -131,7 +131,7 @@ const defaultCellRenderer = (
   value: any,
   column: TableColumn,
   row: any,
-  index: number
+  index: number,
 ): React.ReactNode => {
   // If value is null or undefined
   if (value === null || value === undefined) {
@@ -210,7 +210,7 @@ export function DataTable<T extends Record<string, any> = Record<string, any>>({
   const isAllSelected =
     displayData.length > 0 &&
     displayData.every((row, index) =>
-      selectedRows.includes(getRowId(row, index))
+      selectedRows.includes(getRowId(row, index)),
     );
   const isIndeterminate =
     selectedRows.length > 0 && selectedRows.length < displayData.length;
@@ -228,7 +228,7 @@ export function DataTable<T extends Record<string, any> = Record<string, any>>({
     value: any,
     column: TableColumn<T>,
     row: T,
-    index: number
+    index: number,
   ): React.ReactNode => {
     if (column.render) {
       return column.render(value, row, index);
@@ -239,7 +239,7 @@ export function DataTable<T extends Record<string, any> = Record<string, any>>({
   const renderAction = (
     action: TableAction<T>,
     row: T,
-    index: number
+    index: number,
   ): React.ReactNode => {
     switch (action.type) {
       case "button": {
@@ -278,7 +278,7 @@ export function DataTable<T extends Record<string, any> = Record<string, any>>({
               rel="noopener noreferrer"
               className={cn(
                 "underline underline-offset-3 inline-flex items-center gap-1",
-                config.className
+                config.className,
               )}
             >
               {linkContent}
@@ -291,7 +291,7 @@ export function DataTable<T extends Record<string, any> = Record<string, any>>({
             href={href}
             className={cn(
               "underline underline-offset-3 inline-flex items-center gap-1",
-              config.className
+              config.className,
             )}
           >
             {linkContent}
@@ -428,7 +428,7 @@ export function DataTable<T extends Record<string, any> = Record<string, any>>({
                   "font-semibold",
                   column.align === "center" && "text-center",
                   column.align === "right" && "text-right",
-                  column.headerClassName
+                  column.headerClassName,
                 )}
               >
                 {column.title}
@@ -452,7 +452,7 @@ export function DataTable<T extends Record<string, any> = Record<string, any>>({
                 }
                 className={cn(
                   "text-center py-8 text-muted-foreground",
-                  emptyMessageClassName
+                  emptyMessageClassName,
                 )}
               >
                 {emptyMessage}
@@ -493,7 +493,7 @@ export function DataTable<T extends Record<string, any> = Record<string, any>>({
                           column.align === "center" && "text-center",
                           column.align === "right" && "text-right",
                           !isLastColumn && "border-r border-gray-200",
-                          column.className
+                          column.className,
                         )}
                       >
                         {renderCell(value, column, row, rowIndex)}

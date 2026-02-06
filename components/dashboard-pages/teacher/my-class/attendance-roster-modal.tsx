@@ -82,13 +82,18 @@ export function AttendanceRosterModal({
   onOpenChange,
 }: AttendanceRosterModalProps) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
-    new Date()
+    new Date(),
   );
   const [selectedClass, setSelectedClass] = useState("jss3-arts");
   const [attendance, setAttendance] = useState<Record<string, boolean>>({});
 
   // Pagination
-  const { displayedData: students, hasMore, loadMore, reset } = usePagination({
+  const {
+    displayedData: students,
+    hasMore,
+    loadMore,
+    reset,
+  } = usePagination({
     data: allStudents,
     initialItemsPerPage: 5,
     itemsPerPage: 5,
@@ -150,23 +155,25 @@ export function AttendanceRosterModal({
       <div className="space-y-4">
         {/* Header with Date and Class */}
         <div className="grid grid-cols-2 gap-4">
-            <DatePickerIcon
-              label="Date"
-              date={selectedDate}
-              setDate={setSelectedDate}
-              placeholder="Select date"
-            />
-          
-            <SelectField label="Class" value={selectedClass} onValueChange={setSelectedClass}>
-                <SelectItem value="jss1-math">JSS 1 Mathematics</SelectItem>
-                <SelectItem value="jss1-english">JSS 1 English</SelectItem>
-                <SelectItem value="jss2-science">JSS 2 Science</SelectItem>
-                <SelectItem value="jss3-arts">JSS 3 Arts & Culture</SelectItem>
-                <SelectItem value="ss1-physics">SS 1 Physics</SelectItem>
-                <SelectItem value="ss2-chemistry">SS 2 Chemistry</SelectItem>
-           
-            </SelectField>
-  
+          <DatePickerIcon
+            label="Date"
+            date={selectedDate}
+            setDate={setSelectedDate}
+            placeholder="Select date"
+          />
+
+          <SelectField
+            label="Class"
+            value={selectedClass}
+            onValueChange={setSelectedClass}
+          >
+            <SelectItem value="jss1-math">JSS 1 Mathematics</SelectItem>
+            <SelectItem value="jss1-english">JSS 1 English</SelectItem>
+            <SelectItem value="jss2-science">JSS 2 Science</SelectItem>
+            <SelectItem value="jss3-arts">JSS 3 Arts & Culture</SelectItem>
+            <SelectItem value="ss1-physics">SS 1 Physics</SelectItem>
+            <SelectItem value="ss2-chemistry">SS 2 Chemistry</SelectItem>
+          </SelectField>
         </div>
 
         {/* Student List Table */}
@@ -223,4 +230,3 @@ export function AttendanceRosterModal({
     </ModalContainer>
   );
 }
-

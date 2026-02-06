@@ -67,7 +67,7 @@ export function RequestSnapshotView({
                   className={cn(
                     "text-gray-600",
                     row.field === "Current Status" &&
-                      getStatusColor(row.content)
+                      getStatusColor(row.content),
                   )}
                 >
                   {row.content}

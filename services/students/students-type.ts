@@ -80,4 +80,3 @@ export interface StudentsQueryParams extends BaseQueryParams {
   classId?: string;
   status?: StudentStatus;
 }
-

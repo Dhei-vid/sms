@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 
 export default function NoticeBoardPage() {
   const [showNotice, setShowNotice] = useState<NoticeBoardStatus>(
-    NoticeBoardStatus.PRIORITY
+    NoticeBoardStatus.PRIORITY,
   );
   return (
     <div className="space-y-4">
@@ -39,7 +39,7 @@ export default function NoticeBoardPage() {
                 "cursor-pointer p-3 rounded-md transition-colors",
                 showNotice === NoticeBoardStatus.PRIORITY
                   ? "bg-main-blue/5 text-main-blue"
-                  : "bg-transparent text-gray-700 hover:bg-main-blue/5 hover:text-main-blue"
+                  : "bg-transparent text-gray-700 hover:bg-main-blue/5 hover:text-main-blue",
               )}
             >
               <div className="flex flex-row gap-2 items-center">
@@ -55,7 +55,7 @@ export default function NoticeBoardPage() {
                 "cursor-pointer p-3 rounded-md transition-colors",
                 showNotice === NoticeBoardStatus.ANNOUCEMENT
                   ? "bg-main-blue/5 text-main-blue"
-                  : "bg-transparent text-gray-700 hover:bg-main-blue/5 hover:text-main-blue"
+                  : "bg-transparent text-gray-700 hover:bg-main-blue/5 hover:text-main-blue",
               )}
             >
               <div className="flex flex-row gap-2 items-center">
@@ -71,7 +71,7 @@ export default function NoticeBoardPage() {
                 "cursor-pointer p-3 rounded-md transition-colors",
                 showNotice === NoticeBoardStatus.NEW
                   ? "bg-main-blue/5 text-main-blue"
-                  : "bg-transparent text-gray-700 hover:bg-main-blue/5 hover:text-main-blue"
+                  : "bg-transparent text-gray-700 hover:bg-main-blue/5 hover:text-main-blue",
               )}
             >
               <div className="flex flex-row gap-2 items-center">

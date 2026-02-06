@@ -35,7 +35,7 @@ export function QuantitySelector({
     <div
       className={cn(
         "flex items-center gap-2 bg-purple-50 rounded-md px-2 py-1",
-        className
+        className,
       )}
     >
       <Button

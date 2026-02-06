@@ -18,11 +18,12 @@ import {
   ViewIcon,
   PrinterIcon,
 } from "@hugeicons/core-free-icons";
-import type { Application } from "../data/applications-data";
+import type { AdmissionApplication } from "@/services/shared-types";
+import { getStakeholderStageLabel } from "@/services/stakeholders/stakeholders-reducer";
 
 interface ApplicationTableProps {
-  applications: Application[];
-  onApplicationsChange: (applications: Application[]) => void;
+  applications: AdmissionApplication[];
+  onApplicationsChange: (applications: AdmissionApplication[]) => void;
 }
 
 export function ApplicationTable({
@@ -35,13 +36,11 @@ export function ApplicationTable({
 
   const handleStatusChange = (
     applicationId: string,
-    newStatus: "new" | "pending" | "accepted" | "enrolled" | "rejected",
-    statusLabel: string
+    newStage: number,
+    statusLabel: string,
   ) => {
     const updatedApplications = applications.map((app) =>
-      app.id === applicationId
-        ? { ...app, status: newStatus, statusLabel }
-        : app
+      app.id === applicationId ? { ...app, stage: newStage, statusLabel } : app,
     );
     onApplicationsChange(updatedApplications);
   };
@@ -49,10 +48,22 @@ export function ApplicationTable({
   const filteredApplications = applications.filter(
     (app) =>
       app.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      app.id.toLowerCase().includes(searchQuery.toLowerCase())
+      app.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (app.admission_number
+        ?.toLowerCase()
+        .includes(searchQuery.toLowerCase()) ??
+        false),
   );
 
-  const columns: TableColumn<Application>[] = [
+  const getStatusFromStage = (stage: number): string => {
+    if (stage === 1) return "new";
+    if (stage >= 2 && stage <= 4) return "pending";
+    if (stage === 5) return "accepted";
+    if (stage === 6) return "enrolled";
+    return "new";
+  };
+
+  const columns: TableColumn<AdmissionApplication>[] = [
     {
       key: "name",
       title: "Applicant Name",
@@ -61,7 +72,8 @@ export function ApplicationTable({
     },
     {
       key: "classApplyingFor",
-      title: "Class Applying For:",
+      title: "Class Applying For",
+      render: (_, row) => <span>{row.classApplyingFor || "—"}</span>,
       className: "border-r",
     },
     {
@@ -78,13 +90,16 @@ export function ApplicationTable({
       key: "status",
       title: "Status",
       render: (_, row) => (
-        <StatusBadge status={row.status} label={row.statusLabel} />
+        <StatusBadge
+          status={getStatusFromStage(row.stage)}
+          label={row.statusLabel}
+        />
       ),
       className: "border-r",
     },
   ];
 
-  const actions: TableAction<Application>[] = [
+  const actions: TableAction<AdmissionApplication>[] = [
     {
       type: "dropdown",
       config: {
@@ -99,37 +114,34 @@ export function ApplicationTable({
             icon: <Icon icon={ElearningExchangeIcon} size={16} />,
             subItems: [
               {
-                label: "New Applicant",
+                label: "Inquires/Interest",
                 onClick: (row) =>
-                  handleStatusChange(row.id, "new", "New Applicant"),
+                  handleStatusChange(row.id, 1, getStakeholderStageLabel(1)),
               },
               {
-                label: "Pending Interview",
+                label: "Application Started",
                 onClick: (row) =>
-                  handleStatusChange(row.id, "pending", "Pending Interview"),
+                  handleStatusChange(row.id, 2, getStakeholderStageLabel(2)),
               },
               {
-                label: "Application Accepted",
+                label: "Submitted Forms",
                 onClick: (row) =>
-                  handleStatusChange(
-                    row.id,
-                    "accepted",
-                    "Application Accepted"
-                  ),
+                  handleStatusChange(row.id, 3, getStakeholderStageLabel(3)),
               },
               {
-                label: "Enrolled",
+                label: "Under Review",
                 onClick: (row) =>
-                  handleStatusChange(row.id, "enrolled", "Enrolled"),
+                  handleStatusChange(row.id, 4, getStakeholderStageLabel(4)),
               },
               {
-                label: "Application Rejected",
+                label: "Accepted Offers",
                 onClick: (row) =>
-                  handleStatusChange(
-                    row.id,
-                    "rejected",
-                    "Application Rejected"
-                  ),
+                  handleStatusChange(row.id, 5, getStakeholderStageLabel(5)),
+              },
+              {
+                label: "Enrolled/Confirmed",
+                onClick: (row) =>
+                  handleStatusChange(row.id, 6, getStakeholderStageLabel(6)),
               },
             ],
             separator: true,

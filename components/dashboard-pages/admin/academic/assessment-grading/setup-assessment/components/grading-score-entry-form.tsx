@@ -16,7 +16,7 @@ interface GradingScoreEntryFormProps {
     scaleType: string;
   };
   onFormDataChange: (
-    data: Partial<GradingScoreEntryFormProps["formData"]>
+    data: Partial<GradingScoreEntryFormProps["formData"]>,
   ) => void;
   onBack: () => void;
   onCancel: () => void;

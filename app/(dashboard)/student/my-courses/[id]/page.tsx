@@ -143,8 +143,8 @@ export default function CourseDetailPage() {
           status === "In progress"
             ? "text-blue-600"
             : status === "Not Started"
-            ? "text-gray-600"
-            : "text-gray-400";
+              ? "text-gray-600"
+              : "text-gray-400";
         return <span className={`text-sm ${colorClass}`}>{status}</span>;
       },
     },

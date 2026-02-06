@@ -137,32 +137,32 @@ export default function QuizPage() {
       />
       <div className="space-y-4">
         <QuizControls timeRemaining={timeRemaining} onSubmit={handleSubmit} />
-      <Card>
-        <CardContent className="flex flex-col gap-4">
-          <QuestionDisplay
-            topic={currentQuestion.topic}
-            topicInfo={currentQuestion.topicInfo}
-            questionNumber={currentQuestionIndex + 1}
-            instruction={currentQuestion.instruction}
-            question={currentQuestion.question}
-          />
-          <AnswerOptions
-            options={currentQuestion.options}
-            selectedAnswer={selectedAnswers[currentQuestion.id]}
-            onSelect={handleAnswerSelect}
-          />
+        <Card>
+          <CardContent className="flex flex-col gap-4">
+            <QuestionDisplay
+              topic={currentQuestion.topic}
+              topicInfo={currentQuestion.topicInfo}
+              questionNumber={currentQuestionIndex + 1}
+              instruction={currentQuestion.instruction}
+              question={currentQuestion.question}
+            />
+            <AnswerOptions
+              options={currentQuestion.options}
+              selectedAnswer={selectedAnswers[currentQuestion.id]}
+              onSelect={handleAnswerSelect}
+            />
 
-          <Pagination
-            currentPage={currentQuestionIndex + 1}
-            totalPages={totalQuestions}
-            onPageChange={handlePageChange}
-            onPrev={handlePrev}
-            onNext={handleNext}
-          />
-        </CardContent>
-      </Card>
-       <PrincipalRemark />
-     </div>
+            <Pagination
+              currentPage={currentQuestionIndex + 1}
+              totalPages={totalQuestions}
+              onPageChange={handlePageChange}
+              onPrev={handlePrev}
+              onNext={handleNext}
+            />
+          </CardContent>
+        </Card>
+        <PrincipalRemark />
+      </div>
     </>
   );
 }

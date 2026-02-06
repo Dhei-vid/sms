@@ -27,7 +27,8 @@ export default function AllStudentsPage() {
           <div className="h-12 w-1 bg-orange-500 rounded"></div>
           <div>
             <h3 className="text-2xl font-bold text-gray-800">
-              Total Students: {isLoading ? "Loading..." : totalStudents.toLocaleString()}
+              Total Students:{" "}
+              {isLoading ? "Loading..." : totalStudents.toLocaleString()}
             </h3>
           </div>
         </div>
@@ -42,7 +43,9 @@ export default function AllStudentsPage() {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="p-8 text-center text-gray-500">Loading students...</div>
+            <div className="p-8 text-center text-gray-500">
+              Loading students...
+            </div>
           ) : (
             <StudentTable studentsData={studentsData} isLoading={isLoading} />
           )}

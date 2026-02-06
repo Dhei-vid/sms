@@ -1,3 +1,5 @@
+import { Attachment } from "../attachment/attachment-types";
+import { Notes } from "../notes/note-types";
 import { School } from "../schools/schools-type";
 import type {
   Roles,
@@ -181,3 +183,63 @@ export interface UsersQueryParams extends BaseQueryParams {
   isStaff?: boolean;
   isSuperuser?: boolean;
 }
+
+export interface CreateAdmission {
+  id: string;
+  user_id: string;
+  creator_id: string;
+  updated_by_id?: null | string;
+  school_id: string;
+  primary_contact_id?: null | string;
+  emergency_contact_id?: null | string;
+  type: Roles;
+  status: "active";
+  position: null;
+  admission_number: string;
+  school_fees: {};
+  hostel: {};
+  hostel_details?: null;
+  transport: {};
+  transport_details: null;
+  subjects: [];
+  class_assigned: "JSS 2";
+  assigned_classes: [];
+  qualification: null;
+  salary: null;
+  business: null;
+  services: [];
+  contracts: [];
+  grade: null;
+  age?: null | number;
+  performance: {};
+  bank: {};
+  children: [];
+  children_details: [];
+  relationship_to_student: null;
+  occupation: null;
+  stage: 2;
+  stage_text: null;
+  performance_highlights: null;
+  common_exam_score: null;
+  last_grade_completed: null;
+  current_previous_school: null;
+  transfer_reason: null;
+  admin_notes: string;
+  initial_status: string;
+  parent_name: string;
+  date_joined: string;
+  is_deleted: boolean;
+  user: User;
+  creator: User;
+  updated_by?: null | User;
+  school: School;
+  primary_contact: null;
+  emergency_contact: null;
+  attachments: Attachment[];
+  notes: Notes[];
+  created_at: string;
+  updated_at: string;
+  deleted_at?: null | string;
+}
+
+export type CreateAdmissionResponse = ApiResponse<CreateAdmission>;

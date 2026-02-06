@@ -119,7 +119,7 @@ export default function GeneralAccountingPage() {
     sortBy === "all"
       ? activities
       : activities.filter(
-          (activity) => activity.type.toLowerCase() === sortBy.toLowerCase()
+          (activity) => activity.type.toLowerCase() === sortBy.toLowerCase(),
         );
 
   const getTypeColor = (type: string) => {
@@ -288,7 +288,7 @@ export default function GeneralAccountingPage() {
                       </div>
                       <span className="text-xs text-gray-600">{month}</span>
                     </div>
-                  )
+                  ),
                 )}
               </div>
             </div>

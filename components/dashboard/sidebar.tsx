@@ -31,7 +31,7 @@ export function Sidebar({
 
   // Filter navigation items by role - same pattern as the example
   const filteredNavItems = menuItems.filter((item) =>
-    item.roles.includes(role)
+    item.roles.includes(role),
   );
 
   // Helper function to check if a nav item is active
@@ -54,7 +54,7 @@ export function Sidebar({
     setExpandedItems((prev) =>
       prev.includes(itemId)
         ? prev.filter((id) => id !== itemId)
-        : [...prev, itemId]
+        : [...prev, itemId],
     );
   };
 
@@ -66,7 +66,7 @@ export function Sidebar({
           href="/"
           className={cn(
             "flex items-center gap-2 transition-opacity",
-            collapsed && "justify-center"
+            collapsed && "justify-center",
           )}
           onClick={onClose}
         >
@@ -108,7 +108,7 @@ export function Sidebar({
                         active
                           ? "bg-main-blue/10 text-main-blue"
                           : "text-muted-foreground",
-                        collapsed && "justify-center"
+                        collapsed && "justify-center",
                       )}
                       title={collapsed ? item.label : undefined}
                     >
@@ -129,7 +129,7 @@ export function Sidebar({
                                   "px-2 py-0.5 text-xs font-medium rounded-full shrink-0",
                                   active
                                     ? "bg-primary-foreground/20 text-primary-foreground"
-                                    : "bg-muted text-muted-foreground"
+                                    : "bg-muted text-muted-foreground",
                                 )}
                               >
                                 {item.badge}
@@ -142,7 +142,7 @@ export function Sidebar({
                         <ChevronRight
                           className={cn(
                             "h-4 w-4 transition-transform text-muted-foreground shrink-0",
-                            isExpanded && "rotate-90"
+                            isExpanded && "rotate-90",
                           )}
                         />
                       )}
@@ -163,7 +163,7 @@ export function Sidebar({
                                   "group flex items-center gap-3 px-3 py-2 rounded-lg text-xs lg:text-sm transition-colors hover:bg-accent hover:text-accent-foreground",
                                   childActive
                                     ? "bg-main-blue/10 text-main-blue"
-                                    : "text-muted-foreground"
+                                    : "text-muted-foreground",
                                 )}
                               >
                                 {child.icon && (
@@ -185,7 +185,7 @@ export function Sidebar({
                       active
                         ? "bg-main-blue/10 text-main-blue"
                         : "text-muted-foreground",
-                      collapsed && "justify-center"
+                      collapsed && "justify-center",
                     )}
                     title={collapsed ? item.label : undefined}
                   >
@@ -201,7 +201,7 @@ export function Sidebar({
                               "ml-auto px-2 py-0.5 text-xs font-medium rounded-full shrink-0",
                               active
                                 ? "bg-muted text-muted-foreground"
-                                : "bg-muted text-muted-foreground"
+                                : "bg-muted text-muted-foreground",
                             )}
                           >
                             {item.badge}

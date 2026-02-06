@@ -29,19 +29,11 @@ export default function MyCoursesPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <MetricCard
           title="Total Enrolled Courses"
-          value={`${totalCourses} ${totalCourses === 1 ? 'Subject' : 'Subjects'}`}
+          value={`${totalCourses} ${totalCourses === 1 ? "Subject" : "Subjects"}`}
           trend="up"
         />
-        <MetricCard
-          title="Average Course Progress"
-          value="N/A"
-          trend="up"
-        />
-        <MetricCard
-          title="Total New Resources"
-          value="N/A"
-          trend="up"
-        />
+        <MetricCard title="Average Course Progress" value="N/A" trend="up" />
+        <MetricCard title="Total New Resources" value="N/A" trend="up" />
       </div>
 
       {/* Course Cards Grid */}

@@ -65,10 +65,7 @@ export default function LogNewResourcesPage() {
         <div className="lg:col-span-1">
           <Card className="bg-background p-0">
             <CardContent className="px-2 py-4">
-              <ResourceTabs
-                activeTab={activeTab}
-                onTabChange={setActiveTab}
-              />
+              <ResourceTabs activeTab={activeTab} onTabChange={setActiveTab} />
             </CardContent>
           </Card>
         </div>
@@ -83,4 +80,3 @@ export default function LogNewResourcesPage() {
     </div>
   );
 }
-

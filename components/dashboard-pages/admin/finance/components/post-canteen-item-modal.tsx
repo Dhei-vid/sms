@@ -43,7 +43,7 @@ export function PostCanteenItemModal({
             "cursor-pointer px-4 py-2 text-xs font-medium transition-colors rounded-md",
             activeTab === "new"
               ? "bg-main-blue/5 text-main-blue"
-              : "text-gray-600 hover:text-gray-800"
+              : "text-gray-600 hover:text-gray-800",
           )}
         >
           Post New Canteen Item
@@ -55,7 +55,7 @@ export function PostCanteenItemModal({
             "cursor-pointer px-4 py-2 text-xs font-medium rounded-md transition-colors",
             activeTab === "edit"
               ? "bg-main-blue/5 text-main-blue"
-              : "text-gray-600 hover:text-gray-800"
+              : "text-gray-600 hover:text-gray-800",
           )}
         >
           Edit Canteen Item

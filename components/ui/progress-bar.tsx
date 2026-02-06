@@ -30,7 +30,7 @@ export function ProgressBar({
         <div
           className={cn(
             "h-full flex items-center transition-all duration-300 rounded-xs",
-            barColor
+            barColor,
           )}
           style={{ width: `${percentage}%` }}
         >

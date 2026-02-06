@@ -36,7 +36,9 @@ export function ResultsTable({
         <Table className="border-collapse">
           <TableHeader>
             <TableRow className="bg-main-blue/5">
-              <TableHead className="font-semibold px-4 py-3">Subjects</TableHead>
+              <TableHead className="font-semibold px-4 py-3">
+                Subjects
+              </TableHead>
               <TableHead className="font-semibold px-4 py-3 text-center">
                 Final Term Score (%)
               </TableHead>
@@ -84,4 +86,3 @@ export function ResultsTable({
     </div>
   );
 }
-

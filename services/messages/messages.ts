@@ -1,5 +1,10 @@
 import { baseApi } from "../baseApi";
-import type { Message, CreateMessageRequest, MessagesListResponse, MessagesQueryParams } from "./messages-type";
+import type {
+  Message,
+  CreateMessageRequest,
+  MessagesListResponse,
+  MessagesQueryParams,
+} from "./messages-type";
 import type { ApiResponse, ApiDeleteResponse } from "../shared-types";
 
 const BASE = "/messages";

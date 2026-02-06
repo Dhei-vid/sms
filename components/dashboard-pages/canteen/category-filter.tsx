@@ -35,7 +35,7 @@ export function CategoryFilter({
             "rounded-md px-4 py-2 flex items-center gap-2 h-18",
             selectedCategory === category.id
               ? "bg-main-blue text-white hover:bg-main-blue/90"
-              : "bg-white hover:bg-gray-50"
+              : "bg-white hover:bg-gray-50",
           )}
         >
           <Image

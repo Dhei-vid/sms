@@ -84,14 +84,22 @@ export default function GradesReportCardPage() {
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
 
   // Pagination for subject performances
-  const { displayedData: subjectPerformances, hasMore: hasMoreSubjects, loadMore: loadMoreSubjects } = usePagination({
+  const {
+    displayedData: subjectPerformances,
+    hasMore: hasMoreSubjects,
+    loadMore: loadMoreSubjects,
+  } = usePagination({
     data: allSubjectPerformances,
     initialItemsPerPage: 4,
     itemsPerPage: 4,
   });
 
   // Pagination for report cards
-  const { displayedData: reportCards, hasMore: hasMoreReportCards, loadMore: loadMoreReportCards } = usePagination({
+  const {
+    displayedData: reportCards,
+    hasMore: hasMoreReportCards,
+    loadMore: loadMoreReportCards,
+  } = usePagination({
     data: allReportCards,
     initialItemsPerPage: 2,
     itemsPerPage: 2,
@@ -232,7 +240,9 @@ export default function GradesReportCardPage() {
           </div>
           {hasMoreSubjects && (
             <div className="flex justify-center mt-4">
-              <Button variant="outline" onClick={loadMoreSubjects}>Load More</Button>
+              <Button variant="outline" onClick={loadMoreSubjects}>
+                Load More
+              </Button>
             </div>
           )}
         </CardContent>
@@ -262,7 +272,9 @@ export default function GradesReportCardPage() {
           </div>
           {hasMoreReportCards && (
             <div className="flex justify-center mt-4">
-              <Button variant="outline" onClick={loadMoreReportCards}>Load More</Button>
+              <Button variant="outline" onClick={loadMoreReportCards}>
+                Load More
+              </Button>
             </div>
           )}
         </CardContent>

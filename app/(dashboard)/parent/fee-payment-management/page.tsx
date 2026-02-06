@@ -89,7 +89,7 @@ const allPayments: Payment[] = [
 
 export default function FeePaymentManagementPage() {
   const [selectedInvoices, setSelectedInvoices] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
 
   /**

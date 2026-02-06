@@ -57,7 +57,7 @@ interface DatePickerIconProps extends DatePicker {
  * DatePickerIcon Component
  * A date picker input field with calendar icon trigger
  * Supports controlled open state and date selection
- * 
+ *
  * @param label - Label text for the date picker field
  * @param date - Selected date value (can be undefined)
  * @param setDate - Callback function to update the selected date

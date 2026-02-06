@@ -1,1 +1,5 @@
-import { ScheduleEvent, ScheduleEventListResponse, CreateScheduleEventPayload } from "./schedule-types";
+import {
+  ScheduleEvent,
+  ScheduleEventListResponse,
+  CreateScheduleEventPayload,
+} from "./schedule-types";

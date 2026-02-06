@@ -55,7 +55,7 @@ export function getMenuItemsByRole(role: UserRole): MenuItem[] {
  */
 export function matchMenuItemByPath(
   pathname: string,
-  role: UserRole
+  role: UserRole,
 ): MenuItem | null {
   // Normalize pathname - remove trailing slashes
   const normalizedPath = pathname.replace(/\/$/, "") || "/";
@@ -113,4 +113,3 @@ export function matchMenuItemByPath(
 
   return null;
 }
-

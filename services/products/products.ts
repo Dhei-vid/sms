@@ -27,12 +27,22 @@ export const productsApi = baseApi.injectEndpoints({
       invalidatesTags: ["Product"],
     }),
 
-    updateProduct: build.mutation<Product, { id: string; data: UpdateProductRequest }>({
-      query: ({ id, data }) => ({ url: `${BASE}/${id}`, method: "PUT", body: data }),
+    updateProduct: build.mutation<
+      Product,
+      { id: string; data: UpdateProductRequest }
+    >({
+      query: ({ id, data }) => ({
+        url: `${BASE}/${id}`,
+        method: "PUT",
+        body: data,
+      }),
       invalidatesTags: (_, __, { id }) => [{ type: "Product", id }, "Product"],
     }),
 
-    deleteProduct: build.mutation<{ success: boolean; message: string }, string>({
+    deleteProduct: build.mutation<
+      { success: boolean; message: string },
+      string
+    >({
       query: (id) => ({ url: `${BASE}/${id}`, method: "DELETE" }),
       invalidatesTags: ["Product"],
     }),

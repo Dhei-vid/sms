@@ -28,58 +28,64 @@ export default function AssignmentsPage() {
   const [selectedAssignment, setSelectedAssignment] =
     useState<Assignment | null>(null);
 
-  const { data: assignmentsData, isLoading: assignmentsLoading } = useGetAssignmentsQuery(
-    user?.id ? { studentId: user.id } : undefined
-  );
+  const { data: assignmentsData, isLoading: assignmentsLoading } =
+    useGetAssignmentsQuery(user?.id ? { studentId: user.id } : undefined);
 
   const { data: gradesData } = useGetGradesQuery(
-    user?.id ? { studentId: user.id } : undefined
+    user?.id ? { studentId: user.id } : undefined,
   );
 
   const assignments = useMemo(() => {
     if (!assignmentsData?.data) return [];
-    
-    return assignmentsData.data.map((assignment) => {
-      const grade = gradesData?.data?.find(
-        (g) => g.assignmentId === assignment.id
-      );
-      const isDueDatePassed = assignment.dueDate 
-        ? isPast(parseISO(assignment.dueDate))
-        : false;
-      const isGraded = !!grade && grade.score !== undefined;
-      
-      let status = "Pending Submission";
-      let actionLabel = assignment.type === "quiz" ? "Start Quiz" : "Submit Assignment";
-      
-      if (isGraded && grade?.score !== undefined && assignment.maxScore) {
-        const percentage = Math.round((grade.score / assignment.maxScore) * 100);
-        status = `Graded (${percentage}%)`;
-        actionLabel = "View Feedback";
-      } else if (isDueDatePassed) {
-        status = "Overdue";
-      }
 
-      return {
-        ...assignment,
-        assignmentName: assignment.title,
-        subject: assignment.courseName || "N/A",
-        totalMarks: assignment.maxScore ? `${assignment.maxScore} Marks` : "N/A",
-        dueDateTime: assignment.dueDate 
-          ? format(parseISO(assignment.dueDate), "MMM d, yyyy; h:mm a")
-          : "N/A",
-        status,
-        actionLabel,
-        grade,
-      };
-    }).filter((assignment) => {
-      if (!searchQuery) return true;
-      const query = searchQuery.toLowerCase();
-      return (
-        assignment.title.toLowerCase().includes(query) ||
-        assignment.courseName?.toLowerCase().includes(query) ||
-        assignment.subject.toLowerCase().includes(query)
-      );
-    });
+    return assignmentsData.data
+      .map((assignment) => {
+        const grade = gradesData?.data?.find(
+          (g) => g.assignmentId === assignment.id,
+        );
+        const isDueDatePassed = assignment.dueDate
+          ? isPast(parseISO(assignment.dueDate))
+          : false;
+        const isGraded = !!grade && grade.score !== undefined;
+
+        let status = "Pending Submission";
+        let actionLabel =
+          assignment.type === "quiz" ? "Start Quiz" : "Submit Assignment";
+
+        if (isGraded && grade?.score !== undefined && assignment.maxScore) {
+          const percentage = Math.round(
+            (grade.score / assignment.maxScore) * 100,
+          );
+          status = `Graded (${percentage}%)`;
+          actionLabel = "View Feedback";
+        } else if (isDueDatePassed) {
+          status = "Overdue";
+        }
+
+        return {
+          ...assignment,
+          assignmentName: assignment.title,
+          subject: assignment.courseName || "N/A",
+          totalMarks: assignment.maxScore
+            ? `${assignment.maxScore} Marks`
+            : "N/A",
+          dueDateTime: assignment.dueDate
+            ? format(parseISO(assignment.dueDate), "MMM d, yyyy; h:mm a")
+            : "N/A",
+          status,
+          actionLabel,
+          grade,
+        };
+      })
+      .filter((assignment) => {
+        if (!searchQuery) return true;
+        const query = searchQuery.toLowerCase();
+        return (
+          assignment.title.toLowerCase().includes(query) ||
+          assignment.courseName?.toLowerCase().includes(query) ||
+          assignment.subject.toLowerCase().includes(query)
+        );
+      });
   }, [assignmentsData, gradesData, searchQuery]);
 
   const upcomingAssignments = assignments.filter((assignment) => {
@@ -112,24 +118,26 @@ export default function AssignmentsPage() {
   }).length;
 
   const gradedAssignments = assignments.filter((a) => a.grade);
-  const averageScore = gradedAssignments.length > 0
-    ? Math.round(
-        gradedAssignments.reduce((sum, a) => {
-          if (a.grade?.score && a.maxScore) {
-            return sum + (a.grade.score / a.maxScore) * 100;
-          }
-          return sum;
-        }, 0) / gradedAssignments.length
-      )
-    : 0;
+  const averageScore =
+    gradedAssignments.length > 0
+      ? Math.round(
+          gradedAssignments.reduce((sum, a) => {
+            if (a.grade?.score && a.maxScore) {
+              return sum + (a.grade.score / a.maxScore) * 100;
+            }
+            return sum;
+          }, 0) / gradedAssignments.length,
+        )
+      : 0;
 
-  const nextUpcomingQuiz = upcomingAssignments.find(
-    (a) => a.type === "quiz"
-  );
+  const nextUpcomingQuiz = upcomingAssignments.find((a) => a.type === "quiz");
 
   const latestGraded = gradedAssignments.sort((a, b) => {
     if (!a.grade?.createdAt || !b.grade?.createdAt) return 0;
-    return parseISO(b.grade.createdAt).getTime() - parseISO(a.grade.createdAt).getTime();
+    return (
+      parseISO(b.grade.createdAt).getTime() -
+      parseISO(a.grade.createdAt).getTime()
+    );
   })[0];
 
   const handleViewFeedback = (assignment: Assignment & { grade?: Grade }) => {
@@ -141,7 +149,17 @@ export default function AssignmentsPage() {
     setFeedbackModalOpen(false);
   };
 
-  const columns: TableColumn<Assignment & { assignmentName: string; subject: string; totalMarks: string; dueDateTime: string; status: string; actionLabel: string; grade?: Grade }>[] = [
+  const columns: TableColumn<
+    Assignment & {
+      assignmentName: string;
+      subject: string;
+      totalMarks: string;
+      dueDateTime: string;
+      status: string;
+      actionLabel: string;
+      grade?: Grade;
+    }
+  >[] = [
     {
       key: "assignmentName",
       title: "Assignment Name",
@@ -172,10 +190,10 @@ export default function AssignmentsPage() {
         const colorClass = isGraded
           ? "text-green-600"
           : isInProgress
-          ? "text-blue-600"
-          : isOverdue
-          ? "text-red-600"
-          : "text-orange-600";
+            ? "text-blue-600"
+            : isOverdue
+              ? "text-red-600"
+              : "text-orange-600";
         return <span className={`text-sm ${colorClass}`}>{status}</span>;
       },
     },
@@ -195,10 +213,14 @@ export default function AssignmentsPage() {
           );
         }
         return (
-          <Button 
-            variant="link" 
+          <Button
+            variant="link"
             className="h-auto p-0 text-main-blue"
-            onClick={() => row.type === "quiz" && row.id ? router.push(`/student/assignments/${row.id}`) : undefined}
+            onClick={() =>
+              row.type === "quiz" && row.id
+                ? router.push(`/student/assignments/${row.id}`)
+                : undefined
+            }
           >
             {row.actionLabel}
           </Button>
@@ -232,26 +254,30 @@ export default function AssignmentsPage() {
           value={dueTomorrowCount.toString()}
           trend="up"
         />
-        <MetricCard 
-          title="Overall Average Score" 
-          value={`${averageScore}%`} 
-          trend="up" 
+        <MetricCard
+          title="Overall Average Score"
+          value={`${averageScore}%`}
+          trend="up"
         />
       </div>
 
       {/* Content Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {nextUpcomingQuiz && (
-          <UpcomingQuizCard 
-            onAction={() => nextUpcomingQuiz.id && router.push(`assignments/${nextUpcomingQuiz.id}`)} 
+          <UpcomingQuizCard
+            onAction={() =>
+              nextUpcomingQuiz.id &&
+              router.push(`assignments/${nextUpcomingQuiz.id}`)
+            }
           />
         )}
         {latestGraded && (
           <NewGradeCard
             assignmentName={`${latestGraded.title} Scored`}
-            grade={latestGraded.grade && latestGraded.maxScore 
-              ? `Grade: ${Math.round((latestGraded.grade.score / latestGraded.maxScore) * 100)}%`
-              : "Grade: N/A"
+            grade={
+              latestGraded.grade && latestGraded.maxScore
+                ? `Grade: ${Math.round((latestGraded.grade.score / latestGraded.maxScore) * 100)}%`
+                : "Grade: N/A"
             }
             assignment={latestGraded}
             onAction={(assignment) => {
@@ -296,9 +322,13 @@ export default function AssignmentsPage() {
         <CardContent>
           <div className="border rounded-lg overflow-hidden">
             {assignmentsLoading ? (
-              <div className="p-8 text-center text-gray-500">Loading assignments...</div>
+              <div className="p-8 text-center text-gray-500">
+                Loading assignments...
+              </div>
             ) : assignments.length === 0 ? (
-              <div className="p-8 text-center text-gray-500">No assignments found</div>
+              <div className="p-8 text-center text-gray-500">
+                No assignments found
+              </div>
             ) : (
               <DataTable
                 columns={columns}
@@ -315,13 +345,20 @@ export default function AssignmentsPage() {
         <TeacherFeedbackModal
           open={feedbackModalOpen}
           onOpenChange={setFeedbackModalOpen}
-          assignmentName={(selectedAssignment as any).assignmentName || selectedAssignment.title}
+          assignmentName={
+            (selectedAssignment as any).assignmentName ||
+            selectedAssignment.title
+          }
           finalScore={
-            (selectedAssignment as any).grade && (selectedAssignment as any).maxScore
+            (selectedAssignment as any).grade &&
+            (selectedAssignment as any).maxScore
               ? `${(selectedAssignment as any).grade.score} / ${(selectedAssignment as any).maxScore} Marks`
               : "N/A"
           }
-          teacherFeedback={(selectedAssignment as any).grade?.remarks || "No feedback available"}
+          teacherFeedback={
+            (selectedAssignment as any).grade?.remarks ||
+            "No feedback available"
+          }
           onAcknowledge={handleAcknowledge}
         />
       )}

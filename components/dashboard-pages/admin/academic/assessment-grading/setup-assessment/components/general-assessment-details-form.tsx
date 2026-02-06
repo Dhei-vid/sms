@@ -13,7 +13,9 @@ interface GeneralAssessmentDetailsFormProps {
     applicableSubjects: string;
     totalMarksAvailable: string;
   };
-  onFormDataChange: (data: Partial<GeneralAssessmentDetailsFormProps["formData"]>) => void;
+  onFormDataChange: (
+    data: Partial<GeneralAssessmentDetailsFormProps["formData"]>,
+  ) => void;
   onCancel: () => void;
   onSaveSetup: () => void;
   assessmentTypeOptions: { value: string; label: string }[];
@@ -71,14 +73,18 @@ export function GeneralAssessmentDetailsForm({
         label="Applicable Subject(s)"
         placeholder="E.g., Mathematics, Biology, English."
         value={formData.applicableSubjects}
-        onChange={(e) => onFormDataChange({ applicableSubjects: e.target.value })}
+        onChange={(e) =>
+          onFormDataChange({ applicableSubjects: e.target.value })
+        }
       />
 
       <InputField
         label="Total Marks Available"
         placeholder="E.g., 100 marks"
         value={formData.totalMarksAvailable}
-        onChange={(e) => onFormDataChange({ totalMarksAvailable: e.target.value })}
+        onChange={(e) =>
+          onFormDataChange({ totalMarksAvailable: e.target.value })
+        }
       />
 
       <div className="flex justify-end gap-3 pt-4">
@@ -92,4 +98,3 @@ export function GeneralAssessmentDetailsForm({
     </div>
   );
 }
-

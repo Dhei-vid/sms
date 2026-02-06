@@ -14,7 +14,7 @@ interface FinalizationApprovalFormProps {
     requiresHODApproval: boolean;
   };
   onFormDataChange: (
-    data: Partial<FinalizationApprovalFormProps["formData"]>
+    data: Partial<FinalizationApprovalFormProps["formData"]>,
   ) => void;
   onBack: () => void;
   onSaveDraft: () => void;

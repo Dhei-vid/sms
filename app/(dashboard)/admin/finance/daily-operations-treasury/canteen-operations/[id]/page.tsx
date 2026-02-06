@@ -55,7 +55,10 @@ export default function CanteenTransactionDetailPage({
         <div className="lg:col-span-1">
           <Card className="bg-background p-0">
             <CardContent className="px-2 py-4">
-              <TransactionTabs activeTab={activeTab} onTabChange={setActiveTab} />
+              <TransactionTabs
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+              />
             </CardContent>
           </Card>
         </div>
@@ -69,4 +72,3 @@ export default function CanteenTransactionDetailPage({
     </div>
   );
 }
-

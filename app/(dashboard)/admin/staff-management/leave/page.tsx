@@ -282,7 +282,7 @@ export default function LeaveRequestsPage() {
                         <span
                           className={cn(
                             "font-medium",
-                            getStatusColor(request.status)
+                            getStatusColor(request.status),
                           )}
                         >
                           {request.statusLabel}

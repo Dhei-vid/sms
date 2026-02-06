@@ -11,7 +11,7 @@ interface QuestionSelectionFormProps {
     partialCredit: boolean;
   };
   onFormDataChange: (
-    data: Partial<QuestionSelectionFormProps["formData"]>
+    data: Partial<QuestionSelectionFormProps["formData"]>,
   ) => void;
   onBack: () => void;
   onCancel: () => void;

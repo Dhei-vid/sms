@@ -62,7 +62,11 @@ const allSalesItems: SalesItem[] = [
 
 export default function InventoryManagementPage() {
   // Pagination
-  const { displayedData: salesItems, hasMore, loadMore } = usePagination({
+  const {
+    displayedData: salesItems,
+    hasMore,
+    loadMore,
+  } = usePagination({
     data: allSalesItems,
     initialItemsPerPage: 4,
     itemsPerPage: 4,
@@ -126,7 +130,9 @@ export default function InventoryManagementPage() {
           </div>
           {hasMore && (
             <div className="flex justify-center mt-4">
-              <Button variant="outline" onClick={loadMore}>Load More</Button>
+              <Button variant="outline" onClick={loadMore}>
+                Load More
+              </Button>
             </div>
           )}
         </CardContent>
@@ -134,4 +140,3 @@ export default function InventoryManagementPage() {
     </div>
   );
 }
-

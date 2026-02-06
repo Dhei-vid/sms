@@ -6,4 +6,3 @@ export { ViewToggles } from "./view-toggles/view-toggles";
 export { EventsSidebar } from "./events-sidebar/events-sidebar";
 export { CreateEventModal } from "./modal/create-event-modal";
 export type { EventFormData } from "./modal/create-event-modal";
-

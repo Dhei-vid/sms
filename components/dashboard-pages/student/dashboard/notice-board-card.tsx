@@ -49,11 +49,7 @@ export function StudentNoticeBoardCard({
           <div key={index} className="flex gap-3">
             {notice.icon ? (
               <div className="h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
-                <Icon
-                  icon={notice.icon}
-                  size={20}
-                  className="text-gray-600"
-                />
+                <Icon icon={notice.icon} size={20} className="text-gray-600" />
               </div>
             ) : (
               <div className="h-2 w-2 rounded-full bg-gray-400 mt-2 shrink-0" />
@@ -73,4 +69,3 @@ export function StudentNoticeBoardCard({
     </Card>
   );
 }
-

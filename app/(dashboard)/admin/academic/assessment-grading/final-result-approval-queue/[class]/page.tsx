@@ -181,7 +181,7 @@ export default function ReviewResultsPage({
     const remaining = currentStudent.results.length - displayedResults;
     if (remaining > 0) {
       setDisplayedResults(
-        Math.min(displayedResults + 8, currentStudent.results.length)
+        Math.min(displayedResults + 8, currentStudent.results.length),
       );
       setHasMore(displayedResults + 8 < currentStudent.results.length);
     }
@@ -192,7 +192,12 @@ export default function ReviewResultsPage({
   };
 
   const handleSaveAndPublish = (remark: string) => {
-    console.log("Save and publish result for", currentStudent.name, "with remark:", remark);
+    console.log(
+      "Save and publish result for",
+      currentStudent.name,
+      "with remark:",
+      remark,
+    );
     // Handle save and publish action with remark
     // In a real app, this would make an API call to save the remark and publish the result
   };

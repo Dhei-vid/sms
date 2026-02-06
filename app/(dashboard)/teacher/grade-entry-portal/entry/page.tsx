@@ -113,19 +113,25 @@ const steps: Step[] = [
 
 export default function GradeEntryPortalEntryPage() {
   const [currentStep, setCurrentStep] = useState<StepId>(
-    "assessment-selection"
+    "assessment-selection",
   );
   const [assessmentSelector, setAssessmentSelector] = useState("");
-  
+
   // Pagination for student data
-  const { displayedData: studentData, hasMore, loadMore } = usePagination({
+  const {
+    displayedData: studentData,
+    hasMore,
+    loadMore,
+  } = usePagination({
     data: allStudents,
     initialItemsPerPage: 5,
     itemsPerPage: 5,
   });
 
   // Create a state that tracks all students' scores and remarks
-  const [allStudentScores, setAllStudentScores] = useState<Record<string, { scoreEntry: string; teacherRemarks: string }>>({});
+  const [allStudentScores, setAllStudentScores] = useState<
+    Record<string, { scoreEntry: string; teacherRemarks: string }>
+  >({});
 
   const handleStepChange = (stepId: string) => {
     setCurrentStep(stepId as StepId);
@@ -379,14 +385,14 @@ export default function GradeEntryPortalEntryPage() {
                     />
                   </div>
 
-                   {/* Load More Button */}
-                   {hasMore && (
-                     <div className="flex justify-center">
-                       <Button variant="outline" onClick={loadMore}>
-                         Load More
-                       </Button>
-                     </div>
-                   )}
+                  {/* Load More Button */}
+                  {hasMore && (
+                    <div className="flex justify-center">
+                      <Button variant="outline" onClick={loadMore}>
+                        Load More
+                      </Button>
+                    </div>
+                  )}
 
                   {/* Action Buttons */}
                   <div className="flex items-center justify-end gap-3 pt-4">

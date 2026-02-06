@@ -1,12 +1,19 @@
 import { baseApi } from "../baseApi";
-import type { CalendarEvent, CalendarEventsListResponse, CalendarEventsQueryParams } from "./calendar-type";
+import type {
+  CalendarEvent,
+  CalendarEventsListResponse,
+  CalendarEventsQueryParams,
+} from "./calendar-type";
 
 const BASE = "/calendar/events";
 
 export const calendarApi = baseApi.injectEndpoints({
   overrideExisting: true,
   endpoints: (build) => ({
-    getCalendarEvents: build.query<CalendarEventsListResponse, CalendarEventsQueryParams | void>({
+    getCalendarEvents: build.query<
+      CalendarEventsListResponse,
+      CalendarEventsQueryParams | void
+    >({
       query: (params) => ({ url: BASE, params: params ?? {} }),
       providesTags: ["CalendarEvent"],
     }),
@@ -17,7 +24,5 @@ export const calendarApi = baseApi.injectEndpoints({
   }),
 });
 
-export const {
-  useGetCalendarEventsQuery,
-  useGetCalendarEventByIdQuery,
-} = calendarApi;
+export const { useGetCalendarEventsQuery, useGetCalendarEventByIdQuery } =
+  calendarApi;

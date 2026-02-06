@@ -73,7 +73,11 @@ export default function SalesReportPage() {
   const formattedDate = format(today, "MMM. d, yyyy");
 
   // Pagination
-  const { displayedData: transactions, hasMore, loadMore } = usePagination({
+  const {
+    displayedData: transactions,
+    hasMore,
+    loadMore,
+  } = usePagination({
     data: allTransactions,
     initialItemsPerPage: 4,
     itemsPerPage: 4,
@@ -128,9 +132,7 @@ export default function SalesReportPage() {
           <h1 className="text-2xl font-bold text-gray-800 mb-2">
             Daily Sales Reports
           </h1>
-          <p className="text-sm text-gray-600">
-            Todays date: {formattedDate}
-          </p>
+          <p className="text-sm text-gray-600">Todays date: {formattedDate}</p>
         </CardContent>
       </Card>
 
@@ -138,11 +140,7 @@ export default function SalesReportPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <MetricCard title="Total Revenue" value="₦ 150,500.00" trend="up" />
         <MetricCard title="Cash Received" value="₦ 20,500.00" trend="up" />
-        <MetricCard
-          title="Voucher/Discount Used"
-          value="Nil"
-          trend="up"
-        />
+        <MetricCard title="Voucher/Discount Used" value="Nil" trend="up" />
       </div>
 
       {/* Transaction Report Table */}
@@ -162,7 +160,9 @@ export default function SalesReportPage() {
           </div>
           {hasMore && (
             <div className="flex justify-center mt-4">
-              <Button variant="outline" onClick={loadMore}>Load More</Button>
+              <Button variant="outline" onClick={loadMore}>
+                Load More
+              </Button>
             </div>
           )}
         </CardContent>
@@ -170,4 +170,3 @@ export default function SalesReportPage() {
     </div>
   );
 }
-

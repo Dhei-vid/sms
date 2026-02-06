@@ -1,7 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { InputField, SelectField, TextareaField } from "@/components/ui/input-field";
+import {
+  InputField,
+  SelectField,
+  TextareaField,
+} from "@/components/ui/input-field";
 import { Button } from "@/components/ui/button";
 import DatePickerIcon from "@/components/ui/date-picker";
 import { SelectItem } from "@/components/ui/select";
@@ -106,9 +110,7 @@ export function LogStaffAssignmentForm({
               setFormData({
                 ...formData,
                 startDate:
-                  typeof date === "function"
-                    ? date(formData.startDate)
-                    : date,
+                  typeof date === "function" ? date(formData.startDate) : date,
               })
             }
             open={openStartDate}
@@ -122,9 +124,7 @@ export function LogStaffAssignmentForm({
               setFormData({
                 ...formData,
                 endDate:
-                  typeof date === "function"
-                    ? date(formData.endDate)
-                    : date,
+                  typeof date === "function" ? date(formData.endDate) : date,
               })
             }
             open={openEndDate}
@@ -140,9 +140,15 @@ export function LogStaffAssignmentForm({
             setFormData({ ...formData, supervisor: value })
           }
         >
-          <SelectItem value="supervisor1">Mr. Adekola (VP Student Affairs)</SelectItem>
-          <SelectItem value="supervisor2">Mrs. Ada Okafor (Principal)</SelectItem>
-          <SelectItem value="supervisor3">Mr. Chinedu Okafor (VP Academic)</SelectItem>
+          <SelectItem value="supervisor1">
+            Mr. Adekola (VP Student Affairs)
+          </SelectItem>
+          <SelectItem value="supervisor2">
+            Mrs. Ada Okafor (Principal)
+          </SelectItem>
+          <SelectItem value="supervisor3">
+            Mr. Chinedu Okafor (VP Academic)
+          </SelectItem>
         </SelectField>
       </div>
 
@@ -160,4 +166,3 @@ export function LogStaffAssignmentForm({
     </div>
   );
 }
-

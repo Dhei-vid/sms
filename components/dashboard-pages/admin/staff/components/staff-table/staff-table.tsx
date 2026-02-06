@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { DataTable, TableColumn, TableAction } from "@/components/ui/data-table";
+import {
+  DataTable,
+  TableColumn,
+  TableAction,
+} from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Filter } from "lucide-react";
@@ -134,14 +138,14 @@ export function StaffTable() {
 
   const toggleRowSelection = (id: string) => {
     setSelectedRows((prev) =>
-      prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id],
     );
   };
 
   const filteredStaff = staff.filter(
     (s) =>
       s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.staffId.toLowerCase().includes(searchQuery.toLowerCase())
+      s.staffId.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const getContractStatusColor = (expiry?: string) => {
@@ -178,7 +182,7 @@ export function StaffTable() {
             <span
               className={cn(
                 "text-sm ml-2",
-                getContractStatusColor(row.contractExpiry)
+                getContractStatusColor(row.contractExpiry),
               )}
             >
               (Expires {row.contractExpiry})
@@ -195,7 +199,7 @@ export function StaffTable() {
           className={cn(
             row.status === "active" && "text-main-blue",
             row.status === "on-leave" && "text-amber-600",
-            row.status === "inactive" && "text-red-600"
+            row.status === "inactive" && "text-red-600",
           )}
         >
           {row.statusLabel}
@@ -221,7 +225,8 @@ export function StaffTable() {
           },
           {
             label: "Edit Staff",
-            onClick: (row) => router.push(`/admin/staff-management/${row.id}/edit`),
+            onClick: (row) =>
+              router.push(`/admin/staff-management/${row.id}/edit`),
             icon: <Icon icon={Edit01Icon} size={16} />,
           },
           {

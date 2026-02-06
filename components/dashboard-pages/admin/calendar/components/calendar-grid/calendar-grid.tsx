@@ -85,7 +85,7 @@ export function CalendarGrid({
               className={cn(
                 "min-h-[100px] border-r border-b p-2",
                 !isCurrentMonth && "bg-gray-50",
-                isToday && "bg-red-50"
+                isToday && "bg-red-50",
               )}
             >
               <div
@@ -93,7 +93,7 @@ export function CalendarGrid({
                   "text-sm font-medium mb-1",
                   !isCurrentMonth && "text-gray-400",
                   isToday && "text-red-600 font-bold",
-                  isCurrentMonth && !isToday && "text-gray-700"
+                  isCurrentMonth && !isToday && "text-gray-700",
                 )}
               >
                 {format(day, "d")}
@@ -104,7 +104,7 @@ export function CalendarGrid({
                     key={event.id}
                     className={cn(
                       "text-xs px-2 py-0.5 rounded truncate",
-                      colorClasses[event.color]
+                      colorClasses[event.color],
                     )}
                     title={event.title}
                   >

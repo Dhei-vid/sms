@@ -24,7 +24,7 @@ interface StaffStepNavigationProps {
  * Staff Step Navigation Component
  * Wrapper around StepNavigation component with type-safe step IDs
  * Handles conversion between string and StepId types
- * 
+ *
  * @param activeStep - Currently active step ID
  * @param onStepChange - Callback function when step changes
  */
@@ -35,7 +35,7 @@ export function StaffStepNavigation({
   /**
    * Handle step change and convert string to StepId type
    * Validates that the step ID is a valid StepId before calling the callback
-   * 
+   *
    * @param stepId - Step ID as string from StepNavigation component
    */
   const handleStepChange = (stepId: string) => {
@@ -54,4 +54,3 @@ export function StaffStepNavigation({
     />
   );
 }
-

@@ -33,7 +33,7 @@ export function AllocationAndItemsView({
   const lineItemDetails = transaction.lineItems
     .map(
       (item) =>
-        `${item.quantity} x ${item.item} (${formattedAmount(item.price)})`
+        `${item.quantity} x ${item.item} (${formattedAmount(item.price)})`,
     )
     .join(" + ");
 
@@ -82,4 +82,3 @@ export function AllocationAndItemsView({
     </div>
   );
 }
-

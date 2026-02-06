@@ -27,7 +27,7 @@ export const authApi = baseApi.injectEndpoints({
     /**
      * Login mutation endpoint
      * Sends credentials to API and receives token + user data
-     * 
+     *
      * @param body - Login credentials (email and password)
      * @returns LoginResponse with token and user data
      */
@@ -44,7 +44,7 @@ export const authApi = baseApi.injectEndpoints({
     /**
      * Get user profile query endpoint
      * Fetches current authenticated user's profile information
-     * 
+     *
      * @returns AuthUser with current user's information
      */
     getProfile: build.query<AuthUser, void>({
@@ -56,7 +56,7 @@ export const authApi = baseApi.injectEndpoints({
     /**
      * Google login mutation endpoint
      * Authenticates user using Google OAuth token
-     * 
+     *
      * @param body - Google login credentials (idToken, accessToken)
      * @returns LoginResponse with token and user data
      */
@@ -73,11 +73,14 @@ export const authApi = baseApi.injectEndpoints({
     /**
      * Forget password mutation endpoint
      * Sends password reset email to user
-     * 
+     *
      * @param body - Forget password request (email)
      * @returns ForgetPasswordResponse with success message
      */
-    forgetPassword: build.mutation<ForgetPasswordResponse, ForgetPasswordRequest>({
+    forgetPassword: build.mutation<
+      ForgetPasswordResponse,
+      ForgetPasswordRequest
+    >({
       query: (body) => ({
         url: "/auth/forget-password",
         method: "POST",
@@ -88,11 +91,14 @@ export const authApi = baseApi.injectEndpoints({
     /**
      * Change password mutation endpoint
      * Changes user's password using a token
-     * 
+     *
      * @param body - Change password request (token and new password)
      * @returns ForgetPasswordResponse with success message
      */
-    changePassword: build.mutation<ForgetPasswordResponse, { token: string; newPassword: string }>({
+    changePassword: build.mutation<
+      ForgetPasswordResponse,
+      { token: string; newPassword: string }
+    >({
       query: ({ token, newPassword }) => ({
         url: `/auth/change-password?token=${token}`,
         method: "POST",
@@ -109,7 +115,3 @@ export const {
   useGoogleLoginMutation,
   useForgetPasswordMutation,
 } = authApi;
-
-
-
-

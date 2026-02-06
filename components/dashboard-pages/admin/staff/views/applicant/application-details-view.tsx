@@ -37,7 +37,9 @@ export function ApplicationDetailsView({
 
   return (
     <div className="space-y-3">
-      <h2 className="text-lg font-semibold text-gray-800">Application Details</h2>
+      <h2 className="text-lg font-semibold text-gray-800">
+        Application Details
+      </h2>
       <div className="border rounded-lg overflow-hidden">
         <Table>
           <TableHeader>
@@ -61,4 +63,3 @@ export function ApplicationDetailsView({
     </div>
   );
 }
-

@@ -165,7 +165,7 @@ export default function LessonPlanReviewPage() {
   const [week, setWeek] = useState("4");
 
   const pendingCount = lessonPlansData.filter(
-    (plan) => plan.status === "pending"
+    (plan) => plan.status === "pending",
   ).length;
 
   const columns: TableColumn<LessonPlan>[] = [

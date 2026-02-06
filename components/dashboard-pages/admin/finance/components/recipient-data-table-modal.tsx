@@ -66,101 +66,97 @@ export function RecipientDataTableModal({
       contentClassName="flex flex-col"
     >
       <div className="space-y-4 flex-1 overflow-hidden flex flex-col">
-          {/* Table */}
-          <div className="border rounded-lg overflow-hidden flex-1 overflow-y-auto">
-            <Table>
-              <TableHeader className="sticky top-0 bg-white z-10">
-                <TableRow className="bg-main-blue/5">
-                  <TableHead className="px-4 py-3">
-                    Full Name + School ID
-                  </TableHead>
-                  <TableHead className="px-4 py-3">Grade/Class</TableHead>
-                  <TableHead className="px-4 py-3">Invoice Value</TableHead>
-                  <TableHead className="px-4 py-3">Discount Applied</TableHead>
-                  <TableHead className="px-4 py-3">Action</TableHead>
+        {/* Table */}
+        <div className="border rounded-lg overflow-hidden flex-1 overflow-y-auto">
+          <Table>
+            <TableHeader className="sticky top-0 bg-white z-10">
+              <TableRow className="bg-main-blue/5">
+                <TableHead className="px-4 py-3">
+                  Full Name + School ID
+                </TableHead>
+                <TableHead className="px-4 py-3">Grade/Class</TableHead>
+                <TableHead className="px-4 py-3">Invoice Value</TableHead>
+                <TableHead className="px-4 py-3">Discount Applied</TableHead>
+                <TableHead className="px-4 py-3">Action</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {displayedRecipients.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={5}
+                    className="h-32 text-center text-gray-500"
+                  >
+                    No recipients found
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {displayedRecipients.length === 0 ? (
-                  <TableRow>
-                    <TableCell
-                      colSpan={5}
-                      className="h-32 text-center text-gray-500"
-                    >
-                      No recipients found
+              ) : (
+                displayedRecipients.map((recipient) => (
+                  <TableRow key={recipient.id}>
+                    <TableCell className="px-4 py-3">
+                      <div className="flex flex-col gap-1">
+                        <span className="font-medium text-sm">
+                          {recipient.name}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          ({recipient.studentId})
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-sm">
+                      {recipient.gradeClass}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 font-semibold text-gray-800 text-sm">
+                      {formatCurrency(recipient.invoiceValue)}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-sm">
+                      {recipient.discountApplied === "Nil" ? (
+                        <span className="text-gray-600">Nil</span>
+                      ) : (
+                        <div className="flex flex-col gap-1">
+                          <span className="text-gray-800">
+                            {formatCurrency(recipient.discountAmount || 0)}
+                          </span>
+                          {recipient.discountPercentage && (
+                            <span className="text-xs text-muted-foreground">
+                              ({recipient.discountPercentage}%
+                              {recipient.discountApplied.includes("Sibling")
+                                ? " Sibling"
+                                : ""}
+                              )
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell className="px-4 py-3">
+                      <Link
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleExclude(recipient.id);
+                        }}
+                        className="text-main-blue hover:underline text-sm"
+                      >
+                        Exclude from Batch
+                      </Link>
                     </TableCell>
                   </TableRow>
-                ) : (
-                  displayedRecipients.map((recipient) => (
-                    <TableRow key={recipient.id}>
-                      <TableCell className="px-4 py-3">
-                        <div className="flex flex-col gap-1">
-                          <span className="font-medium text-sm">
-                            {recipient.name}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            ({recipient.studentId})
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-4 py-3 text-sm">
-                        {recipient.gradeClass}
-                      </TableCell>
-                      <TableCell className="px-4 py-3 font-semibold text-gray-800 text-sm">
-                        {formatCurrency(recipient.invoiceValue)}
-                      </TableCell>
-                      <TableCell className="px-4 py-3 text-sm">
-                        {recipient.discountApplied === "Nil" ? (
-                          <span className="text-gray-600">Nil</span>
-                        ) : (
-                          <div className="flex flex-col gap-1">
-                            <span className="text-gray-800">
-                              {formatCurrency(recipient.discountAmount || 0)}
-                            </span>
-                            {recipient.discountPercentage && (
-                              <span className="text-xs text-muted-foreground">
-                                ({recipient.discountPercentage}%
-                                {recipient.discountApplied.includes("Sibling")
-                                  ? " Sibling"
-                                  : ""}
-                                )
-                              </span>
-                            )}
-                          </div>
-                        )}
-                      </TableCell>
-                      <TableCell className="px-4 py-3">
-                        <Link
-                          href="#"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handleExclude(recipient.id);
-                          }}
-                          className="text-main-blue hover:underline text-sm"
-                        >
-                          Exclude from Batch
-                        </Link>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
-
-          {/* Load More Button */}
-          {hasMore && (
-            <div className="flex justify-center pt-2">
-              <Button
-                variant="outline"
-                onClick={handleLoadMore}
-                className="w-32"
-              >
-                Load More
-              </Button>
-            </div>
-          )}
+                ))
+              )}
+            </TableBody>
+          </Table>
         </div>
+
+        {/* Load More Button */}
+        {hasMore && (
+          <div className="flex justify-center pt-2">
+            <Button variant="outline" onClick={handleLoadMore} className="w-32">
+              Load More
+            </Button>
+          </div>
+        )}
+      </div>
     </ModalContainer>
   );
 }

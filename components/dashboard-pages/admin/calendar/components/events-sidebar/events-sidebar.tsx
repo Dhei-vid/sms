@@ -49,7 +49,7 @@ export function EventsSidebar({
               key={event.id}
               className={cn(
                 bordercolorClasses[event.color],
-                "space-y-2 border-t p-2 rounded-md"
+                "space-y-2 border-t p-2 rounded-md",
               )}
             >
               <div className="flex items-start gap-3">

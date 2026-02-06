@@ -22,19 +22,35 @@ export const subscriptionsApi = baseApi.injectEndpoints({
       providesTags: (_, __, id) => [{ type: "Subscription", id }],
     }),
 
-    createSubscription: build.mutation<ApiResponse<Subscriptions>, CreateSubscriptionRequest>({
+    createSubscription: build.mutation<
+      ApiResponse<Subscriptions>,
+      CreateSubscriptionRequest
+    >({
       query: (body) => ({ url: BASE, method: "POST", body }),
       invalidatesTags: ["Subscription"],
     }),
 
-    updateSubscription: build.mutation<ApiResponse<Subscriptions>, { id: string; data: UpdateSubcriptionsRequest }>({
-      query: ({ id, data }) => ({ url: `${BASE}/${id}`, method: "PUT", body: data }),
-      invalidatesTags: (_, __, { id }) => [{ type: "Subscription", id }, "Subscription"],
+    updateSubscription: build.mutation<
+      ApiResponse<Subscriptions>,
+      { id: string; data: UpdateSubcriptionsRequest }
+    >({
+      query: ({ id, data }) => ({
+        url: `${BASE}/${id}`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: (_, __, { id }) => [
+        { type: "Subscription", id },
+        "Subscription",
+      ],
     }),
 
     deleteSubscription: build.mutation<ApiDeleteResponse, string>({
       query: (id) => ({ url: `${BASE}/${id}`, method: "DELETE" }),
-      invalidatesTags: (_, __, id) => [{ type: "Subscription", id }, "Subscription"],
+      invalidatesTags: (_, __, id) => [
+        { type: "Subscription", id },
+        "Subscription",
+      ],
     }),
   }),
 });

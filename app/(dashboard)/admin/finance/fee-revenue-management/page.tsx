@@ -25,8 +25,9 @@ import { TrackPaymentsModal } from "@/components/dashboard-pages/admin/finance/c
 import { LogPaymentModal } from "@/components/dashboard-pages/admin/finance/components/log-payment-modal";
 import { PostCanteenItemModal } from "@/components/dashboard-pages/admin/finance/components/post-canteen-item-modal";
 import { SetFeeStructureModal } from "@/components/dashboard-pages/admin/finance/components/set-fee-structure-modal";
-import { useGetAllTransactionsQuery } from "@/services/transactions/transactions";
 
+// API
+import { useGetAllTransactionsQuery } from "@/services/transactions/transactions";
 
 export default function FinancePage() {
   const router = useRouter();
@@ -37,9 +38,8 @@ export default function FinancePage() {
   const [postCanteenItemModalOpen, setPostCanteenItemModalOpen] =
     useState(false);
   const [setFeeStructureModalOpen, setSetFeeStructureModalOpen] =
-    useState(false); 
+    useState(false);
 
-  
   const { data: allTransactionsData } = useGetAllTransactionsQuery();
 
   const getStudentsForPeriod = (period: string) => {
@@ -292,19 +292,35 @@ export default function FinancePage() {
           </CardHeader>
           <CardContent className="p-0">
             <div className="space-y-0">
-              {allTransactionsData?.data?.slice(0, 5).map((transactions, index) => (
-                <div key={index}>
-                  <ActivityItem
-                    icon={transactions?.transaction_type === "income" ? ArrowUpRight01Icon : ArrowDownLeft01Icon}
-                    iconColor={transactions?.transaction_type === "income" ? "text-green-600" : "text-red-600"}
-                    title={transactions?.description || "No description"}
-                    description={transactions?.amount ? `₦${Number(transactions.amount).toLocaleString()}` : "No amount"}
-                    time={transactions?.created_at ?? null}
-                    iconBg
-                  />
-                  {index < allTransactionsData?.data.length - 1 && <Separator />}
-                </div>
-              ))}
+              {allTransactionsData?.data
+                ?.slice(0, 5)
+                .map((transactions, index) => (
+                  <div key={index}>
+                    <ActivityItem
+                      icon={
+                        transactions?.transaction_type === "income"
+                          ? ArrowUpRight01Icon
+                          : ArrowDownLeft01Icon
+                      }
+                      iconColor={
+                        transactions?.transaction_type === "income"
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }
+                      title={transactions?.description || "No description"}
+                      description={
+                        transactions?.amount
+                          ? `₦${Number(transactions.amount).toLocaleString()}`
+                          : "No amount"
+                      }
+                      time={transactions?.created_at ?? null}
+                      iconBg
+                    />
+                    {index < allTransactionsData?.data.length - 1 && (
+                      <Separator />
+                    )}
+                  </div>
+                ))}
             </div>
             <div className="flex justify-center pt-2">
               <Button variant="outline">Load more</Button>

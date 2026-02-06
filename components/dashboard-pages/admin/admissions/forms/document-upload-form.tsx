@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useRef } from "react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
+import type { DocumentUploadState } from "./admission-form-state";
 
 interface DocumentField {
   id: string;
@@ -47,18 +48,22 @@ const documentFields: DocumentField[] = [
 ];
 
 export function DocumentUploadForm({
+  value,
+  onChange,
   onNext,
   onBack,
   onCancel,
 }: {
+  value: DocumentUploadState;
+  onChange: (next: DocumentUploadState) => void;
   onNext: () => void;
   onBack: () => void;
   onCancel: () => void;
 }) {
-  const [files, setFiles] = useState<Record<string, File | null>>({});
+  const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   const handleFileChange = (id: string, file: File | null) => {
-    setFiles({ ...files, [id]: file });
+    onChange({ ...value, [id]: file });
   };
 
   return (
@@ -66,50 +71,48 @@ export function DocumentUploadForm({
       <h2 className="text-xl font-semibold text-gray-800">Upload Documents</h2>
 
       <div className="space-y-6">
-        {documentFields.map((field) => {
-          const fileInputRef = useRef<HTMLInputElement>(null);
-
-          return (
-            <div key={field.id} className="space-y-2">
-              <Label htmlFor={field.id}>{field.label}</Label>
-              <div className="relative">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  id={field.id}
-                  accept={field.fileType === "pdf" ? ".pdf" : ".jpg,.jpeg"}
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0] || null;
-                    handleFileChange(field.id, file);
-                  }}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full justify-start h-auto min-h-[60px] py-4 px-4"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <div className="flex items-center justify-between w-full">
-                    <div className="flex-1 text-left">
-                      {files[field.id] ? (
-                        <span className="text-sm text-gray-600">
-                          {files[field.id]?.name}
-                        </span>
-                      ) : (
-                        <span className="text-sm text-gray-400">
-                          Upload {field.fileType.toUpperCase()}
-                        </span>
-                      )}
-                    </div>
-                    <Upload className="h-4 w-4 text-gray-400 ml-2" />
+        {documentFields.map((field) => (
+          <div key={field.id} className="space-y-2">
+            <Label htmlFor={field.id}>{field.label}</Label>
+            <div className="relative">
+              <input
+                ref={(el) => {
+                  fileInputRefs.current[field.id] = el;
+                }}
+                type="file"
+                id={field.id}
+                accept={field.fileType === "pdf" ? ".pdf" : ".jpg,.jpeg"}
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0] || null;
+                  handleFileChange(field.id, file);
+                }}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full justify-start h-auto min-h-[60px] py-4 px-4"
+                onClick={() => fileInputRefs.current[field.id]?.click()}
+              >
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex-1 text-left">
+                    {value[field.id] ? (
+                      <span className="text-sm text-gray-600">
+                        {value[field.id]?.name}
+                      </span>
+                    ) : (
+                      <span className="text-sm text-gray-400">
+                        Upload {field.fileType.toUpperCase()}
+                      </span>
+                    )}
                   </div>
-                </Button>
-              </div>
-              <p className="text-xs text-red-600">(format: {field.format})</p>
+                  <Upload className="h-4 w-4 text-gray-400 ml-2" />
+                </div>
+              </Button>
             </div>
-          );
-        })}
+            <p className="text-xs text-red-600">(format: {field.format})</p>
+          </div>
+        ))}
       </div>
 
       <div className="flex justify-end gap-3 pt-4">

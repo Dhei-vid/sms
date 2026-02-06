@@ -11,5 +11,5 @@ export const selectGetStudentsResult = (state: RootState) =>
 /** Stable ref when no data (Reselect v5 input stability). */
 export const selectStudentsData = createSelector(
   [selectGetStudentsResult],
-  (result): Student[] => result.data?.data ?? STABLE_EMPTY
+  (result): Student[] => result.data?.data ?? STABLE_EMPTY,
 );

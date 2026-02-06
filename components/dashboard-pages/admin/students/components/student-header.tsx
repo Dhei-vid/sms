@@ -79,7 +79,7 @@ export function StudentHeader({
             <div
               className={cn(
                 "flex items-center text-white font-medium text-xs rounded-md h-9 px-4 py-2",
-                getStatusColor()
+                getStatusColor(),
               )}
             >
               {statusLabel}

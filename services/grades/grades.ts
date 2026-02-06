@@ -1,5 +1,11 @@
 import { baseApi } from "../baseApi";
-import type { Grade, CreateGradeRequest, UpdateGradeRequest, GradesListResponse, GradesQueryParams } from "./grades-type";
+import type {
+  Grade,
+  CreateGradeRequest,
+  UpdateGradeRequest,
+  GradesListResponse,
+  GradesQueryParams,
+} from "./grades-type";
 
 const BASE = "/grades";
 
@@ -18,14 +24,23 @@ export const gradesApi = baseApi.injectEndpoints({
       query: (body) => ({ url: BASE, method: "POST", body }),
       invalidatesTags: ["Grade"],
     }),
-    updateGrade: build.mutation<Grade, { id: string; data: UpdateGradeRequest }>({
-      query: ({ id, data }) => ({ url: `${BASE}/${id}`, method: "PUT", body: data }),
+    updateGrade: build.mutation<
+      Grade,
+      { id: string; data: UpdateGradeRequest }
+    >({
+      query: ({ id, data }) => ({
+        url: `${BASE}/${id}`,
+        method: "PUT",
+        body: data,
+      }),
       invalidatesTags: (_, __, { id }) => [{ type: "Grade", id }, "Grade"],
     }),
-    deleteGrade: build.mutation<{ success: boolean; message?: string }, string>({
-      query: (id) => ({ url: `${BASE}/${id}`, method: "DELETE" }),
-      invalidatesTags: (_, __, id) => [{ type: "Grade", id }, "Grade"],
-    }),
+    deleteGrade: build.mutation<{ success: boolean; message?: string }, string>(
+      {
+        query: (id) => ({ url: `${BASE}/${id}`, method: "DELETE" }),
+        invalidatesTags: (_, __, id) => [{ type: "Grade", id }, "Grade"],
+      },
+    ),
   }),
 });
 

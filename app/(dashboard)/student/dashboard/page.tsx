@@ -31,11 +31,13 @@ export default function StudentDashboard() {
 
   const { data: coursesData } = useGetCoursesQuery({ limit: 10 });
   const { data: assignmentsData } = useGetAssignmentsQuery(
-    student?.id ? { studentId: student.id, limit: 5 } : undefined
+    student?.id ? { studentId: student.id, limit: 5 } : undefined,
   );
   const { data: noticesData } = useGetNoticesQuery({ limit: 2 });
   const { data: calendarData } = useGetCalendarEventsQuery({ limit: 2 });
-  const { data: walletData } = useGetWalletBalanceQuery(user?.id ?? undefined, { skip: !user?.id });
+  const { data: walletData } = useGetWalletBalanceQuery(user?.id ?? undefined, {
+    skip: !user?.id,
+  });
 
   const upcomingAssignments =
     assignmentsData?.data?.filter((assignment) => {
@@ -118,13 +120,16 @@ export default function StudentDashboard() {
             walletData?.data?.balance
               ? `₦ ${parseFloat(String(walletData.data.balance)).toLocaleString(
                   "en-NG",
-                  { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+                  { minimumFractionDigits: 2, maximumFractionDigits: 2 },
                 )}`
               : undefined
           }
           lastTransaction={
             walletData?.data?.updated_at
-              ? format(new Date(walletData.data.updated_at), "MMM d, yyyy; h:mm a")
+              ? format(
+                  new Date(walletData.data.updated_at),
+                  "MMM d, yyyy; h:mm a",
+                )
               : undefined
           }
         />

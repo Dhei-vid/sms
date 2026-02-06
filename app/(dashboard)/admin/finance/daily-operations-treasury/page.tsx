@@ -14,9 +14,8 @@ import {
   KanbanIcon,
   WalletAdd02Icon,
   ContractsIcon,
-
   ArrowUpRight01Icon,
-  ArrowDownLeft01Icon
+  ArrowDownLeft01Icon,
 } from "@hugeicons/core-free-icons";
 import { FinancialMetricCard } from "@/components/dashboard-pages/admin/finance/finance-metrics";
 import { formattedAmount } from "@/common/helper";
@@ -26,14 +25,7 @@ import { ActivityItem } from "@/components/ui/activity-item";
 import { DataTable, TableColumn } from "@/components/ui/data-table";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { ChartConfig, ChartContainer } from "@/components/ui/chart";
-import {
-  Bar,
-  BarChart,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-} from "recharts";
+import { Bar, BarChart, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 
 // APIs & selectors
 import { useGetAllTransactionsQuery } from "@/services/transactions/transactions";
@@ -216,8 +208,11 @@ export default function DailyOperationsTreasuryPage() {
   const router = useRouter();
   const [timeRange, setTimeRange] = useState("weekly");
 
-  const { data: allTransactionsData, isLoading: isTransactionLoading } = useGetAllTransactionsQuery();
-  const transactionsGroupedByCategory = useAppSelector(selectTransactionsGroupedByCategory);
+  const { data: allTransactionsData, isLoading: isTransactionLoading } =
+    useGetAllTransactionsQuery();
+  const transactionsGroupedByCategory = useAppSelector(
+    selectTransactionsGroupedByCategory,
+  );
 
   // Map selector output (grouped by category) to table rows; fallback when empty
   const budgetTableData = useMemo((): BudgetItem[] => {
@@ -250,7 +245,7 @@ export default function DailyOperationsTreasuryPage() {
 
   // Calculate max value for scaling
   const maxValue = Math.max(
-    ...cashFlowData.flatMap((d) => [d.income, d.expenses])
+    ...cashFlowData.flatMap((d) => [d.income, d.expenses]),
   );
 
   // Chart configuration
@@ -265,7 +260,8 @@ export default function DailyOperationsTreasuryPage() {
     },
   } satisfies ChartConfig;
 
-  const totalConsumed = budgetTableData.reduce((sum, row) => sum + row.budgetConsumed, 0) || 1;
+  const totalConsumed =
+    budgetTableData.reduce((sum, row) => sum + row.budgetConsumed, 0) || 1;
   const budgetColumns: TableColumn<BudgetItem>[] = [
     {
       key: "category",
@@ -356,7 +352,8 @@ export default function DailyOperationsTreasuryPage() {
               Budget vs. Actuals Summary
             </CardTitle>
             <p className="text-sm text-gray-600 mt-1">
-              Expense by category from transactions. Annual budget shown when available.
+              Expense by category from transactions. Annual budget shown when
+              available.
             </p>
           </CardHeader>
           <CardContent>
@@ -502,7 +499,7 @@ export default function DailyOperationsTreasuryPage() {
                                     (payload[0]?.payload as CashFlowData)
                                       .income -
                                       (payload[0]?.payload as CashFlowData)
-                                        .expenses
+                                        .expenses,
                                   )}
                                 </span>
                               </div>
@@ -533,7 +530,7 @@ export default function DailyOperationsTreasuryPage() {
                   <p className="text-xs text-gray-600 mb-1">Total Income</p>
                   <p className="text-sm font-semibold text-green-700">
                     {formattedAmount(
-                      cashFlowData.reduce((sum, d) => sum + d.income, 0)
+                      cashFlowData.reduce((sum, d) => sum + d.income, 0),
                     )}
                   </p>
                 </div>
@@ -541,7 +538,7 @@ export default function DailyOperationsTreasuryPage() {
                   <p className="text-xs text-gray-600 mb-1">Total Expenses</p>
                   <p className="text-sm font-semibold text-orange-700">
                     {formattedAmount(
-                      cashFlowData.reduce((sum, d) => sum + d.expenses, 0)
+                      cashFlowData.reduce((sum, d) => sum + d.expenses, 0),
                     )}
                   </p>
                 </div>
@@ -563,19 +560,35 @@ export default function DailyOperationsTreasuryPage() {
           </CardHeader>
           <CardContent className="flex flex-col items-stretch gap-4 divide-y divide-gray-200 p-0 h-full">
             <div className="space-y-0">
-              {allTransactionsData?.data?.slice(0, 5).map((transactions, index) => (
-                <div key={index}>
-                  <ActivityItem
-                    icon={transactions?.transaction_type === "income" ? ArrowUpRight01Icon :  ArrowDownLeft01Icon}
-                    iconColor={transactions?.transaction_type === "income" ? "text-green-600" : "text-red-600"}
-                    title={transactions?.description || "No description"}
-                    description={transactions?.amount ? `₦${Number(transactions.amount).toLocaleString()}` : "No amount"}
-                    time={transactions?.created_at ?? null}
-                    iconBg
-                  />
-                  {index < allTransactionsData?.data.length - 1 && <Separator />}
-                </div>
-              ))}
+              {allTransactionsData?.data
+                ?.slice(0, 5)
+                .map((transactions, index) => (
+                  <div key={index}>
+                    <ActivityItem
+                      icon={
+                        transactions?.transaction_type === "income"
+                          ? ArrowUpRight01Icon
+                          : ArrowDownLeft01Icon
+                      }
+                      iconColor={
+                        transactions?.transaction_type === "income"
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }
+                      title={transactions?.description || "No description"}
+                      description={
+                        transactions?.amount
+                          ? `₦${Number(transactions.amount).toLocaleString()}`
+                          : "No amount"
+                      }
+                      time={transactions?.created_at ?? null}
+                      iconBg
+                    />
+                    {index < allTransactionsData?.data.length - 1 && (
+                      <Separator />
+                    )}
+                  </div>
+                ))}
             </div>
             <div className="flex justify-center pt-2 mt-auto">
               <Button variant="outline">Load more</Button>
@@ -603,17 +616,17 @@ export default function DailyOperationsTreasuryPage() {
                     }
                     if (action.title === "Wallet & Canteen Sales") {
                       router.push(
-                        "daily-operations-treasury/canteen-operations"
+                        "daily-operations-treasury/canteen-operations",
                       );
                     }
                     if (action.title === "Process Creditor Payment") {
                       router.push(
-                        "daily-operations-treasury/canteen-operations"
+                        "daily-operations-treasury/canteen-operations",
                       );
                     }
                     if (action.title === "Add Wallet Top-Up (Manual)") {
                       router.push(
-                        "daily-operations-treasury/canteen-operations"
+                        "daily-operations-treasury/canteen-operations",
                       );
                     }
                   }}

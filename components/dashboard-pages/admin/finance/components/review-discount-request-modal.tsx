@@ -117,89 +117,88 @@ export function ReviewDiscountRequestModal({
       size="3xl"
       maxHeight="90vh"
     >
-
-        <div className="space-y-6 py-4">
-          {/* Request Details Section */}
-          <div className="space-y-4">
-            <div className="border rounded-lg overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-main-blue/5">
-                    <TableHead className="px-4 py-3">Form Field</TableHead>
-                    <TableHead className="px-4 py-3">Content</TableHead>
+      <div className="space-y-6 py-4">
+        {/* Request Details Section */}
+        <div className="space-y-4">
+          <div className="border rounded-lg overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-main-blue/5">
+                  <TableHead className="px-4 py-3">Form Field</TableHead>
+                  <TableHead className="px-4 py-3">Content</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {requestDetails.map((detail, index) => (
+                  <TableRow key={index}>
+                    <TableCell className="px-4 py-3 text-sm font-medium text-gray-600">
+                      {detail.field}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-sm text-gray-800">
+                      {typeof detail.content === "string"
+                        ? detail.content
+                        : detail.content}
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {requestDetails.map((detail, index) => (
-                    <TableRow key={index}>
-                      <TableCell className="px-4 py-3 text-sm font-medium text-gray-600">
-                        {detail.field}
-                      </TableCell>
-                      <TableCell className="px-4 py-3 text-sm text-gray-800">
-                        {typeof detail.content === "string"
-                          ? detail.content
-                          : detail.content}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </div>
-
-          {/* Admin Decision Input Section */}
-          <div className="space-y-4 pt-4 border-t">
-            <h3 className="text-lg font-semibold text-gray-800">
-              Admin Decision Input
-            </h3>
-
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">
-                Discount Value to Apply
-              </Label>
-              <Input
-                type="text"
-                placeholder="Currency/Percent Input"
-                value={discountValue}
-                onChange={(e) => setDiscountValue(e.target.value)}
-              />
-              <p className="text-xs text-gray-500">
-                Discount amount requested by the parent.
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Denial Reason</Label>
-              <Input
-                type="text"
-                placeholder="placeholder"
-                value={denialReason}
-                onChange={(e) => setDenialReason(e.target.value)}
-              />
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="grid grid-cols-2 gap-3 pt-4">
-            <Button
-              variant="outline"
-              onClick={handleDeny}
-              disabled={!denialReason}
-              className="gap-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
-            >
-              <Icon icon={Cancel01Icon} size={16} />
-              Deny & Send Reason
-            </Button>
-            <Button
-              onClick={handleApprove}
-              disabled={!discountValue}
-              className="gap-2"
-            >
-              <Icon icon={Tick01Icon} size={16} />
-              Approve & Apply Discount
-            </Button>
+                ))}
+              </TableBody>
+            </Table>
           </div>
         </div>
+
+        {/* Admin Decision Input Section */}
+        <div className="space-y-4 pt-4 border-t">
+          <h3 className="text-lg font-semibold text-gray-800">
+            Admin Decision Input
+          </h3>
+
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">
+              Discount Value to Apply
+            </Label>
+            <Input
+              type="text"
+              placeholder="Currency/Percent Input"
+              value={discountValue}
+              onChange={(e) => setDiscountValue(e.target.value)}
+            />
+            <p className="text-xs text-gray-500">
+              Discount amount requested by the parent.
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Denial Reason</Label>
+            <Input
+              type="text"
+              placeholder="placeholder"
+              value={denialReason}
+              onChange={(e) => setDenialReason(e.target.value)}
+            />
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="grid grid-cols-2 gap-3 pt-4">
+          <Button
+            variant="outline"
+            onClick={handleDeny}
+            disabled={!denialReason}
+            className="gap-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
+          >
+            <Icon icon={Cancel01Icon} size={16} />
+            Deny & Send Reason
+          </Button>
+          <Button
+            onClick={handleApprove}
+            disabled={!discountValue}
+            className="gap-2"
+          >
+            <Icon icon={Tick01Icon} size={16} />
+            Approve & Apply Discount
+          </Button>
+        </div>
+      </div>
     </ModalContainer>
   );
 }

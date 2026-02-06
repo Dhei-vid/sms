@@ -50,8 +50,7 @@ export function AccessRulesForm({
               date={formData.date}
               setDate={(date) => {
                 onFormDataChange({
-                  date:
-                    typeof date === "function" ? date(formData.date) : date,
+                  date: typeof date === "function" ? date(formData.date) : date,
                 });
               }}
               open={dateOpen}

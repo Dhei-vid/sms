@@ -29,10 +29,7 @@ export function GradingScalesForm({
         <h3 className="text-lg font-semibold text-gray-800">
           Grading Scales Configuration
         </h3>
-        <Button
-          variant="outline"
-          onClick={() => setGradeTableModalOpen(true)}
-        >
+        <Button variant="outline" onClick={() => setGradeTableModalOpen(true)}>
           See Grade Table
         </Button>
       </div>
@@ -118,4 +115,3 @@ export function GradingScalesForm({
     </div>
   );
 }
-

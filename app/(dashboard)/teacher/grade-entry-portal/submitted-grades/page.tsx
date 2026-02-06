@@ -1,10 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  DataTable,
-  TableColumn,
-} from "@/components/ui/data-table";
+import { DataTable, TableColumn } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import { usePagination } from "@/hooks/use-pagination";
 import {
@@ -107,11 +104,17 @@ export default function SubmittedGradesHistoryPage() {
   const [yearFilter, setYearFilter] = useState("2025-2026");
   const [termFilter, setTermFilter] = useState("first-term");
   const [classFilter, setClassFilter] = useState("jss3");
-  const [selectedAssessmentId, setSelectedAssessmentId] = useState<string | null>(null);
+  const [selectedAssessmentId, setSelectedAssessmentId] = useState<
+    string | null
+  >(null);
   const [scoreScriptModalOpen, setScoreScriptModalOpen] = useState(false);
 
   // Pagination
-  const { displayedData: submittedGrades, hasMore, loadMore } = usePagination({
+  const {
+    displayedData: submittedGrades,
+    hasMore,
+    loadMore,
+  } = usePagination({
     data: allSubmittedGrades,
     initialItemsPerPage: 8,
     itemsPerPage: 8,
@@ -128,7 +131,9 @@ export default function SubmittedGradesHistoryPage() {
     {
       key: "subject",
       title: "Subject",
-      render: (value) => <span className="text-gray-700">{value as string}</span>,
+      render: (value) => (
+        <span className="text-gray-700">{value as string}</span>
+      ),
     },
     {
       key: "totalSubmissions",
@@ -140,7 +145,9 @@ export default function SubmittedGradesHistoryPage() {
     {
       key: "totalMarks",
       title: "Total Marks",
-      render: (value) => <span className="text-gray-700">{value as number}</span>,
+      render: (value) => (
+        <span className="text-gray-700">{value as number}</span>
+      ),
     },
     {
       key: "verificationStatus",
@@ -260,4 +267,3 @@ export default function SubmittedGradesHistoryPage() {
     </div>
   );
 }
-

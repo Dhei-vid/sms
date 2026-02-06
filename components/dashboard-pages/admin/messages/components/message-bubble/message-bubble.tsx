@@ -51,7 +51,7 @@ export function MessageBubble({
       <div
         className={cn(
           "flex-1",
-          isOwnMessage && "flex flex-col gap-2 items-end"
+          isOwnMessage && "flex flex-col gap-2 items-end",
         )}
       >
         <div className="mb-1">

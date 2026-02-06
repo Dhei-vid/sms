@@ -33,7 +33,7 @@ interface BreaksSpecialPeriodsModalProps {
 const hours = Array.from({ length: 12 }, (_, i) => i + 1);
 // Generate minutes (00-59)
 const minutes = Array.from({ length: 60 }, (_, i) =>
-  i.toString().padStart(2, "0")
+  i.toString().padStart(2, "0"),
 );
 const periods = ["AM", "PM"] as const;
 
@@ -83,167 +83,166 @@ export function BreaksSpecialPeriodsModal({
       size="2xl"
     >
       <div className="space-y-6 py-4">
-          {/* Title Input */}
-          <InputField
-            label="Title"
-            placeholder="E.g., Morning Assembly, Lunch Break"
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
+        {/* Title Input */}
+        <InputField
+          label="Title"
+          placeholder="E.g., Morning Assembly, Lunch Break"
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
 
-          {/* Time Input */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Time Input</Label>
-            <div className="flex items-center gap-2">
-              {/* Start Time */}
-              <div className="flex items-center gap-1">
-                {/* Start Hour */}
-                <Select
-                  value={timeRange.startHour}
-                  onValueChange={(value) =>
-                    setTimeRange((prev) => ({ ...prev, startHour: value }))
-                  }
-                >
-                  <SelectTrigger className="w-16 h-10">
-                    <SelectValue>
-                      {timeRange.startHour.padStart(2, "0")}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {hours.map((hour) => (
-                      <SelectItem key={hour} value={hour.toString()}>
-                        {hour.toString().padStart(2, "0")}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+        {/* Time Input */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">Time Input</Label>
+          <div className="flex items-center gap-2">
+            {/* Start Time */}
+            <div className="flex items-center gap-1">
+              {/* Start Hour */}
+              <Select
+                value={timeRange.startHour}
+                onValueChange={(value) =>
+                  setTimeRange((prev) => ({ ...prev, startHour: value }))
+                }
+              >
+                <SelectTrigger className="w-16 h-10">
+                  <SelectValue>
+                    {timeRange.startHour.padStart(2, "0")}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {hours.map((hour) => (
+                    <SelectItem key={hour} value={hour.toString()}>
+                      {hour.toString().padStart(2, "0")}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-                <span className="text-gray-600">:</span>
+              <span className="text-gray-600">:</span>
 
-                {/* Start Minute */}
-                <Select
-                  value={timeRange.startMinute}
-                  onValueChange={(value) =>
-                    setTimeRange((prev) => ({ ...prev, startMinute: value }))
-                  }
-                >
-                  <SelectTrigger className="w-16 h-10">
-                    <SelectValue>{timeRange.startMinute}</SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {minutes.map((minute) => (
-                      <SelectItem key={minute} value={minute}>
-                        {minute}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              {/* Start Minute */}
+              <Select
+                value={timeRange.startMinute}
+                onValueChange={(value) =>
+                  setTimeRange((prev) => ({ ...prev, startMinute: value }))
+                }
+              >
+                <SelectTrigger className="w-16 h-10">
+                  <SelectValue>{timeRange.startMinute}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {minutes.map((minute) => (
+                    <SelectItem key={minute} value={minute}>
+                      {minute}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-                {/* Start AM/PM */}
-                <Select
-                  value={timeRange.startPeriod}
-                  onValueChange={(value) =>
-                    setTimeRange((prev) => ({
-                      ...prev,
-                      startPeriod: value as "AM" | "PM",
-                    }))
-                  }
-                >
-                  <SelectTrigger className="w-16 h-10">
-                    <SelectValue>{timeRange.startPeriod}</SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {periods.map((period) => (
-                      <SelectItem key={period} value={period}>
-                        {period}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              {/* Start AM/PM */}
+              <Select
+                value={timeRange.startPeriod}
+                onValueChange={(value) =>
+                  setTimeRange((prev) => ({
+                    ...prev,
+                    startPeriod: value as "AM" | "PM",
+                  }))
+                }
+              >
+                <SelectTrigger className="w-16 h-10">
+                  <SelectValue>{timeRange.startPeriod}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {periods.map((period) => (
+                    <SelectItem key={period} value={period}>
+                      {period}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-              {/* Separator */}
-              <span className="text-gray-600 mx-2">-</span>
+            {/* Separator */}
+            <span className="text-gray-600 mx-2">-</span>
 
-              {/* End Time */}
-              <div className="flex items-center gap-1">
-                {/* End Hour */}
-                <Select
-                  value={timeRange.endHour}
-                  onValueChange={(value) =>
-                    setTimeRange((prev) => ({ ...prev, endHour: value }))
-                  }
-                >
-                  <SelectTrigger className="w-16 h-10">
-                    <SelectValue>
-                      {timeRange.endHour.padStart(2, "0")}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {hours.map((hour) => (
-                      <SelectItem key={hour} value={hour.toString()}>
-                        {hour.toString().padStart(2, "0")}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            {/* End Time */}
+            <div className="flex items-center gap-1">
+              {/* End Hour */}
+              <Select
+                value={timeRange.endHour}
+                onValueChange={(value) =>
+                  setTimeRange((prev) => ({ ...prev, endHour: value }))
+                }
+              >
+                <SelectTrigger className="w-16 h-10">
+                  <SelectValue>
+                    {timeRange.endHour.padStart(2, "0")}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {hours.map((hour) => (
+                    <SelectItem key={hour} value={hour.toString()}>
+                      {hour.toString().padStart(2, "0")}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-                <span className="text-gray-600">:</span>
+              <span className="text-gray-600">:</span>
 
-                {/* End Minute */}
-                <Select
-                  value={timeRange.endMinute}
-                  onValueChange={(value) =>
-                    setTimeRange((prev) => ({ ...prev, endMinute: value }))
-                  }
-                >
-                  <SelectTrigger className="w-16 h-10">
-                    <SelectValue>{timeRange.endMinute}</SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {minutes.map((minute) => (
-                      <SelectItem key={minute} value={minute}>
-                        {minute}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              {/* End Minute */}
+              <Select
+                value={timeRange.endMinute}
+                onValueChange={(value) =>
+                  setTimeRange((prev) => ({ ...prev, endMinute: value }))
+                }
+              >
+                <SelectTrigger className="w-16 h-10">
+                  <SelectValue>{timeRange.endMinute}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {minutes.map((minute) => (
+                    <SelectItem key={minute} value={minute}>
+                      {minute}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-                {/* End AM/PM */}
-                <Select
-                  value={timeRange.endPeriod}
-                  onValueChange={(value) =>
-                    setTimeRange((prev) => ({
-                      ...prev,
-                      endPeriod: value as "AM" | "PM",
-                    }))
-                  }
-                >
-                  <SelectTrigger className="w-16 h-10">
-                    <SelectValue>{timeRange.endPeriod}</SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {periods.map((period) => (
-                      <SelectItem key={period} value={period}>
-                        {period}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              {/* End AM/PM */}
+              <Select
+                value={timeRange.endPeriod}
+                onValueChange={(value) =>
+                  setTimeRange((prev) => ({
+                    ...prev,
+                    endPeriod: value as "AM" | "PM",
+                  }))
+                }
+              >
+                <SelectTrigger className="w-16 h-10">
+                  <SelectValue>{timeRange.endPeriod}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {periods.map((period) => (
+                    <SelectItem key={period} value={period}>
+                      {period}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
-
-          {/* Action Buttons */}
-          <div className="grid grid-cols-2 gap-3 pt-4">
-            <Button variant="outline" onClick={() => handleClose(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSubmit}>Add Break/Period</Button>
-          </div>
         </div>
+
+        {/* Action Buttons */}
+        <div className="grid grid-cols-2 gap-3 pt-4">
+          <Button variant="outline" onClick={() => handleClose(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleSubmit}>Add Break/Period</Button>
+        </div>
+      </div>
     </ModalContainer>
   );
 }
-

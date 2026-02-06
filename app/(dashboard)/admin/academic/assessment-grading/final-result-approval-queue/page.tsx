@@ -1,7 +1,11 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DataTable, TableColumn, TableAction } from "@/components/ui/data-table";
+import {
+  DataTable,
+  TableColumn,
+  TableAction,
+} from "@/components/ui/data-table";
 import { format } from "date-fns";
 import Link from "next/link";
 
@@ -132,4 +136,3 @@ export default function FinalResultApprovalQueuePage() {
     </div>
   );
 }
-

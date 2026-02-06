@@ -83,7 +83,7 @@ export function MonitorLiveTestSessionModal({
         <span
           className={cn(
             "text-sm font-medium capitalize",
-            row.status === "active" ? "text-green-600" : "text-blue-600"
+            row.status === "active" ? "text-green-600" : "text-blue-600",
           )}
         >
           {value}

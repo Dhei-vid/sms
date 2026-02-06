@@ -1,6 +1,10 @@
 import { baseApi } from "../baseApi";
 import type { CreateCBTExamsPayload } from "./cbt-exam-types";
-import type { ApiResponse, ApiListResponse, ApiDeleteResponse } from "../shared-types";
+import type {
+  ApiResponse,
+  ApiListResponse,
+  ApiDeleteResponse,
+} from "../shared-types";
 
 const BASE = "/cbts/exams";
 
@@ -22,8 +26,15 @@ export const cbtExamsApi = baseApi.injectEndpoints({
       invalidatesTags: ["CbtExam"],
     }),
 
-    updateCbtExam: build.mutation<ApiResponse<unknown>, { id: string; data: Partial<CreateCBTExamsPayload> }>({
-      query: ({ id, data }) => ({ url: `${BASE}/${id}`, method: "PUT", body: data }),
+    updateCbtExam: build.mutation<
+      ApiResponse<unknown>,
+      { id: string; data: Partial<CreateCBTExamsPayload> }
+    >({
+      query: ({ id, data }) => ({
+        url: `${BASE}/${id}`,
+        method: "PUT",
+        body: data,
+      }),
       invalidatesTags: (_, __, { id }) => [{ type: "CbtExam", id }, "CbtExam"],
     }),
 

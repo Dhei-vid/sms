@@ -15,7 +15,9 @@ interface BasicExamDefinitionFormProps {
     timeAllowed: string;
     examMode: string;
   };
-  onFormDataChange: (data: Partial<BasicExamDefinitionFormProps["formData"]>) => void;
+  onFormDataChange: (
+    data: Partial<BasicExamDefinitionFormProps["formData"]>,
+  ) => void;
   onCancel: () => void;
   onNext: () => void;
   subjectOptions: { value: string; label: string }[];
@@ -48,7 +50,9 @@ export function BasicExamDefinitionForm({
       <SelectField
         label="Applicable Subject"
         value={formData.applicableSubject}
-        onValueChange={(value) => onFormDataChange({ applicableSubject: value })}
+        onValueChange={(value) =>
+          onFormDataChange({ applicableSubject: value })
+        }
         placeholder="Dropdown Select: (e.g., Biology)"
       >
         {subjectOptions.map((option) => (
@@ -119,4 +123,3 @@ export function BasicExamDefinitionForm({
     </div>
   );
 }
-

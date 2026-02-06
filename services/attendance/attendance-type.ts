@@ -71,4 +71,3 @@ export interface AttendanceQueryParams extends BaseQueryParams {
   endDate?: string;
   status?: "present" | "absent" | "late" | "excused";
 }
-

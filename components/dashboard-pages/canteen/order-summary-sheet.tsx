@@ -39,7 +39,7 @@ interface OrderSummarySheetProps {
   onAddAnotherItem: () => void;
   onCompleteTransaction: (
     studentId: string,
-    paymentMethod: "cash" | "wallet"
+    paymentMethod: "cash" | "wallet",
   ) => void;
 }
 
@@ -56,7 +56,7 @@ export function OrderSummarySheet({
 }: OrderSummarySheetProps) {
   const [studentId, setStudentId] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "wallet">(
-    "wallet"
+    "wallet",
   );
 
   // Get cart items with product details
@@ -220,7 +220,7 @@ export function OrderSummarySheet({
                 className={cn(
                   "h-11",
                   paymentMethod === "cash" &&
-                    "border-main-blue bg-main-blue/5 text-main-blue"
+                    "border-main-blue bg-main-blue/5 text-main-blue",
                 )}
               >
                 Pay with Cash

@@ -186,7 +186,7 @@ export default function CBTManagementDashboardPage() {
   const [scriptReviewModalOpen, setScriptReviewModalOpen] = useState(false);
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(
-    null
+    null,
   );
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedExamTitle, setSelectedExamTitle] = useState<string>("");
@@ -211,7 +211,7 @@ export default function CBTManagementDashboardPage() {
         <span
           className={cn(
             "text-sm font-medium capitalize",
-            getStatusColor(row.status)
+            getStatusColor(row.status),
           )}
         >
           {value}
@@ -392,7 +392,7 @@ export default function CBTManagementDashboardPage() {
               "at Venue:",
               venue,
               "with Invigilator:",
-              invigilator
+              invigilator,
             );
 
             setScheduleModalOpen(false);

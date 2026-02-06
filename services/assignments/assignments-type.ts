@@ -1,4 +1,9 @@
-import type { ApiListResponse, ApiResponse, ApiDeleteResponse, BaseQueryParams } from "../shared-types";
+import type {
+  ApiListResponse,
+  ApiResponse,
+  ApiDeleteResponse,
+  BaseQueryParams,
+} from "../shared-types";
 
 export interface Assignment {
   id: string;

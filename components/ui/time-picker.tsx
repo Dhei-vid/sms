@@ -27,13 +27,13 @@ interface ITimePicker {
 const hours = Array.from({ length: 12 }, (_, i) => i + 1);
 // Generate minutes (00-59)
 const minutes = Array.from({ length: 60 }, (_, i) =>
-  i.toString().padStart(2, "0")
+  i.toString().padStart(2, "0"),
 );
 const periods = ["AM", "PM"] as const;
 
 // Parse time string to extract hour, minute, and period
 const parseTime = (
-  time: string
+  time: string,
 ): { hour: string; minute: string; period: "AM" | "PM" } => {
   const match = time.match(/(\d{1,2}):(\d{2})\s?(AM|PM)/i);
   if (match) {
@@ -52,7 +52,7 @@ const parseTime = (
 const formatTime = (
   hour: string,
   minute: string,
-  period: "AM" | "PM"
+  period: "AM" | "PM",
 ): string => {
   if (hour && minute && period) {
     return `${hour.padStart(2, "0")}:${minute} ${period}`;
@@ -91,7 +91,7 @@ export default function TimePicker({
       const formatted = formatTime(
         selectedHour,
         selectedMinute,
-        selectedPeriod
+        selectedPeriod,
       );
       if (formatted !== time) {
         setTime(formatted);
@@ -127,7 +127,7 @@ export default function TimePicker({
             variant="outline"
             className={cn(
               "w-full justify-between text-left font-normal",
-              !time && "text-muted-foreground"
+              !time && "text-muted-foreground",
             )}
           >
             <span>{displayValue}</span>

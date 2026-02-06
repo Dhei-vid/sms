@@ -17,19 +17,35 @@ export const attachmentApi = baseApi.injectEndpoints({
       providesTags: (_, __, id) => [{ type: "Attachment", id }],
     }),
 
-    createAttachment: build.mutation<ApiResponse<Attachment>, FormData | Record<string, unknown>>({
+    createAttachment: build.mutation<
+      ApiResponse<Attachment>,
+      FormData | Record<string, unknown>
+    >({
       query: (body) => ({ url: BASE, method: "POST", body }),
       invalidatesTags: ["Attachment"],
     }),
 
-    updateAttachment: build.mutation<ApiResponse<Attachment>, { id: string; data: FormData | Record<string, unknown> }>({
-      query: ({ id, data }) => ({ url: `${BASE}/${id}`, method: "PUT", body: data }),
-      invalidatesTags: (_, __, { id }) => [{ type: "Attachment", id }, "Attachment"],
+    updateAttachment: build.mutation<
+      ApiResponse<Attachment>,
+      { id: string; data: FormData | Record<string, unknown> }
+    >({
+      query: ({ id, data }) => ({
+        url: `${BASE}/${id}`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: (_, __, { id }) => [
+        { type: "Attachment", id },
+        "Attachment",
+      ],
     }),
 
     deleteAttachment: build.mutation<ApiDeleteResponse, string>({
       query: (id) => ({ url: `${BASE}/${id}`, method: "DELETE" }),
-      invalidatesTags: (_, __, id) => [{ type: "Attachment", id }, "Attachment"],
+      invalidatesTags: (_, __, id) => [
+        { type: "Attachment", id },
+        "Attachment",
+      ],
     }),
   }),
 });

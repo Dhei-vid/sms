@@ -65,6 +65,8 @@ export default function MessagesPage() {
   });
   const [sendChat] = useSendChatMutation();
 
+  console.log("User :", user);
+
   // Static threads (General Conversation and Academic Staffs)
   const staticThreads: MessageThread[] = [
     {
@@ -173,23 +175,19 @@ export default function MessagesPage() {
           model_type: msg.model_type,
         })) || [];
 
-      // Build payload matching SendChatPayload structure
+      const chatIdsFromApi = chatsData?.data?.map((c: Chat) => c.id) ?? [];
+      const isExistingChat = chatIdsFromApi.includes(selectedThreadId);
+
       const payload: SendChatPayload = {
         message: message.trim(),
         history,
         content_type: "text/plain",
+        save_chat: true,
+        type: "general",
       };
-
-      // Only include id if it's a valid chat ID (not general/academic)
-      if (selectedThreadId !== "general" && selectedThreadId !== "academic") {
+      if (isExistingChat) {
         payload.id = selectedThreadId;
       }
-
-      // Optional fields
-      payload.save_chat = true;
-      payload.type = "general";
-
-      // Use model_type from API or default, but don't use "text"
       const lastMessage =
         selectedChatData?.data?.messages?.[
           selectedChatData.data.messages.length - 1

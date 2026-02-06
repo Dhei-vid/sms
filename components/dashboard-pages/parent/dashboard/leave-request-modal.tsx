@@ -25,7 +25,7 @@ export function LeaveRequestModal({
 }: LeaveRequestModalProps) {
   const [requestType, setRequestType] = useState("");
   const [leaveStartDate, setLeaveStartDate] = useState<Date | undefined>(
-    undefined
+    undefined,
   );
   const [leaveEndDate, setLeaveEndDate] = useState<Date | undefined>(undefined);
   const [reason, setReason] = useState("");

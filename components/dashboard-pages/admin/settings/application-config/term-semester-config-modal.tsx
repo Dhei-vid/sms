@@ -27,7 +27,7 @@ export function TermSemesterConfigModal({
     Array.from({ length: numberOfTerms }, () => ({
       startDate: undefined,
       endDate: undefined,
-    }))
+    })),
   );
 
   const [datePickerOpen, setDatePickerOpen] = useState<{
@@ -37,15 +37,13 @@ export function TermSemesterConfigModal({
   const handleTermDateChange = (
     termIndex: number,
     field: "startDate" | "endDate",
-    date: Date | undefined | ((prev: Date | undefined) => Date | undefined)
+    date: Date | undefined | ((prev: Date | undefined) => Date | undefined),
   ) => {
     const newTerms = [...terms];
     newTerms[termIndex] = {
       ...newTerms[termIndex],
       [field]:
-        typeof date === "function"
-          ? date(newTerms[termIndex][field])
-          : date,
+        typeof date === "function" ? date(newTerms[termIndex][field]) : date,
     };
     setTerms(newTerms);
   };
@@ -110,9 +108,7 @@ export function TermSemesterConfigModal({
               <DatePickerIcon
                 label="End Date"
                 date={term.endDate}
-                setDate={(date) =>
-                  handleTermDateChange(index, "endDate", date)
-                }
+                setDate={(date) => handleTermDateChange(index, "endDate", date)}
                 open={datePickerOpen[`end-${index}`] || false}
                 setOpen={getDatePickerSetOpen(`end-${index}`)}
                 placeholder="mm/dd/yy"
@@ -124,4 +120,3 @@ export function TermSemesterConfigModal({
     </ModalContainer>
   );
 }
-

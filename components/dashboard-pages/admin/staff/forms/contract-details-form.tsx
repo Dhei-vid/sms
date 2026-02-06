@@ -4,9 +4,7 @@ import { useState, Dispatch, SetStateAction } from "react";
 import { InputField, SelectField } from "@/components/ui/input-field";
 import { Button } from "@/components/ui/button";
 import DatePickerIcon from "@/components/ui/date-picker";
-import {
-  SelectItem,
-} from "@/components/ui/select";
+import { SelectItem } from "@/components/ui/select";
 
 export function ContractDetailsForm({
   onNext,
@@ -164,4 +162,3 @@ export function ContractDetailsForm({
     </div>
   );
 }
-

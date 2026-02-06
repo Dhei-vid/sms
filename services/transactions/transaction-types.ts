@@ -1,7 +1,12 @@
 import { User } from "../users/users-type";
 import { School } from "../schools/schools-type";
 import { Pagination, Currency } from "@/common/types";
-import { PaymentMethod, PaymentType, TransactionType, PaymentGateway } from "../shared-types";
+import {
+  PaymentMethod,
+  PaymentType,
+  TransactionType,
+  PaymentGateway,
+} from "../shared-types";
 import type { ApiResponse, BaseQueryParams } from "../shared-types";
 
 export interface TransactionResponse {
@@ -94,7 +99,6 @@ export interface TransferMoney {
   bank_code: string;
   amount: number;
 }
-
 
 export type TransactionSingleResponse = ApiResponse<Transaction>;
 

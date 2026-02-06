@@ -29,7 +29,7 @@ const NewNoticeBoard = () => {
   };
 
   const handleSpecificsChange = (
-    key: "teachers" | "parents" | "admins" | "students"
+    key: "teachers" | "parents" | "admins" | "students",
   ) => {
     setSpecifics((prev) => ({
       ...prev,

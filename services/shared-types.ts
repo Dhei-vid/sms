@@ -25,15 +25,47 @@ export type Gender = "male" | "female" | "other" | string;
  * Common status values
  */
 export type UserStatus = "active" | "inactive" | "suspended" | string;
-export type StudentStatus = "active" | "inactive" | "graduated" | "suspended" | string;
-export type AdmissionStatus = "pending" | "approved" | "rejected" | "enrolled" | string;
-export type OrderStatus = "pending" | "processing" | "completed" | "cancelled" | string;
+export type StudentStatus =
+  | "active"
+  | "inactive"
+  | "graduated"
+  | "suspended"
+  | string;
+
+export type OrderStatus =
+  | "pending"
+  | "processing"
+  | "completed"
+  | "cancelled"
+  | string;
 export type PaymentStatus = "pending" | "paid" | "failed" | "refunded" | string;
 export type FeeStatus = "pending" | "paid" | "overdue" | "partial" | string;
 export type GeneralStatus = "active" | "inactive" | string;
 export type PaymentMethod = "manual" | "fund" | string;
-export type PaymentType = "deposit" | "fund" | string;
+export type PaymentType = "fees" | "subscription" | "order" | string;
 export type TransactionType = "income" | "expense" | string;
+export type AdmissionStatus =
+  | "inquiry"
+  | "application_started"
+  | "submitted_forms"
+  | "under_review"
+  | "accepted_offers"
+  | "enrolled"
+  | "rejected"
+  | string;
+
+export interface AdmissionApplication {
+  id: string;
+  stakeholder_id: string;
+  name: string;
+  classApplyingFor: string | null;
+  dateSubmitted: string;
+  timeSubmitted: string;
+  stage: number;
+  statusLabel: string;
+  admission_number: string | null;
+  created_at?: string;
+}
 
 /**
  * Payment response structure
@@ -60,7 +92,7 @@ export interface ApiListResponse<T> {
   status_code: number;
   message: string;
   data: T[];
-  pagination: Pagination
+  pagination: Pagination;
 }
 
 /**
@@ -81,4 +113,3 @@ export interface BaseQueryParams {
   limit?: number;
   search?: string;
 }
-

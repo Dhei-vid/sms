@@ -52,7 +52,7 @@ interface DecryptTokenResult {
  */
 export const decryptToken = (token: string): DecryptTokenResult => {
   let tokenData: DecryptTokenResult = { success: false, data: null };
-  
+
   if (!tokenSecret) {
     console.error("JWT secret is not defined");
     return tokenData;
@@ -63,7 +63,7 @@ export const decryptToken = (token: string): DecryptTokenResult => {
     try {
       // Simple base64 decode for client-side (without verification)
       // For production, use a proper JWT library like jose or jwt-decode
-      const parts = token.split('.');
+      const parts = token.split(".");
       if (parts.length === 3) {
         const payload = JSON.parse(atob(parts[1]));
         tokenData = { success: true, data: payload };
@@ -89,7 +89,6 @@ export const decryptToken = (token: string): DecryptTokenResult => {
   } catch (error) {
     console.warn("Failed to verify token:", error);
   }
-  
+
   return tokenData;
 };
-

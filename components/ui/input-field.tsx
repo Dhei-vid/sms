@@ -113,8 +113,7 @@ export const SelectField: React.FC<SelectFieldProps> = ({
 };
 
 // TextareaField - Label + Textarea combination
-interface TextareaFieldProps
-  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+interface TextareaFieldProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label: string;
   required?: boolean;
   Icon?: LucideIcon;

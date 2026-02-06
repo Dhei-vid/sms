@@ -11,14 +11,10 @@ import { FinancialPayrollForm } from "@/components/dashboard-pages/admin/staff/f
 
 type TabId = "contact" | "employment" | "permissions" | "financial";
 
-export default function EditStaffPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function EditStaffPage({ params }: { params: { id: string } }) {
   const [activeTab, setActiveTab] = useState<TabId>("contact");
   const [profilePicture, setProfilePicture] = useState<string | undefined>(
-    "https://images.pexels.com/photos/697509/pexels-photo-697509.jpeg"
+    "https://images.pexels.com/photos/697509/pexels-photo-697509.jpeg",
   );
 
   // In a real app, fetch staff data based on params.id
@@ -51,10 +47,7 @@ export default function EditStaffPage({
     switch (activeTab) {
       case "contact":
         return (
-          <ContactInformationForm
-            onCancel={handleCancel}
-            onSave={handleSave}
-          />
+          <ContactInformationForm onCancel={handleCancel} onSave={handleSave} />
         );
       case "employment":
         return (
@@ -70,10 +63,7 @@ export default function EditStaffPage({
         );
       default:
         return (
-          <ContactInformationForm
-            onCancel={handleCancel}
-            onSave={handleSave}
-          />
+          <ContactInformationForm onCancel={handleCancel} onSave={handleSave} />
         );
     }
   };
@@ -104,4 +94,3 @@ export default function EditStaffPage({
     </div>
   );
 }
-

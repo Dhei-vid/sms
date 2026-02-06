@@ -26,7 +26,9 @@ export function ApplicationDocumentsView({
 }: ApplicationDocumentsViewProps) {
   return (
     <div className="space-y-3">
-      <h2 className="text-lg font-semibold text-gray-800">Application Documents</h2>
+      <h2 className="text-lg font-semibold text-gray-800">
+        Application Documents
+      </h2>
       <div className="border rounded-lg overflow-hidden">
         <Table>
           <TableHeader>
@@ -61,4 +63,3 @@ export function ApplicationDocumentsView({
     </div>
   );
 }
-

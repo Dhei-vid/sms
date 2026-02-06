@@ -74,7 +74,7 @@ export function TransactionsCard({
           <div key={index} className="flex gap-3">
             <div
               className={`h-5 w-5 rounded-full ${getIconBgColor(
-                transaction.type
+                transaction.type,
               )} flex items-center justify-center shrink-0`}
             >
               {transaction.icon && (
@@ -92,7 +92,7 @@ export function TransactionsCard({
                 </p>
                 <span
                   className={`text-sm font-semibold ${getAmountColor(
-                    transaction.type
+                    transaction.type,
                   )}`}
                 >
                   {transaction.amount}

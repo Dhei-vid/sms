@@ -96,9 +96,7 @@ export default function LeaveDetailPage({
         <h2 className="text-2xl font-bold text-gray-800">
           Leave Request Details: {leaveRequest.staffName}
         </h2>
-        <p className="text-gray-600 mt-1">
-          All necessary context for approval
-        </p>
+        <p className="text-gray-600 mt-1">All necessary context for approval</p>
       </div>
 
       {/* Main Content */}

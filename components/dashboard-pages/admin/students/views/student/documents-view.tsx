@@ -106,7 +106,7 @@ export function DocumentsView() {
                     <span
                       className={cn(
                         "text-xs font-medium",
-                        getStatusColor(doc.status)
+                        getStatusColor(doc.status),
                       )}
                     >
                       {getStatusText(doc.status)}

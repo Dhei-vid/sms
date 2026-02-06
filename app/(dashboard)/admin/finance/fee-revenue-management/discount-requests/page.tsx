@@ -293,7 +293,7 @@ export default function DiscountRequestsPage() {
             "Approve request",
             requestId,
             "with value",
-            discountValue
+            discountValue,
           );
           // Handle approval logic
         }}

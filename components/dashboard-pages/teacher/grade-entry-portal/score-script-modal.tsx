@@ -107,7 +107,12 @@ export function ScoreScriptModal({
   assessmentId,
 }: ScoreScriptModalProps) {
   // Pagination
-  const { displayedData: scoreScriptData, hasMore, loadMore, reset } = usePagination({
+  const {
+    displayedData: scoreScriptData,
+    hasMore,
+    loadMore,
+    reset,
+  } = usePagination({
     data: allScoreScriptData,
     initialItemsPerPage: 5,
     itemsPerPage: 5,

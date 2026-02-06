@@ -114,11 +114,7 @@ export function ExclusionLogModal({
         {/* Load More Button */}
         {hasMore && (
           <div className="flex justify-center pt-2">
-            <Button
-              variant="outline"
-              onClick={handleLoadMore}
-              className="w-32"
-            >
+            <Button variant="outline" onClick={handleLoadMore} className="w-32">
               Load More
             </Button>
           </div>

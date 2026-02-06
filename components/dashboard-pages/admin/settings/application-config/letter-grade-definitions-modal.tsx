@@ -1,7 +1,11 @@
 "use client";
 
 import { ModalContainer } from "@/components/ui/modal-container";
-import { DataTable, TableColumn, TableAction } from "@/components/ui/data-table";
+import {
+  DataTable,
+  TableColumn,
+  TableAction,
+} from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 
 interface LetterGrade {
@@ -138,4 +142,3 @@ export function LetterGradeDefinitionsModal({
     </ModalContainer>
   );
 }
-

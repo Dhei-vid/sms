@@ -1,6 +1,13 @@
 import { baseApi } from "../baseApi";
-import type { CreateSubjectsRequest, UpdateSubjectPayload } from "./subject-types";
-import type { ApiResponse, ApiListResponse, ApiDeleteResponse } from "../shared-types";
+import type {
+  CreateSubjectsRequest,
+  UpdateSubjectPayload,
+} from "./subject-types";
+import type {
+  ApiResponse,
+  ApiListResponse,
+  ApiDeleteResponse,
+} from "../shared-types";
 
 const BASE = "/subjects";
 
@@ -22,8 +29,15 @@ export const subjectsApi = baseApi.injectEndpoints({
       invalidatesTags: ["Subject"],
     }),
 
-    updateSubject: build.mutation<ApiResponse<unknown>, { id: string; data: UpdateSubjectPayload }>({
-      query: ({ id, data }) => ({ url: `${BASE}/${id}`, method: "PUT", body: data }),
+    updateSubject: build.mutation<
+      ApiResponse<unknown>,
+      { id: string; data: UpdateSubjectPayload }
+    >({
+      query: ({ id, data }) => ({
+        url: `${BASE}/${id}`,
+        method: "PUT",
+        body: data,
+      }),
       invalidatesTags: (_, __, { id }) => [{ type: "Subject", id }, "Subject"],
     }),
 

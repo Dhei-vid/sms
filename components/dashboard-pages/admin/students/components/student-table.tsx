@@ -132,9 +132,14 @@ interface StudentTableProps {
   isLoading?: boolean;
 }
 
-export function StudentTable({ studentsData, isLoading }: StudentTableProps = {}) {
+export function StudentTable({
+  studentsData,
+  isLoading,
+}: StudentTableProps = {}) {
   if (isLoading) {
-    return <div className="p-8 text-center text-gray-500">Loading students...</div>;
+    return (
+      <div className="p-8 text-center text-gray-500">Loading students...</div>
+    );
   }
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -142,42 +147,44 @@ export function StudentTable({ studentsData, isLoading }: StudentTableProps = {}
 
   const toggleRowSelection = (id: string) => {
     setSelectedRows((prev) =>
-      prev.includes(id) ? prev.filter((rowId) => id !== rowId) : [...prev, id]
+      prev.includes(id) ? prev.filter((rowId) => id !== rowId) : [...prev, id],
     );
   };
 
   // Transform API students data to component format
-  const apiStudents = studentsData?.data?.map((student) => ({
-    id: student.id,
-    name: student.name || `${student.first_name || ''} ${student.last_name || ''}`.trim() || "N/A",
-    schoolId: student.studentId || student.id,
-    grade: student.className || student.class?.name || "N/A",
-    attendance: "N/A",
-    academicAvg: "N/A",
-    outstandingFees: "N/A",
-    status: (student.status || "active") as Student["status"],
-    latestActivity: "N/A",
-  })) || [];
+  const apiStudents =
+    studentsData?.data?.map((student) => ({
+      id: student.id,
+      name:
+        student.name ||
+        `${student.first_name || ""} ${student.last_name || ""}`.trim() ||
+        "N/A",
+      schoolId: student.studentId || student.id,
+      grade: student.className || student.class?.name || "N/A",
+      attendance: "N/A",
+      academicAvg: "N/A",
+      outstandingFees: "N/A",
+      status: (student.status || "active") as Student["status"],
+      latestActivity: "N/A",
+    })) || [];
 
   const allStudents = apiStudents.length > 0 ? apiStudents : students;
 
   const filteredStudents = allStudents.filter(
     (student) =>
       student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      student.schoolId.toLowerCase().includes(searchQuery.toLowerCase())
+      student.schoolId.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const handleStatusChange = (
     applicationId: string,
     newStatus: "active" | "on-leave" | "suspended" | "graduated" | "withdrawn",
-    statusLabel: string
+    statusLabel: string,
   ) => {
     // Status changes would typically trigger an API mutation
     // For now, this is handled locally or will be integrated with updateStudent mutation
     const updatedStudents = allStudents.map((app) =>
-      app.id === applicationId
-        ? { ...app, status: newStatus }
-        : app
+      app.id === applicationId ? { ...app, status: newStatus } : app,
     );
   };
 
@@ -248,7 +255,7 @@ export function StudentTable({ studentsData, isLoading }: StudentTableProps = {}
         <span
           className={cn(
             "text-sm font-medium",
-            getStatusColor(value as Student["status"])
+            getStatusColor(value as Student["status"]),
           )}
         >
           {getStatusLabel(value as Student["status"])}

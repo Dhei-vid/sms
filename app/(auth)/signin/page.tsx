@@ -21,7 +21,7 @@ import { getRolePath } from "@/utils/menu-utils";
 export default function SignInPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  
+
   // Local state for form inputs
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
@@ -35,7 +35,7 @@ export default function SignInPage() {
   /**
    * Handle form submission
    * Validates inputs, calls login API, and manages authentication state
-   * 
+   *
    * @param e - Form submission event
    */
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -104,7 +104,7 @@ export default function SignInPage() {
         setCredentials({
           token: result.data.access_token,
           user: result.data.user,
-        })
+        }),
       );
 
       // Verify Redux state was updated
@@ -182,7 +182,7 @@ export default function SignInPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isLoading || isLoginLoading}
                 className={cn(
-                  "pl-10 h-11 rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                  "pl-10 h-11 rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500",
                 )}
                 required
               />
@@ -206,7 +206,7 @@ export default function SignInPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading || isLoginLoading}
                 className={cn(
-                  "pl-10 pr-10 h-11 rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500"
+                  "pl-10 pr-10 h-11 rounded-lg border-gray-300 focus:border-purple-500 focus:ring-purple-500",
                 )}
                 required
               />

@@ -26,7 +26,7 @@ export function ApplicantHeader({
         <h1 className="text-2xl font-bold text-gray-800">{name}</h1>
         <Button
           className={cn(
-            "bg-main-blue/5 border border-main-blue text-main-blue hover:bg-blue-200 font-medium"
+            "bg-main-blue/5 border border-main-blue text-main-blue hover:bg-blue-200 font-medium",
           )}
         >
           {statusLabel}

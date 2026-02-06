@@ -1,6 +1,14 @@
 import { baseApi } from "../baseApi";
-import type { CreateTransportPayload, UpdateTransportPayload, AssignBus } from "./transport-types";
-import type { ApiResponse, ApiListResponse, ApiDeleteResponse } from "../shared-types";
+import type {
+  CreateTransportPayload,
+  UpdateTransportPayload,
+  AssignBus,
+} from "./transport-types";
+import type {
+  ApiResponse,
+  ApiListResponse,
+  ApiDeleteResponse,
+} from "../shared-types";
 
 const BASE = "/transports";
 
@@ -17,14 +25,27 @@ export const transportsApi = baseApi.injectEndpoints({
       providesTags: (_, __, id) => [{ type: "Transport", id }],
     }),
 
-    createTransport: build.mutation<ApiResponse<unknown>, CreateTransportPayload>({
+    createTransport: build.mutation<
+      ApiResponse<unknown>,
+      CreateTransportPayload
+    >({
       query: (body) => ({ url: BASE, method: "POST", body }),
       invalidatesTags: ["Transport"],
     }),
 
-    updateTransport: build.mutation<ApiResponse<unknown>, { id: string; data: UpdateTransportPayload }>({
-      query: ({ id, data }) => ({ url: `${BASE}/${id}`, method: "PUT", body: data }),
-      invalidatesTags: (_, __, { id }) => [{ type: "Transport", id }, "Transport"],
+    updateTransport: build.mutation<
+      ApiResponse<unknown>,
+      { id: string; data: UpdateTransportPayload }
+    >({
+      query: ({ id, data }) => ({
+        url: `${BASE}/${id}`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: (_, __, { id }) => [
+        { type: "Transport", id },
+        "Transport",
+      ],
     }),
 
     assignBus: build.mutation<ApiResponse<unknown>, AssignBus>({

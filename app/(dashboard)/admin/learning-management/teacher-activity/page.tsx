@@ -107,7 +107,7 @@ const staffActivities: StaffActivity[] = [
 export default function TeacherActivityPage() {
   const [activityLogModalOpen, setActivityLogModalOpen] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<StaffActivity | null>(
-    null
+    null,
   );
 
   const columns: TableColumn<StaffActivity>[] = [
@@ -162,7 +162,12 @@ export default function TeacherActivityPage() {
   ];
 
   const handleAddAdministrativeNote = (note: string) => {
-    console.log("Add administrative note for", selectedStaff?.fullName, ":", note);
+    console.log(
+      "Add administrative note for",
+      selectedStaff?.fullName,
+      ":",
+      note,
+    );
     // Handle add administrative note action - the modal already adds it to the table
   };
 

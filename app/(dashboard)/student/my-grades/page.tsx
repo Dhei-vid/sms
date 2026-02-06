@@ -27,7 +27,7 @@ export default function MyGradesPage() {
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
 
   const { data: gradesData, isLoading: gradesLoading } = useGetGradesQuery(
-    user?.id ? { studentId: user.id } : undefined
+    user?.id ? { studentId: user.id } : undefined,
   );
   const { data: coursesData } = useGetCoursesQuery();
 
@@ -50,27 +50,31 @@ export default function MyGradesPage() {
       const course = courseMap.get(courseId);
       const sortedGrades = grades.sort((a, b) => {
         if (!a.createdAt || !b.createdAt) return 0;
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        return (
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
       });
       const latestGrade = sortedGrades[0];
 
-      const averageScore = grades.reduce((sum, g) => {
-        if (g.maxScore) {
-          return sum + (g.score / g.maxScore) * 100;
-        }
-        return sum + (g.percentage || 0);
-      }, 0) / grades.length;
+      const averageScore =
+        grades.reduce((sum, g) => {
+          if (g.maxScore) {
+            return sum + (g.score / g.maxScore) * 100;
+          }
+          return sum + (g.percentage || 0);
+        }, 0) / grades.length;
 
       const latestGradeText = latestGrade?.maxScore
-        ? `${Math.round((latestGrade.score / latestGrade.maxScore) * 100)}% ${latestGrade.assignmentName ? `(${latestGrade.assignmentName})` : ''}`
+        ? `${Math.round((latestGrade.score / latestGrade.maxScore) * 100)}% ${latestGrade.assignmentName ? `(${latestGrade.assignmentName})` : ""}`
         : latestGrade?.percentage
-        ? `${latestGrade.percentage}%`
-        : "N/A";
+          ? `${latestGrade.percentage}%`
+          : "N/A";
 
       return {
         subject: course?.name || "Unknown Course",
         courseId,
-        assignedTeacher: latestGrade?.teacherName || course?.teacherName || "N/A",
+        assignedTeacher:
+          latestGrade?.teacherName || course?.teacherName || "N/A",
         termAverageScore: `${Math.round(averageScore)}%`,
         latestGrade: latestGradeText,
       };
@@ -81,7 +85,7 @@ export default function MyGradesPage() {
     if (subjectPerformances.length === 0) return 0;
     const sum = subjectPerformances.reduce(
       (acc, subj) => acc + parseFloat(subj.termAverageScore.replace("%", "")),
-      0
+      0,
     );
     return Math.round(sum / subjectPerformances.length);
   }, [subjectPerformances]);
@@ -89,7 +93,9 @@ export default function MyGradesPage() {
   const lowestSubject = useMemo(() => {
     if (subjectPerformances.length === 0) return null;
     return subjectPerformances.reduce((lowest, current) => {
-      const currentScore = parseFloat(current.termAverageScore.replace("%", ""));
+      const currentScore = parseFloat(
+        current.termAverageScore.replace("%", ""),
+      );
       const lowestScore = parseFloat(lowest.termAverageScore.replace("%", ""));
       return currentScore < lowestScore ? current : lowest;
     });
@@ -154,14 +160,18 @@ export default function MyGradesPage() {
 
       {/* Performance Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <MetricCard 
-          title="Overall Average Score" 
-          value={`${overallAverage}%`} 
-          trend="up" 
+        <MetricCard
+          title="Overall Average Score"
+          value={`${overallAverage}%`}
+          trend="up"
         />
         <MetricCard
           title="Lowest Subject Score"
-          value={lowestSubject ? `${lowestSubject.subject}: ${lowestSubject.termAverageScore}` : "N/A"}
+          value={
+            lowestSubject
+              ? `${lowestSubject.subject}: ${lowestSubject.termAverageScore}`
+              : "N/A"
+          }
           trend="up"
         />
       </div>
@@ -182,9 +192,13 @@ export default function MyGradesPage() {
         <CardContent>
           <div className="border rounded-lg overflow-hidden">
             {gradesLoading ? (
-              <div className="p-8 text-center text-gray-500">Loading grades...</div>
+              <div className="p-8 text-center text-gray-500">
+                Loading grades...
+              </div>
             ) : subjectPerformances.length === 0 ? (
-              <div className="p-8 text-center text-gray-500">No grades found</div>
+              <div className="p-8 text-center text-gray-500">
+                No grades found
+              </div>
             ) : (
               <DataTable
                 columns={columns}
@@ -202,21 +216,23 @@ export default function MyGradesPage() {
           open={modalOpen}
           onOpenChange={setModalOpen}
           subject={selectedSubject}
-          assessments={gradesData?.data
-            ?.filter((grade) => grade.courseId === selectedCourseId)
-            .map((grade) => ({
-              assessmentName: grade.assignmentName || "N/A",
-              assessmentType: grade.assignmentName?.includes("Quiz") 
-                ? "Continuous Assessment (Quiz)"
-                : grade.assignmentName?.includes("CA")
-                ? "Continuous Assessment"
-                : grade.assignmentName?.includes("Exam")
-                ? "Examination"
-                : "Assignment",
-              totalMarks: grade.maxScore || 0,
-              studentScore: grade.score || 0,
-              teacherFeedback: grade.remarks || "No feedback available",
-            })) || []}
+          assessments={
+            gradesData?.data
+              ?.filter((grade) => grade.courseId === selectedCourseId)
+              .map((grade) => ({
+                assessmentName: grade.assignmentName || "N/A",
+                assessmentType: grade.assignmentName?.includes("Quiz")
+                  ? "Continuous Assessment (Quiz)"
+                  : grade.assignmentName?.includes("CA")
+                    ? "Continuous Assessment"
+                    : grade.assignmentName?.includes("Exam")
+                      ? "Examination"
+                      : "Assignment",
+                totalMarks: grade.maxScore || 0,
+                studentScore: grade.score || 0,
+                teacherFeedback: grade.remarks || "No feedback available",
+              })) || []
+          }
         />
       )}
     </div>

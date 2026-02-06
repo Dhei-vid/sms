@@ -48,7 +48,7 @@ export function OutstandingFeesModal({
   invoices = defaultInvoices,
 }: OutstandingFeesModalProps) {
   const [selectedInvoices, setSelectedInvoices] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
 
   const handleToggleInvoice = (invoiceId: string) => {
@@ -126,7 +126,7 @@ export function OutstandingFeesModal({
                       onCheckedChange={(checked) => {
                         if (checked) {
                           setSelectedInvoices(
-                            new Set(invoices.map((inv) => inv.id))
+                            new Set(invoices.map((inv) => inv.id)),
                           );
                         } else {
                           setSelectedInvoices(new Set());

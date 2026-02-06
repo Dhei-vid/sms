@@ -35,7 +35,7 @@ export function MessageThreadItem({
       onClick={onClick}
       className={cn(
         "cursor-pointer flex items-center gap-2 p-3 rounded-lg transition-colors hover:bg-main-blue/5 hover:text-main-blue",
-        isSelected && "bg-main-blue/5 text-main-blue"
+        isSelected && "bg-main-blue/5 text-main-blue",
       )}
     >
       <div className="flex gap-2 items-start w-full">

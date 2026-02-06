@@ -111,7 +111,7 @@ export function MessageInput({
             className={cn(
               "h-9 w-9 border border-main-blue group hover:bg-main-blue/90",
               !message.trim() &&
-                "opacity-50 cursor-not-allowed transition-colors duration-200"
+                "opacity-50 cursor-not-allowed transition-colors duration-200",
             )}
             aria-label="Send message"
           >

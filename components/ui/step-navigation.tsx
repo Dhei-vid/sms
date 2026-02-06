@@ -46,7 +46,7 @@ export function StepNavigation({
                   : "border-transparent text-gray-600 hover:text-gray-800"
                 : isActive
                   ? "bg-main-blue/5 text-main-blue"
-                  : "text-gray-600 hover:bg-main-blue/5 hover:text-gray-800"
+                  : "text-gray-600 hover:bg-main-blue/5 hover:text-gray-800",
             )}
           >
             <Icon icon={step.icon} size={18} />

@@ -11,5 +11,5 @@ export const selectGetOrdersResult = (state: RootState) =>
 /** Stable ref when no data (Reselect v5 input stability). */
 export const selectOrdersData = createSelector(
   [selectGetOrdersResult],
-  (result): Order[] => result.data?.data ?? STABLE_EMPTY
+  (result): Order[] => result.data?.data ?? STABLE_EMPTY,
 );

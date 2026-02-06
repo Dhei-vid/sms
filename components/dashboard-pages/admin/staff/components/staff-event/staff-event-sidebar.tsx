@@ -33,7 +33,7 @@ export function StaffEventSidebar({ header, content }: IStaffEventSidebar) {
               key={index}
               className={cn(
                 bordercolorClasses[index],
-                "space-y-2 border-t p-2 rounded-md"
+                "space-y-2 border-t p-2 rounded-md",
               )}
             >
               <p className="text-sm text-muted-foreground mb-1">

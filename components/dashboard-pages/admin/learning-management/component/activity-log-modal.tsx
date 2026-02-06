@@ -67,7 +67,8 @@ export function ActivityLogModal({
   hasMore = false,
 }: ActivityLogModalProps) {
   const [addNoteModalOpen, setAddNoteModalOpen] = useState(false);
-  const [activityLog, setActivityLog] = useState<ActivityLogEntry[]>(activities);
+  const [activityLog, setActivityLog] =
+    useState<ActivityLogEntry[]>(activities);
 
   // Update activity log when activities prop changes
   React.useEffect(() => {
@@ -99,9 +100,7 @@ export function ActivityLogModal({
       key: "dateTime",
       title: "Date/Time",
       render: (value) => (
-        <span className="text-sm">
-          {format(value, "MMM. d, yyyy; h:mma")}
-        </span>
+        <span className="text-sm">{format(value, "MMM. d, yyyy; h:mma")}</span>
       ),
     },
     {
@@ -124,10 +123,7 @@ export function ActivityLogModal({
       size="4xl"
       footer={
         <div className="flex justify-between w-full">
-          <Button
-            variant="outline"
-            onClick={() => setAddNoteModalOpen(true)}
-          >
+          <Button variant="outline" onClick={() => setAddNoteModalOpen(true)}>
             Add Administrative Note
           </Button>
           {hasMore && onLoadMore && (
@@ -160,4 +156,3 @@ export function ActivityLogModal({
     </ModalContainer>
   );
 }
-

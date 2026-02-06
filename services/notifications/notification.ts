@@ -5,7 +5,11 @@ import type {
   UpdateNotifications,
   NotificationsListResponse,
 } from "./notification-types";
-import type { ApiListResponse, ApiResponse, ApiDeleteResponse } from "../shared-types";
+import type {
+  ApiListResponse,
+  ApiResponse,
+  ApiDeleteResponse,
+} from "../shared-types";
 
 const BASE = "/notifications";
 
@@ -18,7 +22,10 @@ export const notificationsApi = baseApi.injectEndpoints({
     >({
       query: (params) => ({ url: BASE, params: params ?? {} }),
       transformResponse: (response: ApiListResponse<Notifications>) => {
-        if (response.status === false || (response.status_code && response.status_code >= 400)) {
+        if (
+          response.status === false ||
+          (response.status_code && response.status_code >= 400)
+        ) {
           throw new Error(response.message || "Failed to fetch notifications");
         }
         return response;
@@ -29,7 +36,10 @@ export const notificationsApi = baseApi.injectEndpoints({
     getNotificationById: build.query<ApiResponse<Notifications>, string>({
       query: (id) => ({ url: `${BASE}/${id}` }),
       transformResponse: (response: ApiResponse<Notifications>) => {
-        if (response.status === false || (response.status_code && response.status_code >= 400)) {
+        if (
+          response.status === false ||
+          (response.status_code && response.status_code >= 400)
+        ) {
           throw new Error(response.message || "Failed to fetch notification");
         }
         return response;
@@ -37,14 +47,27 @@ export const notificationsApi = baseApi.injectEndpoints({
       providesTags: (_, __, id) => [{ type: "Notification", id }],
     }),
 
-    createNotification: build.mutation<ApiResponse<Notifications>, CreateNotifications>({
+    createNotification: build.mutation<
+      ApiResponse<Notifications>,
+      CreateNotifications
+    >({
       query: (body) => ({ url: BASE, method: "POST", body }),
       invalidatesTags: ["Notification"],
     }),
 
-    updateNotification: build.mutation<ApiResponse<Notifications>, { id: string; data: UpdateNotifications }>({
-      query: ({ id, data }) => ({ url: `${BASE}/${id}`, method: "PUT", body: data }),
-      invalidatesTags: (_, __, { id }) => [{ type: "Notification", id }, "Notification"],
+    updateNotification: build.mutation<
+      ApiResponse<Notifications>,
+      { id: string; data: UpdateNotifications }
+    >({
+      query: ({ id, data }) => ({
+        url: `${BASE}/${id}`,
+        method: "PUT",
+        body: data,
+      }),
+      invalidatesTags: (_, __, { id }) => [
+        { type: "Notification", id },
+        "Notification",
+      ],
     }),
 
     deleteNotification: build.mutation<ApiDeleteResponse, string>({

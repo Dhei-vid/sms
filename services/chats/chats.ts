@@ -1,5 +1,9 @@
 import { baseApi } from "../baseApi";
-import type { ApiListResponse, ApiResponse, ApiDeleteResponse } from "../shared-types";
+import type {
+  ApiListResponse,
+  ApiResponse,
+  ApiDeleteResponse,
+} from "../shared-types";
 import type { Chat, SendChatPayload, UpdateChatPayload } from "./chat-types";
 
 const BASE = "/chats";
@@ -7,10 +11,16 @@ const BASE = "/chats";
 export const chatsApi = baseApi.injectEndpoints({
   overrideExisting: true,
   endpoints: (build) => ({
-    getChats: build.query<ApiListResponse<Chat>, { page?: number; limit?: number; search?: string } | void>({
+    getChats: build.query<
+      ApiListResponse<Chat>,
+      { page?: number; limit?: number; search?: string } | void
+    >({
       query: (params) => ({ url: BASE, params: params ?? {} }),
       transformResponse: (response: ApiListResponse<Chat>) => {
-        if (response.status === false || (response.status_code && response.status_code >= 400)) {
+        if (
+          response.status === false ||
+          (response.status_code && response.status_code >= 400)
+        ) {
           throw new Error(response.message || "Failed to fetch chats");
         }
         return response;
@@ -21,7 +31,10 @@ export const chatsApi = baseApi.injectEndpoints({
     getChatById: build.query<ApiResponse<Chat>, string>({
       query: (id) => ({ url: `${BASE}/${id}` }),
       transformResponse: (response: ApiResponse<Chat>) => {
-        if (response.status === false || (response.status_code && response.status_code >= 400)) {
+        if (
+          response.status === false ||
+          (response.status_code && response.status_code >= 400)
+        ) {
           throw new Error(response.message || "Failed to fetch chat");
         }
         return response;
@@ -34,8 +47,15 @@ export const chatsApi = baseApi.injectEndpoints({
       invalidatesTags: ["Chat"],
     }),
 
-    updateChatTitle: build.mutation<ApiResponse<Chat>, { id: string; data: UpdateChatPayload }>({
-      query: ({ id, data }) => ({ url: `${BASE}/${id}`, method: "PUT", body: data }),
+    updateChatTitle: build.mutation<
+      ApiResponse<Chat>,
+      { id: string; data: UpdateChatPayload }
+    >({
+      query: ({ id, data }) => ({
+        url: `${BASE}/${id}`,
+        method: "PUT",
+        body: data,
+      }),
       invalidatesTags: (_, __, { id }) => [{ type: "Chat", id }, "Chat"],
     }),
 

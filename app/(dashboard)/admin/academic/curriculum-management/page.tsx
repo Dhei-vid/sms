@@ -177,7 +177,7 @@ export default function CurriculumManagementPage() {
                 onClick={() => {
                   if (action.title === "Add/Edit Subject Outline") {
                     router.push(
-                      "curriculum-management/add-edit-subject-outline"
+                      "curriculum-management/add-edit-subject-outline",
                     );
                   }
 

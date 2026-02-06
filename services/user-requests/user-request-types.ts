@@ -213,7 +213,7 @@ export interface UserRequest {
           features: [
             "Unlimited students",
             "Advanced features",
-            "Premium support"
+            "Premium support",
           ];
           description: "Up to 1000 students, 50 teachers";
           discount: "20000.00";
@@ -250,7 +250,7 @@ export interface UserRequest {
         "SSS 2 Arts/Commercial",
         "SSS 3",
         "SSS 3 Science",
-        "SSS 3 Arts/Commercial"
+        "SSS 3 Arts/Commercial",
       ];
       subjects: [];
       status: "active";
@@ -448,7 +448,7 @@ export interface UserRequest {
             "SSS 2 Arts/Commercial",
             "SSS 3",
             "SSS 3 Science",
-            "SSS 3 Arts/Commercial"
+            "SSS 3 Arts/Commercial",
           ];
           subjects: [];
           status: "active";
@@ -496,7 +496,7 @@ export interface UserRequest {
         created_at: "2025-11-19T16:25:37.077574Z";
         updated_at: "2025-11-19T17:40:29.432468Z";
         deleted_at: null;
-      }
+      },
     ];
     created_at: "2025-11-19T11:29:28.695045Z";
     updated_at: "2025-11-19T11:29:28.695045Z";
@@ -728,7 +728,7 @@ export interface UserRequest {
           features: [
             "Unlimited students",
             "Advanced features",
-            "Premium support"
+            "Premium support",
           ];
           description: "Up to 1000 students, 50 teachers";
           discount: "20000.00";
@@ -765,7 +765,7 @@ export interface UserRequest {
         "SSS 2 Arts/Commercial",
         "SSS 3",
         "SSS 3 Science",
-        "SSS 3 Arts/Commercial"
+        "SSS 3 Arts/Commercial",
       ];
       subjects: [];
       status: "active";
@@ -963,7 +963,7 @@ export interface UserRequest {
             "SSS 2 Arts/Commercial",
             "SSS 3",
             "SSS 3 Science",
-            "SSS 3 Arts/Commercial"
+            "SSS 3 Arts/Commercial",
           ];
           subjects: [];
           status: "active";
@@ -1011,7 +1011,7 @@ export interface UserRequest {
         created_at: "2025-11-19T16:25:37.077574Z";
         updated_at: "2025-11-19T17:40:29.432468Z";
         deleted_at: null;
-      }
+      },
     ];
     created_at: "2025-11-19T11:29:28.695045Z";
     updated_at: "2025-11-19T11:29:28.695045Z";
@@ -1243,7 +1243,7 @@ export interface UserRequest {
           features: [
             "Unlimited students",
             "Advanced features",
-            "Premium support"
+            "Premium support",
           ];
           description: "Up to 1000 students, 50 teachers";
           discount: "20000.00";
@@ -1280,7 +1280,7 @@ export interface UserRequest {
         "SSS 2 Arts/Commercial",
         "SSS 3",
         "SSS 3 Science",
-        "SSS 3 Arts/Commercial"
+        "SSS 3 Arts/Commercial",
       ];
       subjects: [];
       status: "active";
@@ -1478,7 +1478,7 @@ export interface UserRequest {
             "SSS 2 Arts/Commercial",
             "SSS 3",
             "SSS 3 Science",
-            "SSS 3 Arts/Commercial"
+            "SSS 3 Arts/Commercial",
           ];
           subjects: [];
           status: "active";
@@ -1526,7 +1526,7 @@ export interface UserRequest {
         created_at: "2025-11-19T16:25:37.077574Z";
         updated_at: "2025-11-19T17:40:29.432468Z";
         deleted_at: null;
-      }
+      },
     ];
     created_at: "2025-11-19T11:29:28.695045Z";
     updated_at: "2025-11-19T11:29:28.695045Z";
@@ -1554,7 +1554,4 @@ export interface UserRequest {
   deleted_at: null;
 }
 
-
-export interface Supervisor {
-  
-}
+export interface Supervisor {}

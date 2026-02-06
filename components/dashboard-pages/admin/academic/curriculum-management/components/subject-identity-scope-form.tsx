@@ -15,7 +15,9 @@ interface SubjectIdentityScopeFormProps {
     applicableGrade: string;
     headOfDepartment: string;
   };
-  onFormDataChange: (data: Partial<SubjectIdentityScopeFormProps["formData"]>) => void;
+  onFormDataChange: (
+    data: Partial<SubjectIdentityScopeFormProps["formData"]>,
+  ) => void;
   onSaveDraft: () => void;
   onSaveContinue: () => void;
   gradeOptions: { value: string; label: string }[];
@@ -54,7 +56,7 @@ export function SubjectIdentityScopeForm({
             "flex-1",
             formData.mode === "create"
               ? "bg-main-blue/5 text-main-blue hover:bg-main-blue/10"
-              : "bg-white text-gray-700 hover:bg-main-blue/5 border-0 shadow-none"
+              : "bg-white text-gray-700 hover:bg-main-blue/5 border-0 shadow-none",
           )}
         >
           Create New Subject
@@ -67,7 +69,7 @@ export function SubjectIdentityScopeForm({
             "flex-1",
             formData.mode === "edit"
               ? "bg-main-blue/5 text-main-blue hover:bg-main-blue/10"
-              : "bg-white text-gray-700 hover:bg-main-blue/5 border-0 shadow-none"
+              : "bg-white text-gray-700 hover:bg-main-blue/5 border-0 shadow-none",
           )}
         >
           Edit Existing Subject
@@ -78,7 +80,9 @@ export function SubjectIdentityScopeForm({
         <SelectField
           label="Select Subject"
           value={formData.selectedSubject}
-          onValueChange={(value) => onFormDataChange({ selectedSubject: value })}
+          onValueChange={(value) =>
+            onFormDataChange({ selectedSubject: value })
+          }
           placeholder="E.g., Integrated Science"
         >
           {subjectOptions.map((option) => (
@@ -140,4 +144,3 @@ export function SubjectIdentityScopeForm({
     </div>
   );
 }
-

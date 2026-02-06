@@ -39,7 +39,7 @@ export function ProductCard({
       className={cn(
         "cursor-pointer hover:shadow-md transition-all overflow-hidden p-0",
         isSelected && "ring-2 ring-main-blue border-main-blue",
-        className
+        className,
       )}
       onClick={(e) => {
         e.stopPropagation();

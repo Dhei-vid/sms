@@ -4,7 +4,11 @@ import type {
   UpdateHostelsPayload,
   AssignHostelPayload,
 } from "./hostels-types";
-import type { ApiResponse, ApiListResponse, ApiDeleteResponse } from "../shared-types";
+import type {
+  ApiResponse,
+  ApiListResponse,
+  ApiDeleteResponse,
+} from "../shared-types";
 
 const BASE = "/hostels";
 
@@ -26,8 +30,15 @@ export const hostelsApi = baseApi.injectEndpoints({
       invalidatesTags: ["Hostel"],
     }),
 
-    updateHostel: build.mutation<ApiResponse<unknown>, { id: string; data: UpdateHostelsPayload }>({
-      query: ({ id, data }) => ({ url: `${BASE}/${id}`, method: "PUT", body: data }),
+    updateHostel: build.mutation<
+      ApiResponse<unknown>,
+      { id: string; data: UpdateHostelsPayload }
+    >({
+      query: ({ id, data }) => ({
+        url: `${BASE}/${id}`,
+        method: "PUT",
+        body: data,
+      }),
       invalidatesTags: (_, __, { id }) => [{ type: "Hostel", id }, "Hostel"],
     }),
 
