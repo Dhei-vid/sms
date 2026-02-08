@@ -26,7 +26,8 @@ import {
 
 interface Student {
   id: string;
-  name: string;
+  first_name: string;
+  last_name: string;
   schoolId: string;
   grade: string;
   attendance: string;
@@ -39,7 +40,8 @@ interface Student {
 const students: Student[] = [
   {
     id: "1",
-    name: "Chinedu Nwokodi",
+    first_name: "Chinedu",
+    last_name: "Nwokodi",
     schoolId: "nwokodi.m178023",
     grade: "JS 2",
     attendance: "92%",
@@ -50,7 +52,8 @@ const students: Student[] = [
   },
   {
     id: "2",
-    name: "Adebisi Deborah",
+    first_name: "Adebisi",
+    last_name: "Deborah",
     schoolId: "adebisi.m178024",
     grade: "JS 1",
     attendance: "100%",
@@ -61,7 +64,8 @@ const students: Student[] = [
   },
   {
     id: "3",
-    name: "Dauda Ahfiz",
+    first_name: "Dauda",
+    last_name: "Ahfiz",
     schoolId: "ahfiz.m178025",
     grade: "SS 1",
     attendance: "98%",
@@ -72,7 +76,8 @@ const students: Student[] = [
   },
   {
     id: "4",
-    name: "Sarah Collins",
+    first_name: "Sarah",
+    last_name: "Collins",
     schoolId: "collins.m178026",
     grade: "SS 1",
     attendance: "100%",
@@ -83,7 +88,8 @@ const students: Student[] = [
   },
   {
     id: "5",
-    name: "John Terjiri",
+    first_name: "John",
+    last_name: "Terjiri",
     schoolId: "terjiri.m178027",
     grade: "JS 3",
     attendance: "100%",
@@ -94,7 +100,8 @@ const students: Student[] = [
   },
   {
     id: "6",
-    name: "Chinedu Nwokodi",
+    first_name: "Chinedu",
+    last_name: "Nwokodi",
     schoolId: "nwokodi.m178023",
     grade: "SS 2",
     attendance: "92%",
@@ -102,28 +109,6 @@ const students: Student[] = [
     outstandingFees: "Nil",
     status: "withdrawn",
     latestActivity: "Appointed class captain",
-  },
-  {
-    id: "7",
-    name: "Adebisi Deborah",
-    schoolId: "adebisi.m178024",
-    grade: "JS 3",
-    attendance: "100%",
-    academicAvg: "B-",
-    outstandingFees: "Nil",
-    status: "active",
-    latestActivity: "Became a member of the debate team",
-  },
-  {
-    id: "8",
-    name: "Dauda Ahfiz",
-    schoolId: "ahfiz.m178025",
-    grade: "SS 3",
-    attendance: "98%",
-    academicAvg: "A+",
-    outstandingFees: "Nil",
-    status: "active",
-    latestActivity: "Editor-in-Chief of the Yearbook",
   },
 ];
 
@@ -155,10 +140,8 @@ export function StudentTable({
   const apiStudents =
     studentsData?.data?.map((student) => ({
       id: student.id,
-      name:
-        student.name ||
-        `${student.first_name || ""} ${student.last_name || ""}`.trim() ||
-        "N/A",
+      first_name: student.user.first_name,
+      last_name: student.user.last_name,
       schoolId: student.studentId || student.id,
       grade: student.className || student.class?.name || "N/A",
       attendance: "N/A",
@@ -172,7 +155,8 @@ export function StudentTable({
 
   const filteredStudents = allStudents.filter(
     (student) =>
-      student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      student.first_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      student.last_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       student.schoolId.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
@@ -227,9 +211,12 @@ export function StudentTable({
       key: "name",
       title: "Full Name + School ID",
       render: (_, row) => (
-        <span className="font-medium">
-          {row.name} ({row.schoolId})
-        </span>
+        <div className="flex flex-col gap-1">
+          <span className="font-medium">
+            {row.first_name} {row.last_name}
+          </span>
+          <span className="text-xs">({row.schoolId})</span>
+        </div>
       ),
     },
     {

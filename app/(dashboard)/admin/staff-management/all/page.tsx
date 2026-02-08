@@ -7,8 +7,19 @@ import { Icon } from "@/components/general/huge-icon";
 import { AddSquareIcon } from "@hugeicons/core-free-icons";
 import { useRouter } from "next/navigation";
 
+// API
+import { useGetAllStaffQuery } from "@/services/stakeholders/stakeholders";
+
 export default function AllStaffPage() {
   const router = useRouter();
+
+  const { data: staffDataResponse, isLoading } = useGetAllStaffQuery();
+  const staffData = staffDataResponse?.data || [];
+
+  // Calculate active staff count
+  const activeStaffCount = staffData.filter(
+    (staff) => staff.status?.toLowerCase() === "active" && !staff.is_deleted,
+  ).length;
 
   return (
     <div className="space-y-6">
@@ -30,7 +41,7 @@ export default function AllStaffPage() {
             <div className="h-9 w-1 bg-orange-500 rounded"></div>
             <div>
               <h3 className="text-xl font-semibold text-gray-800">
-                Active Staff Count: 145 Active Employees
+                Active Staff Count: {activeStaffCount} Active Employees
               </h3>
             </div>
           </div>
@@ -53,7 +64,7 @@ export default function AllStaffPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <StaffTable />
+          <StaffTable staffData={staffData} isLoading={isLoading} />
         </CardContent>
       </Card>
     </div>

@@ -5,11 +5,15 @@ import type {
   UpdateStakeholdersRequest,
   AssignDutyStakeholder,
   StakeholdersListResponse,
+  AllStudentStakeholdersResponse,
   StakeholderListResponseWithMetrics,
+  StudentStakeholderListResponseWithMetrics,
 } from "./stakeholder-types";
 import {
   calculateStakeholderMetrics,
+  calculateStudentStakeholderMetrics,
   getStakeholderStageLabel,
+  getAllStudents,
 } from "./stakeholders-reducer";
 import type { ApiResponse, ApiDeleteResponse } from "../shared-types";
 
@@ -23,6 +27,60 @@ export const stakeholdersApi = baseApi.injectEndpoints({
       providesTags: ["Stakeholder"],
     }),
 
+    getAllStaff: build.query<AllStudentStakeholdersResponse, void>({
+      query: () => ({ url: BASE }),
+      transformResponse: (
+        response: StakeholdersListResponse,
+      ): AllStudentStakeholdersResponse => {
+        const staff = response.data.filter(
+          (s) => s.type === "staff" || s.type === "teacher",
+        );
+        return {
+          ...response,
+          data: staff.map((stakeholder) => ({
+            ...stakeholder,
+          })),
+        };
+      },
+      providesTags: ["Stakeholder"],
+    }),
+
+    getAllStudents: build.query<AllStudentStakeholdersResponse, void>({
+      query: () => ({ url: BASE }),
+      transformResponse: (
+        response: StakeholdersListResponse,
+      ): AllStudentStakeholdersResponse => {
+        const students = getAllStudents(response.data);
+        return {
+          ...response,
+          data: students.map((stakeholder) => ({
+            ...stakeholder,
+          })),
+        };
+      },
+      providesTags: ["Stakeholder"],
+    }),
+
+    getStudentStakeholderMetrics: build.query<
+      StudentStakeholderListResponseWithMetrics,
+      void
+    >({
+      query: () => ({ url: BASE }),
+      transformResponse: (
+        response: StakeholdersListResponse,
+      ): StudentStakeholderListResponseWithMetrics => {
+        const students = response.data.filter((s) => s.type === "student");
+        return {
+          ...response,
+          data: students.map((stakeholder) => ({
+            ...stakeholder,
+          })),
+          metrics: calculateStudentStakeholderMetrics(response.data),
+        };
+      },
+      providesTags: ["Stakeholder"],
+    }),
+
     getStakeholderMetrics: build.query<
       StakeholderListResponseWithMetrics,
       void
@@ -31,10 +89,11 @@ export const stakeholdersApi = baseApi.injectEndpoints({
       transformResponse: (
         response: StakeholdersListResponse,
       ): StakeholderListResponseWithMetrics => {
+        const students = response.data.filter((s) => s.type === "student");
         return {
           ...response,
-          metrics: calculateStakeholderMetrics(response.data),
-          data: response.data.map((stakeholder) => ({
+          metrics: calculateStakeholderMetrics(students),
+          data: students.map((stakeholder) => ({
             ...stakeholder,
             stage_text: getStakeholderStageLabel(stakeholder.stage),
           })),
@@ -45,6 +104,25 @@ export const stakeholdersApi = baseApi.injectEndpoints({
 
     getStakeholderById: build.query<ApiResponse<Stakeholders>, string>({
       query: (id) => ({ url: `${BASE}/${id}` }),
+      providesTags: (_, __, id) => [{ type: "Stakeholder", id }],
+    }),
+
+    getStudentById: build.query<ApiResponse<Stakeholders>, string>({
+      query: (id) => ({ url: `${BASE}/${id}` }),
+      transformResponse: (
+        response: ApiResponse<Stakeholders>,
+      ): ApiResponse<Stakeholders> => {
+        if (response.data.type !== "student") {
+          throw new Error("Stakeholder is not a student");
+        }
+        return {
+          ...response,
+          data: {
+            ...response.data,
+            stage_text: getStakeholderStageLabel(response.data.stage),
+          },
+        };
+      },
       providesTags: (_, __, id) => [{ type: "Stakeholder", id }],
     }),
 
@@ -88,8 +166,12 @@ export const stakeholdersApi = baseApi.injectEndpoints({
 
 export const {
   useGetStakeholdersQuery,
+  useGetAllStaffQuery,
+  useGetAllStudentsQuery,
+  useGetStudentStakeholderMetricsQuery,
   useGetStakeholderMetricsQuery,
   useGetStakeholderByIdQuery,
+  useGetStudentByIdQuery,
   useCreateStakeholderMutation,
   useAssignDutyMutation,
   useUpdateStakeholderMutation,

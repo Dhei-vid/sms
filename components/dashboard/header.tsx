@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Search, Menu, ChevronLeft, ChevronRight, LogOut } from "lucide-react";
+import { Search, Menu, LogOut } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -81,17 +81,23 @@ export function Header({
         </div>
 
         {/* Title */}
-        <div className="bg-background h-9 lg:h-13 rounded-md flex items-center gap-2 px-3 lg:px-4 min-w-0 flex-1 lg:flex-none lg:col-span-1">
+        <div className="bg-background h-9 lg:h-13 rounded-md flex items-center gap-2 px-2 min-w-0 flex-1 lg:flex-none lg:col-span-1">
           {metaData?.icon && (
             <Icon
               icon={metaData.icon}
-              size={18}
+              size={15}
               className="text-main-blue shrink-0"
             />
           )}
-          <h1 className="text-sm lg:text-base font-semibold text-gray-800 line-clamp-1 truncate min-w-0">
-            {metaData?.label || "Dashboard"}
-          </h1>
+          <div className="flex flex-row flex-wrap gap-1 items-center">
+            <h1 className="text-sm font-semibold text-gray-800 line-clamp-1 truncate">
+              {metaData?.label || "Dashboard"}
+            </h1>
+            <span>/</span>
+            <Button onClick={() => router.back()} variant={"link"} className="p-0 text-sm font-light">
+              Back
+            </Button>
+          </div>
         </div>
 
         {/* Search Bar */}

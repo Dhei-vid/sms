@@ -2,11 +2,10 @@
 
 import { useState } from "react";
 import { InputField } from "@/components/ui/input-field";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "lucide-react";
+import { Label } from "@/components/ui/label";
 import { CheckboxField } from "@/components/ui/checkbox-field";
+import DatePickerIcon from "@/components/ui/date-picker";
 
 export function PersonalInformationForm({
   onNext,
@@ -15,9 +14,10 @@ export function PersonalInformationForm({
   onNext: () => void;
   onCancel: () => void;
 }) {
+  const [openDateOfBirth, setOpenDateOfBirth] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
-    dateOfBirth: "",
+    dateOfBirth: undefined as Date | undefined,
     gender: { male: false, female: false },
     residentialAddress: "",
     phoneNumber: "",
@@ -52,22 +52,20 @@ export function PersonalInformationForm({
           }
         />
 
-        <div className="space-y-2">
-          <Label htmlFor="dateOfBirth">Date of Birth</Label>
-          <div className="relative">
-            <Input
-              id="dateOfBirth"
-              type="text"
-              placeholder="mm/dd/yy"
-              value={formData.dateOfBirth}
-              onChange={(e) =>
-                setFormData({ ...formData, dateOfBirth: e.target.value })
-              }
-              className="pr-10"
-            />
-            <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-          </div>
-        </div>
+        <DatePickerIcon
+          label="Date of Birth"
+          date={formData.dateOfBirth}
+          setDate={(date) =>
+            setFormData({
+              ...formData,
+              dateOfBirth:
+                typeof date === "function" ? date(formData.dateOfBirth) : date,
+            })
+          }
+          open={openDateOfBirth}
+          setOpen={setOpenDateOfBirth}
+          placeholder="Select date of birth"
+        />
 
         <div className="space-y-2">
           <Label>Gender</Label>

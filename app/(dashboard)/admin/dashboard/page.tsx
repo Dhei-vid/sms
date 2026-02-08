@@ -8,11 +8,14 @@ import { TodaysEventCard } from "@/components/dashboard-pages/admin/dashboard/to
 import { NoticeBoardCard } from "@/components/dashboard-pages/admin/dashboard/notice-board-card";
 import { RecentActivitiesCard } from "@/components/dashboard-pages/admin/dashboard/recent-activities-card";
 import { TransactionsCard } from "@/components/dashboard-pages/admin/dashboard/transactions-card";
-import { useGetStudentsQuery } from "@/services/shared";
-import { useGetUsersQuery } from "@/services/users/users";
 import { useGetNotificationsQuery } from "@/services/shared";
 import { format, isToday } from "date-fns";
 import { useEffect } from "react";
+
+import {
+  useGetAllStudentsQuery,
+  useGetAllStaffQuery,
+} from "@/services/stakeholders/stakeholders";
 
 export default function AdminDashboard() {
   const user = useAppSelector(selectUser);
@@ -22,12 +25,12 @@ export default function AdminDashboard() {
     data: studentsData,
     error: studentsError,
     isLoading: studentsLoading,
-  } = useGetStudentsQuery({ limit: 1 });
+  } = useGetAllStudentsQuery();
   const {
     data: staffData,
     error: staffError,
     isLoading: staffLoading,
-  } = useGetUsersQuery({ role: "teacher", limit: 1 });
+  } = useGetAllStaffQuery();
   const { data: notificationsData, error: notificationsError } =
     useGetNotificationsQuery({ limit: 5 });
 

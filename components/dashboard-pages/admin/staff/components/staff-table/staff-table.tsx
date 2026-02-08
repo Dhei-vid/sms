@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   DataTable,
@@ -18,6 +18,8 @@ import {
   Csv02Icon,
   PrinterIcon,
 } from "@hugeicons/core-free-icons";
+import type { Stakeholders } from "@/services/stakeholders/stakeholder-types";
+import { format } from "date-fns";
 
 interface Staff {
   id: string;
@@ -32,12 +34,85 @@ interface Staff {
   leaveDaysLeft: number;
 }
 
-export function StaffTable() {
+interface StaffTableProps {
+  staffData?: Stakeholders[];
+  isLoading?: boolean;
+}
+
+export function StaffTable({
+  staffData = [],
+  isLoading = false,
+}: StaffTableProps) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
 
-  const staff: Staff[] = [
+  // Map API data to Staff format
+  const staff: Staff[] = useMemo(() => {
+    if (!staffData || staffData.length === 0) return [];
+
+    return staffData.map((stakeholder) => {
+      const fullName = stakeholder.user
+        ? `${stakeholder.user.first_name || ""} ${stakeholder.user.middle_name || ""} ${stakeholder.user.last_name || ""}`.trim()
+        : "Unknown";
+
+      // Format contract expiry date
+      let contractExpiry: string | undefined;
+      if (stakeholder.contract_end_date) {
+        try {
+          const date = new Date(stakeholder.contract_end_date);
+          contractExpiry = format(date, "MM/yyyy");
+        } catch {
+          contractExpiry = stakeholder.contract_end_date;
+        }
+      }
+
+      // Determine contract status
+      const contractStatus = stakeholder.contract_end_date
+        ? new Date(stakeholder.contract_end_date) > new Date()
+          ? "Active"
+          : "Expired"
+        : "Active";
+
+      // Map status
+      const statusMap: Record<string, "active" | "on-leave" | "inactive"> = {
+        active: "active",
+        inactive: "inactive",
+        "on-leave": "on-leave",
+      };
+      const status = statusMap[stakeholder.status?.toLowerCase()] || "active";
+
+      // Calculate leave days (if available)
+      const leaveDaysLeft = stakeholder.annual_leave_entitlement
+        ? parseInt(stakeholder.annual_leave_entitlement) || 0
+        : 0;
+
+      // Get department from class_assigned or assigned_classes
+      const department =
+        stakeholder.class_assigned ||
+        (stakeholder.assigned_classes && stakeholder.assigned_classes.length > 0
+          ? stakeholder.assigned_classes.join(", ")
+          : "N/A");
+
+      return {
+        id: stakeholder.id,
+        name: fullName,
+        staffId:
+          stakeholder.admission_number ||
+          stakeholder.id.slice(0, 8).toUpperCase(),
+        role: stakeholder.position || "Staff",
+        department: department,
+        contractStatus: contractStatus,
+        contractExpiry: contractExpiry,
+        status: status,
+        statusLabel: stakeholder.status || "Active",
+        leaveDaysLeft: leaveDaysLeft,
+      };
+    });
+  }, [staffData]);
+
+  // Fallback to hardcoded data if no API data (for development)
+  const fallbackStaff: Staff[] = [
     {
       id: "1",
       name: "Mr. Chinedu Okafor",
@@ -136,13 +211,16 @@ export function StaffTable() {
     },
   ];
 
+  // Use API data if available, otherwise use fallback
+  const displayStaff = staff.length > 0 ? staff : fallbackStaff;
+
   const toggleRowSelection = (id: string) => {
     setSelectedRows((prev) =>
       prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id],
     );
   };
 
-  const filteredStaff = staff.filter(
+  const filteredStaff = displayStaff.filter(
     (s) =>
       s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       s.staffId.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -266,13 +344,25 @@ export function StaffTable() {
 
       {/* Table */}
       <div className="border rounded-lg overflow-hidden">
-        <DataTable
-          columns={columns}
-          data={filteredStaff}
-          actions={actions}
-          headerClassName="bg-main-blue/5"
-          onRowClick={(row) => router.push(`/admin/staff-management/${row.id}`)}
-        />
+        {isLoading ? (
+          <div className="p-8 text-center text-gray-500">
+            Loading staff data...
+          </div>
+        ) : filteredStaff.length === 0 ? (
+          <div className="p-8 text-center text-gray-500">
+            No staff members found.
+          </div>
+        ) : (
+          <DataTable
+            columns={columns}
+            data={filteredStaff}
+            actions={actions}
+            headerClassName="bg-main-blue/5"
+            onRowClick={(row) =>
+              router.push(`/admin/staff-management/${row.id}`)
+            }
+          />
+        )}
       </div>
 
       {/* Load More */}

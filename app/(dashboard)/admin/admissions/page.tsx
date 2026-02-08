@@ -24,6 +24,8 @@ export default function AdmissionsPage() {
   const { data: stakeholderMetrics, isLoading } =
     useGetStakeholderMetricsQuery();
 
+  console.log("Stakeholder Metrics Data:", stakeholderMetrics);
+
   const metrics = useMemo(
     () => ({
       inquiries: stakeholderMetrics?.metrics?.inquiries ?? 0,
@@ -60,9 +62,7 @@ export default function AdmissionsPage() {
 
   const applications = useMemo(() => {
     if (!stakeholderMetrics?.data) return [];
-    return stakeholderMetrics.data
-      .filter((s) => s.type === "student")
-      .map(mapStakeholderToApplication);
+    return stakeholderMetrics.data.map(mapStakeholderToApplication);
   }, [stakeholderMetrics]);
 
   interface QuickAction {

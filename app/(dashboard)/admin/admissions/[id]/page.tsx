@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { format } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
 import { ApplicantHeader } from "@/components/dashboard-pages/admin/admissions/components/applicant-header";
 import { ApplicantTabs } from "@/components/dashboard-pages/admin/admissions/components/applicant-tabs";
@@ -9,7 +10,8 @@ import { PersonalDetailsView } from "@/components/dashboard-pages/admin/admissio
 import { AcademicHistoryView } from "@/components/dashboard-pages/admin/admissions/views/academic-history-view";
 import { DocumentsView } from "@/components/dashboard-pages/admin/admissions/views/documents-view";
 import { ReviewersNotesView } from "@/components/dashboard-pages/admin/admissions/views/reviewers-notes-view";
-import { initialApplications } from "@/components/dashboard-pages/admin/admissions/data/applications-data";
+import { useGetStakeholderByIdQuery } from "@/services/stakeholders/stakeholders";
+import { getStakeholderStageLabel } from "@/services/stakeholders/stakeholders-reducer";
 
 type TabId = "personal" | "academic" | "documents" | "notes";
 
@@ -20,19 +22,22 @@ export default function ApplicantDetailPage({
 }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabId>("personal");
-  const [applicantId, setApplicantId] = useState<string | null>(null);
+  const [stakeholderId, setStakeholderId] = useState<string | null>(null);
   const [hasChecked, setHasChecked] = useState(false);
 
-  // Handle params which might be a Promise in Next.js App Router
   useEffect(() => {
     const resolveParams = async () => {
       try {
-        // Handle both sync and async params
+        console.log("Raw params:", params);
         const resolvedParams =
           params instanceof Promise ? await params : params;
+        console.log("Resolved params:", resolvedParams);
         const id = resolvedParams?.id;
+        console.log("Extracted ID:", id);
         if (id) {
-          setApplicantId(id);
+          setStakeholderId(id);
+        } else {
+          console.warn("No ID found in params:", resolvedParams);
         }
         setHasChecked(true);
       } catch (error) {
@@ -43,63 +48,116 @@ export default function ApplicantDetailPage({
     resolveParams();
   }, [params]);
 
-  // Find applicant data based on params.id
-  const applicant = useMemo(() => {
-    if (!applicantId) return null;
+  const {
+    data: stakeholderData,
+    isLoading,
+    isError,
+  } = useGetStakeholderByIdQuery(stakeholderId ?? "", {
+    skip: !stakeholderId,
+  });
 
-    const found = initialApplications.find((app) => app.id === applicantId);
-    if (!found) {
-      return null;
-    }
-    return {
-      name: found.name,
-      status: found.status,
-      statusLabel: found.statusLabel,
-      applicationId: found.id,
-      classApplyingFor: found.classApplyingFor,
-      dateSubmitted: found.dateSubmitted,
-    };
-  }, [applicantId]);
+  const stakeholder = stakeholderData?.data;
 
-  // Redirect if applicant not found (only after we've checked)
-  useEffect(() => {
-    if (hasChecked && applicantId && !applicant) {
-      router.push("/admin/admissions");
-    }
-  }, [applicant, applicantId, hasChecked, router]);
+  const getStatusFromStage = (
+    stage: number,
+  ): "new" | "pending" | "accepted" | "rejected" | "enrolled" => {
+    if (stage === 1) return "new";
+    if (stage >= 2 && stage <= 4) return "pending";
+    if (stage === 5) return "accepted";
+    if (stage === 6) return "enrolled";
+    return "new";
+  };
 
-  if (!hasChecked || !applicantId) {
-    return <div>Loading...</div>;
+  if (!hasChecked || !stakeholderId) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-gray-500">Loading...</div>
+      </div>
+    );
   }
 
-  if (!applicant) {
-    return null; // Will redirect
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-gray-500">Loading stakeholder data...</div>
+      </div>
+    );
   }
+
+  if (isError) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="text-red-600 mb-2">Error loading stakeholder</div>
+          <div className="text-gray-500 text-sm">
+            Stakeholder ID: {stakeholderId}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!stakeholder) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="text-gray-600 mb-2">Stakeholder not found</div>
+          <div className="text-gray-500 text-sm">ID: {stakeholderId}</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (stakeholder.type !== "student") {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="text-gray-600 mb-2">
+            This is not a student application
+          </div>
+          <div className="text-gray-500 text-sm">Type: {stakeholder.type}</div>
+        </div>
+      </div>
+    );
+  }
+
+  const date = stakeholder.created_at
+    ? new Date(stakeholder.created_at)
+    : new Date();
+  const applicantHeaderData = {
+    name: `${stakeholder.user.first_name} ${stakeholder.user.last_name}`,
+    status: getStatusFromStage(stakeholder.stage),
+    statusLabel:
+      stakeholder.stage_text || getStakeholderStageLabel(stakeholder.stage),
+    applicationId: stakeholder.id,
+    classApplyingFor: stakeholder.class_assigned || "—",
+    dateSubmitted: format(date, "MMM. d, yyyy"),
+  };
 
   const renderTabContent = () => {
     switch (activeTab) {
       case "personal":
-        return <PersonalDetailsView />;
+        return <PersonalDetailsView stakeholder={stakeholder} />;
       case "academic":
-        return <AcademicHistoryView />;
+        return <AcademicHistoryView stakeholder={stakeholder} />;
       case "documents":
-        return <DocumentsView />;
+        return <DocumentsView stakeholder={stakeholder} />;
       case "notes":
-        return <ReviewersNotesView />;
+        return <ReviewersNotesView stakeholder={stakeholder} />;
       default:
-        return <PersonalDetailsView />;
+        return <PersonalDetailsView stakeholder={stakeholder} />;
     }
   };
 
   return (
     <div className="space-y-6">
       <ApplicantHeader
-        name={applicant.name}
-        status={applicant.status}
-        statusLabel={applicant.statusLabel}
-        applicationId={applicant.applicationId}
-        classApplyingFor={applicant.classApplyingFor}
-        dateSubmitted={applicant.dateSubmitted}
+        name={applicantHeaderData.name}
+        status={applicantHeaderData.status}
+        statusLabel={applicantHeaderData.statusLabel}
+        applicationId={applicantHeaderData.applicationId}
+        classApplyingFor={applicantHeaderData.classApplyingFor}
+        dateSubmitted={applicantHeaderData.dateSubmitted}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">

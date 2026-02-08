@@ -1,4 +1,8 @@
-import { StakeholderMetrics, Stakeholders } from "./stakeholder-types";
+import {
+  StakeholderMetrics,
+  Stakeholders,
+  StudentStakeholderMetrics,
+} from "./stakeholder-types";
 
 /**
  * Maps stage numbers to readable labels (Equivalent to your Python helper)
@@ -53,4 +57,27 @@ export const calculateStakeholderMetrics = (
     }
     return acc;
   }, initialMetrics);
+};
+
+export const calculateStudentStakeholderMetrics = (
+  data: Stakeholders[],
+): StudentStakeholderMetrics => {
+  const students = data.filter((s) => s.type === "student");
+  const enrolled = students.filter((s) => s.stage === 6).length;
+  const totalMale = students.filter((s) => s.user.gender === "male").length;
+  const totalFemale = students.filter((s) => s.user.gender === "female").length;
+
+  return {
+    total: students.length,
+    enrolled,
+    totalStudents: students.length,
+    genderRatio: {
+      totalMale,
+      totalFemale,
+    },
+  };
+};
+
+export const getAllStudents = (data: Stakeholders[]): Stakeholders[] => {
+  return data.filter((s) => s.type === "student");
 };

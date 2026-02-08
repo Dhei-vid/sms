@@ -40,9 +40,12 @@ export default function AddApplicantPage() {
   ) => setFormState((s) => ({ ...s, [key]: value }));
 
   const handleSubmit = async () => {
-    const schoolID = generateSchoolID();
-    const schoolId = user?.school_id ?? schoolID;
-    if (!schoolID) {
+    // Use schoolId from form state if provided, otherwise fall back to user's school_id or generate one
+    const schoolIdFromForm = formState.details.schoolId;
+    const fallbackSchoolId = user?.school_id ?? generateSchoolID();
+    const schoolId = schoolIdFromForm || fallbackSchoolId;
+
+    if (!schoolId) {
       console.error("School ID is required");
       return;
     }

@@ -9,6 +9,10 @@ import type {
 
 export type NotificationsListResponse = ApiListResponse<Notifications>;
 
+type NotificationsType = "info" | string;
+type NotificationsStatus = "inactive" | "active";
+type TargetAudience = "general" | "private" | string;
+
 export interface Notifications {
   id: string;
   creator_id?: null | string;
@@ -16,17 +20,17 @@ export interface Notifications {
   school_id?: null | string;
   title: string;
   content: string;
-  type: "success" | "failed" | string;
+  type: NotificationsType;
   users: string[];
-  read_users: [];
+  read_users: string[];
   user_details: User[];
-  classes?: null;
-  target_audience: "general" | string;
-  specifics?: null;
-  status?: null;
+  classes?: string[];
+  target_audience: TargetAudience;
+  specifics?: Roles[];
+  status?: NotificationsStatus;
   is_deleted: boolean;
   creator?: null | User;
-  updated_by: null;
+  updated_by: null | User;
   school?: null | School;
   created_at?: string | null;
   updated_at?: string | null;
@@ -37,9 +41,8 @@ export interface CreateNotifications {
   school_id: string;
   title: string;
   content: string;
-  type: "info" | string;
-  status: "active" | string;
-  // "users": ["Mathematics", "Physics", "Further Mathematics"],
+  type: NotificationsType;
+  status: NotificationsStatus;
   classes: string[];
 }
 
@@ -47,11 +50,11 @@ export interface UpdateNotifications {
   school_id: string;
   title: string;
   content: string;
-  type: "info" | string;
+  type: NotificationsType;
   read_users: string[];
   users: string[];
   classes: string[];
-  target_audience: "private" | string;
+  target_audience: TargetAudience;
   specifics: Roles[];
-  status: "inactive";
+  status: NotificationsStatus;
 }

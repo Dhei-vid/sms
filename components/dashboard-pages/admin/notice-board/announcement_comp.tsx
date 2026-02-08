@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Icon } from "@/components/general/huge-icon";
@@ -8,80 +9,139 @@ import {
   ComputerTerminal01Icon,
   WorkoutRunIcon,
   Agreement02Icon,
+  InformationCircleIcon,
 } from "@hugeicons/core-free-icons";
+import { useGetNotificationsQuery } from "@/services/shared";
+import { format } from "date-fns";
+import { useAppSelector } from "@/store/hooks";
+import { selectUser } from "@/store/slices/authSlice";
 
-interface Announcement {
-  id: number;
-  title: string;
-  content: string;
-  postedBy: string;
-  viewed: string;
-  posted: string;
-  icon: any;
-  isUnread?: boolean;
-}
-
-const announcements: Announcement[] = [
-  {
-    id: 1,
-    title: "Election Manifestos",
-    content:
-      "Today is the D-Day for every of our aspirants. Time is 12:00 PM - 1:30 PM",
-    postedBy: "Admin Academics",
-    viewed: "2,934",
-    posted: "October 22, 10:32 AM",
-    icon: LibrariesIcon,
-    isUnread: true,
-  },
-  {
-    id: 2,
-    title: "Mid-Term Exams Begin",
-    content:
-      "Schedule for all grades is now finalized and posted in the Academic Management module.",
-    postedBy: "Principal",
-    viewed: "2,934",
-    posted: "October 22, 9:32 AM",
-    icon: ComputerTerminal01Icon,
-    isUnread: true,
-  },
-  {
-    id: 3,
-    title: "Annual Inter-House Sports Day",
-    content:
-      "Next Friday, 9:00 AM - 3:00 PM. All staff attendance is mandatory.",
-    postedBy: "Principal",
-    viewed: "2,934",
-    posted: "October 22, 8:30 AM",
-    icon: WorkoutRunIcon,
-    isUnread: true,
-  },
-  {
-    id: 4,
-    title: "PTA General Meeting: Topic",
-    content:
-      "New Digital Learning Initiatives. Wednesday at 3:00 PM in the Assembly Hall.",
-    postedBy: "Principal",
-    viewed: "2,934",
-    posted: "October 17, 9:32 AM",
-    icon: Agreement02Icon,
-  },
-  {
-    id: 5,
-    title: "Election Manifestos",
-    content:
-      "We get the chance to hear from the aspirants of each position in the Student Union Government. Date of Manifesto 22 - Oct. - 2025",
-    postedBy: "Admin Academics",
-    viewed: "2,934",
-    posted: "October 17, 9:32 AM",
-    icon: LibrariesIcon,
-  },
-];
+// Icon mapping based on notification type
+const getIconForType = (type: string) => {
+  const iconMap: Record<string, any> = {
+    info: InformationCircleIcon,
+    notice: LibrariesIcon,
+    warning: ComputerTerminal01Icon,
+    success: Agreement02Icon,
+    error: WorkoutRunIcon,
+  };
+  return iconMap[type] || InformationCircleIcon;
+};
 
 const NoticeGeneralAnnouncementBoard = () => {
+  const user = useAppSelector(selectUser);
+
+  // Fetch general announcements - filter by target_audience=general
+  // Backend QueryFilter expects: target_audience[eq]=general
+  const {
+    data: notificationsData,
+    isLoading,
+    isError,
+  } = useGetNotificationsQuery({
+    // Pass filter parameter in the format backend expects
+    "target_audience[eq]": "general",
+  } as any);
+
+  // Filter for general announcements and transform data
+  const generalAnnouncements = useMemo(() => {
+    if (!notificationsData?.data) return [];
+
+    // Filter and map notifications
+    const filtered = notificationsData.data
+      .filter((notification) => {
+        // Filter for general announcements and non-deleted
+        return (
+          notification.target_audience === "general" &&
+          !notification.is_deleted &&
+          notification.status === "active"
+        );
+      })
+      .map((notification) => {
+        // Format posted date
+        const postedDate = notification.created_at
+          ? format(new Date(notification.created_at), "MMMM d, h:mm a")
+          : "Unknown date";
+
+        // Get creator name
+        const postedBy =
+          notification.creator?.first_name && notification.creator?.last_name
+            ? `${notification.creator.first_name} ${notification.creator.last_name}`
+            : notification.creator?.username || "Admin";
+
+        // Calculate viewed count (read_users length)
+        const viewedCount = notification.read_users?.length || 0;
+
+        // Check if current user has read this notification
+        const isUnread = user?.id
+          ? !notification.read_users?.includes(user.id)
+          : true;
+
+        return {
+          id: notification.id,
+          title: notification.title,
+          content: notification.content,
+          postedBy: postedBy,
+          viewed: viewedCount.toLocaleString(),
+          posted: postedDate,
+          icon: getIconForType(notification.type || "info"),
+          isUnread: isUnread,
+          createdAt: notification.created_at, // Keep for sorting
+        };
+      })
+      .sort((a, b) => {
+        // Sort by date (newest first)
+        if (!a.createdAt || !b.createdAt) return 0;
+        return (
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+      });
+
+    // Remove createdAt from final output
+    return filtered.map(({ createdAt, ...rest }) => rest);
+  }, [notificationsData, user?.id]);
+
+  if (isLoading) {
+    return (
+      <Card className="bg-background py-0 overflow-hidden">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-center py-12">
+            <p className="text-gray-500">Loading announcements...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Card className="bg-background py-0 overflow-hidden">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-center py-12">
+            <p className="text-red-600">
+              Error loading announcements. Please try again.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (generalAnnouncements.length === 0) {
+    return (
+      <Card className="bg-background py-0 overflow-hidden">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-center py-12">
+            <p className="text-gray-500">No general announcements found.</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="bg-background py-0 overflow-hidden">
       <CardContent className="p-0">
-        {announcements.map((announcement, index) => (
+        {generalAnnouncements.map((announcement, index) => (
           <div key={announcement.id} className="relative cursor-pointer">
             {index > 0 && <Separator className="my-0" />}
             <div className="p-6 hover:bg-main-blue/5 transition-colors">

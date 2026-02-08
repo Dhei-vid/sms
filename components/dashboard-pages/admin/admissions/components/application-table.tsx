@@ -55,7 +55,9 @@ export function ApplicationTable({
         false),
   );
 
-  const getStatusFromStage = (stage: number): string => {
+  const getStatusFromStage = (
+    stage: number,
+  ): "new" | "pending" | "accepted" | "enrolled" => {
     if (stage === 1) return "new";
     if (stage >= 2 && stage <= 4) return "pending";
     if (stage === 5) return "accepted";
@@ -106,7 +108,8 @@ export function ApplicationTable({
         items: [
           {
             label: "View details",
-            onClick: (row) => router.push(`/admin/admissions/${row.id}`),
+            onClick: (row) =>
+              router.push(`/admin/admissions/${row.stakeholder_id}`),
             icon: <Icon icon={ViewIcon} size={16} />,
           },
           {

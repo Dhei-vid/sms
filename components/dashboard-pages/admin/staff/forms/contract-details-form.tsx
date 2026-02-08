@@ -19,6 +19,7 @@ export function ContractDetailsForm({
   const [openEndDate, setOpenEndDate] = useState(false);
   const [formData, setFormData] = useState({
     staffId: "bello.T178031",
+    staffType: "", // "teacher" or "staff"
     jobTitle: "",
     department: "",
     employmentType: "",
@@ -61,6 +62,19 @@ export function ContractDetailsForm({
           }
           readOnly
         />
+
+        <SelectField
+          label="Staff Type"
+          placeholder="Select staff type"
+          value={formData.staffType}
+          onValueChange={(value) =>
+            setFormData({ ...formData, staffType: value })
+          }
+          required
+        >
+          <SelectItem value="teacher">Teacher</SelectItem>
+          <SelectItem value="staff">Staff</SelectItem>
+        </SelectField>
 
         <InputField
           id="jobTitle"

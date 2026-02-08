@@ -9,6 +9,7 @@ export interface ApplicantDetailsState {
   parentName: string;
   phoneNumber: string;
   email: string;
+  schoolId: string;
 }
 
 export type DocumentUploadState = Record<string, File | null>;
@@ -35,6 +36,7 @@ export const getInitialAdmissionFormState = (): AdmissionFormState => ({
     parentName: "",
     phoneNumber: "",
     email: "",
+    schoolId: "",
   },
   documents: {},
   status: {
@@ -96,8 +98,10 @@ function toScalars(state: AdmissionFormState, schoolId: string | null) {
   const username =
     details.email.trim() ||
     details.firstName.replace(/\s+/g, ".").toLowerCase();
+  // Use schoolId from form details if provided, otherwise fall back to passed schoolId
+  const finalSchoolId = details.schoolId || schoolId || "";
   return {
-    school_id: schoolId ?? "",
+    school_id: finalSchoolId,
     username,
     first_name: details.firstName || "—",
     last_name: details.lastName || "—",
@@ -143,6 +147,8 @@ export function buildAdmissionFormData(
   fd.append("initial_status", s.initial_status);
   fd.append("admin_notes", s.admin_notes);
   if (s.date_joined) fd.append("date_joined", s.date_joined);
+  // Don't send permissions field - backend will default to empty list []
+  // Sending "[]" as a string can cause parsing issues with FormData
 
   let docIndex = 0;
   for (const id of DOCUMENT_IDS) {

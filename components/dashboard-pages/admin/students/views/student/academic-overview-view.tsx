@@ -8,23 +8,60 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import type { Stakeholders } from "@/services/stakeholders/stakeholder-types";
 
-const academicOverviewRows = [
-  {
-    field: "Overall Academic Average",
-    content: "78%. Came in 6th position last term",
-  },
-  {
-    field: "Academic Track Status",
-    content: "Good standing",
-  },
-  {
-    field: "Next Scheduled Exam Date.",
-    content: "November 14th, 2025",
-  },
-];
+interface AcademicOverviewViewProps {
+  stakeholder: Stakeholders;
+}
 
-export function AcademicOverviewView() {
+export function AcademicOverviewView({
+  stakeholder,
+}: AcademicOverviewViewProps) {
+  const commonExamScore = stakeholder.common_exam_score
+    ? typeof stakeholder.common_exam_score === "object"
+      ? JSON.stringify(stakeholder.common_exam_score)
+      : String(stakeholder.common_exam_score)
+    : "—";
+  const performanceHighlights = stakeholder.performance_highlights
+    ? typeof stakeholder.performance_highlights === "object"
+      ? JSON.stringify(stakeholder.performance_highlights)
+      : String(stakeholder.performance_highlights)
+    : "—";
+  const performance = stakeholder.performance
+    ? typeof stakeholder.performance === "object"
+      ? JSON.stringify(stakeholder.performance)
+      : String(stakeholder.performance)
+    : "—";
+
+  const academicOverviewRows = [
+    {
+      field: "Current Class",
+      content: stakeholder.class_assigned || "—",
+    },
+    {
+      field: "Grade",
+      content: stakeholder.grade || "—",
+    },
+    {
+      field: "Overall Academic Average",
+      content: performance !== "—" ? performance : "—",
+    },
+    {
+      field: "Common Entrance Score",
+      content: commonExamScore,
+    },
+    {
+      field: "Performance Highlights",
+      content: performanceHighlights,
+    },
+    {
+      field: "Last Grade Completed",
+      content: stakeholder.last_grade_completed
+        ? String(stakeholder.last_grade_completed)
+        : stakeholder.grade || "—",
+    },
+  ];
+
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold text-gray-800">Academic Overview</h2>

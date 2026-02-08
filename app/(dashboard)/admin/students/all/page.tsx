@@ -2,12 +2,15 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StudentTable } from "@/components/dashboard-pages/admin/students/components/student-table";
-import { useGetStudentsQuery } from "@/services/shared";
+
+// API
+import { useGetAllStudentsQuery } from "@/services/stakeholders/stakeholders";
 
 export default function AllStudentsPage() {
-  const { data: studentsData, isLoading } = useGetStudentsQuery();
+  const { data: studentsData, isLoading: isAllStudentsLoading } =
+    useGetAllStudentsQuery();
 
-  const totalStudents = studentsData?.total || 0;
+  const totalStudents = studentsData?.data?.length || 0;
 
   return (
     <div className="space-y-6">
@@ -28,7 +31,9 @@ export default function AllStudentsPage() {
           <div>
             <h3 className="text-2xl font-bold text-gray-800">
               Total Students:{" "}
-              {isLoading ? "Loading..." : totalStudents.toLocaleString()}
+              {isAllStudentsLoading
+                ? "Loading..."
+                : totalStudents.toLocaleString()}
             </h3>
           </div>
         </div>
@@ -42,12 +47,15 @@ export default function AllStudentsPage() {
           </div>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
+          {isAllStudentsLoading ? (
             <div className="p-8 text-center text-gray-500">
               Loading students...
             </div>
           ) : (
-            <StudentTable studentsData={studentsData} isLoading={isLoading} />
+            <StudentTable
+              studentsData={studentsData}
+              isLoading={isAllStudentsLoading}
+            />
           )}
         </CardContent>
       </Card>

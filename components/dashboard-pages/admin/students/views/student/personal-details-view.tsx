@@ -1,5 +1,6 @@
 "use client";
 
+import { format } from "date-fns";
 import {
   Table,
   TableBody,
@@ -8,39 +9,60 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import type { Stakeholders } from "@/services/stakeholders/stakeholder-types";
 
-const personalDetailsRows = [
-  {
-    field: "Date of Birth",
-    content: "January 12, 2013 (Age: 12)",
-  },
-  {
-    field: "Gender",
-    content: "Male",
-  },
-  {
-    field: "Residential Address",
-    content: "45 Unity Crescent, Garki, Abuja",
-  },
-  {
-    field: "Primary Contact (Mother)",
-    content: "Mrs. Fola Nwokodi",
-  },
-  {
-    field: "Primary Email",
-    content: "fola.nwokodi@example.com",
-  },
-  {
-    field: "Primary Phone Number",
-    content: "+234 803 123 4567",
-  },
-  {
-    field: "Emergency Contact",
-    content: "Mr. Kennedy Nwokodi (Father) - +234 809 765 4321",
-  },
-];
+interface PersonalDetailsViewProps {
+  stakeholder: Stakeholders;
+}
 
-export function PersonalDetailsView() {
+export function PersonalDetailsView({ stakeholder }: PersonalDetailsViewProps) {
+  const dob = stakeholder.user.date_of_birth
+    ? format(new Date(stakeholder.user.date_of_birth), "MMMM d, yyyy")
+    : "—";
+  const age = stakeholder.age ? `(Age: ${stakeholder.age})` : "";
+  const primaryContact = stakeholder.primary_contact
+    ? `${stakeholder.primary_contact.user.first_name} ${stakeholder.primary_contact.user.last_name}`
+    : stakeholder.parent_name || "—";
+  const primaryEmail =
+    stakeholder.primary_contact?.user.email || stakeholder.user.email || "—";
+  const primaryPhone =
+    stakeholder.primary_contact?.user.phone || stakeholder.user.phone || "—";
+  const emergencyContact = stakeholder.emergency_contact
+    ? `${stakeholder.emergency_contact.user.first_name} ${stakeholder.emergency_contact.user.last_name}${stakeholder.emergency_contact_and_phone ? ` - ${stakeholder.emergency_contact_and_phone}` : ""}`
+    : stakeholder.emergency_contact_and_phone || "—";
+  const address = stakeholder.user.address || "—";
+
+  const personalDetailsRows = [
+    {
+      field: "Date of Birth",
+      content: dob ? `${dob} ${age}`.trim() : "—",
+    },
+    {
+      field: "Gender",
+      content: stakeholder.user.gender || "—",
+    },
+    {
+      field: "Residential Address",
+      content: address,
+    },
+    {
+      field: "Primary Contact",
+      content: primaryContact,
+    },
+    {
+      field: "Primary Email",
+      content: primaryEmail,
+    },
+    {
+      field: "Primary Phone Number",
+      content: primaryPhone,
+    },
+    {
+      field: "Emergency Contact",
+      content: emergencyContact,
+    },
+  ];
+
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold text-gray-800">Personal Details</h2>

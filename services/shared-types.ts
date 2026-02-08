@@ -10,10 +10,11 @@ import { Pagination } from "@/common/types";
  */
 export type Roles =
   | "teacher"
+  | "staff"
   | "student"
   | "parent"
   | "admin"
-  | "canteen"
+  | "vendor"
   | string;
 
 /**

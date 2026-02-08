@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { Stakeholders } from "@/services/stakeholders/stakeholder-types";
 
 interface Document {
   type: string;
@@ -18,35 +19,25 @@ interface Document {
   status: "verified" | "pending" | "missing";
 }
 
-const documents: Document[] = [
-  {
-    type: "Birth Certificate",
-    fileName: "Chinedu_Nwokodi_Birth.pdf",
-    status: "verified",
-  },
-  {
-    type: "Primary 6 Final Report Card",
-    fileName: "Chinedu_Nwokodi_Report.pdf",
-    status: "verified",
-  },
-  {
-    type: "Common Entrance Result Slip",
-    fileName: "Chinedu_Nwokodi_Entrance.pdf",
-    status: "verified",
-  },
-  {
-    type: "Immunization Record",
-    fileName: "Chinedu_Nwokodi_Immune_Rec.pdf",
-    status: "verified",
-  },
-  {
-    type: "Passport Photo",
-    fileName: "Chinedu_Nwokodi_passport.jpg",
-    status: "verified",
-  },
-];
+interface DocumentsViewProps {
+  stakeholder: Stakeholders;
+}
 
-export function DocumentsView() {
+export function DocumentsView({ stakeholder }: DocumentsViewProps) {
+  const documents: Document[] = stakeholder.attachments?.length
+    ? stakeholder.attachments.map((att: any) => ({
+        type: att.type || att.file_type || att.name || "Document",
+        fileName:
+          att.file_name || att.file_url?.split("/").pop() || att.name || "file",
+        status:
+          att.status === "verified" || att.is_verified
+            ? "verified"
+            : att.status === "pending"
+              ? "pending"
+              : "missing",
+      }))
+    : [];
+
   const getStatusIcon = (status: Document["status"]) => {
     switch (status) {
       case "verified":
@@ -83,46 +74,58 @@ export function DocumentsView() {
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold text-gray-800">Documents</h2>
-      <div className="border rounded-lg overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-main-blue/5">
-              <TableHead>Document Type</TableHead>
-              <TableHead>File Name</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="w-[100px]">Action</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {documents.map((doc, index) => (
-              <TableRow key={index}>
-                <TableCell className="font-medium text-gray-700">
-                  {doc.type}
-                </TableCell>
-                <TableCell className="text-gray-600">{doc.fileName}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    {getStatusIcon(doc.status)}
-                    <span
-                      className={cn(
-                        "text-xs font-medium",
-                        getStatusColor(doc.status),
-                      )}
-                    >
-                      {getStatusText(doc.status)}
-                    </span>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Button variant="ghost" size="sm" className="h-8 text-xs">
-                    View
-                  </Button>
-                </TableCell>
+      {documents.length === 0 ? (
+        <div className="p-8 text-center text-gray-500 border rounded-lg">
+          No documents uploaded
+        </div>
+      ) : (
+        <div className="border rounded-lg overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-main-blue/5">
+                <TableHead>Document Type</TableHead>
+                <TableHead>File Name</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="w-[100px]">Action</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+            </TableHeader>
+            <TableBody>
+              {documents.map((doc, index) => (
+                <TableRow key={index}>
+                  <TableCell className="font-medium text-gray-700">
+                    {doc.type}
+                  </TableCell>
+                  <TableCell className="text-gray-600">
+                    {doc.fileName}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {getStatusIcon(doc.status)}
+                      <span
+                        className={cn(
+                          "text-xs font-medium",
+                          getStatusColor(doc.status),
+                        )}
+                      >
+                        {getStatusText(doc.status)}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Button variant="ghost" size="sm" className="h-8 text-xs">
+                      {doc.status === "missing"
+                        ? "Upload"
+                        : doc.status === "pending"
+                          ? "Review"
+                          : "View"}
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
     </div>
   );
 }

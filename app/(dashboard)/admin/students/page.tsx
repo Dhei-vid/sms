@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MetricCard } from "@/components/dashboard-pages/admin/admissions/components/metric-card";
@@ -19,9 +19,31 @@ import {
   Alert01Icon,
 } from "@hugeicons/core-free-icons";
 
+// API
+import { useGetStudentStakeholderMetricsQuery } from "@/services/stakeholders/stakeholders";
+import { useGetAllAttendanceQuery } from "@/services/attendance/attendance";
+
 export default function StudentsPage() {
   const router = useRouter();
   const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
+
+  const { data: studentStakeholderMetrics, isLoading } =
+    useGetStudentStakeholderMetricsQuery();
+  const { data: attendanceData } = useGetAllAttendanceQuery();
+
+  console.log("Attendance Data:", attendanceData);
+
+  const metrics = useMemo(
+    () => ({
+      total: studentStakeholderMetrics?.metrics?.totalStudents ?? 0,
+      enrolled: studentStakeholderMetrics?.metrics?.enrolled ?? 0,
+      genderRatio: studentStakeholderMetrics?.metrics?.genderRatio ?? {
+        totalMale: 0,
+        totalFemale: 0,
+      },
+    }),
+    [studentStakeholderMetrics],
+  );
 
   // Quick Actions Configuration
   interface QuickAction {
@@ -112,15 +134,15 @@ export default function StudentsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
           title="Total Enrollment"
-          value="1,900"
-          subtitle="+34% Compared to last term"
+          value={metrics?.enrolled ?? 0}
+          subtitle={`${metrics?.enrolled ?? 0} enrolled students`}
           trend="up"
           trendColor="text-main-blue"
         />
         <MetricCard
           title="New Enrollment"
-          value="205"
-          subtitle="+15% Growth compared to last session"
+          value={metrics?.enrolled ?? 0}
+          subtitle={`${metrics?.enrolled ?? 0} new enrolled students`}
           trend="up"
           trendColor="text-main-blue"
         />
@@ -132,8 +154,8 @@ export default function StudentsPage() {
         />
         <MetricCard
           title="Gender Ratio"
-          value="F: 563 / M: 687"
-          subtitle="55% Male / 45% Female"
+          value={`F: ${metrics?.genderRatio?.totalFemale ?? 0} / M: ${metrics?.genderRatio?.totalMale ?? 0}`}
+          subtitle={`${metrics?.genderRatio?.totalFemale ? Math.round((metrics?.genderRatio?.totalFemale / (metrics?.genderRatio?.totalFemale + metrics?.genderRatio?.totalMale || 1)) * 100) : 0}% Female / ${metrics?.genderRatio?.totalMale ? Math.round((metrics?.genderRatio?.totalMale / (metrics?.genderRatio?.totalFemale + metrics?.genderRatio?.totalMale || 1)) * 100) : 0}% Male`}
           trend="up"
         />
       </div>

@@ -17,8 +17,15 @@ import {
   TeamviewerIcon,
 } from "@hugeicons/core-free-icons";
 
+// API
+import { useGetAllStaffQuery } from "@/services/stakeholders/stakeholders";
+
 export default function StaffDashboardPage() {
   const router = useRouter();
+
+  const { data: staffData, isLoading } = useGetAllStaffQuery();
+
+  console.log("Stakeholders Data:", staffData);
 
   // Quick Actions Configuration
   interface QuickAction {

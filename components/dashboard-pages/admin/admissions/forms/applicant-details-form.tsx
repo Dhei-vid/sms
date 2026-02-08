@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { format } from "date-fns";
-import { InputField } from "@/components/ui/input-field";
+import { InputField, SelectField } from "@/components/ui/input-field";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import type { ApplicantDetailsState } from "./admission-form-state";
 import DatePickerIcon from "@/components/ui/date-picker";
+import { useGetSchoolsQuery } from "@/services/schools/schools";
 
 export function ApplicantDetailsForm({
   value,
@@ -30,6 +31,9 @@ export function ApplicantDetailsForm({
   const formData = value;
   const setFormData = onChange;
   const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const { data: schoolsData, isLoading: isLoadingSchools } =
+    useGetSchoolsQuery();
+  const schools = schoolsData?.data || [];
   const dateValue = formData.date ? new Date(formData.date) : undefined;
   const setDateValue = (d: React.SetStateAction<Date | undefined>) => {
     const next = typeof d === "function" ? d(dateValue) : d;
@@ -43,6 +47,25 @@ export function ApplicantDetailsForm({
       </h2>
 
       <div className="space-y-6">
+        {/* School Selector */}
+        <SelectField
+          label="School"
+          placeholder={
+            isLoadingSchools ? "Loading schools..." : "Select a school"
+          }
+          value={formData.schoolId}
+          onValueChange={(value) =>
+            setFormData({ ...formData, schoolId: value })
+          }
+          required
+        >
+          {schools.map((school) => (
+            <SelectItem key={school.id} value={school.id}>
+              {school.name}
+            </SelectItem>
+          ))}
+        </SelectField>
+
         <div className="flex flex-row gap-2">
           <InputField
             id="firstName"

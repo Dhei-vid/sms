@@ -16,7 +16,8 @@ import { toast } from "sonner";
  */
 const getBaseUrl = () => {
   const rawUrl =
-    process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL;
+    process.env.NEXT_PUBLIC_API_URL ||
+    process.env.NEXT_PUBLIC_API_BASE_URL_LOCAL;
 
   if (!rawUrl) {
     if (typeof window !== "undefined") {

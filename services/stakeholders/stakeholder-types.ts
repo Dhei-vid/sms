@@ -203,6 +203,22 @@ export interface StakeholderMetrics {
   enrolled: number; // Stage 6
 }
 
+export interface StudentStakeholderMetrics {
+  total: number;
+  enrolled: number; // Stage 6
+  totalStudents: number;
+  genderRatio: {
+    totalMale: number;
+    totalFemale: number;
+  };
+}
+
+export type AllStudentStakeholdersResponse = ApiListResponse<Stakeholders>;
+
+export interface StudentStakeholderListResponseWithMetrics extends ApiListResponse<Stakeholders> {
+  metrics: StudentStakeholderMetrics;
+}
+
 export interface StakeholderListResponseWithMetrics extends ApiListResponse<Stakeholders> {
   metrics: StakeholderMetrics;
 }

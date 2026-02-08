@@ -7,7 +7,7 @@ import type {
   AttendanceQueryParams,
 } from "./attendance-type";
 
-const BASE = "/attendance";
+const BASE = "/attendances";
 
 export const attendanceApi = baseApi.injectEndpoints({
   overrideExisting: true,
@@ -17,6 +17,11 @@ export const attendanceApi = baseApi.injectEndpoints({
       AttendanceQueryParams | void
     >({
       query: (params) => ({ url: BASE, params: params ?? {} }),
+      providesTags: ["Attendance"],
+    }),
+
+    getAllAttendance: build.query<AttendanceListResponse, void>({
+      query: () => ({ url: BASE, params: {} }),
       providesTags: ["Attendance"],
     }),
 
@@ -65,6 +70,7 @@ export const attendanceApi = baseApi.injectEndpoints({
 
 export const {
   useGetAttendanceQuery,
+  useGetAllAttendanceQuery,
   useGetAttendanceByIdQuery,
   useCreateAttendanceMutation,
   useBulkCreateAttendanceMutation,
