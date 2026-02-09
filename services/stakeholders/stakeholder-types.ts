@@ -182,15 +182,18 @@ export interface AssignDutyStakeholder {
 }
 
 export interface UpdateStakeholdersRequest {
-  user_id: string;
-  school_id: string;
-  guardian_id: string;
-  admission_number: string;
-  school_fees: {
+  user_id?: string;
+  school_id?: string;
+  guardian_id?: string;
+  admission_number?: string;
+  school_fees?: {
     paid: number;
     total: number;
     last_payment: string;
   };
+  stage?: number;
+  status?: string;
+  [key: string]: any; // Allow other fields for partial updates
 }
 
 export interface StakeholderMetrics {
@@ -221,4 +224,29 @@ export interface StudentStakeholderListResponseWithMetrics extends ApiListRespon
 
 export interface StakeholderListResponseWithMetrics extends ApiListResponse<Stakeholders> {
   metrics: StakeholderMetrics;
+}
+
+export interface StudentMetrics {
+  total_enrollment: number;
+  new_enrollment: number;
+  gender_ratio: {
+    male: number;
+    female: number;
+    total: number;
+  };
+  student_to_class_average: number;
+  absences: {
+    students_with_absences: number;
+    period_days: number;
+  };
+  academic_at_risk: {
+    count: number;
+    threshold: number;
+    session: string;
+  };
+  unpaid_fees: {
+    students_count: number;
+    total_amount: number;
+    percentage: number;
+  };
 }

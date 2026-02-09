@@ -1,16 +1,35 @@
 "use client";
 
+import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StudentTable } from "@/components/dashboard-pages/admin/students/components/student-table";
 
 // API
 import { useGetAllStudentsQuery } from "@/services/stakeholders/stakeholders";
+import type { Stakeholders } from "@/services/stakeholders/stakeholder-types";
 
 export default function AllStudentsPage() {
   const { data: studentsData, isLoading: isAllStudentsLoading } =
     useGetAllStudentsQuery();
 
-  const totalStudents = studentsData?.data?.length || 0;
+  // Filter to only show enrolled students (stage=6)
+  const enrolledStudents = useMemo(() => {
+    if (!studentsData?.data) return [];
+    return studentsData.data.filter(
+      (student: Stakeholders) => student.stage === 6,
+    );
+  }, [studentsData]);
+
+  // Create filtered response object
+  const filteredStudentsData = useMemo(() => {
+    if (!studentsData) return undefined;
+    return {
+      ...studentsData,
+      data: enrolledStudents,
+    };
+  }, [studentsData, enrolledStudents]);
+
+  const totalStudents = enrolledStudents.length;
 
   return (
     <div className="space-y-6">
@@ -53,7 +72,7 @@ export default function AllStudentsPage() {
             </div>
           ) : (
             <StudentTable
-              studentsData={studentsData}
+              studentsData={filteredStudentsData}
               isLoading={isAllStudentsLoading}
             />
           )}

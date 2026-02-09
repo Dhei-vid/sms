@@ -237,9 +237,10 @@ export function StaffTable({
       key: "name",
       title: "Full Name + Staff ID",
       render: (_, row) => (
-        <span className="font-medium">
-          {row.name} ({row.staffId})
-        </span>
+        <div className="flex flex-col gap-1">
+          <span className="font-medium">{row.name}</span>
+          <span className="text-xs">({row.id})</span>
+        </div>
       ),
     },
     {

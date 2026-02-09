@@ -1,12 +1,9 @@
 "use client";
 
 import { useRef } from "react";
-import { InputField, SelectField } from "@/components/ui/input-field";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { SelectItem } from "@/components/ui/select";
 import { Upload } from "lucide-react";
-import type { AccessDocumentationState } from "./staff-form-state";
 import type { DocumentUploadState } from "./staff-form-state";
 
 interface DocumentField {
@@ -31,76 +28,30 @@ const documentFields: DocumentField[] = [
   },
 ];
 
-export function AccessDocumentationForm({
+export function StaffDocumentUploadForm({
   value,
   onChange,
-  documents,
-  onDocumentsChange,
-  onSubmit,
+  onNext,
   onBack,
   onCancel,
-  isSubmitting,
 }: {
-  value: AccessDocumentationState;
-  onChange: (next: AccessDocumentationState) => void;
-  documents: DocumentUploadState;
-  onDocumentsChange: (next: DocumentUploadState) => void;
-  onSubmit: () => void;
+  value: DocumentUploadState;
+  onChange: (next: DocumentUploadState) => void;
+  onNext: () => void;
   onBack: () => void;
   onCancel: () => void;
-  isSubmitting?: boolean;
 }) {
-  const formData = value;
-  const setFormData = onChange;
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
-  const systemRoles = [
-    "Admin",
-    "Teacher",
-    "HOD",
-    "Bursar",
-    "HR Admin",
-    "Academic Admin",
-    "Security Guard",
-  ];
-
   const handleFileChange = (id: string, file: File | null) => {
-    onDocumentsChange({ ...documents, [id]: file });
+    onChange({ ...value, [id]: file });
   };
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold text-gray-800">
-        Access & Documentation
-      </h2>
+      <h2 className="text-xl font-semibold text-gray-800">Upload Documents</h2>
 
       <div className="space-y-6">
-        <InputField
-          id="schoolEmail"
-          label="Generate School Email"
-          value={formData.schoolEmail}
-          onChange={(e) =>
-            setFormData({ ...formData, schoolEmail: e.target.value })
-          }
-          readOnly
-        />
-
-        <SelectField
-          label="System Role/Permissions"
-          placeholder="Select System Role/Permissions"
-          value={formData.systemRole}
-          onValueChange={(value) =>
-            setFormData({ ...formData, systemRole: value })
-          }
-        >
-          {systemRoles.map((role) => (
-            <SelectItem key={role} value={role}>
-              {role}
-            </SelectItem>
-          ))}
-        </SelectField>
-
-        {/* Document Upload Section */}
         {documentFields.map((field) => (
           <div key={field.id} className="space-y-2">
             <Label htmlFor={field.id}>{field.label}</Label>
@@ -126,9 +77,9 @@ export function AccessDocumentationForm({
               >
                 <div className="flex items-center justify-between w-full">
                   <div className="flex-1 text-left">
-                    {documents[field.id] ? (
+                    {value[field.id] ? (
                       <span className="text-sm text-gray-600">
-                        {documents[field.id]?.name}
+                        {value[field.id]?.name}
                       </span>
                     ) : (
                       <span className="text-sm text-gray-400">
@@ -153,11 +104,10 @@ export function AccessDocumentationForm({
           Back
         </Button>
         <Button
-          onClick={onSubmit}
+          onClick={onNext}
           className="w-60 bg-main-blue hover:bg-main-blue/90"
-          disabled={isSubmitting}
         >
-          {isSubmitting ? "Adding Staff..." : "Add New Staff"}
+          Next
         </Button>
       </div>
     </div>

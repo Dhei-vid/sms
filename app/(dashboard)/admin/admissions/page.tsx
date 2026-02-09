@@ -24,8 +24,6 @@ export default function AdmissionsPage() {
   const { data: stakeholderMetrics, isLoading } =
     useGetStakeholderMetricsQuery();
 
-  console.log("Stakeholder Metrics Data:", stakeholderMetrics);
-
   const metrics = useMemo(
     () => ({
       inquiries: stakeholderMetrics?.metrics?.inquiries ?? 0,
@@ -196,7 +194,10 @@ export default function AdmissionsPage() {
           ) : (
             <ApplicationTable
               applications={applications}
-              onApplicationsChange={() => {}}
+              onApplicationsChange={(updatedApplications) => {
+                // This callback can be used to update local state if needed
+                // The table will automatically refresh via RTK Query cache invalidation
+              }}
             />
           )}
         </CardContent>

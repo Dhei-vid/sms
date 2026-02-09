@@ -1,32 +1,52 @@
 "use client";
 
-import { useState, Dispatch, SetStateAction } from "react";
+import { useState } from "react";
+import { format } from "date-fns";
 import { InputField, SelectField } from "@/components/ui/input-field";
 import { Button } from "@/components/ui/button";
 import DatePickerIcon from "@/components/ui/date-picker";
 import { SelectItem } from "@/components/ui/select";
+import type { ContractDetailsState } from "./staff-form-state";
 
 export function ContractDetailsForm({
+  value,
+  onChange,
   onNext,
   onBack,
   onCancel,
 }: {
+  value: ContractDetailsState;
+  onChange: (next: ContractDetailsState) => void;
   onNext: () => void;
   onBack: () => void;
   onCancel: () => void;
 }) {
   const [openStartDate, setOpenStartDate] = useState(false);
   const [openEndDate, setOpenEndDate] = useState(false);
-  const [formData, setFormData] = useState({
-    staffId: "bello.T178031",
-    staffType: "", // "teacher" or "staff"
-    jobTitle: "",
-    department: "",
-    employmentType: "",
-    contractStartDate: undefined as Date | undefined,
-    contractEndDate: undefined as Date | undefined,
-    annualLeaveEntitlement: "",
-  });
+  const formData = value;
+  const setFormData = onChange;
+
+  const startDateValue = formData.contractStartDate
+    ? new Date(formData.contractStartDate)
+    : undefined;
+  const setStartDateValue = (d: React.SetStateAction<Date | undefined>) => {
+    const next = typeof d === "function" ? d(startDateValue) : d;
+    setFormData({
+      ...formData,
+      contractStartDate: next ? format(next, "yyyy-MM-dd") : "",
+    });
+  };
+
+  const endDateValue = formData.contractEndDate
+    ? new Date(formData.contractEndDate)
+    : undefined;
+  const setEndDateValue = (d: React.SetStateAction<Date | undefined>) => {
+    const next = typeof d === "function" ? d(endDateValue) : d;
+    setFormData({
+      ...formData,
+      contractEndDate: next ? format(next, "yyyy-MM-dd") : "",
+    });
+  };
 
   const departments = [
     "Primary",
@@ -116,37 +136,26 @@ export function ContractDetailsForm({
           ))}
         </SelectField>
 
-        <DatePickerIcon
-          label="Contract Start Date"
-          date={formData.contractStartDate}
-          setDate={(date) =>
-            setFormData({
-              ...formData,
-              contractStartDate:
-                typeof date === "function"
-                  ? date(formData.contractStartDate)
-                  : date,
-            })
-          }
-          open={openStartDate}
-          setOpen={setOpenStartDate}
-        />
+        {/* Only show contract dates if employment type is Contract */}
+        {formData.employmentType === "Contract" && (
+          <>
+            <DatePickerIcon
+              label="Contract Start Date"
+              date={startDateValue}
+              setDate={setStartDateValue}
+              open={openStartDate}
+              setOpen={setOpenStartDate}
+            />
 
-        <DatePickerIcon
-          label="Contract End Date"
-          date={formData.contractEndDate}
-          setDate={(date) =>
-            setFormData({
-              ...formData,
-              contractEndDate:
-                typeof date === "function"
-                  ? date(formData.contractEndDate)
-                  : date,
-            })
-          }
-          open={openEndDate}
-          setOpen={setOpenEndDate}
-        />
+            <DatePickerIcon
+              label="Contract End Date"
+              date={endDateValue}
+              setDate={setEndDateValue}
+              open={openEndDate}
+              setOpen={setOpenEndDate}
+            />
+          </>
+        )}
 
         <InputField
           id="annualLeaveEntitlement"

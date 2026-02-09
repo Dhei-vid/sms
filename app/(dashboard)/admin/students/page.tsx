@@ -20,29 +20,67 @@ import {
 } from "@hugeicons/core-free-icons";
 
 // API
-import { useGetStudentStakeholderMetricsQuery } from "@/services/stakeholders/stakeholders";
+
+import {
+  useGetStudentStakeholderMetricsQuery,
+  useGetStudentMetricsQuery,
+} from "@/services/stakeholders/stakeholders";
 import { useGetAllAttendanceQuery } from "@/services/attendance/attendance";
+import { selectUser } from "@/store/slices/authSlice";
+import { useAppSelector } from "@/store/hooks";
 
 export default function StudentsPage() {
   const router = useRouter();
+  const authUser = useAppSelector(selectUser);
   const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
 
   const { data: studentStakeholderMetrics, isLoading } =
     useGetStudentStakeholderMetricsQuery();
+  const { data: studentMetricsResponse, isLoading: metricsLoading } =
+    useGetStudentMetricsQuery();
   const { data: attendanceData } = useGetAllAttendanceQuery();
 
-  console.log("Attendance Data:", attendanceData);
+  // Extract metrics from backend response
+  const studentMetrics = studentMetricsResponse?.data;
 
+  // Combine frontend and backend metrics
   const metrics = useMemo(
     () => ({
-      total: studentStakeholderMetrics?.metrics?.totalStudents ?? 0,
-      enrolled: studentStakeholderMetrics?.metrics?.enrolled ?? 0,
-      genderRatio: studentStakeholderMetrics?.metrics?.genderRatio ?? {
-        totalMale: 0,
-        totalFemale: 0,
+      // From backend metrics
+      totalEnrollment: studentMetrics?.total_enrollment ?? 0,
+      newEnrollment: studentMetrics?.new_enrollment ?? 0,
+      studentToClassAverage: studentMetrics?.student_to_class_average ?? 0,
+      genderRatio: {
+        male: studentMetrics?.gender_ratio?.male ?? 0,
+        female: studentMetrics?.gender_ratio?.female ?? 0,
+        total: studentMetrics?.gender_ratio?.total ?? 0,
       },
+      absences: {
+        studentsWithAbsences:
+          studentMetrics?.absences?.students_with_absences ?? 0,
+        periodDays: studentMetrics?.absences?.period_days ?? 30,
+      },
+      academicAtRisk: {
+        count: studentMetrics?.academic_at_risk?.count ?? 0,
+        threshold: studentMetrics?.academic_at_risk?.threshold ?? 50.0,
+        session: studentMetrics?.academic_at_risk?.session ?? "",
+      },
+      unpaidFees: {
+        studentsCount: studentMetrics?.unpaid_fees?.students_count ?? 0,
+        totalAmount: studentMetrics?.unpaid_fees?.total_amount ?? 0,
+        percentage: studentMetrics?.unpaid_fees?.percentage ?? 0,
+      },
+      // Fallback to frontend metrics if backend not available
+      total:
+        studentStakeholderMetrics?.metrics?.totalStudents ??
+        studentMetrics?.total_enrollment ??
+        0,
+      enrolled:
+        studentStakeholderMetrics?.metrics?.enrolled ??
+        studentMetrics?.total_enrollment ??
+        0,
     }),
-    [studentStakeholderMetrics],
+    [studentMetrics, studentStakeholderMetrics],
   );
 
   // Quick Actions Configuration
@@ -134,28 +172,60 @@ export default function StudentsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
           title="Total Enrollment"
-          value={metrics?.enrolled ?? 0}
-          subtitle={`${metrics?.enrolled ?? 0} enrolled students`}
+          value={
+            isLoading || metricsLoading
+              ? "..."
+              : (metrics?.totalEnrollment ?? 0)
+          }
+          subtitle={
+            isLoading || metricsLoading
+              ? "Loading..."
+              : `${metrics?.totalEnrollment ?? 0} enrolled students`
+          }
           trend="up"
           trendColor="text-main-blue"
         />
         <MetricCard
           title="New Enrollment"
-          value={metrics?.enrolled ?? 0}
-          subtitle={`${metrics?.enrolled ?? 0} new enrolled students`}
+          value={
+            isLoading || metricsLoading ? "..." : (metrics?.newEnrollment ?? 0)
+          }
+          subtitle={
+            isLoading || metricsLoading
+              ? "Loading..."
+              : `${metrics?.newEnrollment ?? 0} new students (last 30 days)`
+          }
           trend="up"
           trendColor="text-main-blue"
         />
         <MetricCard
           title="Students/Class Average"
-          value="42"
-          subtitle="Target: 35/Class"
+          value={
+            isLoading || metricsLoading
+              ? "..."
+              : (metrics?.studentToClassAverage?.toFixed(1) ?? "0.0")
+          }
+          subtitle={
+            isLoading || metricsLoading
+              ? "Loading..."
+              : "Average students per class"
+          }
           trend="up"
         />
         <MetricCard
           title="Gender Ratio"
-          value={`F: ${metrics?.genderRatio?.totalFemale ?? 0} / M: ${metrics?.genderRatio?.totalMale ?? 0}`}
-          subtitle={`${metrics?.genderRatio?.totalFemale ? Math.round((metrics?.genderRatio?.totalFemale / (metrics?.genderRatio?.totalFemale + metrics?.genderRatio?.totalMale || 1)) * 100) : 0}% Female / ${metrics?.genderRatio?.totalMale ? Math.round((metrics?.genderRatio?.totalMale / (metrics?.genderRatio?.totalFemale + metrics?.genderRatio?.totalMale || 1)) * 100) : 0}% Male`}
+          value={
+            isLoading || metricsLoading
+              ? "..."
+              : `F: ${metrics?.genderRatio?.female ?? 0} / M: ${metrics?.genderRatio?.male ?? 0}`
+          }
+          subtitle={
+            isLoading || metricsLoading
+              ? "Loading..."
+              : metrics?.genderRatio?.total > 0
+                ? `${Math.round((metrics.genderRatio.female / metrics.genderRatio.total) * 100)}% Female / ${Math.round((metrics.genderRatio.male / metrics.genderRatio.total) * 100)}% Male`
+                : "No data available"
+          }
           trend="up"
         />
       </div>
@@ -164,22 +234,46 @@ export default function StudentsPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <MetricCard
           title="Chronic Absences"
-          value="35 Students"
-          subtitle="+3% Up 5 from last week"
+          value={
+            isLoading || metricsLoading
+              ? "..."
+              : `${metrics?.absences?.studentsWithAbsences ?? 0} Students`
+          }
+          subtitle={
+            isLoading || metricsLoading
+              ? "Loading..."
+              : `Students with absences in last ${metrics?.absences?.periodDays ?? 30} days`
+          }
           trend="up"
           trendColor="text-main-blue"
         />
         <MetricCard
           title="Academic At-Risk"
-          value="68 Students"
-          subtitle="+5.4% of total with F in 2+ core subjects"
+          value={
+            isLoading || metricsLoading
+              ? "..."
+              : `${metrics?.academicAtRisk?.count ?? 0} Students`
+          }
+          subtitle={
+            isLoading || metricsLoading
+              ? "Loading..."
+              : `Average score below ${metrics?.academicAtRisk?.threshold ?? 50}% (Session: ${metrics?.academicAtRisk?.session ?? "N/A"})`
+          }
           trend="up"
           trendColor="text-main-blue"
         />
         <MetricCard
           title="Students Enrolled (Unpaid Fees)"
-          value="12 Students"
-          subtitle="Total amount of NGN500K outstanding"
+          value={
+            isLoading || metricsLoading
+              ? "..."
+              : `${metrics?.unpaidFees?.studentsCount ?? 0} Students`
+          }
+          subtitle={
+            isLoading || metricsLoading
+              ? "Loading..."
+              : `Total: ₦${(metrics?.unpaidFees?.totalAmount ?? 0).toLocaleString("en-NG")} (${metrics?.unpaidFees?.percentage ?? 0}%)`
+          }
           trend="up"
         />
       </div>

@@ -87,7 +87,7 @@ const rawBaseQuery = fetchBaseQuery({
       headers.set("authorization", `Bearer ${token}`);
     }
 
-    const isMultipart = endpoint === "admissionRegister";
+    const isMultipart = endpoint === "admissionRegister" || endpoint === "createStakeholder";
     if (!isMultipart) {
       headers.set("Content-Type", "application/json");
     }

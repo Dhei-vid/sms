@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "./status-badge";
 import { Search, Filter, MoreVertical } from "lucide-react";
 import { Icon } from "@/components/general/huge-icon";
-
+import { toast } from "sonner";
 import {
   ElearningExchangeIcon,
   ViewIcon,
@@ -20,6 +20,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import type { AdmissionApplication } from "@/services/shared-types";
 import { getStakeholderStageLabel } from "@/services/stakeholders/stakeholders-reducer";
+import { useUpdateStakeholderMutation } from "@/services/stakeholders/stakeholders";
 
 interface ApplicationTableProps {
   applications: AdmissionApplication[];
@@ -33,16 +34,55 @@ export function ApplicationTable({
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const [updatingStage, setUpdatingStage] = useState<string | null>(null);
+  const [updateStakeholder] = useUpdateStakeholderMutation();
 
-  const handleStatusChange = (
+  const handleStatusChange = async (
     applicationId: string,
     newStage: number,
     statusLabel: string,
   ) => {
-    const updatedApplications = applications.map((app) =>
-      app.id === applicationId ? { ...app, stage: newStage, statusLabel } : app,
-    );
-    onApplicationsChange(updatedApplications);
+    try {
+      setUpdatingStage(applicationId);
+
+      // Update stakeholder stage in backend
+      // Using partial update - only sending stage field
+      const result = await updateStakeholder({
+        id: applicationId,
+        data: {
+          stage: newStage,
+        } as any, // Type assertion needed since UpdateStakeholdersRequest doesn't fully support partial updates
+      }).unwrap();
+
+      if (result.status) {
+        // Update local state optimistically
+        const updatedApplications = applications.map((app) =>
+          app.id === applicationId
+            ? { ...app, stage: newStage, statusLabel }
+            : app,
+        );
+        onApplicationsChange(updatedApplications);
+
+        toast.success(`Status changed to "${statusLabel}" successfully`);
+
+        // Refresh the page data to get updated stakeholder list
+        // RTK Query cache invalidation will handle this automatically,
+        // but we can also trigger a manual refresh if needed
+        router.refresh();
+      } else {
+        throw new Error(result.error || "Failed to update status");
+      }
+    } catch (error: any) {
+      console.error("Error updating status:", error);
+      const errorMessage =
+        error?.data?.error ||
+        error?.data?.message ||
+        error?.message ||
+        "Failed to update status. Please try again.";
+      toast.error(errorMessage);
+    } finally {
+      setUpdatingStage(null);
+    }
   };
 
   const filteredApplications = applications.filter(
@@ -115,36 +155,55 @@ export function ApplicationTable({
           {
             label: "Change status",
             icon: <Icon icon={ElearningExchangeIcon} size={16} />,
+            disabled: (row) => updatingStage === row.id,
             subItems: [
               {
                 label: "Inquires/Interest",
-                onClick: (row) =>
-                  handleStatusChange(row.id, 1, getStakeholderStageLabel(1)),
+                onClick: (row) => {
+                  if (updatingStage === row.id || row.stage === 1) return;
+                  handleStatusChange(row.id, 1, getStakeholderStageLabel(1));
+                },
+                disabled: (row) => updatingStage === row.id || row.stage === 1,
               },
               {
                 label: "Application Started",
-                onClick: (row) =>
-                  handleStatusChange(row.id, 2, getStakeholderStageLabel(2)),
+                onClick: (row) => {
+                  if (updatingStage === row.id || row.stage === 2) return;
+                  handleStatusChange(row.id, 2, getStakeholderStageLabel(2));
+                },
+                disabled: (row) => updatingStage === row.id || row.stage === 2,
               },
               {
                 label: "Submitted Forms",
-                onClick: (row) =>
-                  handleStatusChange(row.id, 3, getStakeholderStageLabel(3)),
+                onClick: (row) => {
+                  if (updatingStage === row.id || row.stage === 3) return;
+                  handleStatusChange(row.id, 3, getStakeholderStageLabel(3));
+                },
+                disabled: (row) => updatingStage === row.id || row.stage === 3,
               },
               {
                 label: "Under Review",
-                onClick: (row) =>
-                  handleStatusChange(row.id, 4, getStakeholderStageLabel(4)),
+                onClick: (row) => {
+                  if (updatingStage === row.id || row.stage === 4) return;
+                  handleStatusChange(row.id, 4, getStakeholderStageLabel(4));
+                },
+                disabled: (row) => updatingStage === row.id || row.stage === 4,
               },
               {
                 label: "Accepted Offers",
-                onClick: (row) =>
-                  handleStatusChange(row.id, 5, getStakeholderStageLabel(5)),
+                onClick: (row) => {
+                  if (updatingStage === row.id || row.stage === 5) return;
+                  handleStatusChange(row.id, 5, getStakeholderStageLabel(5));
+                },
+                disabled: (row) => updatingStage === row.id || row.stage === 5,
               },
               {
                 label: "Enrolled/Confirmed",
-                onClick: (row) =>
-                  handleStatusChange(row.id, 6, getStakeholderStageLabel(6)),
+                onClick: (row) => {
+                  if (updatingStage === row.id || row.stage === 6) return;
+                  handleStatusChange(row.id, 6, getStakeholderStageLabel(6));
+                },
+                disabled: (row) => updatingStage === row.id || row.stage === 6,
               },
             ],
             separator: true,

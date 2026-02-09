@@ -8,6 +8,7 @@ import type {
   AllStudentStakeholdersResponse,
   StakeholderListResponseWithMetrics,
   StudentStakeholderListResponseWithMetrics,
+  StudentMetrics,
 } from "./stakeholder-types";
 import {
   calculateStakeholderMetrics,
@@ -102,6 +103,11 @@ export const stakeholdersApi = baseApi.injectEndpoints({
       providesTags: ["Stakeholder"],
     }),
 
+    getStudentMetrics: build.query<ApiResponse<StudentMetrics>, void>({
+      query: () => ({ url: `${BASE}/metrics` }),
+      providesTags: ["Stakeholder", "Attendance", "Transaction"],
+    }),
+
     getStakeholderById: build.query<ApiResponse<Stakeholders>, string>({
       query: (id) => ({ url: `${BASE}/${id}` }),
       providesTags: (_, __, id) => [{ type: "Stakeholder", id }],
@@ -128,9 +134,20 @@ export const stakeholdersApi = baseApi.injectEndpoints({
 
     createStakeholder: build.mutation<
       ApiResponse<Stakeholders>,
-      CreateStakeholdersRequest
+      CreateStakeholdersRequest | FormData
     >({
-      query: (body) => ({ url: BASE, method: "POST", body }),
+      query: (body) => {
+        // If FormData, don't set Content-Type header (browser will set it with boundary)
+        if (body instanceof FormData) {
+          return {
+            url: BASE,
+            method: "POST",
+            body,
+            formData: true,
+          };
+        }
+        return { url: BASE, method: "POST", body };
+      },
       invalidatesTags: ["Stakeholder"],
     }),
 
@@ -170,6 +187,7 @@ export const {
   useGetAllStudentsQuery,
   useGetStudentStakeholderMetricsQuery,
   useGetStakeholderMetricsQuery,
+  useGetStudentMetricsQuery,
   useGetStakeholderByIdQuery,
   useGetStudentByIdQuery,
   useCreateStakeholderMutation,

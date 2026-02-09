@@ -81,7 +81,7 @@ export function Header({
         </div>
 
         {/* Title */}
-        <div className="bg-background h-9 lg:h-13 rounded-md flex items-center gap-2 px-2 min-w-0 flex-1 lg:flex-none lg:col-span-1">
+        <div className="bg-background h-9 lg:h-13 rounded-md flex items-center gap-2 px-3 min-w-0 flex-1 lg:flex-none lg:col-span-2">
           {metaData?.icon && (
             <Icon
               icon={metaData.icon}
@@ -94,14 +94,18 @@ export function Header({
               {metaData?.label || "Dashboard"}
             </h1>
             <span>/</span>
-            <Button onClick={() => router.back()} variant={"link"} className="p-0 text-sm font-light">
+            <Button
+              onClick={() => router.back()}
+              variant={"link"}
+              className="p-0 text-sm font-light"
+            >
               Back
             </Button>
           </div>
         </div>
 
         {/* Search Bar */}
-        <div className="w-full lg:w-auto lg:col-span-4 h-13 lg:h-full rounded-md min-w-0 order-last lg:order-0">
+        <div className="w-full lg:w-auto lg:col-span-3 h-13 lg:h-full rounded-md min-w-0 order-last lg:order-0">
           <div className="flex h-full">
             <div className="relative w-full h-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />

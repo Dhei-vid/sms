@@ -6,6 +6,9 @@ import { MetricCard } from "@/components/dashboard-pages/admin/admissions/compon
 import { AttendanceFilters } from "@/components/dashboard-pages/admin/students/components/attendance-filters";
 import { AttendanceTable } from "@/components/dashboard-pages/admin/students/components/attendance-table";
 
+// API
+import { useGetAllAttendanceQuery } from "@/services/attendance/attendance";
+
 type AttendanceStatus = "present" | "absent" | "no-data";
 
 interface StudentAttendance {
@@ -186,6 +189,8 @@ export default function AttendanceTrackingPage() {
   const [month, setMonth] = useState("october-2025");
   const [week, setWeek] = useState("week-7-8");
   const [selectedClass, setSelectedClass] = useState("ss3");
+
+  const { data: attendanceData, isLoading } = useGetAllAttendanceQuery();
 
   return (
     <div className="space-y-6">
