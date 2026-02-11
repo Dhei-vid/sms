@@ -87,7 +87,8 @@ const rawBaseQuery = fetchBaseQuery({
       headers.set("authorization", `Bearer ${token}`);
     }
 
-    const isMultipart = endpoint === "admissionRegister" || endpoint === "createStakeholder";
+    const isMultipart =
+      endpoint === "admissionRegister" || endpoint === "createStakeholder";
     if (!isMultipart) {
       headers.set("Content-Type", "application/json");
     }
@@ -296,6 +297,7 @@ export const baseApi = createApi({
   reducerPath: "api",
   baseQuery: baseQueryWithErrorHandling,
   tagTypes: [
+    "Vacancy",
     "TeacherCourse",
     "TeacherQuestion",
     "CanteenProduct",
@@ -305,7 +307,6 @@ export const baseApi = createApi({
     "Order",
     "School",
     "Student",
-    "Class",
     "Course",
     "Assignment",
     "Grade",
@@ -333,6 +334,8 @@ export const baseApi = createApi({
     "Subscription",
     "Transport",
     "Hostel",
+    "UserRequest",
+    "LeavePolicy",
   ],
   endpoints: () => ({}),
 });

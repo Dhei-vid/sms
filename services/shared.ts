@@ -17,22 +17,6 @@ export type {
 } from "./students/students-type";
 
 export {
-  useGetClassesQuery,
-  useGetClassByIdQuery,
-  useCreateClassMutation,
-  useUpdateClassMutation,
-  useDeleteClassMutation,
-} from "./classes/classes";
-
-export type {
-  Class,
-  ClassesListResponse,
-  ClassesQueryParams,
-  CreateClassRequest,
-  UpdateClassRequest,
-} from "./classes/classes-type";
-
-export {
   useGetCoursesQuery,
   useGetCourseByIdQuery,
   useCreateCourseMutation,

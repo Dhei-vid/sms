@@ -51,7 +51,7 @@ export function MessageBubble({
       <div
         className={cn(
           "flex-1",
-          isOwnMessage && "flex flex-col gap-2 items-end",
+          isOwnMessage && "flex flex-col gap-1 items-end",
         )}
       >
         <div className="mb-1">
@@ -62,10 +62,10 @@ export function MessageBubble({
             {senderEmail}
           </span>
         </div>
-        <div className={cn("inline-block rounded-lg py-2 max-w-[80%]")}>
+        <div className={cn("inline-block rounded-lg py-1 max-w-[80%]")}>
           <p className="text-sm text-wrap whitespace-pre-wrap">{message}</p>
         </div>
-        <span className="text-xs text-gray-500 mt-1 block">{timestamp}</span>
+        <span className="text-xs text-gray-500 block">{timestamp}</span>
       </div>
     </div>
   );

@@ -4,7 +4,12 @@ import type {
   ApiResponse,
   ApiDeleteResponse,
 } from "../shared-types";
-import type { Chat, SendChatPayload, UpdateChatPayload } from "./chat-types";
+import type {
+  Chat,
+  GetChatByIdParams,
+  SendChatPayload,
+  UpdateChatPayload,
+} from "./chat-types";
 
 const BASE = "/chats";
 
@@ -28,8 +33,18 @@ export const chatsApi = baseApi.injectEndpoints({
       providesTags: ["Chat"],
     }),
 
-    getChatById: build.query<ApiResponse<Chat>, string>({
-      query: (id) => ({ url: `${BASE}/${id}` }),
+    getChatById: build.query<ApiResponse<Chat>, string | GetChatByIdParams>({
+      query: (arg) => {
+        const id = typeof arg === "string" ? arg : arg.id;
+        const params: Record<string, number | string | undefined> = {};
+        if (typeof arg === "object" && arg !== null) {
+          if (arg.message_limit != null)
+            params.message_limit = arg.message_limit;
+          if (arg.message_before != null)
+            params.message_before = arg.message_before;
+        }
+        return { url: `${BASE}/${id}`, params };
+      },
       transformResponse: (response: ApiResponse<Chat>) => {
         if (
           response.status === false ||
@@ -39,7 +54,9 @@ export const chatsApi = baseApi.injectEndpoints({
         }
         return response;
       },
-      providesTags: (_, __, id) => [{ type: "Chat", id }],
+      providesTags: (_, __, arg) => [
+        { type: "Chat", id: typeof arg === "string" ? arg : arg.id },
+      ],
     }),
 
     sendChat: build.mutation<ApiResponse<Chat>, SendChatPayload>({
@@ -69,6 +86,7 @@ export const chatsApi = baseApi.injectEndpoints({
 export const {
   useGetChatsQuery,
   useGetChatByIdQuery,
+  useLazyGetChatByIdQuery,
   useSendChatMutation,
   useUpdateChatTitleMutation,
   useDeleteChatMutation,

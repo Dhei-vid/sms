@@ -30,7 +30,7 @@ export default function NoticeBoardPage() {
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Left Column - Notice Management */}
-        <div className="lg:col-span-1 space-y-4 bg-background rounded-md p-4">
+        <div className="lg:col-span-1 space-y-4 bg-background rounded-md p-4 h-fit">
           <div className="flex flex-col gap-1 mb-6">
             {/* priority */}
             <button

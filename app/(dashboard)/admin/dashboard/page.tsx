@@ -34,49 +34,6 @@ export default function AdminDashboard() {
   const { data: notificationsData, error: notificationsError } =
     useGetNotificationsQuery({ limit: 5 });
 
-  // Debug logging for students and staff
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      if (studentsError) {
-        console.error("❌ Students Query Error:", {
-          error: studentsError,
-          status: (studentsError as any)?.status,
-          data: (studentsError as any)?.data,
-        });
-      }
-      if (staffError) {
-        console.error("❌ Staff Query Error:", {
-          error: staffError,
-          status: (staffError as any)?.status,
-          data: (staffError as any)?.data,
-        });
-      }
-      if (studentsData) {
-        console.log("✅ Students Response:", {
-          status: studentsData.status,
-          status_code: studentsData.status_code,
-          dataArrayLength: studentsData.data?.length,
-          data: studentsData.data, // The actual array
-        });
-      }
-      if (staffData) {
-        console.log("✅ Staff Response:", {
-          status: staffData.status,
-          status_code: staffData.status_code,
-          dataArrayLength: staffData.data?.length,
-          data: staffData.data, // The actual array
-        });
-      }
-    }
-  }, [
-    studentsData,
-    studentsError,
-    studentsLoading,
-    staffData,
-    staffError,
-    staffLoading,
-  ]);
-
   // Extract data from API responses
   const totalStudents = studentsData?.data?.length ?? 0;
   const totalStaff = staffData?.data?.length ?? 0;

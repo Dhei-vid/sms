@@ -19,12 +19,16 @@ import {
 
 // API
 import { useGetAllStaffQuery } from "@/services/stakeholders/stakeholders";
+import { useGetUserRequestsQuery } from "@/services/user-requests/user-requests";
 
 export default function StaffDashboardPage() {
   const router = useRouter();
 
   const { data: staffData, isLoading } = useGetAllStaffQuery();
+  const { data: userRequestData, isLoading: isUserRequestLoading } =
+    useGetUserRequestsQuery();
 
+  console.log("User request ", userRequestData);
   console.log("Stakeholders Data:", staffData);
 
   // Quick Actions Configuration
@@ -54,7 +58,7 @@ export default function StaffDashboardPage() {
       description:
         "Formally document a staff member's new duty, task, or the allocation of a school asset.",
       icon: FileUploadIcon,
-      onClick: () => router.push("/admin/staff-management/schedule"),
+      onClick: () => router.push("/admin/staff-management/log-new-resources"),
     },
     {
       title: "Staff Leave Requests Management",
@@ -140,7 +144,7 @@ export default function StaffDashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <MetricCard
             title="Total Active Staffs"
-            value="145 Employees"
+            value={`${staffData?.data?.length ?? 0} Employees`}
             subtitle=""
             trend="up"
             trendColor="text-main-blue"

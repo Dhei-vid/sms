@@ -26,8 +26,9 @@ import { LogPaymentModal } from "@/components/dashboard-pages/admin/finance/comp
 import { PostCanteenItemModal } from "@/components/dashboard-pages/admin/finance/components/post-canteen-item-modal";
 import { SetFeeStructureModal } from "@/components/dashboard-pages/admin/finance/components/set-fee-structure-modal";
 
-// API
 import { useGetAllTransactionsQuery } from "@/services/transactions/transactions";
+import { selectAllTransactionsData } from "@/services/transactions/transaction-selectors";
+import { useAppSelector } from "@/store/hooks";
 
 export default function FinancePage() {
   const router = useRouter();
@@ -40,68 +41,8 @@ export default function FinancePage() {
   const [setFeeStructureModalOpen, setSetFeeStructureModalOpen] =
     useState(false);
 
-  const { data: allTransactionsData } = useGetAllTransactionsQuery();
-
-  const getStudentsForPeriod = (period: string) => {
-    if (period === "15 - 30 Days Overdue") {
-      return [
-        {
-          id: "1",
-          name: "Chinedu Nwokolo",
-          studentId: "nwokolo.m178023",
-          daysOverdue: 20,
-          overdueAmount: 45000,
-          primaryContactName: "Mr. Nwokolo Emmanuel",
-          primaryContactNumber: "+234 803 123 4567",
-          latestPayment: "Oct. 15, 2025",
-        },
-        {
-          id: "2",
-          name: "Sarah Adebisi",
-          studentId: "adebisi.m178024",
-          daysOverdue: 18,
-          overdueAmount: 35000,
-          primaryContactName: "Mrs. Adebisi",
-          primaryContactNumber: "+234 809 987 6543",
-          latestPayment: "Oct. 17, 2025",
-        },
-        {
-          id: "3",
-          name: "Tolu Adeyemi",
-          studentId: "adeyemi.m178025",
-          daysOverdue: 25,
-          overdueAmount: 50000,
-          primaryContactName: "Mr. Adeyemi",
-          primaryContactNumber: "+234 802 456 7890",
-          latestPayment: "Oct. 10, 2025",
-        },
-      ];
-    } else if (period === "31 - 60 Days Overdue") {
-      return [
-        {
-          id: "4",
-          name: "Emeka Okafor",
-          studentId: "okafor.m178026",
-          daysOverdue: 45,
-          overdueAmount: 60000,
-          primaryContactName: "Mr. Okafor",
-          primaryContactNumber: "+234 805 111 2222",
-          latestPayment: "Sep. 20, 2025",
-        },
-        {
-          id: "5",
-          name: "Amina Bello",
-          studentId: "bello.m178027",
-          daysOverdue: 35,
-          overdueAmount: 40000,
-          primaryContactName: "Mrs. Bello",
-          primaryContactNumber: "+234 807 333 4444",
-          latestPayment: "Sep. 30, 2025",
-        },
-      ];
-    }
-    return [];
-  };
+  useGetAllTransactionsQuery();
+  const transactions = useAppSelector(selectAllTransactionsData);
 
   const handleViewStudents = (period: string) => {
     setSelectedPeriod(period);
@@ -157,29 +98,7 @@ export default function FinancePage() {
     actionLabel: string;
   }
 
-  const feeAgeingData: FeeAgeingData[] = [
-    {
-      period: "0 - 14 Days Overdue",
-      value: 1110000,
-      total: 2500000,
-      barColor: "bg-blue-500",
-      actionLabel: "Send Bulk Reminder",
-    },
-    {
-      period: "15 - 30 Days Overdue",
-      value: 890000,
-      total: 2500000,
-      barColor: "bg-orange-500",
-      actionLabel: "View Students",
-    },
-    {
-      period: "31 - 60 Days Overdue",
-      value: 500000,
-      total: 2500000,
-      barColor: "bg-red-500",
-      actionLabel: "View Students",
-    },
-  ];
+  const feeAgeingData: FeeAgeingData[] = [];
 
   const feeAgeingColumns: TableColumn<FeeAgeingData>[] = [
     {
@@ -242,26 +161,18 @@ export default function FinancePage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <FinancialMetricCard
           title="Net Available Cash"
-          value={12580000}
-          subtitle={"+1.5% Compared to last month"}
-          currency
-          trend="up"
-          trendColor="text-green-600"
+          value="—"
+          subtitle="No data"
         />
         <FinancialMetricCard
           title="Total Outstanding Fees"
-          value={2500000}
-          subtitle="+5% Compared to last term"
-          trend="up"
-          currency
-          trendColor="text-red-600"
+          value="—"
+          subtitle="No data"
         />
         <FinancialMetricCard
           title="Budget Adherence"
-          value="95%"
-          subtitle="+5% Strict adherence"
-          trend="up"
-          trendColor="text-green-600"
+          value="—"
+          subtitle="No data"
         />
       </div>
 
@@ -273,12 +184,18 @@ export default function FinancePage() {
         </CardHeader>
         <CardContent>
           <div className="border rounded-lg overflow-hidden">
-            <DataTable
-              columns={feeAgeingColumns}
-              data={feeAgeingData}
-              headerClassName="bg-main-blue/5"
-              showActionsColumn={false}
-            />
+            {feeAgeingData.length === 0 ? (
+              <div className="p-8 text-center text-muted-foreground text-sm">
+                No fee ageing data
+              </div>
+            ) : (
+              <DataTable
+                columns={feeAgeingColumns}
+                data={feeAgeingData}
+                headerClassName="bg-main-blue/5"
+                showActionsColumn={false}
+              />
+            )}
           </div>
         </CardContent>
       </Card>
@@ -292,39 +209,45 @@ export default function FinancePage() {
           </CardHeader>
           <CardContent className="p-0">
             <div className="space-y-0">
-              {allTransactionsData?.data
-                ?.slice(0, 5)
-                .map((transactions, index) => (
-                  <div key={index}>
-                    <ActivityItem
-                      icon={
-                        transactions?.transaction_type === "income"
-                          ? ArrowUpRight01Icon
-                          : ArrowDownLeft01Icon
-                      }
-                      iconColor={
-                        transactions?.transaction_type === "income"
-                          ? "text-green-600"
-                          : "text-red-600"
-                      }
-                      title={transactions?.description || "No description"}
-                      description={
-                        transactions?.amount
-                          ? `₦${Number(transactions.amount).toLocaleString()}`
-                          : "No amount"
-                      }
-                      time={transactions?.created_at ?? null}
-                      iconBg
-                    />
-                    {index < allTransactionsData?.data.length - 1 && (
-                      <Separator />
-                    )}
-                  </div>
-                ))}
+              {transactions.length === 0 ? (
+                <div className="p-6 text-center text-muted-foreground text-sm">
+                  No recent transactions
+                </div>
+              ) : (
+                transactions.slice(0, 5).map((tx, index) => (
+                <div key={tx.id ?? index}>
+                  <ActivityItem
+                    icon={
+                      tx.transaction_type === "income"
+                        ? ArrowUpRight01Icon
+                        : ArrowDownLeft01Icon
+                    }
+                    iconColor={
+                      tx.transaction_type === "income"
+                        ? "text-green-600"
+                        : "text-red-600"
+                    }
+                    title={tx.description || "No description"}
+                    description={
+                      tx.amount
+                        ? `₦${Number(tx.amount).toLocaleString()}`
+                        : "No amount"
+                    }
+                    time={tx.created_at ?? null}
+                    iconBg
+                  />
+                  {index < Math.min(5, transactions.length) - 1 && (
+                    <Separator />
+                  )}
+                </div>
+              ))
+              )}
             </div>
-            <div className="flex justify-center pt-2">
-              <Button variant="outline">Load more</Button>
-            </div>
+            {transactions.length > 5 && (
+              <div className="flex justify-center pt-2">
+                <Button variant="outline">Load more</Button>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -356,7 +279,7 @@ export default function FinancePage() {
         open={viewStudentsModalOpen}
         onOpenChange={setViewStudentsModalOpen}
         period={selectedPeriod}
-        students={getStudentsForPeriod(selectedPeriod)}
+        students={[]}
       />
 
       <TrackPaymentsModal

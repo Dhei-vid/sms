@@ -61,7 +61,7 @@ export function MessageThreadsList({
   };
 
   return (
-    <Card className="flex flex-col h-full bg-white border-r border-gray-200">
+    <Card className="flex flex-col h-fit bg-white border-r border-gray-200">
       <CardContent className="space-y-4">
         {/* Search and New Message */}
         <div>

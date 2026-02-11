@@ -12,7 +12,7 @@ export interface Chat {
   title: string;
   participants: Array<ChatParticipants>;
   messages: Array<ChatMessages>;
-  type: "general";
+  type: "general" | "staff" | string;
   is_deleted: boolean;
   creator: User;
   updated_by?: null;
@@ -20,6 +20,13 @@ export interface Chat {
   created_at: string;
   updated_at: string;
   deleted_at?: string | null;
+  has_more_messages?: boolean;
+}
+
+export interface GetChatByIdParams {
+  id: string;
+  message_limit?: number;
+  message_before?: string;
 }
 
 export interface ChatParticipants {
@@ -54,13 +61,11 @@ export interface SendChatPayload {
   attachments?: []; // optional
   content_type?: string;
   model_type?: string;
-  save_chat?: true; // optional,
-  type?: "general" | string; // optional,
+  save_chat?: true; // optional
+  type?: "general" | "staff" | string; // optional: general = all staff+teachers, staff = teachers only
+  school_id?: string | null; // optional: required for type general/staff
+  recipient_id?: string | null; // optional: for 1:1 messages, the other user's id (ULID)
   history: Array<ChatHistory>;
-  // "title": "Test Title", // optional
-  // "school_id": "01kady0vz0zvwfnrk72pyvbfdb", // optional
-  // "model_type"?: "gemini-1.5-flash", // optional,
-  // "use_embedded_data"?: true, // optional,
 }
 
 export interface ChatHistory {

@@ -33,49 +33,6 @@ interface ActivityItem {
   reference: string;
 }
 
-const activities: ActivityItem[] = [
-  {
-    id: "1",
-    date: "Oct. 31, 2025, 11:32AM",
-    type: "Expense",
-    amount: 4500000,
-    accountCategory: "Salaries & Wages",
-    reference: "AP-BATCH-1101-001",
-  },
-  {
-    id: "2",
-    date: "Oct. 31, 2025, 11:32AM",
-    type: "Income",
-    amount: 4500000,
-    accountCategory: "Utilities",
-    reference: "AP-BATCH-1101-001",
-  },
-  {
-    id: "3",
-    date: "Oct. 31, 2025, 11:32AM",
-    type: "Income",
-    amount: 4500000,
-    accountCategory: "Curriculum/Resource",
-    reference: "AP-BATCH-1101-001",
-  },
-  {
-    id: "4",
-    date: "Oct. 31, 2025, 11:32AM",
-    type: "Expense",
-    amount: 4500000,
-    accountCategory: "Student Activities/Sports",
-    reference: "AP-BATCH-1101-001",
-  },
-  {
-    id: "5",
-    date: "",
-    type: "Income",
-    amount: 4500000,
-    accountCategory: "Marketing & Admissions",
-    reference: "AP-BATCH-1101-001",
-  },
-];
-
 const quickActions = [
   {
     icon: PayByCheckIcon,
@@ -111,6 +68,8 @@ const timeRangeOptions = [
   { value: "1-year", label: "1-Year" },
 ];
 
+const activities: ActivityItem[] = [];
+
 export default function GeneralAccountingPage() {
   const [sortBy, setSortBy] = useState("all");
   const [timeRange, setTimeRange] = useState("6-months");
@@ -119,7 +78,7 @@ export default function GeneralAccountingPage() {
     sortBy === "all"
       ? activities
       : activities.filter(
-          (activity) => activity.type.toLowerCase() === sortBy.toLowerCase(),
+          (a) => a.type.toLowerCase() === sortBy.toLowerCase(),
         );
 
   const getTypeColor = (type: string) => {

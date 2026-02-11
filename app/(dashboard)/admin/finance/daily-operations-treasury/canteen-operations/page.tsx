@@ -46,79 +46,8 @@ interface RecentActivity {
   reconciliationStatus: string;
 }
 
-const topSellingItems: TopSellingItem[] = [
-  {
-    id: "1",
-    item: "Jollof Rice & Chicken",
-    totalRevenue: 45000,
-    studentConsumption: 75,
-  },
-  {
-    id: "2",
-    item: "Bottled Water (50cl)",
-    totalRevenue: 32000,
-    studentConsumption: 70,
-  },
-  {
-    id: "3",
-    item: "Meat Pie",
-    totalRevenue: 25000,
-    studentConsumption: 50,
-  },
-];
-
-const recentActivities: RecentActivity[] = [
-  {
-    id: "1",
-    time: "11:15 AM",
-    name: "Sola Adebayo",
-    studentId: "adebayoum178031",
-    transactionType: "Wallet Sales",
-    amount: 2000,
-    item: "Jollof Rice & Chicken",
-    reconciliationStatus: "Reconciled",
-  },
-  {
-    id: "2",
-    time: "11:15 AM",
-    name: "Helen Davies",
-    studentId: "daviesm178032",
-    transactionType: "Top-up",
-    amount: 5000,
-    item: "Wallet Top-up",
-    reconciliationStatus: "Pending",
-  },
-  {
-    id: "3",
-    time: "11:15 AM",
-    name: "Tolu Adebayo",
-    studentId: "adebayoum170833",
-    transactionType: "Wallet Sales",
-    amount: 1050,
-    item: "Meat Pie + Bottled Water (50cl)",
-    reconciliationStatus: "Failed",
-  },
-  {
-    id: "4",
-    time: "11:15 AM",
-    name: "Biodun Eke",
-    studentId: "ekem178000",
-    transactionType: "Top-up",
-    amount: 5000,
-    item: "Wallet Top-up",
-    reconciliationStatus: "Reconciled",
-  },
-  {
-    id: "5",
-    time: "11:15 AM",
-    name: "Uche Nwachukwu",
-    studentId: "nwachukwum170044",
-    transactionType: "Wallet Sales",
-    amount: 1500,
-    item: "Coke + Fish Pie",
-    reconciliationStatus: "Reconciled",
-  },
-];
+const topSellingItems: TopSellingItem[] = [];
+const recentActivities: RecentActivity[] = [];
 
 const quickActions = [
   {

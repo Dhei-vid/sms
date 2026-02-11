@@ -1,17 +1,18 @@
 "use client";
 
+import { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { ArrowUpRight, Briefcase, Users, Clock, Plus } from "lucide-react";
+  DataTable,
+  TableColumn,
+  TableAction,
+} from "@/components/ui/data-table";
+import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { MetricCard } from "@/components/dashboard-pages/admin/admissions/components/metric-card";
+import { useGetStakeholdersQuery } from "@/services/stakeholders/stakeholders";
+import type { Stakeholders } from "@/services/stakeholders/stakeholder-types";
 
 interface Vacancy {
   id: string;
@@ -23,40 +24,142 @@ interface Vacancy {
 
 export default function ApplicantTrackingPage() {
   const router = useRouter();
+  // Fetch all stakeholders and filter for applicants on frontend
+  // Backend will need to support type='applicant' in stakeholders
+  const {
+    data: stakeholdersData,
+    isLoading,
+    error,
+  } = useGetStakeholdersQuery();
 
-  const vacancies: Vacancy[] = [
-    {
-      id: "1",
-      jobTitle: "JSS Science Teacher",
-      applicationCount: 45,
-      shortlisted: 12,
-      interviewScheduled: 7,
-    },
-    {
-      id: "2",
-      jobTitle: "Primary Art Teacher",
-      applicationCount: 30,
-      shortlisted: 8,
-      interviewScheduled: 3,
-    },
-    {
-      id: "3",
-      jobTitle: "Admin Assistant",
-      applicationCount: 70,
-      shortlisted: 20,
-      interviewScheduled: 8,
-    },
-  ];
+  // Filter applicants and group by position (job title) to create vacancies
+  const vacancies: Vacancy[] = useMemo(() => {
+    if (!stakeholdersData?.data) return [];
 
-  const handleViewCandidates = (vacancyId: string) => {
-    // Navigate to candidates page for this vacancy
-    // For now, navigate to a sample applicant detail page
-    router.push(`/admin/staff-management/applicant-tracking/1`);
+    // Filter for applicants only
+    const applicants = stakeholdersData.data.filter(
+      (s) => s.type === "applicant",
+    );
+
+    // Group applicants by position (job title)
+    const vacancyMap = new Map<
+      string,
+      {
+        id: string;
+        jobTitle: string;
+        applicants: Stakeholders[];
+      }
+    >();
+
+    applicants.forEach((applicant) => {
+      const jobTitle = applicant.position || "Unspecified Position";
+
+      if (!vacancyMap.has(jobTitle)) {
+        // Use first applicant's ID as vacancy ID (or generate from job title)
+        vacancyMap.set(jobTitle, {
+          id: applicant.id, // Using first applicant ID as vacancy identifier
+          jobTitle,
+          applicants: [],
+        });
+      }
+
+      vacancyMap.get(jobTitle)!.applicants.push(applicant);
+    });
+
+    // Transform to vacancy format with counts
+    return Array.from(vacancyMap.values()).map((vacancy) => {
+      const applicants = vacancy.applicants;
+
+      // Count by status - assuming status field indicates stage
+      // Adjust these based on actual status values used
+      const shortlisted = applicants.filter(
+        (a) =>
+          a.status?.toLowerCase() === "shortlisted" ||
+          a.initial_status?.toLowerCase() === "shortlisted",
+      ).length;
+
+      const interviewScheduled = applicants.filter(
+        (a) =>
+          a.status?.toLowerCase() === "interview_scheduled" ||
+          a.initial_status?.toLowerCase() === "interview_scheduled" ||
+          a.status?.toLowerCase() === "interview scheduled",
+      ).length;
+
+      return {
+        id: vacancy.id,
+        jobTitle: vacancy.jobTitle,
+        applicationCount: applicants.length,
+        shortlisted,
+        interviewScheduled,
+      };
+    });
+  }, [stakeholdersData]);
+
+  // Calculate metrics from API data
+  const metrics = useMemo(() => {
+    const openVacancies = vacancies.length; // All vacancies shown are "open"
+    const totalApplicants = vacancies.reduce(
+      (sum, v) => sum + v.applicationCount,
+      0,
+    );
+    // Placeholder for avg time-to-hire (would need backend calculation)
+    return {
+      openVacancies,
+      totalApplicants,
+      avgTimeToHire: 35,
+    };
+  }, [vacancies]);
+
+  const handleViewCandidates = (vacancy: Vacancy) => {
+    router.push(`/admin/staff-management/applicant-tracking/${vacancy.id}`);
   };
 
   const handlePostNewVacancy = () => {
     router.push("/admin/staff-management/post-new-vacancy");
   };
+
+  const columns: TableColumn<Vacancy>[] = [
+    {
+      key: "jobTitle",
+      title: "Job Title",
+      render: (_, row) => (
+        <div className="font-medium text-gray-800">{row.jobTitle}</div>
+      ),
+    },
+    {
+      key: "applicationCount",
+      title: "Application Count",
+      render: (_, row) => (
+        <div className="text-gray-600">{row.applicationCount}</div>
+      ),
+    },
+    {
+      key: "shortlisted",
+      title: "Shortlisted",
+      render: (_, row) => (
+        <div className="text-gray-600">{row.shortlisted}</div>
+      ),
+    },
+    {
+      key: "interviewScheduled",
+      title: "Interview Scheduled",
+      render: (_, row) => (
+        <div className="text-gray-600">{row.interviewScheduled}</div>
+      ),
+    },
+  ];
+
+  const actions: TableAction<Vacancy>[] = [
+    {
+      type: "button",
+      config: {
+        label: "View Candidates",
+        onClick: (vacancy) => handleViewCandidates(vacancy),
+        variant: "outline",
+        className: "w-full",
+      },
+    },
+  ];
 
   return (
     <div className="space-y-4">
@@ -72,20 +175,17 @@ export default function ApplicantTrackingPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <MetricCard
           title="Open Vacancies"
-          value="3 Positions"
-          icon={Briefcase}
-          trend="up"
+          value={`${metrics.openVacancies} ${metrics.openVacancies === 1 ? "Position" : "Positions"}`}
+          trend={metrics.openVacancies > 0 ? "up" : undefined}
         />
         <MetricCard
           title="Total Applicants"
-          value="145 Candidates"
-          icon={Users}
-          trend="up"
+          value={`${metrics.totalApplicants} ${metrics.totalApplicants === 1 ? "Candidate" : "Candidates"}`}
+          trend={metrics.totalApplicants > 0 ? "up" : undefined}
         />
         <MetricCard
           title="Avg. Time-to-Hire"
-          value="35 Days"
-          icon={Clock}
+          value={`${metrics.avgTimeToHire} ${metrics.avgTimeToHire === 1 ? "Day" : "Days"}`}
           trend="up"
         />
       </div>
@@ -111,79 +211,33 @@ export default function ApplicantTrackingPage() {
             </h3>
 
             <div className="border rounded-lg overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-main-blue/5">
-                    <TableHead>Job Title</TableHead>
-                    <TableHead>Application Count</TableHead>
-                    <TableHead>Shortlisted</TableHead>
-                    <TableHead>Interview Scheduled</TableHead>
-                    <TableHead className="w-[150px]">Action</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {vacancies.map((vacancy) => (
-                    <TableRow key={vacancy.id}>
-                      <TableCell className="font-medium text-gray-800">
-                        {vacancy.jobTitle}
-                      </TableCell>
-                      <TableCell className="text-gray-600">
-                        {vacancy.applicationCount}
-                      </TableCell>
-                      <TableCell className="text-gray-600">
-                        {vacancy.shortlisted}
-                      </TableCell>
-                      <TableCell className="text-gray-600">
-                        {vacancy.interviewScheduled}
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleViewCandidates(vacancy.id)}
-                          className="w-full"
-                        >
-                          View Candidates
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              {isLoading ? (
+                <div className="p-8 text-center text-gray-500">
+                  Loading vacancies...
+                </div>
+              ) : error ? (
+                <div className="p-8 text-center text-red-500">
+                  {error &&
+                  "data" in error &&
+                  typeof error.data === "object" &&
+                  error.data &&
+                  "message" in error.data
+                    ? (error.data as { message: string }).message
+                    : "Failed to load vacancies."}
+                </div>
+              ) : (
+                <DataTable
+                  columns={columns}
+                  data={vacancies}
+                  actions={actions}
+                  emptyMessage="No vacancies found"
+                  onRowClick={(vacancy) => handleViewCandidates(vacancy)}
+                />
+              )}
             </div>
           </div>
         </CardContent>
       </Card>
     </div>
-  );
-}
-
-interface MetricCardProps {
-  title: string;
-  value: string;
-  icon: React.ComponentType<{ className?: string }>;
-  trend?: "up" | "down";
-}
-
-function MetricCard({ title, value, icon: Icon, trend }: MetricCardProps) {
-  return (
-    <Card>
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <p className="text-sm text-gray-600 mb-1">{title}</p>
-            <p className="text-2xl font-bold text-gray-800">{value}</p>
-          </div>
-          <div className="relative">
-            <div className="h-12 w-12 rounded-lg bg-main-blue/10 flex items-center justify-center">
-              <Icon className="h-6 w-6 text-main-blue" />
-            </div>
-            {trend && (
-              <ArrowUpRight className="absolute -top-1 -right-1 h-4 w-4 text-gray-400" />
-            )}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
   );
 }

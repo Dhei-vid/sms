@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   MessageThreadsList,
   ChatConversation,
@@ -15,6 +15,7 @@ import { MessageInput } from "@/components/dashboard-pages/admin/messages/compon
 import {
   useGetChatsQuery,
   useGetChatByIdQuery,
+  useLazyGetChatByIdQuery,
   useSendChatMutation,
 } from "@/services/chats/chats";
 import { useGetUsersQuery } from "@/services/users/users";
@@ -27,6 +28,8 @@ import type {
   ChatParticipants,
   SendChatPayload,
 } from "@/services/chats/chat-types";
+
+const MESSAGE_PAGE_SIZE = 20;
 
 interface MessageThread {
   id: string;
@@ -54,20 +57,78 @@ export default function MessagesPage() {
   const user = useAppSelector(selectUser);
   const [selectedThreadId, setSelectedThreadId] = useState<string>("");
   const [teacherThreads, setTeacherThreads] = useState<MessageThread[]>([]);
+  const [staticThreadMessages, setStaticThreadMessages] = useState<
+    Record<"general" | "academic", ChatMessages[]>
+  >({ general: [], academic: [] });
+  const [individualThreadMessages, setIndividualThreadMessages] = useState<
+    Record<string, ChatMessages[]>
+  >({});
+  const [accumulatedMessages, setAccumulatedMessages] = useState<
+    Record<string, { messages: ChatMessages[]; hasMore: boolean }>
+  >({});
 
   const { data: chatsData } = useGetChatsQuery({ limit: 50 });
-  const { data: selectedChatData } = useGetChatByIdQuery(selectedThreadId, {
-    skip: !selectedThreadId,
-  });
+
+  const isTeacherThread = teacherThreads.some((t) => t.id === selectedThreadId);
+
+  const chatIdToFetch = useMemo(() => {
+    if (!selectedThreadId || !chatsData?.data) return undefined;
+    if (selectedThreadId === "general") {
+      return chatsData.data.find((c: Chat) => c.type === "general")?.id;
+    }
+    if (selectedThreadId === "academic") {
+      return chatsData.data.find((c: Chat) => c.type === "staff")?.id;
+    }
+    if (isTeacherThread) {
+      const oneToOne = chatsData.data.find(
+        (c: Chat) =>
+          c.participants?.length === 2 &&
+          c.participants.some(
+            (p: ChatParticipants) => p.id === selectedThreadId,
+          ),
+      );
+      return oneToOne?.id;
+    }
+    return selectedThreadId;
+  }, [selectedThreadId, isTeacherThread, chatsData?.data]);
+
+  const { data: selectedChatData } = useGetChatByIdQuery(
+    chatIdToFetch
+      ? { id: chatIdToFetch, message_limit: MESSAGE_PAGE_SIZE }
+      : { id: "" },
+    { skip: !chatIdToFetch },
+  );
+  const [fetchMoreMessages] = useLazyGetChatByIdQuery();
+
+  useEffect(() => {
+    if (!chatIdToFetch || !selectedChatData?.data?.id) return;
+    if (selectedChatData.data.id !== chatIdToFetch) return;
+    const { messages: msgs, has_more_messages: hasMore } =
+      selectedChatData.data;
+    setAccumulatedMessages((prev) => {
+      const existing = prev[chatIdToFetch];
+      if (existing && existing.messages.length > 0) return prev;
+      return {
+        ...prev,
+        [chatIdToFetch]: {
+          messages: msgs ?? [],
+          hasMore: hasMore ?? false,
+        },
+      };
+    });
+  }, [
+    chatIdToFetch,
+    selectedChatData?.data?.id,
+    selectedChatData?.data?.messages,
+    selectedChatData?.data?.has_more_messages,
+  ]);
+
   const { data: teachersData } = useGetUsersQuery({
     role: "teacher",
     limit: 100,
   });
   const [sendChat] = useSendChatMutation();
 
-  console.log("User :", user);
-
-  // Static threads (General Conversation and Academic Staffs)
   const staticThreads: MessageThread[] = [
     {
       id: "general",
@@ -85,49 +146,21 @@ export default function MessagesPage() {
     },
   ];
 
-  // Map Chat[] to MessageThread[] using participants and messages structure
-  const apiThreads: MessageThread[] = useMemo(() => {
-    if (!chatsData?.data) return [];
-
-    return chatsData.data.map((chat: Chat) => {
-      const lastMessage = chat.messages?.[chat.messages.length - 1];
-      const participantsNames =
-        chat.participants
-          ?.map((p: ChatParticipants) => `${p.first_name} ${p.last_name}`)
-          .join(", ") || "";
-
-      return {
-        id: chat.id,
-        name: chat.title,
-        description: participantsNames,
-        lastMessage: lastMessage?.content,
-        timestamp: lastMessage?.created_at
-          ? format(new Date(lastMessage.created_at), "h:mm a")
-          : undefined,
-        icon: SharedDriveIcon,
-        type: chat.type === "general" ? "general" : "group",
-      };
-    });
-  }, [chatsData]);
-
-  // Combine static threads, teacher threads, and API-loaded threads
+  // Thread list is only static (General, Academic) + per-user (teacher/individual). Not by chat id.
   const threads: MessageThread[] = useMemo(() => {
-    return [...staticThreads, ...teacherThreads, ...apiThreads];
-  }, [teacherThreads, apiThreads]);
+    return [...staticThreads, ...teacherThreads];
+  }, [teacherThreads]);
 
-  // Handle teacher selection - add teacher thread to list
   const handleTeacherSelect = (teacherId: string) => {
     const teacher = teachersData?.data?.find((t) => t.id === teacherId);
     if (!teacher) return;
 
-    // Check if thread already exists
     const existingThread = teacherThreads.find((t) => t.id === teacherId);
     if (existingThread) {
       setSelectedThreadId(teacherId);
       return;
     }
 
-    // Create new thread from teacher data
     const newThread: MessageThread = {
       id: teacher.id,
       name: `${teacher.first_name} ${teacher.last_name}`,
@@ -140,11 +173,79 @@ export default function MessagesPage() {
     setSelectedThreadId(teacherId);
   };
 
-  // Map ChatMessages[] to Message[] using sender structure
-  const messages: Message[] = useMemo(() => {
-    if (!selectedChatData?.data?.messages) return [];
+  const rawMessagesForThread = useMemo(() => {
+    if (selectedThreadId === "general") {
+      if (
+        chatIdToFetch &&
+        accumulatedMessages[chatIdToFetch]?.messages?.length
+      ) {
+        return accumulatedMessages[chatIdToFetch].messages;
+      }
+      if (
+        chatIdToFetch &&
+        selectedChatData?.data?.id === chatIdToFetch &&
+        selectedChatData?.data?.messages?.length
+      ) {
+        return selectedChatData.data.messages;
+      }
+      return staticThreadMessages.general;
+    }
+    if (selectedThreadId === "academic") {
+      if (
+        chatIdToFetch &&
+        accumulatedMessages[chatIdToFetch]?.messages?.length
+      ) {
+        return accumulatedMessages[chatIdToFetch].messages;
+      }
+      if (
+        chatIdToFetch &&
+        selectedChatData?.data?.id === chatIdToFetch &&
+        selectedChatData?.data?.messages?.length
+      ) {
+        return selectedChatData.data.messages;
+      }
+      return staticThreadMessages.academic;
+    }
+    if (isTeacherThread && selectedThreadId) {
+      if (
+        chatIdToFetch &&
+        accumulatedMessages[chatIdToFetch]?.messages?.length
+      ) {
+        return accumulatedMessages[chatIdToFetch].messages;
+      }
+      if (
+        chatIdToFetch &&
+        selectedChatData?.data?.id === chatIdToFetch &&
+        selectedChatData?.data?.messages?.length
+      ) {
+        return selectedChatData.data.messages;
+      }
+      return individualThreadMessages[selectedThreadId] ?? [];
+    }
+    if (chatIdToFetch && accumulatedMessages[chatIdToFetch]) {
+      return accumulatedMessages[chatIdToFetch].messages;
+    }
+    return selectedChatData?.data?.messages ?? [];
+  }, [
+    chatIdToFetch,
+    accumulatedMessages,
+    selectedThreadId,
+    staticThreadMessages,
+    individualThreadMessages,
+    isTeacherThread,
+    selectedChatData?.data?.id,
+    selectedChatData?.data?.messages,
+  ]);
 
-    return selectedChatData.data.messages.map((msg: ChatMessages) => {
+  const hasMoreFromApi =
+    selectedChatData?.data?.id === chatIdToFetch &&
+    (selectedChatData?.data?.has_more_messages ?? false);
+  const hasMoreMessages =
+    !!chatIdToFetch &&
+    (accumulatedMessages[chatIdToFetch]?.hasMore ?? hasMoreFromApi);
+
+  const messages: Message[] = useMemo(() => {
+    return rawMessagesForThread.map((msg: ChatMessages) => {
       const isOwnMessage = msg.sender?.id === user?.id;
       return {
         id: msg.id,
@@ -159,46 +260,130 @@ export default function MessagesPage() {
         isOwnMessage,
       };
     });
-  }, [selectedChatData, user]);
+  }, [rawMessagesForThread, user]);
 
   const selectedThread = threads.find((t) => t.id === selectedThreadId);
 
   const handleSendMessage = async (message: string) => {
     if (!selectedThreadId || !message.trim()) return;
 
+    const isGeneralOrAcademic =
+      selectedThreadId === "general" || selectedThreadId === "academic";
+    const chatType: "general" | "staff" | undefined =
+      selectedThreadId === "general"
+        ? "general"
+        : selectedThreadId === "academic"
+          ? "staff"
+          : undefined;
+
+    const sourceMessages = rawMessagesForThread;
+    const history = sourceMessages.map((msg: ChatMessages) => ({
+      role: msg.role,
+      message: msg.content,
+      model_type: msg.model_type,
+    }));
+
     try {
-      // Build history from existing messages - use actual data from API
-      const history =
-        selectedChatData?.data?.messages?.map((msg: ChatMessages) => ({
-          role: msg.role,
-          message: msg.content,
-          model_type: msg.model_type,
-        })) || [];
-
-      const chatIdsFromApi = chatsData?.data?.map((c: Chat) => c.id) ?? [];
-      const isExistingChat = chatIdsFromApi.includes(selectedThreadId);
-
       const payload: SendChatPayload = {
         message: message.trim(),
         history,
         content_type: "text/plain",
         save_chat: true,
-        type: "general",
       };
-      if (isExistingChat) {
+      if (chatType) {
+        payload.type = chatType;
+        if (user?.school_id) payload.school_id = user.school_id;
+      }
+      // 1:1: backend finds/creates chat by recipient so previous messages are in same thread
+      if (isTeacherThread && selectedThreadId) {
+        payload.recipient_id = String(selectedThreadId);
+      }
+      // Send chat id when we already have it (e.g. after first message, list refetched)
+      if (!isGeneralOrAcademic && chatIdToFetch) {
+        payload.id = chatIdToFetch;
+      } else if (!isGeneralOrAcademic && !isTeacherThread && selectedThreadId) {
         payload.id = selectedThreadId;
       }
-      const lastMessage =
-        selectedChatData?.data?.messages?.[
-          selectedChatData.data.messages.length - 1
-        ];
+      const lastMessage = sourceMessages[sourceMessages.length - 1];
       if (lastMessage?.model_type) {
         payload.model_type = lastMessage.model_type;
       }
 
-      await sendChat(payload).unwrap();
+      const result = await sendChat(payload).unwrap();
+      if (chatIdToFetch && result?.data?.messages) {
+        setAccumulatedMessages((prev) => ({
+          ...prev,
+          [chatIdToFetch]: {
+            messages: result.data.messages ?? [],
+            hasMore: prev[chatIdToFetch]?.hasMore ?? false,
+          },
+        }));
+      }
+      if (isGeneralOrAcademic && result?.data?.messages && !chatIdToFetch) {
+        const key = selectedThreadId as "general" | "academic";
+        setStaticThreadMessages((prev) => ({
+          ...prev,
+          [key]: result.data.messages ?? [],
+        }));
+      }
+      if (isTeacherThread && selectedThreadId && result?.data?.messages) {
+        const messages = result.data.messages ?? [];
+        setIndividualThreadMessages((prev) => ({
+          ...prev,
+          [selectedThreadId]: messages,
+        }));
+        // Store by returned chat id so when list refetches and chatIdToFetch updates we have messages
+        if (result.data.id) {
+          setAccumulatedMessages((prev) => ({
+            ...prev,
+            [result.data.id]: {
+              messages,
+              hasMore: result.data.has_more_messages ?? false,
+            },
+          }));
+        }
+      }
     } catch (error) {
       console.error("Failed to send message:", error);
+    }
+  };
+
+  const handleLoadPrevious = async () => {
+    if (!chatIdToFetch || !hasMoreMessages) return;
+    const current = accumulatedMessages[chatIdToFetch];
+    const oldestId =
+      current?.messages[0]?.id ??
+      (selectedChatData?.data?.id === chatIdToFetch
+        ? selectedChatData?.data?.messages?.[0]?.id
+        : undefined);
+    if (!oldestId) return;
+    try {
+      const result = await fetchMoreMessages({
+        id: chatIdToFetch,
+        message_limit: MESSAGE_PAGE_SIZE,
+        message_before: oldestId,
+      }).unwrap();
+      const older = result?.data?.messages ?? [];
+      const hasMore = result?.data?.has_more_messages ?? false;
+      if (older.length > 0) {
+        setAccumulatedMessages((prev) => ({
+          ...prev,
+          [chatIdToFetch]: {
+            messages: [...older, ...(prev[chatIdToFetch]?.messages ?? [])],
+            hasMore,
+          },
+        }));
+      } else {
+        setAccumulatedMessages((prev) => ({
+          ...prev,
+          [chatIdToFetch]: {
+            ...prev[chatIdToFetch]!,
+            hasMore: false,
+          },
+        }));
+      }
+    } catch (e) {
+      console.error("Load previous messages failed:", e);
     }
   };
 
@@ -242,7 +427,9 @@ export default function MessagesPage() {
               <ChatConversation
                 messages={messages}
                 onSendMessage={() => {}}
-                onLoadPrevious={() => console.log("Load previous")}
+                onLoadPrevious={
+                  hasMoreMessages ? handleLoadPrevious : undefined
+                }
               />
 
               {/* Input */}

@@ -14,7 +14,7 @@ export interface TransactionResponse {
   status_code: number;
   message: "Successful" | string;
   data: Transaction[];
-  pagination: Pagination;
+  pagination?: Pagination;
 }
 
 type TransactionCategory = "salaries" | string;

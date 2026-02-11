@@ -7,8 +7,6 @@ import { Button } from "@/components/ui/button";
 import { SelectField } from "@/components/ui/input-field";
 import { SelectItem } from "@/components/ui/select";
 import {
-  Tick01Icon,
-  ArrowUp02Icon,
   PayByCheckIcon,
   SaleTag01Icon,
   KanbanIcon,
@@ -27,9 +25,11 @@ import { ProgressBar } from "@/components/ui/progress-bar";
 import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 import { Bar, BarChart, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 
-// APIs & selectors
 import { useGetAllTransactionsQuery } from "@/services/transactions/transactions";
-import { selectTransactionsGroupedByCategory } from "@/services/transactions/transaction-selectors";
+import {
+  selectTransactionsGroupedByCategory,
+  selectAllTransactionsData,
+} from "@/services/transactions/transaction-selectors";
 import { useAppSelector } from "@/store/hooks";
 
 /** Category bar colors for Budget vs Actual (consistent order) */
@@ -53,91 +53,11 @@ interface BudgetItem {
   color: string;
 }
 
-interface ActivityItem {
-  id: string;
-  icon: any;
-  iconColor: string;
-  title: string;
-  description: string;
-  time: string;
-}
-
 interface QuickAction {
   icon: any;
   title: string;
   description: string;
 }
-
-/** Fallback when no transaction data (e.g. loading or empty) */
-const FALLBACK_BUDGET_ITEMS: BudgetItem[] = [
-  {
-    id: "1",
-    category: "Utilities",
-    annualBudget: 20000000,
-    budgetConsumed: 15000000,
-    consumedPercentage: 75,
-    color: "bg-teal-500",
-  },
-  {
-    id: "2",
-    category: "Maintenance",
-    annualBudget: 15000000,
-    budgetConsumed: 12000000,
-    consumedPercentage: 80,
-    color: "bg-orange-500",
-  },
-  {
-    id: "3",
-    category: "Administrative Supplies",
-    annualBudget: 5000000,
-    budgetConsumed: 2500000,
-    consumedPercentage: 50,
-    color: "bg-blue-500",
-  },
-];
-
-const activities: ActivityItem[] = [
-  {
-    id: "1",
-    icon: Tick01Icon,
-    iconColor: "text-green-600",
-    title: "Alumni Donation",
-    description: "₦500,000 Alumni Donation - Source: Mr. B. Adekunle",
-    time: "10:00 AM",
-  },
-  {
-    id: "2",
-    icon: ArrowUp02Icon,
-    iconColor: "text-red-600",
-    title: "Monthly Salaries Batch",
-    description: "₦4,500,000.00 paid salary to staffs",
-    time: "10:00 AM",
-  },
-  {
-    id: "3",
-    icon: ArrowUp02Icon,
-    iconColor: "text-red-600",
-    title: "IT Maintenance",
-    description: "₦120,000 IT Maintenance - Vendor: Tech Solutions",
-    time: "10:00 AM",
-  },
-  {
-    id: "4",
-    icon: Tick01Icon,
-    iconColor: "text-green-600",
-    title: "Alumni Donation",
-    description: "₦500,000 Alumni Donation - Source: Mr. B. Adekunle",
-    time: "10:00 AM",
-  },
-  {
-    id: "5",
-    icon: ArrowUp02Icon,
-    iconColor: "text-red-600",
-    title: "Canteen Purchase",
-    description: "₦120,000 purchase made from vendor for the canteen",
-    time: "10:00 AM",
-  },
-];
 
 const quickActions: QuickAction[] = [
   {
@@ -179,44 +99,17 @@ interface CashFlowData {
   expenses: number;
 }
 
-// Sample data for different time ranges
-const weeklyData: CashFlowData[] = [
-  { period: "Mon", income: 450000, expenses: 320000 },
-  { period: "Tue", income: 520000, expenses: 380000 },
-  { period: "Wed", income: 480000, expenses: 350000 },
-  { period: "Thurs", income: 610000, expenses: 420000 },
-  { period: "Fri", income: 550000, expenses: 390000 },
-];
-
-const monthlyData: CashFlowData[] = [
-  { period: "Week 1", income: 2500000, expenses: 1800000 },
-  { period: "Week 2", income: 2800000, expenses: 2100000 },
-  { period: "Week 3", income: 3200000, expenses: 2400000 },
-  { period: "Week 4", income: 2900000, expenses: 2200000 },
-];
-
-const yearlyData: CashFlowData[] = [
-  { period: "Jan", income: 12000000, expenses: 8500000 },
-  { period: "Feb", income: 13500000, expenses: 9200000 },
-  { period: "Mar", income: 14200000, expenses: 9800000 },
-  { period: "Apr", income: 13800000, expenses: 9500000 },
-  { period: "May", income: 15000000, expenses: 10500000 },
-  { period: "Jun", income: 14500000, expenses: 10000000 },
-];
-
 export default function DailyOperationsTreasuryPage() {
   const router = useRouter();
   const [timeRange, setTimeRange] = useState("weekly");
 
-  const { data: allTransactionsData, isLoading: isTransactionLoading } =
-    useGetAllTransactionsQuery();
+  const { isLoading: isTransactionLoading } = useGetAllTransactionsQuery();
+  const transactions = useAppSelector(selectAllTransactionsData);
   const transactionsGroupedByCategory = useAppSelector(
     selectTransactionsGroupedByCategory,
   );
 
-  // Map selector output (grouped by category) to table rows; fallback when empty
   const budgetTableData = useMemo((): BudgetItem[] => {
-    if (!transactionsGroupedByCategory.length) return FALLBACK_BUDGET_ITEMS;
     return transactionsGroupedByCategory.map((g, i) => ({
       id: g.category,
       category: g.category,
@@ -227,26 +120,7 @@ export default function DailyOperationsTreasuryPage() {
     }));
   }, [transactionsGroupedByCategory]);
 
-  // Get data based on selected time range
-  const getCashFlowData = (): CashFlowData[] => {
-    switch (timeRange) {
-      case "weekly":
-        return weeklyData;
-      case "monthly":
-        return monthlyData;
-      case "yearly":
-        return yearlyData;
-      default:
-        return weeklyData;
-    }
-  };
-
-  const cashFlowData = getCashFlowData();
-
-  // Calculate max value for scaling
-  const maxValue = Math.max(
-    ...cashFlowData.flatMap((d) => [d.income, d.expenses]),
-  );
+  const cashFlowData: CashFlowData[] = [];
 
   // Chart configuration
   const chartConfig = {
@@ -309,37 +183,26 @@ export default function DailyOperationsTreasuryPage() {
         </p>
       </div>
 
-      {/* Overview Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <FinancialMetricCard
           title="Net Available Cash"
-          value={12580000}
-          subtitle="+1.5% Compared to last month"
-          currency
-          trend="up"
-          trendColor="text-green-600"
+          value="—"
+          subtitle="No data"
         />
         <FinancialMetricCard
           title="Total Wallet Liability"
-          value={120000}
-          subtitle="+2% increase on short term debt"
-          currency
-          trend="up"
-          trendColor="text-green-600"
+          value="—"
+          subtitle="No data"
         />
         <FinancialMetricCard
           title="Budget Consumption Rate"
-          value="78% YTD"
-          subtitle="+5% Compared to last academic year"
-          trend="up"
-          trendColor="text-red-600"
+          value="—"
+          subtitle="No data"
         />
         <FinancialMetricCard
           title="Unpaid Creditor Bills (7 Days)"
-          value={520000}
-          subtitle="Immediate cash outflow forecast"
-          currency
-          trend="up"
+          value="—"
+          subtitle="No data"
         />
       </div>
 
@@ -360,6 +223,10 @@ export default function DailyOperationsTreasuryPage() {
             {isTransactionLoading ? (
               <div className="border rounded-lg p-8 text-center text-muted-foreground text-sm">
                 Loading transaction data…
+              </div>
+            ) : budgetTableData.length === 0 ? (
+              <div className="border rounded-lg p-8 text-center text-muted-foreground text-sm">
+                No budget data
               </div>
             ) : (
               <div className="border rounded-lg overflow-hidden">
@@ -416,7 +283,11 @@ export default function DailyOperationsTreasuryPage() {
                 </div>
               </div>
 
-              {/* Bar Chart */}
+              {cashFlowData.length === 0 ? (
+                <div className="h-64 flex items-center justify-center text-muted-foreground text-sm border rounded-lg">
+                  No cash flow data
+                </div>
+              ) : (
               <ChartContainer config={chartConfig} className="h-64 w-full">
                 <BarChart
                   data={cashFlowData}
@@ -523,26 +394,28 @@ export default function DailyOperationsTreasuryPage() {
                   />
                 </BarChart>
               </ChartContainer>
+              )}
 
-              {/* Summary Stats */}
-              <div className="grid grid-cols-2 gap-4 pt-2">
-                <div className="text-center p-3 bg-green-50 rounded-lg">
-                  <p className="text-xs text-gray-600 mb-1">Total Income</p>
-                  <p className="text-sm font-semibold text-green-700">
-                    {formattedAmount(
-                      cashFlowData.reduce((sum, d) => sum + d.income, 0),
-                    )}
-                  </p>
+              {cashFlowData.length > 0 && (
+                <div className="grid grid-cols-2 gap-4 pt-2">
+                  <div className="text-center p-3 bg-green-50 rounded-lg">
+                    <p className="text-xs text-gray-600 mb-1">Total Income</p>
+                    <p className="text-sm font-semibold text-green-700">
+                      {formattedAmount(
+                        cashFlowData.reduce((sum, d) => sum + d.income, 0),
+                      )}
+                    </p>
+                  </div>
+                  <div className="text-center p-3 bg-orange-50 rounded-lg">
+                    <p className="text-xs text-gray-600 mb-1">Total Expenses</p>
+                    <p className="text-sm font-semibold text-orange-700">
+                      {formattedAmount(
+                        cashFlowData.reduce((sum, d) => sum + d.expenses, 0),
+                      )}
+                    </p>
+                  </div>
                 </div>
-                <div className="text-center p-3 bg-orange-50 rounded-lg">
-                  <p className="text-xs text-gray-600 mb-1">Total Expenses</p>
-                  <p className="text-sm font-semibold text-orange-700">
-                    {formattedAmount(
-                      cashFlowData.reduce((sum, d) => sum + d.expenses, 0),
-                    )}
-                  </p>
-                </div>
-              </div>
+              )}
 
               <Button variant="outline" className="w-full mt-auto">
                 View Statistics
@@ -560,43 +433,48 @@ export default function DailyOperationsTreasuryPage() {
           </CardHeader>
           <CardContent className="flex flex-col items-stretch gap-4 divide-y divide-gray-200 p-0 h-full">
             <div className="space-y-0">
-              {allTransactionsData?.data
-                ?.slice(0, 5)
-                .map((transactions, index) => (
-                  <div key={index}>
-                    <ActivityItem
-                      icon={
-                        transactions?.transaction_type === "income"
-                          ? ArrowUpRight01Icon
-                          : ArrowDownLeft01Icon
-                      }
-                      iconColor={
-                        transactions?.transaction_type === "income"
-                          ? "text-green-600"
-                          : "text-red-600"
-                      }
-                      title={transactions?.description || "No description"}
-                      description={
-                        transactions?.amount
-                          ? `₦${Number(transactions.amount).toLocaleString()}`
-                          : "No amount"
-                      }
-                      time={transactions?.created_at ?? null}
-                      iconBg
-                    />
-                    {index < allTransactionsData?.data.length - 1 && (
-                      <Separator />
-                    )}
-                  </div>
-                ))}
+              {transactions.length === 0 ? (
+                <div className="p-6 text-center text-muted-foreground text-sm">
+                  No recent transactions
+                </div>
+              ) : (
+                transactions.slice(0, 5).map((tx, index) => (
+                <div key={tx.id ?? index}>
+                  <ActivityItem
+                    icon={
+                      tx.transaction_type === "income"
+                        ? ArrowUpRight01Icon
+                        : ArrowDownLeft01Icon
+                    }
+                    iconColor={
+                      tx.transaction_type === "income"
+                        ? "text-green-600"
+                        : "text-red-600"
+                    }
+                    title={tx.description || "No description"}
+                    description={
+                      tx.amount
+                        ? `₦${Number(tx.amount).toLocaleString()}`
+                        : "No amount"
+                    }
+                    time={tx.created_at ?? null}
+                    iconBg
+                  />
+                  {index < Math.min(5, transactions.length) - 1 && (
+                    <Separator />
+                  )}
+                </div>
+              ))
+              )}
             </div>
-            <div className="flex justify-center pt-2 mt-auto">
-              <Button variant="outline">Load more</Button>
-            </div>
+            {transactions.length > 5 && (
+              <div className="flex justify-center pt-2 mt-auto">
+                <Button variant="outline">Load more</Button>
+              </div>
+            )}
           </CardContent>
         </Card>
 
-        {/* Quick Actions */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-gray-800">
@@ -615,19 +493,16 @@ export default function DailyOperationsTreasuryPage() {
                       console.log("Modal should open here");
                     }
                     if (action.title === "Wallet & Canteen Sales") {
-                      router.push(
-                        "daily-operations-treasury/canteen-operations",
-                      );
+                      router.push("canteen-operations");
                     }
                     if (action.title === "Process Creditor Payment") {
-                      router.push(
-                        "daily-operations-treasury/canteen-operations",
-                      );
+                      router.push("canteen-operations");
                     }
                     if (action.title === "Add Wallet Top-Up (Manual)") {
-                      router.push(
-                        "daily-operations-treasury/canteen-operations",
-                      );
+                      router.push("canteen-operations");
+                    }
+                    if (action.title === "Budget Status Report") {
+                      router.push("budget-tracking");
                     }
                   }}
                 />

@@ -1,17 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { MetricCard } from "@/components/dashboard-pages/admin/admissions/components/metric-card";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  DataTable,
+  TableColumn,
+  TableAction,
+} from "@/components/ui/data-table";
 import {
   Select,
   SelectContent,
@@ -19,21 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  ArrowUpRight,
-  Calendar,
-  Clock,
-  Users,
-  Search,
-  MoreVertical,
-  Plus,
-} from "lucide-react";
+import { Search, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Icon } from "@/components/general/huge-icon";
 import {
@@ -41,7 +26,9 @@ import {
   ElearningExchangeIcon,
   PrinterIcon,
 } from "@hugeicons/core-free-icons";
-import Link from "next/link";
+import { format } from "date-fns";
+import type { UserRequest } from "@/services/user-requests/user-request-types";
+import { useGetUserRequestsQuery } from "@/services/user-requests/user-requests";
 
 interface LeaveRequest {
   id: string;
@@ -59,92 +46,185 @@ interface LeaveRequest {
 }
 
 export default function LeaveRequestsPage() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("all");
 
-  const leaveRequests: LeaveRequest[] = [
-    {
-      id: "1",
-      name: "Mr. Chinedu Okafor",
-      staffId: "okafor.T178023",
-      role: "HOD Science JS 2",
-      leaveType: "Annual Leave",
-      startDate: "2025/11/15",
-      endDate: "2025/11/20",
-      status: "pending",
-      statusLabel: "Pending Request",
-      coverage: "Assign Coverage",
-      coverageLink: true,
-      duration: 5,
-    },
-    {
-      id: "2",
-      name: "Mrs. Helen Davies",
-      staffId: "davies.T178024",
-      role: "P5 Teacher",
-      leaveType: "Sick Leave",
-      startDate: "2025/10/27",
-      endDate: "2025/11/3",
-      status: "current",
-      statusLabel: "Current Leave",
-      coverage: "Ms. Shane, P4 Teacher",
-      duration: 5,
-    },
-    {
-      id: "3",
-      name: "Ms. Tolu Adebayo",
-      staffId: "adebayo.T178025",
-      role: "Bursar",
-      leaveType: "Personal Leave",
-      startDate: "2025/11/3",
-      endDate: "2025/11/7",
-      status: "approved",
-      statusLabel: "Approved Request",
-      coverage: "Mr. Sola, HR Admin",
-      duration: 8,
-    },
-    {
-      id: "4",
-      name: "Mr. Biodun Eke",
-      staffId: "eke.T178026",
-      role: "Security Guard",
-      leaveType: "Maternity Leave",
-      startDate: "2025/11/15",
-      endDate: "2025/11/20",
-      status: "pending",
-      statusLabel: "Pending Request",
-      coverage: "Assign Coverage",
-      coverageLink: true,
-      duration: 8,
-    },
-    {
-      id: "5",
-      name: "Mrs. Uche Nwachukwu",
-      staffId: "nwachukwu.T178027",
-      role: "JS 3 Teacher",
-      leaveType: "Personal Leave",
-      startDate: "2025/11/15",
-      endDate: "2025/11/20",
-      status: "pending",
-      statusLabel: "Pending Request",
-      coverage: "Assign Coverage",
-      coverageLink: true,
-      duration: 8,
-    },
-    {
-      id: "6",
-      name: "Mr. Sola Adeniyi",
-      staffId: "adeniyi.m.T178023",
-      role: "HR Admin",
-      leaveType: "Personal Leave",
-      startDate: "2025/11/15",
-      endDate: "2025/11/20",
-      status: "denied",
-      statusLabel: "Denied Request",
-      coverage: "Nil",
-      duration: 8,
-    },
-  ];
+  const { data: userRequestData, isLoading: isUserRequestLoading } =
+    useGetUserRequestsQuery();
+
+  // Transform API data to LeaveRequest format
+  const leaveRequests: LeaveRequest[] = useMemo(() => {
+    if (!userRequestData?.data) return [];
+
+    // Filter for leave type requests only
+    const leaveTypeRequests = userRequestData.data.filter(
+      (req) => req.type === "leave",
+    );
+
+    return leaveTypeRequests.map((req: UserRequest) => {
+      const staffName = req.staff_member?.user
+        ? `${req.staff_member.user.first_name || ""} ${req.staff_member.user.last_name || ""}`.trim()
+        : "Unknown Staff";
+
+      const staffId =
+        req.staff_member?.admission_number ||
+        req.staff_member_id?.slice(0, 8).toUpperCase() ||
+        "N/A";
+
+      const role = req.staff_member?.position || "Staff";
+
+      // Format dates
+      const startDate = req.start_date
+        ? format(new Date(req.start_date), "yyyy/MM/dd")
+        : "N/A";
+      const endDate = req.end_date
+        ? format(new Date(req.end_date), "yyyy/MM/dd")
+        : "N/A";
+
+      // Calculate duration
+      let duration = 0;
+      if (req.start_date && req.end_date) {
+        const start = new Date(req.start_date);
+        const end = new Date(req.end_date);
+        const diffTime = Math.abs(end.getTime() - start.getTime());
+        duration = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+      }
+
+      // Map status
+      const statusMap: Record<
+        string,
+        "pending" | "approved" | "denied" | "current"
+      > = {
+        pending: "pending",
+        approved: "approved",
+        rejected: "denied",
+        cancelled: "denied",
+      };
+      const status = statusMap[req.status?.toLowerCase() || ""] || "pending";
+
+      const statusLabelMap: Record<string, string> = {
+        pending: "Pending Request",
+        approved: "Approved Request",
+        denied: "Denied Request",
+        current: "Current Leave",
+      };
+      const statusLabel = statusLabelMap[status] || "Pending Request";
+
+      // Coverage staff
+      const coverageName = req.coverage_staff?.user
+        ? `${req.coverage_staff.user.first_name || ""} ${req.coverage_staff.user.last_name || ""}`.trim()
+        : null;
+      const coverageRole = req.coverage_staff?.position || null;
+      const coverage = coverageName
+        ? `${coverageName}${coverageRole ? `, ${coverageRole}` : ""}`
+        : "Assign Coverage";
+      const coverageLink = !coverageName;
+
+      return {
+        id: req.id,
+        name: staffName,
+        staffId: staffId,
+        role: role,
+        leaveType: req.leave_type || "Leave",
+        startDate: startDate,
+        endDate: endDate,
+        status: status,
+        statusLabel: statusLabel,
+        coverage: coverage,
+        coverageLink: coverageLink,
+        duration: duration,
+      };
+    });
+  }, [userRequestData]);
+
+  // Calculate metrics from API data
+  const metrics = useMemo(() => {
+    if (!userRequestData?.data) {
+      return {
+        currentlyOnLeave: 0,
+        pendingRequests: 0,
+        upcomingAbsences: 0,
+        avgApprovalTime: 0,
+      };
+    }
+
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+
+    // Filter for leave type requests only
+    const leaveTypeRequests = userRequestData.data.filter(
+      (req: UserRequest) => req.type === "leave",
+    );
+
+    // Currently on Leave: approved requests where current date is between start and end date
+    const currentlyOnLeave = leaveTypeRequests.filter((req: UserRequest) => {
+      const status = req.status?.toLowerCase();
+      if (status !== "approved" && status !== "current") return false;
+      if (!req.start_date || !req.end_date) return false;
+      try {
+        const start = new Date(req.start_date);
+        const end = new Date(req.end_date);
+        start.setHours(0, 0, 0, 0);
+        end.setHours(0, 0, 0, 0);
+        return now >= start && now <= end;
+      } catch {
+        return false;
+      }
+    }).length;
+
+    // Pending Requests: count of pending status
+    const pendingRequests = leaveTypeRequests.filter(
+      (req: UserRequest) => req.status?.toLowerCase() === "pending",
+    ).length;
+
+    // Upcoming Absences: approved requests where start date is in the future
+    const upcomingAbsences = leaveTypeRequests.filter((req: UserRequest) => {
+      if (req.status?.toLowerCase() !== "approved") return false;
+      if (!req.start_date) return false;
+      try {
+        const start = new Date(req.start_date);
+        start.setHours(0, 0, 0, 0);
+        return start > now;
+      } catch {
+        return false;
+      }
+    }).length;
+
+    // Average Approval Time: calculate average days between created_at and updated_at for approved requests
+    let avgApprovalTime = 0;
+    const approvedRequests = leaveTypeRequests.filter(
+      (req: UserRequest) => req.status?.toLowerCase() === "approved",
+    );
+
+    if (approvedRequests.length > 0) {
+      const totalDays = approvedRequests.reduce(
+        (sum: number, req: UserRequest) => {
+          if (req.created_at && req.updated_at) {
+            try {
+              const created = new Date(req.created_at);
+              const updated = new Date(req.updated_at);
+              const diffTime = Math.abs(updated.getTime() - created.getTime());
+              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+              return sum + diffDays;
+            } catch {
+              return sum;
+            }
+          }
+          return sum;
+        },
+        0,
+      );
+      avgApprovalTime = Math.round(totalDays / approvedRequests.length);
+    }
+
+    return {
+      currentlyOnLeave,
+      pendingRequests,
+      upcomingAbsences,
+      avgApprovalTime,
+    };
+  }, [userRequestData]);
 
   const filteredRequests = leaveRequests.filter((request) => {
     const matchesSearch =
@@ -171,6 +251,80 @@ export default function LeaveRequestsPage() {
     }
   };
 
+  const columns: TableColumn<LeaveRequest>[] = [
+    {
+      key: "name",
+      title: "Full Name + Staff ID",
+      render: (_, row) => (
+        <div className="font-medium">
+          {row.name} ({row.staffId}): {row.role}
+        </div>
+      ),
+    },
+    {
+      key: "leaveType",
+      title: "Leave Type",
+    },
+    {
+      key: "dateRange",
+      title: "Date Range",
+      render: (_, row) => `${row.startDate} - ${row.endDate}`,
+    },
+    {
+      key: "status",
+      title: "Status",
+      render: (_, row) => (
+        <span className={cn("font-medium", getStatusColor(row.status))}>
+          {row.statusLabel}
+        </span>
+      ),
+    },
+    {
+      key: "coverage",
+      title: "Coverage",
+      render: (_, row) =>
+        row.coverageLink ? (
+          <button className="text-main-blue underline text-sm hover:text-main-blue/80">
+            {row.coverage}
+          </button>
+        ) : (
+          <span className="text-gray-600">{row.coverage}</span>
+        ),
+    },
+    {
+      key: "duration",
+      title: "Duration",
+      render: (_, row) => `${row.duration} Days`,
+    },
+  ];
+
+  const actions: TableAction<LeaveRequest>[] = [
+    {
+      type: "dropdown",
+      config: {
+        items: [
+          {
+            label: "View Details",
+            onClick: (row) => {
+              router.push(`/admin/staff-management/leave/${row.id}`);
+            },
+            icon: <Icon icon={ElearningExchangeIcon} size={16} />,
+          },
+          {
+            label: "Edit Request",
+            onClick: () => {},
+            icon: <Icon icon={Edit01Icon} size={16} />,
+          },
+          {
+            label: "Print Request",
+            onClick: () => {},
+            icon: <Icon icon={PrinterIcon} size={16} />,
+          },
+        ],
+      },
+    },
+  ];
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -187,37 +341,31 @@ export default function LeaveRequestsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
           title="Currently on Leave"
-          value="2 Staffs"
-          icon={Users}
-          trend="up"
+          value={`${metrics.currentlyOnLeave} ${metrics.currentlyOnLeave === 1 ? "Staff" : "Staffs"}`}
+          trend={metrics.currentlyOnLeave > 0 ? "up" : undefined}
         />
         <MetricCard
           title="Pending Requests"
-          value="7 Requests"
-          icon={Calendar}
-          trend="up"
+          value={`${metrics.pendingRequests} ${metrics.pendingRequests === 1 ? "Request" : "Requests"}`}
+          trend={metrics.pendingRequests > 0 ? "up" : undefined}
         />
         <MetricCard
           title="Upcoming Absences"
-          value="3 Staffs"
-          icon={Clock}
-          trend="up"
+          value={`${metrics.upcomingAbsences} ${metrics.upcomingAbsences === 1 ? "Staff" : "Staffs"}`}
+          trend={metrics.upcomingAbsences > 0 ? "up" : undefined}
         />
         <MetricCard
           title="Avg. Approval Time"
-          value="5 Days"
-          icon={Clock}
-          trend="up"
+          value={`${metrics.avgApprovalTime} ${metrics.avgApprovalTime === 1 ? "Day" : "Days"}`}
+          trend={metrics.avgApprovalTime > 0 ? "up" : undefined}
         />
       </div>
 
       {/* Create New Leave Policy Button */}
-      <div>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          Create New Leave Policy
-        </Button>
-      </div>
+      <Button variant={"outline"} className="h-11 w-full gap-2">
+        <Plus className="h-4 w-4" />
+        Create New Leave Policy
+      </Button>
 
       {/* Request Table Section */}
       <Card>
@@ -254,87 +402,17 @@ export default function LeaveRequestsPage() {
               </div>
             </div>
 
-            {/* Table */}
+            {/* DataTable */}
             <div className="border rounded-lg overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-main-blue/5">
-                    <TableHead>Full Name + Staff ID</TableHead>
-                    <TableHead>Leave Type</TableHead>
-                    <TableHead>Date Range</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Coverage</TableHead>
-                    <TableHead>Duration</TableHead>
-                    <TableHead className="w-12"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredRequests.map((request) => (
-                    <TableRow key={request.id}>
-                      <TableCell className="font-medium">
-                        {request.name} ({request.staffId}): {request.role}
-                      </TableCell>
-                      <TableCell>{request.leaveType}</TableCell>
-                      <TableCell>
-                        {request.startDate} - {request.endDate}
-                      </TableCell>
-                      <TableCell>
-                        <span
-                          className={cn(
-                            "font-medium",
-                            getStatusColor(request.status),
-                          )}
-                        >
-                          {request.statusLabel}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        {request.coverageLink ? (
-                          <button className="text-main-blue underline text-sm hover:text-main-blue/80">
-                            {request.coverage}
-                          </button>
-                        ) : (
-                          <span className="text-gray-600">
-                            {request.coverage}
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell>{request.duration} Days</TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                            >
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <Link
-                              href={`/admin/staff-management/leave/${request.id}`}
-                            >
-                              <DropdownMenuItem className="flex flex-row gap-3 items-center">
-                                <Icon icon={ElearningExchangeIcon} size={16} />
-                                <p>View Details</p>
-                              </DropdownMenuItem>
-                            </Link>
-                            <DropdownMenuItem className="flex flex-row gap-3 items-center">
-                              <Icon icon={Edit01Icon} size={16} />
-                              <p>Edit Request</p>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="flex flex-row gap-3 items-center">
-                              <Icon icon={PrinterIcon} size={16} />
-                              <p>Print Request</p>
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <DataTable
+                columns={columns}
+                data={filteredRequests}
+                actions={actions}
+                emptyMessage="No leave requests found"
+                onRowClick={(row) => {
+                  router.push(`/admin/staff-management/leave/${row.id}`);
+                }}
+              />
             </div>
 
             {/* Load More Button */}
@@ -345,35 +423,5 @@ export default function LeaveRequestsPage() {
         </CardContent>
       </Card>
     </div>
-  );
-}
-
-interface MetricCardProps {
-  title: string;
-  value: string;
-  icon: React.ComponentType<{ className?: string }>;
-  trend?: "up" | "down";
-}
-
-function MetricCard({ title, value, icon: Icon, trend }: MetricCardProps) {
-  return (
-    <Card>
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <p className="text-sm text-gray-600 mb-1">{title}</p>
-            <p className="text-2xl font-bold text-gray-800">{value}</p>
-          </div>
-          <div className="relative">
-            <div className="h-12 w-12 rounded-lg bg-main-blue/10 flex items-center justify-center">
-              <Icon className="h-6 w-6 text-main-blue" />
-            </div>
-            {trend && (
-              <ArrowUpRight className="absolute -top-1 -right-1 h-4 w-4 text-gray-400" />
-            )}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
   );
 }

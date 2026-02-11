@@ -85,7 +85,12 @@ export function PersonalInformationForm({
       onSchoolEmailChange("");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formData.firstName, formData.lastName, formData.schoolId, selectedSchool?.name]);
+  }, [
+    formData.firstName,
+    formData.lastName,
+    formData.schoolId,
+    selectedSchool?.name,
+  ]);
 
   const dateValue = formData.dateOfBirth
     ? new Date(formData.dateOfBirth)

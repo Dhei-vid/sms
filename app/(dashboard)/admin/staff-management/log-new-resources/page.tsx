@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { ResourceTabs } from "@/components/dashboard-pages/admin/staff/components/resource-tabs/resource-tabs";
 import { LogStaffAssignmentForm } from "@/components/dashboard-pages/admin/staff/forms/log-staff-assignment-form";
@@ -9,17 +10,17 @@ import { LogResourceAllocationForm } from "@/components/dashboard-pages/admin/st
 type TabId = "assignment" | "allocation";
 
 export default function LogNewResourcesPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabId>("assignment");
 
   const handleCancel = () => {
-    // Handle cancel action - could navigate back or reset form
-    console.log("Form cancelled");
+    router.back();
   };
 
   const handleSubmit = () => {
-    // Handle form submission
-    console.log("Form submitted");
-    // Could show success message, navigate, etc.
+    // Forms handle their own success messages via toast
+    // Optionally navigate back or stay on page for multiple entries
+    // For now, we'll stay on the page to allow multiple entries
   };
 
   const renderTabContent = () => {
