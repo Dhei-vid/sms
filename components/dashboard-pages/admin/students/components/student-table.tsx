@@ -136,20 +136,19 @@ export function StudentTable({
     );
   };
 
-  // Transform API students data to component format
   const apiStudents =
-    studentsData?.data?.map((student) => ({
-      id: student.id,
-      first_name: student.user.first_name,
-      last_name: student.user.last_name,
-      schoolId: student.studentId || student.id,
-      grade: student.className || student.class?.name || "N/A",
+    studentsData?.data?.map((student: { id?: string; user?: { first_name?: string; last_name?: string }; studentId?: string; className?: string; class?: { name?: string }; status?: string }) => ({
+      id: student?.id ?? "",
+      first_name: student?.user?.first_name ?? "",
+      last_name: student?.user?.last_name ?? "",
+      schoolId: student?.studentId || student?.id || "",
+      grade: student?.className || student?.class?.name || "N/A",
       attendance: "N/A",
       academicAvg: "N/A",
       outstandingFees: "N/A",
-      status: (student.status || "active") as Student["status"],
+      status: (student?.status || "active") as Student["status"],
       latestActivity: "N/A",
-    })) || [];
+    })) ?? [];
 
   const allStudents = apiStudents.length > 0 ? apiStudents : students;
 
