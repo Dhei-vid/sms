@@ -13,8 +13,8 @@ export interface ScheduleEvent {
   start_time: string; // HH:mm:ss.SSSSSS
   end_time: string; // HH:mm:ss.SSSSSS
   location: string | null;
-  target_audience: "general" | "students" | "staff" | string;
-  specifics: string | null;
+  target_audience: "general" | "private" | "others" | string;
+  specifics: string[] | null;
   status: "scheduled" | "cancelled" | "completed" | null;
   is_deleted: boolean;
 
@@ -38,15 +38,18 @@ export interface CreateScheduleEventPayload {
   title: string;
   description: string;
 
-  type?: "info" | "meeting" | "exam" | string;
+  type?: "notice" | "exam" | "event" | "meeting" | "others" | string;
 
   date: string;
   start_time: string;
   end_time: string;
 
-  location: string;
+  location?: string;
 
-  status: "active" | "inactive" | "cancelled";
+  status?: "active" | "inactive" | "cancelled";
+
+  target_audience?: "general" | "private" | "others";
+  specifics?: string[]; // e.g. ["teacher", "student", "parent", "staff"]
 
   invigilator_id?: string | null;
 }

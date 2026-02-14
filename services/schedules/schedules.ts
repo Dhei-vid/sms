@@ -29,6 +29,26 @@ export const schedulesApi = baseApi.injectEndpoints({
       providesTags: ["Schedule"],
     }),
 
+    getCalendarEvents: build.query<
+      { data: ScheduleEvent[] },
+      { schoolId?: string; dateFrom?: string; dateTo?: string } | void
+    >({
+      query: (params) => {
+        const queryParams: Record<string, string> = {
+          _all: "true",
+          "type[eq]": "event",
+        };
+        if (params?.schoolId) queryParams["school_id[eq]"] = params.schoolId;
+        if (params?.dateFrom) queryParams["date[gte]"] = params.dateFrom;
+        if (params?.dateTo) queryParams["date[lte]"] = params.dateTo;
+        return { url: BASE, params: queryParams };
+      },
+      transformResponse: (response: { data?: ScheduleEvent[] }): { data: ScheduleEvent[] } => ({
+        data: response?.data ?? [],
+      }),
+      providesTags: ["Schedule"],
+    }),
+
     getUpcomingEvents: build.query<
       { data: ScheduleEvent[] },
       { limit?: number } | void
@@ -108,6 +128,7 @@ export const schedulesApi = baseApi.injectEndpoints({
 
 export const {
   useGetSchedulesQuery,
+  useGetCalendarEventsQuery,
   useGetUpcomingEventsQuery,
   useGetExamSchedulesQuery,
   useGetScheduleByIdQuery,

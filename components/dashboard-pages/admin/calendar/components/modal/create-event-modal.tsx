@@ -1,54 +1,77 @@
 "use client";
 
-import { useState, Dispatch, SetStateAction } from "react";
+import { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { ModalContainer } from "@/components/ui/modal-container";
 import { Button } from "@/components/ui/button";
-import { InputField, TextareaField } from "@/components/ui/input-field";
+import { InputField, SelectField, TextareaField } from "@/components/ui/input-field";
+import { SelectItem } from "@/components/ui/select";
 import { CheckboxField } from "@/components/ui/checkbox-field";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import DatePickerIcon from "@/components/ui/date-picker";
 import TimePicker from "@/components/ui/time-picker";
+import { useGetSchoolsQuery } from "@/services/schools/schools";
 
 interface CreateEventModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit?: (eventData: EventFormData) => void;
+  defaultSchoolId?: string;
 }
 
 export interface EventFormData {
+  schoolId: string;
   title: string;
   description: string;
   date: Date | undefined;
   startTime: string;
   endTime: string;
   location: string;
-  audienceVisibility: {
-    general: boolean;
-    private: boolean;
+  audienceVisibility: "general" | "private";
+  specifics: {
+    teacher: boolean;
+    student: boolean;
+    parent: boolean;
+    staff: boolean;
   };
   sendNotification: boolean;
 }
+
+const initialFormData: Omit<EventFormData, "schoolId"> & { schoolId: string } = {
+  schoolId: "",
+  title: "",
+  description: "",
+  date: undefined,
+  startTime: "",
+  endTime: "",
+  location: "",
+  audienceVisibility: "general",
+  specifics: { teacher: false, student: false, parent: false, staff: false },
+  sendNotification: false,
+};
 
 export function CreateEventModal({
   open,
   onOpenChange,
   onSubmit,
+  defaultSchoolId,
 }: CreateEventModalProps) {
   const [openDatePicker, setOpenDatePicker] = useState<boolean>(false);
   const [formData, setFormData] = useState<EventFormData>({
-    title: "",
-    description: "",
-    date: undefined,
-    startTime: "",
-    endTime: "",
-    location: "",
-    audienceVisibility: {
-      general: false,
-      private: false,
-    },
-    sendNotification: false,
+    ...initialFormData,
+    schoolId: defaultSchoolId ?? "",
   });
+
+  const { data: schoolsData, isLoading: isLoadingSchools } = useGetSchoolsQuery();
+  const schools = schoolsData?.data ?? [];
+
+  useEffect(() => {
+    if (open && defaultSchoolId) {
+      setFormData((prev) =>
+        prev.schoolId ? prev : { ...prev, schoolId: defaultSchoolId }
+      );
+    }
+  }, [open, defaultSchoolId]);
 
   const handleSubmit = () => {
     if (onSubmit) {
@@ -56,17 +79,8 @@ export function CreateEventModal({
     }
     // Reset form
     setFormData({
-      title: "",
-      description: "",
-      date: undefined,
-      startTime: "",
-      endTime: "",
-      location: "",
-      audienceVisibility: {
-        general: false,
-        private: false,
-      },
-      sendNotification: false,
+      ...initialFormData,
+      schoolId: defaultSchoolId ?? "",
     });
     setOpenDatePicker(false);
     onOpenChange(false);
@@ -74,28 +88,26 @@ export function CreateEventModal({
 
   const handleCancel = () => {
     setFormData({
-      title: "",
-      description: "",
-      date: undefined,
-      startTime: "",
-      endTime: "",
-      location: "",
-      audienceVisibility: {
-        general: false,
-        private: false,
-      },
-      sendNotification: false,
+      ...initialFormData,
+      schoolId: defaultSchoolId ?? "",
     });
     setOpenDatePicker(false);
     onOpenChange(false);
   };
 
-  const handleAudienceChange = (key: "general" | "private") => {
+  const handleAudienceChange = (value: "general" | "private") => {
     setFormData((prev) => ({
       ...prev,
-      audienceVisibility: {
-        ...prev.audienceVisibility,
-        [key]: !prev.audienceVisibility[key],
+      audienceVisibility: value,
+    }));
+  };
+
+  const handleSpecificsChange = (key: "teacher" | "student" | "parent" | "staff") => {
+    setFormData((prev) => ({
+      ...prev,
+      specifics: {
+        ...prev.specifics,
+        [key]: !prev.specifics[key],
       },
     }));
   };
@@ -119,6 +131,25 @@ export function CreateEventModal({
       maxHeight="90vh"
     >
       <div className="space-y-6 py-4">
+        {/* School Selector */}
+        <SelectField
+          label="School"
+          placeholder={
+            isLoadingSchools ? "Loading schools..." : "Select a school"
+          }
+          value={formData.schoolId}
+          onValueChange={(value) =>
+            setFormData({ ...formData, schoolId: value })
+          }
+          required
+        >
+          {schools.map((school) => (
+            <SelectItem key={school.id} value={school.id}>
+              {school.name}
+            </SelectItem>
+          ))}
+        </SelectField>
+
         {/* Event Title */}
         <InputField
           id="event-title"
@@ -200,16 +231,49 @@ export function CreateEventModal({
             <CheckboxField
               id="general-announcement"
               label="General announcement"
-              checked={formData.audienceVisibility.general}
+              checked={formData.audienceVisibility === "general"}
               onCheckedChange={() => handleAudienceChange("general")}
             />
             <CheckboxField
               id="private"
               label="Private"
-              checked={formData.audienceVisibility.private}
+              checked={formData.audienceVisibility === "private"}
               onCheckedChange={() => handleAudienceChange("private")}
             />
           </div>
+          {formData.audienceVisibility === "private" && (
+            <div className="ml-6 mt-3 space-y-2 border-l-2 border-gray-200 pl-4">
+              <Label className="text-xs font-medium text-gray-600">
+                Visible to:
+              </Label>
+              <div className="flex flex-wrap gap-4">
+                <CheckboxField
+                  id="specifics-teacher"
+                  label="Teacher"
+                  checked={formData.specifics.teacher}
+                  onCheckedChange={() => handleSpecificsChange("teacher")}
+                />
+                <CheckboxField
+                  id="specifics-student"
+                  label="Student"
+                  checked={formData.specifics.student}
+                  onCheckedChange={() => handleSpecificsChange("student")}
+                />
+                <CheckboxField
+                  id="specifics-parent"
+                  label="Parent"
+                  checked={formData.specifics.parent}
+                  onCheckedChange={() => handleSpecificsChange("parent")}
+                />
+                <CheckboxField
+                  id="specifics-staff"
+                  label="Non-teaching staff"
+                  checked={formData.specifics.staff}
+                  onCheckedChange={() => handleSpecificsChange("staff")}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Send Notification */}

@@ -6,29 +6,19 @@ import { Card, CardContent } from "@/components/ui/card";
 import {
   CalendarContainer,
   EventsSidebar,
-  CreateEventModal,
 } from "@/components/dashboard-pages/admin/calendar/components";
-import { Icon } from "@/components/general/huge-icon";
-import { AddSquareIcon } from "@hugeicons/core-free-icons";
-import { Button } from "@/components/ui/button";
 import { useAppSelector } from "@/store/hooks";
 import { selectUser } from "@/store/slices/authSlice";
-import {
-  useGetCalendarEventsQuery,
-  useCreateScheduleMutation,
-} from "@/services/schedules/schedules";
+import { useGetCalendarEventsQuery } from "@/services/schedules/schedules";
 import {
   mapScheduleToCalendarEvent,
   mapScheduleToSidebarEvent,
   filterEventsByRole,
-  formDataToCreatePayload,
 } from "@/utils/calendar-utils";
-import type { EventFormData } from "@/components/dashboard-pages/admin/calendar/components";
 
-export default function CalendarPage() {
+export default function ParentCalendarPage() {
   const user = useAppSelector(selectUser);
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const schoolId = user?.school_id ?? "";
   const dateFrom = useMemo(() => {
@@ -46,32 +36,18 @@ export default function CalendarPage() {
     dateFrom,
     dateTo,
   });
-  const [createSchedule, { isLoading: isCreating }] = useCreateScheduleMutation();
 
   const rawEvents = data?.data ?? [];
   const filtered = filterEventsByRole(rawEvents, user);
   const calendarEvents = filtered.map(mapScheduleToCalendarEvent);
   const eventsList = filtered.map(mapScheduleToSidebarEvent);
 
-  const handleAddEvent = () => setIsModalOpen(true);
-
-  const handleEventSubmit = async (eventData: EventFormData) => {
-    if (!eventData.schoolId) return;
-    try {
-      const payload = formDataToCreatePayload(eventData);
-      await createSchedule(payload).unwrap();
-      setIsModalOpen(false);
-    } catch (e) {
-      console.error("Failed to create event:", e);
-    }
-  };
-
   return (
     <div className="space-y-6">
       <div className="bg-background rounded-md p-6">
         <h2 className="text-2xl font-bold text-gray-800">School Calendar</h2>
         <p className="text-gray-600 mt-1">
-          View and manage school events and key dates.
+          View school events and key dates relevant to you.
         </p>
       </div>
 
@@ -97,19 +73,6 @@ export default function CalendarPage() {
         <div className="lg:col-span-1 space-y-3">
           <Card>
             <CardContent>
-              <Button
-                variant="outline"
-                onClick={handleAddEvent}
-                className="w-full gap-2"
-              >
-                <Icon icon={AddSquareIcon} size={18} />
-                Add New Event
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent>
               <EventsSidebar
                 events={eventsList}
                 monthName={format(currentDate, "MMMM")}
@@ -118,13 +81,6 @@ export default function CalendarPage() {
           </Card>
         </div>
       </div>
-
-      <CreateEventModal
-        open={isModalOpen}
-        onOpenChange={setIsModalOpen}
-        onSubmit={handleEventSubmit}
-        defaultSchoolId={schoolId || undefined}
-      />
     </div>
   );
 }
