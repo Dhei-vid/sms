@@ -7,13 +7,24 @@ import type {
   OrdersQueryParams,
 } from "./orders-type";
 
-const BASE = "/orders";
+const BASE = "/canteens/orders";
 
 export const ordersApi = baseApi.injectEndpoints({
   overrideExisting: true,
   endpoints: (build) => ({
     getOrders: build.query<OrdersListResponse, OrdersQueryParams | void>({
-      query: (params) => ({ url: BASE, params: params ?? {} }),
+      query: (params) => {
+        const p = params ?? {};
+        const queryParams: Record<string, string | number> = {};
+        if (p._all) queryParams._all = "true";
+        if (p.per_page != null) queryParams.per_page = p.per_page;
+        if (p.page != null) queryParams.page = p.page;
+        if (p.status) queryParams.status = p.status;
+        if (p["created_at[gte]"]) queryParams["created_at[gte]"] = p["created_at[gte]"];
+        if (p["created_at[lte]"]) queryParams["created_at[lte]"] = p["created_at[lte]"];
+        if (p.search) queryParams.search = p.search;
+        return { url: BASE, params: queryParams };
+      },
       providesTags: ["Order"],
     }),
 

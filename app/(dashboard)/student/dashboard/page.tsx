@@ -10,7 +10,7 @@ import { StudentNoticeBoardCard } from "@/components/dashboard-pages/student/das
 import { PersonalTaskList } from "@/components/dashboard-pages/student/dashboard/personal-task-list";
 import { useGetAssignmentsQuery } from "@/services/shared";
 import { useGetNotificationsQuery } from "@/services/shared";
-import { useGetCalendarEventsQuery } from "@/services/shared";
+import { useGetUpcomingEventsQuery } from "@/services/schedules/schedules";
 import { useGetAllStudentsQuery } from "@/services/stakeholders/stakeholders";
 import { useGetWalletBalanceQuery } from "@/services/wallet/wallet";
 import { format } from "date-fns";
@@ -36,10 +36,13 @@ export default function StudentDashboard() {
     { skip: !user?.id },
   );
   const { data: notificationsData } = useGetNotificationsQuery(
-    { limit: 5 },
+    { per_page: 5 },
     { skip: !user?.id },
   );
-  const { data: calendarData } = useGetCalendarEventsQuery({ limit: 2 });
+  const { data: eventsData } = useGetUpcomingEventsQuery(
+    { limit: 2 },
+    { skip: !user?.id },
+  );
   const { data: walletData } = useGetWalletBalanceQuery(user?.id ?? undefined, {
     skip: !user?.id,
   });
@@ -55,14 +58,17 @@ export default function StudentDashboard() {
 
   const upcomingEvents = useMemo(
     () =>
-      calendarData?.data?.map((event) => ({
+      (eventsData?.data ?? []).map((event) => ({
         title: event.title ?? "",
         description: event.description ?? "",
-        date: event.startDate
-          ? format(new Date(event.startDate), "MMM d, yyyy; h:mm a")
-          : "",
-      })) ?? [],
-    [calendarData?.data],
+        date:
+          event.date && event.start_time
+            ? format(new Date(`${event.date}T${event.start_time}`), "MMM d, yyyy; h:mm a")
+            : event.date
+              ? format(new Date(event.date), "MMM d, yyyy")
+              : "",
+      })),
+    [eventsData?.data],
   );
 
   const latestNotices = useMemo(() => {

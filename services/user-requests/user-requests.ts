@@ -18,7 +18,7 @@ export const userRequestsApi = baseApi.injectEndpoints({
      * Get all user requests
      */
     getUserRequests: build.query<UserRequestsListResponse, void>({
-      query: () => ({ url: `${BASE}?_all=true` }), // Use _all to get all data without pagination wrapper
+      query: () => ({ url: BASE, params: { _all: "true" } }), // Use _all to get all data without pagination wrapper
       transformResponse: (response: ApiListResponse<UserRequest> | any) => {
         if (
           response.status === false ||

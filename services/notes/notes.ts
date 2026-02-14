@@ -7,7 +7,7 @@ import type {
 } from "./note-types";
 import type { ApiResponse, ApiDeleteResponse } from "../shared-types";
 
-const BASE = "/notes/";
+const BASE = "/notes";
 
 export interface NotesQueryParams {
   _all?: boolean;
@@ -37,7 +37,7 @@ export const notesApi = baseApi.injectEndpoints({
     }),
 
     getNoteById: build.query<ApiResponse<Notes>, string>({
-      query: (id) => ({ url: `${BASE}${id}` }),
+      query: (id) => ({ url: `${BASE}/${id}` }),
       providesTags: (_, __, id) => [{ type: "Note", id }],
     }),
 
@@ -51,7 +51,7 @@ export const notesApi = baseApi.injectEndpoints({
       { id: string; data: UpdateNotesRequest }
     >({
       query: ({ id, data }) => ({
-        url: `${BASE}${id}`,
+        url: `${BASE}/${id}`,
         method: "PUT",
         body: data,
       }),
@@ -59,7 +59,7 @@ export const notesApi = baseApi.injectEndpoints({
     }),
 
     deleteNote: build.mutation<ApiDeleteResponse, string>({
-      query: (id) => ({ url: `${BASE}${id}`, method: "DELETE" }),
+      query: (id) => ({ url: `${BASE}/${id}`, method: "DELETE" }),
       invalidatesTags: (_, __, id) => [{ type: "Note", id }, "Note"],
     }),
   }),

@@ -62,7 +62,7 @@ export const menuItems: MenuItem[] = [
     label: "Messages",
     icon: Chat01Icon,
     href: "/messages",
-    roles: ["admin", "teacher", "parent"],
+    roles: ["admin", "teacher", "parent", "student"],
     badge: 3,
   },
   {

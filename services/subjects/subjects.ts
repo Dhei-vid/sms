@@ -10,7 +10,7 @@ import type {
   ApiDeleteResponse,
 } from "../shared-types";
 
-const BASE = "/subjects/";
+const BASE = "/subjects";
 
 export interface SubjectsQueryParams {
   _all?: boolean;
@@ -28,7 +28,7 @@ export const subjectsApi = baseApi.injectEndpoints({
     }),
 
     getSubjectById: build.query<ApiResponse<Subject>, string>({
-      query: (id) => ({ url: `${BASE}${id}` }),
+      query: (id) => ({ url: `${BASE}/${id}` }),
       providesTags: (_, __, id) => [{ type: "Subject", id }],
     }),
 
@@ -42,7 +42,7 @@ export const subjectsApi = baseApi.injectEndpoints({
       { id: string; data: UpdateSubjectPayload }
     >({
       query: ({ id, data }) => ({
-        url: `${BASE}${id}`,
+        url: `${BASE}/${id}`,
         method: "PUT",
         body: data,
       }),
@@ -50,7 +50,7 @@ export const subjectsApi = baseApi.injectEndpoints({
     }),
 
     deleteSubject: build.mutation<ApiDeleteResponse, string>({
-      query: (id) => ({ url: `${BASE}${id}`, method: "DELETE" }),
+      query: (id) => ({ url: `${BASE}/${id}`, method: "DELETE" }),
       invalidatesTags: (_, __, id) => [{ type: "Subject", id }, "Subject"],
     }),
   }),

@@ -1,10 +1,12 @@
 "use client";
 
+import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DataTable, TableColumn } from "@/components/ui/data-table";
 import { MetricCard } from "@/components/dashboard-pages/admin/admissions/components/metric-card";
 import { usePagination } from "@/hooks/use-pagination";
+import { useGetOrdersQuery, useGetProductsQuery } from "@/services/shared";
 
 interface SalesItem {
   id: string;
@@ -14,54 +16,61 @@ interface SalesItem {
   avgDailySale: string;
 }
 
-// Sample data - in production, this would come from an API
-const allSalesItems: SalesItem[] = [
-  {
-    id: "1",
-    productName: "Jollof Rice",
-    category: "Food",
-    quantitySoldToday: "55 Plates",
-    avgDailySale: "88 Plates",
-  },
-  {
-    id: "2",
-    productName: "Bottled Water",
-    category: "Drinks",
-    quantitySoldToday: "110 Units",
-    avgDailySale: "105 Units",
-  },
-  {
-    id: "3",
-    productName: "Meat Pie",
-    category: "Snacks",
-    quantitySoldToday: "40 Units",
-    avgDailySale: "55 Units",
-  },
-  {
-    id: "4",
-    productName: "Zobo Drink",
-    category: "Drinks",
-    quantitySoldToday: "55 Units",
-    avgDailySale: "78 Units",
-  },
-  {
-    id: "5",
-    productName: "Fried Rice",
-    category: "Food",
-    quantitySoldToday: "45 Plates",
-    avgDailySale: "60 Plates",
-  },
-  {
-    id: "6",
-    productName: "Donuts",
-    category: "Snacks",
-    quantitySoldToday: "30 Units",
-    avgDailySale: "40 Units",
-  },
-];
-
 export default function InventoryManagementPage() {
-  // Pagination
+  const { data: ordersData } = useGetOrdersQuery({ _all: true });
+  const { data: productsData } = useGetProductsQuery({ _all: true });
+
+  const { salesItems: allSalesItems, totalStockValue } = useMemo(() => {
+    const orders = Array.isArray(ordersData?.data) ? ordersData.data : [];
+    const products = Array.isArray(productsData?.data) ? productsData.data : [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const sevenDaysAgo = new Date(today);
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const productMap = new Map(products.map((p) => [p.id, p]));
+    const byProduct = new Map<string, { today: number; last7Days: number }>();
+
+    for (const o of orders) {
+      const orderDate = o.created_at ? new Date(o.created_at) : new Date();
+      const isToday = orderDate >= today;
+      const isLast7 = orderDate >= sevenDaysAgo;
+      if (!isLast7) continue;
+
+      const items = (o.items_details ?? o.items ?? []) as Array<{
+        product_id?: string;
+        quantity?: number;
+        product?: { name?: string };
+      }>;
+      for (const item of items) {
+        const pid = item.product_id ?? "";
+        if (!pid) continue;
+        const qty = item.quantity ?? 1;
+        if (!byProduct.has(pid)) byProduct.set(pid, { today: 0, last7Days: 0 });
+        const v = byProduct.get(pid)!;
+        v.last7Days += qty;
+        if (isToday) v.today += qty;
+      }
+    }
+
+    const items: SalesItem[] = [];
+    let stockValue = 0;
+    for (const [pid, stats] of byProduct) {
+      const p = productMap.get(pid);
+      const price = p ? parseFloat(String(p.sale_price || p.price || 0)) : 0;
+      stockValue += (p?.stock ?? 0) * price;
+      items.push({
+        id: pid,
+        productName: p?.name ?? "Unknown",
+        category: (p?.category ?? "Other").charAt(0).toUpperCase() + (p?.category ?? "").slice(1),
+        quantitySoldToday: `${stats.today} Units`,
+        avgDailySale: `${Math.round(stats.last7Days / 7)} Units`,
+      });
+    }
+    items.sort((a, b) => b.productName.localeCompare(a.productName));
+    return { salesItems: items, totalStockValue: stockValue };
+  }, [ordersData, productsData]);
+
   const {
     displayedData: salesItems,
     hasMore,
@@ -111,7 +120,11 @@ export default function InventoryManagementPage() {
       </div>
 
       {/* Total Stock Value Card */}
-      <MetricCard title="Total Stock Value" value="₦ 850,000.00" trend="up" />
+      <MetricCard
+        title="Total Stock Value"
+        value={`₦ ${totalStockValue.toLocaleString("en-NG", { minimumFractionDigits: 2 })}`}
+        trend="up"
+      />
 
       {/* Sales By Item Table */}
       <Card>

@@ -11,16 +11,20 @@ import type {
   ApiDeleteResponse,
 } from "../shared-types";
 
-const BASE = "/notifications/";
+const BASE = "/notifications";
 
 export const notificationsApi = baseApi.injectEndpoints({
   overrideExisting: true,
   endpoints: (build) => ({
     getNotifications: build.query<
       ApiListResponse<Notifications>,
-      { page?: number; limit?: number; search?: string } | void
+      { page?: number; per_page?: number; limit?: number; search?: string } | void
     >({
-      query: (params) => ({ url: BASE, params: params ?? {} }),
+      query: (params) => {
+        const p = params ?? {};
+        const perPage = p.per_page ?? p.limit ?? 100;
+        return { url: BASE, params: { ...p, per_page: perPage } };
+      },
       transformResponse: (response: ApiListResponse<Notifications>) => {
         if (
           response.status === false ||
@@ -34,7 +38,7 @@ export const notificationsApi = baseApi.injectEndpoints({
     }),
 
     getNotificationById: build.query<ApiResponse<Notifications>, string>({
-      query: (id) => ({ url: `${BASE}${id}` }),
+      query: (id) => ({ url: `${BASE}/${id}` }),
       transformResponse: (response: ApiResponse<Notifications>) => {
         if (
           response.status === false ||
@@ -60,7 +64,7 @@ export const notificationsApi = baseApi.injectEndpoints({
       { id: string; data: UpdateNotifications }
     >({
       query: ({ id, data }) => ({
-        url: `${BASE}${id}`,
+        url: `${BASE}/${id}`,
         method: "PUT",
         body: data,
       }),
@@ -71,7 +75,7 @@ export const notificationsApi = baseApi.injectEndpoints({
     }),
 
     deleteNotification: build.mutation<ApiDeleteResponse, string>({
-      query: (id) => ({ url: `${BASE}${id}`, method: "DELETE" }),
+      query: (id) => ({ url: `${BASE}/${id}`, method: "DELETE" }),
       invalidatesTags: ["Notification"],
     }),
   }),

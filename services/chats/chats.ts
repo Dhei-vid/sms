@@ -11,7 +11,7 @@ import type {
   UpdateChatPayload,
 } from "./chat-types";
 
-const BASE = "/chats/";
+const BASE = "/chats";
 
 export const chatsApi = baseApi.injectEndpoints({
   overrideExisting: true,
@@ -43,7 +43,7 @@ export const chatsApi = baseApi.injectEndpoints({
           if (arg.message_before != null)
             params.message_before = arg.message_before;
         }
-        return { url: `${BASE}${id}`, params };
+        return { url: `${BASE}/${id}`, params };
       },
       transformResponse: (response: ApiResponse<Chat>) => {
         if (
@@ -60,7 +60,7 @@ export const chatsApi = baseApi.injectEndpoints({
     }),
 
     sendChat: build.mutation<ApiResponse<Chat>, SendChatPayload>({
-      query: (body) => ({ url: `${BASE}send`, method: "POST", body }),
+      query: (body) => ({ url: `${BASE}/send`, method: "POST", body }),
       invalidatesTags: ["Chat"],
     }),
 
@@ -69,7 +69,7 @@ export const chatsApi = baseApi.injectEndpoints({
       { id: string; data: UpdateChatPayload }
     >({
       query: ({ id, data }) => ({
-        url: `${BASE}${id}`,
+        url: `${BASE}/${id}`,
         method: "PUT",
         body: data,
       }),
@@ -77,7 +77,7 @@ export const chatsApi = baseApi.injectEndpoints({
     }),
 
     deleteChat: build.mutation<ApiDeleteResponse, string>({
-      query: (id) => ({ url: `${BASE}${id}`, method: "DELETE" }),
+      query: (id) => ({ url: `${BASE}/${id}`, method: "DELETE" }),
       invalidatesTags: ["Chat"],
     }),
   }),

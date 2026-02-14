@@ -6,7 +6,7 @@ import type {
 } from "./schedule-types";
 import type { ApiResponse } from "../shared-types";
 
-const BASE = "/schedules/";
+const BASE = "/schedules";
 
 export interface SchedulesQueryParams {
   _all?: boolean;
@@ -29,6 +29,28 @@ export const schedulesApi = baseApi.injectEndpoints({
       providesTags: ["Schedule"],
     }),
 
+    getUpcomingEvents: build.query<
+      { data: ScheduleEvent[] },
+      { limit?: number } | void
+    >({
+      query: (params) => {
+        const today = new Date().toISOString().split("T")[0];
+        return {
+          url: BASE,
+          params: {
+            _all: "true",
+            "type[eq]": "event",
+            "date[gte]": today,
+          },
+        };
+      },
+      transformResponse: (response: { data?: ScheduleEvent[] }, _meta, arg) => {
+        const list = response?.data ?? [];
+        const limit = arg?.limit ?? 5;
+        return { data: list.slice(0, limit) };
+      },
+      providesTags: ["Schedule"],
+    }),
     getExamSchedules: build.query<
       { data: ScheduleEvent[] },
       { dateFrom?: string; dateTo?: string; schoolId?: string } | void
@@ -47,7 +69,7 @@ export const schedulesApi = baseApi.injectEndpoints({
     }),
 
     getScheduleById: build.query<ApiResponse<ScheduleEvent>, string>({
-      query: (id) => ({ url: `${BASE}${id}` }),
+      query: (id) => ({ url: `${BASE}/${id}` }),
       providesTags: (_, __, id) => [{ type: "Schedule", id }],
     }),
 
@@ -64,7 +86,7 @@ export const schedulesApi = baseApi.injectEndpoints({
       { id: string; data: Partial<CreateScheduleEventPayload> }
     >({
       query: ({ id, data }) => ({
-        url: `${BASE}${id}`,
+        url: `${BASE}/${id}`,
         method: "PUT",
         body: data,
       }),
@@ -78,7 +100,7 @@ export const schedulesApi = baseApi.injectEndpoints({
       { status: boolean; message: string },
       string
     >({
-      query: (id) => ({ url: `${BASE}${id}`, method: "DELETE" }),
+      query: (id) => ({ url: `${BASE}/${id}`, method: "DELETE" }),
       invalidatesTags: (_, __, id) => [{ type: "Schedule", id }, "Schedule"],
     }),
   }),
@@ -86,6 +108,7 @@ export const schedulesApi = baseApi.injectEndpoints({
 
 export const {
   useGetSchedulesQuery,
+  useGetUpcomingEventsQuery,
   useGetExamSchedulesQuery,
   useGetScheduleByIdQuery,
   useCreateScheduleMutation,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { ProductCard } from "@/components/dashboard-pages/canteen/product-card";
 import {
   CategoryFilter,
@@ -10,14 +10,13 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/general/huge-icon";
 import { ShoppingCart01Icon } from "@hugeicons/core-free-icons";
 import { OrderSummarySheet } from "@/components/dashboard-pages/canteen/order-summary-sheet";
-
-interface Product {
-  id: string;
-  name: string;
-  price: string;
-  category: string;
-  image?: string;
-}
+import {
+  useGetProductsQuery,
+  useCreateOrderMutation,
+} from "@/services/shared";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store";
+import type { Product } from "@/services/products/products-type";
 
 interface CartItem {
   productId: string;
@@ -27,119 +26,49 @@ interface CartItem {
 type Cart = Record<string, CartItem>;
 
 const categories: Category[] = [
-  {
-    id: "food",
-    label: "Food",
-    icon: "/icons/rice_bowl.png",
-  },
-  {
-    id: "drinks",
-    label: "Drinks",
-    icon: "/icons/drinks.png",
-  },
-  {
-    id: "snacks",
-    label: "Snacks",
-    icon: "/icons/snacks.png",
-  },
-  {
-    id: "daily-specials",
-    label: "Daily Specials",
-    icon: "/icons/daily_specials.png",
-  },
+  { id: "all", label: "All", icon: "/icons/rice_bowl.png" },
+  { id: "food", label: "Food", icon: "/icons/rice_bowl.png" },
+  { id: "drinks", label: "Drinks", icon: "/icons/drinks.png" },
+  { id: "snacks", label: "Snacks", icon: "/icons/snacks.png" },
+  { id: "daily specials", label: "Daily Specials", icon: "/icons/daily_specials.png" },
 ];
 
-const products: Product[] = [
-  {
-    id: "1",
-    name: "Popcorn",
-    price: "₦400.00",
-    category: "snacks",
-    image: "/canteen/popcorn.png",
-  },
-  {
-    id: "2",
-    name: "Soymilk Drink",
-    price: "₦400.00",
-    category: "drinks",
-    image: "/canteen/soymilk.png",
-  },
-  {
-    id: "3",
-    name: "Meat Pie",
-    price: "₦800.00",
-    category: "snacks",
-    image: "/canteen/meatpie.jpg",
-  },
-  {
-    id: "4",
-    name: "Watermelon Smoothie",
-    price: "₦200.00",
-    category: "drinks",
-    image: "/canteen/watermelon_smoothie.jpg",
-  },
-  {
-    id: "5",
-    name: "Yam & Potato Chips",
-    price: "₦800.00",
-    category: "snacks",
-    image: "/canteen/yam_chips.png",
-  },
-  {
-    id: "6",
-    name: "Spring Roll",
-    price: "₦800.00",
-    category: "snacks",
-    image: "/canteen/spring_roll.jpg",
-  },
-  {
-    id: "7",
-    name: "Donuts",
-    price: "₦400.00",
-    category: "snacks",
-    image: "/canteen/donuts.jpg",
-  },
-  {
-    id: "8",
-    name: "Bottled Water",
-    price: "₦200.00",
-    category: "drinks",
-    image: "/canteen/water.jpg",
-  },
-  {
-    id: "9",
-    name: "Zobo Drink",
-    price: "₦400.00",
-    category: "drinks",
-    image: "/canteen/zobo.jpg",
-  },
-  {
-    id: "10",
-    name: "Puff puff",
-    price: "₦400.00",
-    category: "snacks",
-    image: "/canteen/puffpuff.jpg",
-  },
-  {
-    id: "11",
-    name: "Munch Kins Biscuits",
-    price: "₦300.00",
-    category: "snacks",
-    image: "/canteen/munch_biscuit.jpg",
-  },
-  {
-    id: "12",
-    name: "Jollof Rice & Chicken",
-    price: "₦1,500.00",
-    category: "food",
-    image: "/canteen/jollof_rice_n_chicken.jpg",
-  },
-];
+/** Format product for store display */
+function toStoreProduct(p: Product): {
+  id: string;
+  name: string;
+  price: string;
+  category: string;
+  image?: string;
+} {
+  const priceVal = parseFloat(p.sale_price || p.price || "0");
+  return {
+    id: p.id,
+    name: p.name,
+    price: `₦${priceVal.toLocaleString("en-NG", { minimumFractionDigits: 2 })}`,
+    category: (p.category || "").toLowerCase(),
+    image: typeof p.image === "string" ? p.image : undefined,
+  };
+}
 
 export default function CanteenTerminalPage() {
-  const [selectedCategory, setSelectedCategory] = useState<string>("food");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [cart, setCart] = useState<Cart>({});
   const [orderSummaryOpen, setOrderSummaryOpen] = useState(false);
+
+  const { data: productsData, isLoading: productsLoading } = useGetProductsQuery({
+    _all: true,
+  });
+  const [createOrder, { isLoading: isCreatingOrder }] = useCreateOrderMutation();
+  const user = useSelector((s: RootState) => s.auth.user);
+  const schoolId = user?.school_id ?? "";
+
+  const products = useMemo(() => {
+    const list = Array.isArray(productsData?.data)
+      ? productsData.data
+      : (productsData as { data?: Product[] })?.data ?? [];
+    return list.filter((p) => !p.is_deleted).map(toStoreProduct);
+  }, [productsData]);
 
   const filteredProducts =
     selectedCategory === "all"
@@ -211,25 +140,42 @@ export default function CanteenTerminalPage() {
     setOrderSummaryOpen(true);
   };
 
-  const handleCompleteTransaction = (
+  const handleCompleteTransaction = async (
     studentId: string,
     paymentMethod: "cash" | "wallet",
   ) => {
-    // Handle transaction completion
-    console.log("Completing transaction:", {
-      studentId,
-      paymentMethod,
-      cart: Object.values(cart),
+    if (!products.length) return;
+    const items = Object.entries(cart).map(([productId, item]) => {
+      const p = products.find((x) => x.id === productId);
+      const price = p ? parseFloat(p.price.replace(/[₦,]/g, "")) : 0;
+      return { product_id: productId, quantity: item.quantity, price };
     });
-    // Reset cart and close sheet after transaction
-    setCart({});
-    setOrderSummaryOpen(false);
+    const total_amount = items.reduce((sum, i) => sum + i.quantity * i.price, 0);
+    try {
+      await createOrder({
+        school_id: schoolId,
+        total_amount,
+        items,
+      }).unwrap();
+      setCart({});
+      setOrderSummaryOpen(false);
+    } catch {
+      // Error handled by baseApi toast
+    }
   };
 
   const handleAddAnotherItem = () => {
     // Close sheet to allow adding more items
     setOrderSummaryOpen(false);
   };
+
+  if (productsLoading) {
+    return (
+      <div className="flex items-center justify-center py-24 text-gray-500">
+        Loading products...
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 pb-24">

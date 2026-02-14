@@ -11,7 +11,7 @@ import type {
 } from "./courses-type";
 import type { ApiListResponse, ApiResponse } from "../shared-types";
 
-const BASE = "/courses/";
+const BASE = "/courses";
 
 export const coursesApi = baseApi.injectEndpoints({
   overrideExisting: true,
@@ -27,7 +27,7 @@ export const coursesApi = baseApi.injectEndpoints({
       providesTags: ["Course"],
     }),
     getCourseById: build.query<Course, string>({
-      query: (id) => ({ url: `${BASE}${id}` }),
+      query: (id) => ({ url: `${BASE}/${id}` }),
       providesTags: (_, __, id) => [{ type: "Course", id }],
     }),
     createCourse: build.mutation<Course, CreateCourseRequest>({
@@ -39,7 +39,7 @@ export const coursesApi = baseApi.injectEndpoints({
       { id: string; data: UpdateCourseRequest }
     >({
       query: ({ id, data }) => ({
-        url: `${BASE}${id}`,
+        url: `${BASE}/${id}`,
         method: "PUT",
         body: data,
       }),
@@ -49,7 +49,7 @@ export const coursesApi = baseApi.injectEndpoints({
       { success: boolean; message?: string },
       string
     >({
-      query: (id) => ({ url: `${BASE}${id}`, method: "DELETE" }),
+      query: (id) => ({ url: `${BASE}/${id}`, method: "DELETE" }),
       invalidatesTags: (_, __, id) => [{ type: "Course", id }, "Course"],
     }),
     getContentSubmissions: build.query<
@@ -57,13 +57,13 @@ export const coursesApi = baseApi.injectEndpoints({
       { _all?: boolean } | void
     >({
       query: (params) => ({
-        url: `${BASE}content/submissions`,
+        url: `${BASE}/content/submissions`,
         params: params?._all ? { _all: "true" } : {},
       }),
       providesTags: ["ContentSubmission"],
     }),
     getContentSubmissionById: build.query<ContentSubmission, string>({
-      query: (id) => ({ url: `${BASE}content/submissions/${id}` }),
+      query: (id) => ({ url: `${BASE}/content/submissions/${id}` }),
       providesTags: (_, __, id) => [{ type: "ContentSubmission", id }],
     }),
     updateContentSubmission: build.mutation<
@@ -71,7 +71,7 @@ export const coursesApi = baseApi.injectEndpoints({
       { id: string; data: Partial<Pick<ContentSubmission, "status" | "course_location" | "resource_name" | "file_type" | "file_url">> }
     >({
       query: ({ id, data }) => ({
-        url: `${BASE}content/submissions/${id}`,
+        url: `${BASE}/content/submissions/${id}`,
         method: "PATCH",
         body: data,
       }),
@@ -79,14 +79,14 @@ export const coursesApi = baseApi.injectEndpoints({
     }),
     createContentSubmission: build.mutation<ContentSubmission, CreateContentSubmissionRequest>({
       query: (body) => ({
-        url: `${BASE}content/submissions`,
+        url: `${BASE}/content/submissions`,
         method: "POST",
         body,
       }),
       invalidatesTags: ["ContentSubmission"],
     }),
     getTeacherActivity: build.query<ApiResponse<TeacherActivityItem[]>, void>({
-      query: () => ({ url: `${BASE}teacher-activity` }),
+      query: () => ({ url: `${BASE}/teacher-activity` }),
       providesTags: ["TeacherActivity"],
     }),
     getTeacherActivityLog: build.query<
@@ -94,7 +94,7 @@ export const coursesApi = baseApi.injectEndpoints({
       string
     >({
       query: (staffId) => ({
-        url: `${BASE}teachers/${staffId}/activity`,
+        url: `${BASE}/teachers/${staffId}/activity`,
       }),
       providesTags: (_, __, staffId) => [
         { type: "TeacherActivity", id: `log-${staffId}` },
@@ -105,7 +105,7 @@ export const coursesApi = baseApi.injectEndpoints({
       { staffId: string; note: string }
     >({
       query: ({ staffId, note }) => ({
-        url: `${BASE}teachers/${staffId}/administrative-notes`,
+        url: `${BASE}/teachers/${staffId}/administrative-notes`,
         method: "POST",
         body: { note },
       }),

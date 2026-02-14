@@ -97,4 +97,7 @@ export type DeleteProductResponse = ApiDeleteResponse;
 /**
  * Product query parameters for filtering and pagination
  */
-export interface ProductsQueryParams extends BaseQueryParams {}
+export interface ProductsQueryParams extends BaseQueryParams {
+  _all?: boolean;
+  "category[eq]"?: string;
+}

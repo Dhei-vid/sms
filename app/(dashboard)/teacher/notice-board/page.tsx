@@ -31,7 +31,7 @@ const getIconForType = (type?: string) => {
 
 export default function TeacherNoticeBoardPage() {
   const { data: notificationsData, isLoading } = useGetNotificationsQuery({
-    limit: 100,
+    per_page: 100,
   });
 
   const notices = useMemo(() => {

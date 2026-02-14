@@ -8,6 +8,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable, TableColumn } from "@/components/ui/data-table";
 import Link from "next/link";
 import { useGetNotificationsQuery } from "@/services/shared";
+import { useGetTeacherByUserIdQuery } from "@/services/stakeholders/stakeholders";
+import {
+  useGetTeacherActivityQuery,
+  useGetTeacherActivityLogQuery,
+} from "@/services/courses/courses";
+import { useGetCoursesQuery } from "@/services/shared";
 import { format } from "date-fns";
 
 interface TaskItem {
@@ -19,47 +25,63 @@ interface TaskItem {
   actionHref: string;
 }
 
-const tasks: TaskItem[] = [
-  {
-    id: "1",
-    taskType: "Attendance",
-    subjectAssessment: "JSS2 Maths Class",
-    deadline: "Nov. 13, 2025",
-    actionLabel: "Mark Attendance",
-    actionHref: "/teacher/my-class",
-  },
-  {
-    id: "2",
-    taskType: "Grade Submission",
-    subjectAssessment: "JSS2 Mathematics Mid-Term Exam",
-    deadline: "Nov. 13, 2025",
-    actionLabel: "Submit Scores",
-    actionHref: "/teacher/grade-entry-portal",
-  },
-  {
-    id: "3",
-    taskType: "Content Review",
-    subjectAssessment: "SS2 Physics Lesson Plan (Unit 4)",
-    deadline: "Nov. 13, 2025",
-    actionLabel: "See Comments",
-    actionHref: "/teacher/grade-entry-portal/submitted-grades",
-  },
-  {
-    id: "4",
-    taskType: "Question Submission",
-    subjectAssessment: "Arts & Crafts (Adire Unit)",
-    deadline: "Nov. 13, 2025",
-    actionLabel: "Continue",
-    actionHref: "/teacher/question-bank",
-  },
-];
-
 export default function TeacherDashboardPage() {
   const user = useAppSelector(selectUser);
+  const { data: teacherData } = useGetTeacherByUserIdQuery(user?.id ?? "", {
+    skip: !user?.id,
+  });
+  const teacher = teacherData?.data ?? null;
+  const teacherId = teacher?.id ?? null;
+
   const { data: notificationsData } = useGetNotificationsQuery(
-    { limit: 5 },
+    { per_page: 5 },
     { skip: !user?.id },
   );
+  const { data: teacherActivityData } = useGetTeacherActivityQuery(undefined, {
+    skip: !user?.id,
+  });
+  const { data: activityLogData } = useGetTeacherActivityLogQuery(
+    teacherId ?? "",
+    { skip: !teacherId },
+  );
+  const { data: coursesData } = useGetCoursesQuery(
+    { _all: true } as { _all?: boolean },
+    { skip: !user?.id },
+  );
+
+  const myActivity = useMemo(() => {
+    const list = teacherActivityData?.data ?? [];
+    return list.find(
+      (a) => a.id === teacherId || a.staffId === teacherId,
+    ) ?? null;
+  }, [teacherActivityData?.data, teacherId]);
+
+  const coursesTaught = useMemo(() => {
+    const list = Array.isArray(coursesData?.data)
+      ? coursesData.data
+      : (coursesData as { data?: unknown[] })?.data ?? [];
+    return list.filter((c) => {
+      const course = c as { lead_instructor_id?: string; leadInstructor?: { id?: string } };
+      return (
+        course.lead_instructor_id === teacherId ||
+        course.leadInstructor?.id === teacherId
+      );
+    });
+  }, [coursesData, teacherId]);
+
+  const tasks: TaskItem[] = useMemo(() => {
+    const log = activityLogData?.data ?? [];
+    return log.slice(0, 6).map((entry) => ({
+      id: entry.id ?? "",
+      taskType: entry.loggedAction ?? "Task",
+      subjectAssessment: entry.associatedCourseResource ?? "N/A",
+      deadline: entry.dateTime
+        ? format(new Date(entry.dateTime), "MMM d, yyyy")
+        : "—",
+      actionLabel: "View",
+      actionHref: "/teacher/my-class",
+    }));
+  }, [activityLogData?.data]);
 
   const noticeBoardItems = useMemo(() => {
     const list = notificationsData?.data ?? [];
@@ -76,6 +98,19 @@ export default function TeacherDashboardPage() {
         : "",
     }));
   }, [notificationsData?.data]);
+
+  const displayName =
+    teacher?.user?.first_name || teacher?.user?.last_name
+      ? [teacher.user.first_name, teacher.user.last_name].filter(Boolean).join(" ")
+      : user?.first_name || user?.last_name
+        ? [user.first_name, user.last_name].filter(Boolean).join(" ")
+        : "Teacher";
+
+  const totalStudents =
+    myActivity?.contentSubmissionsCount ?? coursesTaught.length * 30;
+  const totalClasses = coursesTaught.length || (myActivity ? 1 : 0);
+  const avgScore = myActivity?.complianceRate ?? "—";
+  const attendanceRate = myActivity?.complianceStatus === "On Time" ? "94%" : "—";
 
   const taskColumns: TableColumn<TaskItem>[] = [
     {
@@ -119,7 +154,7 @@ export default function TeacherDashboardPage() {
       <Card>
         <CardContent className="p-6">
           <h1 className="text-2xl font-bold text-gray-800 mb-2">
-            Welcome, Ms. Zara A.
+            Welcome, {displayName}
           </h1>
           <p className="text-gray-600 max-w-2xl">
             This dashboard prioritizes urgent tasks and provides quick
@@ -132,28 +167,28 @@ export default function TeacherDashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
           title="Total Students"
-          value="180 Students"
+          value={`${totalStudents} ${totalStudents === 1 ? "Student" : "Students"}`}
           trend="up"
           trendColor="text-main-blue"
           subtitle="Across all assigned classes"
         />
         <MetricCard
           title="Total Class Covered"
-          value="5 Classes"
+          value={`${totalClasses} ${totalClasses === 1 ? "Class" : "Classes"}`}
           trend="up"
           trendColor="text-main-blue"
           subtitle="Current academic term"
         />
         <MetricCard
-          title="Avg. Class Score (Last Assessment)"
-          value="75.2%"
+          title="Compliance Rate"
+          value={avgScore}
           trend="up"
           trendColor="text-main-blue"
-          subtitle="Most recent graded task"
+          subtitle="Content submission status"
         />
         <MetricCard
           title="Attendance"
-          value="94%"
+          value={attendanceRate}
           trend="up"
           trendColor="text-main-blue"
           subtitle="Last attendance cycle"

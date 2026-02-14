@@ -1,11 +1,13 @@
 "use client";
 
+import { useMemo } from "react";
 import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DataTable, TableColumn } from "@/components/ui/data-table";
 import { MetricCard } from "@/components/dashboard-pages/admin/admissions/components/metric-card";
 import { usePagination } from "@/hooks/use-pagination";
+import { useGetOrdersQuery } from "@/services/shared";
 
 interface Transaction {
   id: string;
@@ -16,63 +18,66 @@ interface Transaction {
   status: "Completed" | "Pending" | "Cancelled";
 }
 
-// Sample data - in production, this would come from an API
-const allTransactions: Transaction[] = [
-  {
-    id: "1",
-    dateTime: new Date(2025, 9, 20, 12, 45),
-    transactionId: "WLT-10057",
-    itemCount: "2x Meat Pie + Bottle Water",
-    runningBalance: "₦1,800",
-    status: "Completed",
-  },
-  {
-    id: "2",
-    dateTime: new Date(2025, 9, 20, 12, 42),
-    transactionId: "WLT-10056",
-    itemCount: "2x Donuts + Zobo Drink",
-    runningBalance: "₦1,200",
-    status: "Completed",
-  },
-  {
-    id: "3",
-    dateTime: new Date(2025, 9, 20, 12, 35),
-    transactionId: "CASH-10003",
-    itemCount: "Jollof Rice + Chicken",
-    runningBalance: "₦2,000",
-    status: "Completed",
-  },
-  {
-    id: "4",
-    dateTime: new Date(2025, 9, 20, 12, 30),
-    transactionId: "WLT-10055",
-    itemCount: "Meat Pie + Bottle Water",
-    runningBalance: "₦1,000",
-    status: "Completed",
-  },
-  {
-    id: "5",
-    dateTime: new Date(2025, 9, 20, 12, 25),
-    transactionId: "WLT-10054",
-    itemCount: "Fried Rice + Chicken",
-    runningBalance: "₦2,500",
-    status: "Completed",
-  },
-  {
-    id: "6",
-    dateTime: new Date(2025, 9, 20, 12, 20),
-    transactionId: "CASH-10002",
-    itemCount: "3x Donuts",
-    runningBalance: "₦3,000",
-    status: "Completed",
-  },
-];
+/** Format order items for display */
+function formatItemCount(items: { quantity?: number; product?: { name?: string } }[] | undefined): string {
+  if (!items?.length) return "—";
+  return items
+    .map((i) => `${i.quantity ?? 1}x ${i.product?.name ?? "Item"}`)
+    .join(" + ");
+}
 
 export default function SalesReportPage() {
   const today = new Date();
   const formattedDate = format(today, "MMM. d, yyyy");
 
-  // Pagination
+  const startOfDay = useMemo(() => {
+    const d = new Date(today);
+    d.setHours(0, 0, 0, 0);
+    return d.toISOString();
+  }, [today]);
+
+  const { data: ordersData } = useGetOrdersQuery({ _all: true });
+
+  const allTransactions: Transaction[] = useMemo(() => {
+    const list = Array.isArray(ordersData?.data)
+      ? ordersData.data
+      : (ordersData as { data?: Array<{ id: string; code?: string; total_amount?: string | number; status?: string; created_at?: string; items_details?: { quantity?: number; product?: { name?: string } }[]; items?: { quantity?: number; product?: { name?: string } }[] }> })?.data ?? [];
+    const todayOrders = list.filter((o) => {
+      if (!o.created_at) return true;
+      return new Date(o.created_at) >= new Date(startOfDay);
+    });
+    return todayOrders.map((o) => ({
+      id: o.id,
+      dateTime: o.created_at ? new Date(o.created_at) : new Date(),
+      transactionId: o.code ?? o.id,
+      itemCount: formatItemCount(o.items_details ?? o.items),
+      runningBalance: typeof o.total_amount === "number"
+        ? `₦${o.total_amount.toLocaleString("en-NG", { minimumFractionDigits: 2 })}`
+        : `₦${parseFloat(String(o.total_amount ?? 0)).toLocaleString("en-NG", { minimumFractionDigits: 2 })}`,
+      status: (o.status === "completed" ? "Completed" : o.status === "cancelled" ? "Cancelled" : "Pending") as Transaction["status"],
+    }));
+  }, [ordersData, startOfDay]);
+
+  const { totalRevenue, cashReceived } = useMemo(() => {
+    const list = Array.isArray(ordersData?.data) ? ordersData.data : [];
+    const todayList = list.filter((o) => {
+      if (!o.created_at) return true;
+      return new Date(o.created_at) >= new Date(startOfDay);
+    });
+    let total = 0;
+    let cash = 0;
+    for (const o of todayList) {
+      const amt = typeof o.total_amount === "number" ? o.total_amount : parseFloat(String(o.total_amount ?? 0));
+      total += amt;
+      const pm = (o.transaction as { payment_method?: string })?.payment_method;
+      if (pm === "cash" || pm === "manual") cash += amt;
+    }
+    return {
+      totalRevenue: total,
+      cashReceived: cash,
+    };
+  }, [ordersData, startOfDay]);
+
   const {
     displayedData: transactions,
     hasMore,
@@ -138,8 +143,16 @@ export default function SalesReportPage() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <MetricCard title="Total Revenue" value="₦ 150,500.00" trend="up" />
-        <MetricCard title="Cash Received" value="₦ 20,500.00" trend="up" />
+        <MetricCard
+          title="Total Revenue"
+          value={`₦ ${totalRevenue.toLocaleString("en-NG", { minimumFractionDigits: 2 })}`}
+          trend="up"
+        />
+        <MetricCard
+          title="Cash Received"
+          value={`₦ ${cashReceived.toLocaleString("en-NG", { minimumFractionDigits: 2 })}`}
+          trend="up"
+        />
         <MetricCard title="Voucher/Discount Used" value="Nil" trend="up" />
       </div>
 

@@ -82,7 +82,7 @@ export const authApi = baseApi.injectEndpoints({
       ForgetPasswordRequest
     >({
       query: (body) => ({
-        url: "/auth/forget-password",
+        url: "/auth/forgot-password",
         method: "POST",
         body,
       }),

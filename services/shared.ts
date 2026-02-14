@@ -103,3 +103,29 @@ export type {
   CreateNotifications,
   UpdateNotifications,
 } from "./notifications/notification-types";
+
+// Canteen - Products & Orders (used by canteen dashboard)
+export {
+  useGetProductsQuery,
+  useGetProductByIdQuery,
+  useCreateProductMutation,
+  useUpdateProductMutation,
+  useDeleteProductMutation,
+} from "./products/products";
+
+export type { Product, ProductsQueryParams } from "./products/products-type";
+
+export {
+  useGetOrdersQuery,
+  useGetOrderByIdQuery,
+  useCreateOrderMutation,
+  useUpdateOrderMutation,
+  useDeleteOrderMutation,
+} from "./orders/orders";
+
+export type {
+  Order,
+  CreateOrderRequest,
+  OrderItems,
+  OrdersQueryParams,
+} from "./orders/orders-type";

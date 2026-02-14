@@ -53,13 +53,13 @@ interface Message {
   isOwnMessage?: boolean;
 }
 
-export default function TeacherMessagesPage() {
+export default function StudentMessagesPage() {
   const user = useAppSelector(selectUser);
   const [selectedThreadId, setSelectedThreadId] = useState<string>("general");
   const [individualThreads, setIndividualThreads] = useState<MessageThread[]>([]);
   const [staticThreadMessages, setStaticThreadMessages] = useState<
-    Record<"general" | "academic", ChatMessages[]>
-  >({ general: [], academic: [] });
+    Record<"general", ChatMessages[]>
+  >({ general: [] });
   const [individualThreadMessages, setIndividualThreadMessages] = useState<
     Record<string, ChatMessages[]>
   >({});
@@ -81,9 +81,6 @@ export default function TeacherMessagesPage() {
     if (!selectedThreadId || !chatsData?.data) return undefined;
     if (selectedThreadId === "general") {
       return chatsData.data.find((c: Chat) => c.type === "general")?.id;
-    }
-    if (selectedThreadId === "academic") {
-      return chatsData.data.find((c: Chat) => c.type === "staff")?.id;
     }
     if (isIndividualThread) {
       const oneToOne = chatsData.data.find(
@@ -154,7 +151,7 @@ export default function TeacherMessagesPage() {
 
   const [sendChat] = useSendChatMutation();
 
-  // Teacher: General + Academic (staff)
+  // Student: General only (no Academic)
   const staticThreads: MessageThread[] = [
     {
       id: "general",
@@ -162,13 +159,6 @@ export default function TeacherMessagesPage() {
       description: "Messages for the whole school community.",
       icon: SharedDriveIcon,
       type: "general",
-    },
-    {
-      id: "academic",
-      name: "Academic Staff",
-      description: "Internal communication for teachers and staff.",
-      icon: SharedDriveIcon,
-      type: "group",
     },
   ];
 
@@ -214,22 +204,6 @@ export default function TeacherMessagesPage() {
         return selectedChatData.data.messages;
       }
       return staticThreadMessages.general;
-    }
-    if (selectedThreadId === "academic") {
-      if (
-        chatIdToFetch &&
-        accumulatedMessages[chatIdToFetch]?.messages?.length
-      ) {
-        return accumulatedMessages[chatIdToFetch].messages;
-      }
-      if (
-        chatIdToFetch &&
-        selectedChatData?.data?.id === chatIdToFetch &&
-        selectedChatData?.data?.messages?.length
-      ) {
-        return selectedChatData.data.messages;
-      }
-      return staticThreadMessages.academic;
     }
     if (isIndividualThread && selectedThreadId) {
       if (
@@ -292,14 +266,8 @@ export default function TeacherMessagesPage() {
   const handleSendMessage = async (message: string) => {
     if (!selectedThreadId || !message.trim()) return;
 
-    const isGeneralOrAcademic =
-      selectedThreadId === "general" || selectedThreadId === "academic";
-    const chatType: "general" | "staff" | undefined =
-      selectedThreadId === "general"
-        ? "general"
-        : selectedThreadId === "academic"
-          ? "staff"
-          : undefined;
+    const isGeneral = selectedThreadId === "general";
+    const chatType = isGeneral ? "general" : undefined;
 
     const sourceMessages = rawMessagesForThread;
     const history = sourceMessages.map((msg: ChatMessages) => ({
@@ -322,9 +290,9 @@ export default function TeacherMessagesPage() {
       if (isIndividualThread && selectedThreadId) {
         payload.recipient_id = String(selectedThreadId);
       }
-      if (!isGeneralOrAcademic && chatIdToFetch) {
+      if (!isGeneral && chatIdToFetch) {
         payload.id = chatIdToFetch;
-      } else if (!isGeneralOrAcademic && selectedThreadId) {
+      } else if (!isGeneral && selectedThreadId) {
         payload.id = selectedThreadId;
       }
 
@@ -338,15 +306,10 @@ export default function TeacherMessagesPage() {
           },
         }));
       }
-      if (
-        isGeneralOrAcademic &&
-        result?.data?.messages &&
-        !chatIdToFetch
-      ) {
-        const key = selectedThreadId as "general" | "academic";
+      if (isGeneral && result?.data?.messages && !chatIdToFetch) {
         setStaticThreadMessages((prev) => ({
           ...prev,
-          [key]: result.data.messages ?? [],
+          general: result.data.messages ?? [],
         }));
       }
       if (isIndividualThread && selectedThreadId && result?.data?.messages) {
@@ -414,8 +377,7 @@ export default function TeacherMessagesPage() {
       <div className="bg-background rounded-md p-6">
         <h2 className="text-2xl font-bold text-gray-800">Messages</h2>
         <p className="text-gray-600 mt-1">
-          Facilitate critical and high-priority internal communication with
-          staff and students.
+          Communicate with your teachers and school staff.
         </p>
       </div>
 

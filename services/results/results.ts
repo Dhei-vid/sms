@@ -7,7 +7,7 @@ import type {
 } from "./result-types";
 import type { AcademicAnalytics } from "./academic-analytics-types";
 
-const BASE = "/results/";
+const BASE = "/results";
 
 /** Raw API response when using _all - returns { data: ExamResult[] } */
 interface ResultsApiResponse {
@@ -101,7 +101,7 @@ export const resultsApi = baseApi.injectEndpoints({
     }),
 
     getExamResultById: build.query<{ data: ExamResult }, string>({
-      query: (id) => ({ url: `${BASE}${id}` }),
+      query: (id) => ({ url: `${BASE}/${id}` }),
       providesTags: (_, __, id) => [{ type: "ExamResult", id }],
     }),
 
@@ -131,7 +131,7 @@ export const resultsApi = baseApi.injectEndpoints({
       { id: string; data: UpdateExamResultRequest }
     >({
       query: ({ id, data }) => ({
-        url: `${BASE}${id}`,
+        url: `${BASE}/${id}`,
         method: "PUT",
         body: data,
       }),

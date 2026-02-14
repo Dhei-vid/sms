@@ -6,14 +6,19 @@ import type {
   ProductsListResponse,
   ProductsQueryParams,
 } from "./products-type";
-
-const BASE = "/products";
+const BASE = "/canteens/products";
 
 export const productsApi = baseApi.injectEndpoints({
   overrideExisting: true,
   endpoints: (build) => ({
     getProducts: build.query<ProductsListResponse, ProductsQueryParams | void>({
-      query: (params) => ({ url: BASE, params: params ?? {} }),
+      query: (params) => {
+        const p = params ?? {};
+        return {
+          url: BASE,
+          params: p._all ? { _all: "true", ...p } : p,
+        };
+      },
       providesTags: ["Product"],
     }),
 

@@ -82,6 +82,12 @@ const rawBaseQuery = fetchBaseQuery({
       headers.set("x-api-key", apiKey);
     }
 
+    // Skip ngrok free-tier interstitial page when using ngrok tunnel
+    const baseUrl = getBaseUrl();
+    if (baseUrl.includes("ngrok-free.app") || baseUrl.includes("ngrok-free.dev") || baseUrl.includes("ngrok.io")) {
+      headers.set("ngrok-skip-browser-warning", "true");
+    }
+
     const state = getState() as RootState;
     const token = selectToken(state);
     if (token) {

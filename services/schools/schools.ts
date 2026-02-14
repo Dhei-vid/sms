@@ -17,7 +17,7 @@ import type {
   RoleTemplateUpdatePayload,
 } from "./schools-type";
 
-const BASE = "/schools/";
+const BASE = "/schools";
 
 export const schoolsApi = baseApi.injectEndpoints({
   overrideExisting: true,
@@ -28,7 +28,7 @@ export const schoolsApi = baseApi.injectEndpoints({
     }),
 
     getSchoolById: build.query<School, string>({
-      query: (id) => ({ url: `${BASE}${id}` }),
+      query: (id) => ({ url: `${BASE}/${id}` }),
       providesTags: (_, __, id) => [{ type: "School", id }],
     }),
 
@@ -42,7 +42,7 @@ export const schoolsApi = baseApi.injectEndpoints({
       { id: string; data: UpdateSchoolRequest }
     >({
       query: ({ id, data }) => ({
-        url: `${BASE}${id}`,
+        url: `${BASE}/${id}`,
         method: "PUT",
         body: data,
       }),
@@ -54,7 +54,7 @@ export const schoolsApi = baseApi.injectEndpoints({
       { id: string; data: TimetableUpdatePayload }
     >({
       query: ({ id, data }) => ({
-        url: `${BASE}${id}`,
+        url: `${BASE}/${id}`,
         method: "PUT",
         body: data,
       }),
@@ -63,7 +63,7 @@ export const schoolsApi = baseApi.injectEndpoints({
 
     deleteSchool: build.mutation<{ success: boolean; message: string }, string>(
       {
-        query: (id) => ({ url: `${BASE}${id}`, method: "DELETE" }),
+        query: (id) => ({ url: `${BASE}/${id}`, method: "DELETE" }),
         invalidatesTags: ["School"],
       },
     ),
@@ -73,7 +73,7 @@ export const schoolsApi = baseApi.injectEndpoints({
       string
     >({
       query: (schoolId) => ({
-        url: `${BASE}${schoolId}/application-config`,
+        url: `${BASE}/${schoolId}/application-config`,
       }),
       providesTags: (_, __, schoolId) => [
         { type: "School", id: schoolId },
@@ -86,7 +86,7 @@ export const schoolsApi = baseApi.injectEndpoints({
       { schoolId: string; data: SchoolApplicationConfigUpdate }
     >({
       query: ({ schoolId, data }) => ({
-        url: `${BASE}${schoolId}/application-config`,
+        url: `${BASE}/${schoolId}/application-config`,
         method: "PUT",
         body: data,
       }),
@@ -101,7 +101,7 @@ export const schoolsApi = baseApi.injectEndpoints({
       string
     >({
       query: (schoolId) => ({
-        url: `${BASE}${schoolId}/settings-dashboard`,
+        url: `${BASE}/${schoolId}/settings-dashboard`,
       }),
       providesTags: (_, __, schoolId) => [
         { type: "School", id: schoolId },
@@ -114,7 +114,7 @@ export const schoolsApi = baseApi.injectEndpoints({
       { schoolId: string; data: SchoolSettingsDashboardUpdate }
     >({
       query: ({ schoolId, data }) => ({
-        url: `${BASE}${schoolId}/settings-dashboard`,
+        url: `${BASE}/${schoolId}/settings-dashboard`,
         method: "PUT",
         body: data,
       }),
@@ -129,7 +129,7 @@ export const schoolsApi = baseApi.injectEndpoints({
       string
     >({
       query: (schoolId) => ({
-        url: `${BASE}${schoolId}/role-template-modules`,
+        url: `${BASE}/${schoolId}/role-template-modules`,
       }),
       transformResponse: (
         response: ApiResponse<RoleTemplateModulesResponse> & {
@@ -151,7 +151,7 @@ export const schoolsApi = baseApi.injectEndpoints({
       string
     >({
       query: (schoolId) => ({
-        url: `${BASE}${schoolId}/role-templates`,
+        url: `${BASE}/${schoolId}/role-templates`,
       }),
       transformResponse: (
         response: ApiResponse<RoleTemplatesListResponse> & {
@@ -185,7 +185,7 @@ export const schoolsApi = baseApi.injectEndpoints({
       { schoolId: string; templateId: string }
     >({
       query: ({ schoolId, templateId }) => ({
-        url: `${BASE}${schoolId}/role-templates/${templateId}`,
+        url: `${BASE}/${schoolId}/role-templates/${templateId}`,
       }),
       providesTags: (_, __, { schoolId, templateId }) => [
         { type: "School", id: `${schoolId}-role-templates` },
@@ -198,7 +198,7 @@ export const schoolsApi = baseApi.injectEndpoints({
       { schoolId: string; templateId: string; data: RoleTemplateUpdatePayload }
     >({
       query: ({ schoolId, templateId, data }) => ({
-        url: `${BASE}${schoolId}/role-templates/${templateId}`,
+        url: `${BASE}/${schoolId}/role-templates/${templateId}`,
         method: "PUT",
         body: data,
       }),
