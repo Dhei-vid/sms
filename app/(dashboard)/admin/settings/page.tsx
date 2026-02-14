@@ -36,17 +36,20 @@ export default function UserManagementPage() {
     return res?.data;
   }, [dashboardResponse]);
 
-  const adminRoster = useMemo(() => {
+  type AdminRosterRow = Omit<SettingsDashboardAdminRole, "lastPermissionUpdate"> & {
+    lastPermissionUpdate: Date | null;
+  };
+  const adminRoster: AdminRosterRow[] = useMemo(() => {
     const list = dashboard?.adminRoster ?? [];
     return list.map((row) => ({
       ...row,
       lastPermissionUpdate: row.lastPermissionUpdate
         ? new Date(row.lastPermissionUpdate)
-        : (null as unknown as Date),
+        : null,
     }));
   }, [dashboard?.adminRoster]);
 
-  const columns: TableColumn<SettingsDashboardAdminRole & { lastPermissionUpdate: Date | null }>[] = [
+  const columns: TableColumn<AdminRosterRow>[] = [
     {
       key: "primaryRole",
       title: "Primary Role",
@@ -73,7 +76,7 @@ export default function UserManagementPage() {
     },
   ];
 
-  const actions: TableAction<SettingsDashboardAdminRole & { lastPermissionUpdate: Date | null }>[] = [
+  const actions: TableAction<AdminRosterRow>[] = [
     {
       type: "button",
       config: {

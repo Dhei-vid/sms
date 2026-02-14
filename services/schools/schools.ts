@@ -169,7 +169,10 @@ export const schoolsApi = baseApi.injectEndpoints({
             ? (raw as { role_templates: unknown[] }).role_templates
             : [];
         const mods = Array.isArray(raw?.modules) ? raw.modules : [];
-        return { roleTemplates: list, modules: mods };
+        return {
+          roleTemplates: list as RoleTemplate[],
+          modules: mods as string[],
+        };
       },
       providesTags: (_, __, schoolId) => [
         { type: "School", id: schoolId },

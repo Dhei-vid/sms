@@ -162,10 +162,16 @@ export default function MonitorTestSessionsPage() {
         : isScheduled
           ? "scheduled"
           : "in-progress";
+      const classDisplay =
+        typeof exam.applicable_grades === "string"
+          ? exam.applicable_grades
+          : Array.isArray(exam.applicable_grades)
+            ? (exam.applicable_grades as string[]).join(", ")
+            : "—";
       return {
         id: exam.id,
         examTitle: exam.title,
-        class: exam.applicable_grades ?? "—",
+        class: classDisplay,
         invigilator: getInvigilatorDisplay(exam),
         startTime,
         timeRemaining: status === "in-progress" ? computeTimeRemaining(exam) : status === "completed" ? "00:00:00" : "—",
@@ -234,11 +240,18 @@ export default function MonitorTestSessionsPage() {
       (selectedResult.stakeholder && (selectedResult.stakeholder as { student_id?: string }).student_id) ||
       selectedResult.user?.email ||
       "—";
+    const grades = selectedExam?.applicable_grades;
+    const currentClass =
+      typeof grades === "string"
+        ? grades
+        : Array.isArray(grades)
+          ? (grades as string[]).join(", ")
+          : "—";
     return {
       id: selectedResult.id,
       fullName: fullName || "—",
       schoolId,
-      currentClass: selectedExam?.applicable_grades ?? "—",
+      currentClass,
       rawScore: selectedResult.score ?? 0,
       totalScore: (selectedResult.exam && (selectedResult.exam as { total_marks_available?: number }).total_marks_available) ?? selectedResult.score ?? 0,
     };

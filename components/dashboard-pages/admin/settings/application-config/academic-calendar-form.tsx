@@ -18,7 +18,7 @@ export interface AcademicCalendarFormRef {
 }
 
 interface AcademicCalendarFormProps {
-  initialValues?: Partial<AcademicCalendarValues> & {
+  initialValues?: Omit<Partial<AcademicCalendarValues>, "startDate" | "endDate"> & {
     startDate?: string;
     endDate?: string;
   };

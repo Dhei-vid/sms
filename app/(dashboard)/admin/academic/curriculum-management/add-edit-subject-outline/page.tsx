@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { Suspense, useState, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSelector } from "react-redux";
 import { Card, CardContent } from "@/components/ui/card";
@@ -157,7 +157,7 @@ const pacingOptions = [
   { value: "4-weeks", label: "4 Weeks" },
 ];
 
-export default function AddEditSubjectOutlinePage() {
+function AddEditSubjectOutlineContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const editId = searchParams.get("id") ?? "";
@@ -445,5 +445,13 @@ export default function AddEditSubjectOutlinePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AddEditSubjectOutlinePage() {
+  return (
+    <Suspense fallback={<div className="p-6 text-center text-muted-foreground">Loading…</div>}>
+      <AddEditSubjectOutlineContent />
+    </Suspense>
   );
 }

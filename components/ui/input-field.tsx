@@ -87,6 +87,7 @@ interface SelectFieldProps {
   value?: string;
   onValueChange: (value: string) => void;
   placeholder?: string;
+  disabled?: boolean;
   children: React.ReactNode;
   Icon?: LucideIcon;
 }
@@ -97,13 +98,14 @@ export const SelectField: React.FC<SelectFieldProps> = ({
   value,
   onValueChange,
   placeholder,
+  disabled,
   children,
   Icon,
 }) => {
   return (
     <FormField label={label} required={required} Icon={Icon}>
-      <Select value={value} onValueChange={onValueChange}>
-        <SelectTrigger className="w-full dark:text-main-900/50">
+      <Select value={value} onValueChange={onValueChange} disabled={disabled}>
+        <SelectTrigger className="w-full dark:text-main-900/50" disabled={disabled}>
           <SelectValue className="text-main-100/50" placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>{children}</SelectContent>

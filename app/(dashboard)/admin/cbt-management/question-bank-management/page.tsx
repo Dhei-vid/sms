@@ -36,13 +36,13 @@ function getQuestionsList(data: unknown): CbtQuestion[] {
 }
 
 function mapApiQuestionToListing(q: CbtQuestion): QuestionListing {
-  const status = (q.status?.toLowerCase() ?? "approved") as QuestionListing["status"];
+  const rawStatus = (q.status?.toLowerCase() ?? "approved") as string;
   const normalizedStatus: QuestionListing["status"] =
-    status === "pending" || status === "pending-approval"
+    rawStatus === "pending" || rawStatus === "pending-approval"
       ? "pending-approval"
-      : status === "sent-back"
+      : rawStatus === "sent-back"
         ? "sent-back"
-        : status === "rejected"
+        : rawStatus === "rejected"
           ? "rejected"
           : "approved";
   const submittedBy =
