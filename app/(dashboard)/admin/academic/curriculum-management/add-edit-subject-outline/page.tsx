@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useSelector } from "react-redux";
 import { Card, CardContent } from "@/components/ui/card";
 import { StepNavigation, Step } from "@/components/ui/step-navigation";
 import {
@@ -8,11 +10,22 @@ import {
   ResourcesAddIcon,
   Settings01Icon,
 } from "@hugeicons/core-free-icons";
-import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { SubjectIdentityScopeForm } from "../../../../../../components/dashboard-pages/admin/academic/curriculum-management/components/subject-identity-scope-form";
 import { GradingWeightingForm } from "../../../../../../components/dashboard-pages/admin/academic/curriculum-management/components/grading-weighting-form";
 import { CurriculumStructurePacingForm } from "../../../../../../components/dashboard-pages/admin/academic/curriculum-management/components/curriculum-structure-pacing-form";
 import { FinalizationApprovalForm } from "../../../../../../components/dashboard-pages/admin/academic/curriculum-management/components/finalization-approval-form";
+import {
+  useGetSubjectsQuery,
+  useGetSubjectByIdQuery,
+  useCreateSubjectMutation,
+  useUpdateSubjectMutation,
+} from "@/services/subjects/subjects";
+import { useGetAllStaffQuery } from "@/services/stakeholders/stakeholders";
+import { useGetSchoolsQuery } from "@/services/schools/schools";
+import type { Subject, ContentOutlineItem } from "@/services/subjects/subject-types";
+import type { School } from "@/services/schools/schools-type";
+import { selectUser } from "@/store/slices/authSlice";
 
 type StepId = "identity" | "grading" | "curriculum" | "finalization";
 
@@ -40,20 +53,16 @@ const steps: Step[] = [
 ];
 
 const initialData = {
-  // Step 1: Subject Identity & Scope
+  subjectId: "",
   mode: "create" as "create" | "edit",
   selectedSubject: "",
   subjectName: "",
   subjectCode: "",
   applicableGrade: "",
   headOfDepartment: "",
-
-  // Step 2: Grading & Weighting
   creditUnits: "",
   continuousAssessment: "",
   finalExam: "",
-
-  // Step 3: Curriculum Structure & Pacing
   curriculumStandard: "",
   contentOutline: [{ unit: "", topic: "", plannedPeriods: "" }] as Array<{
     unit: string;
@@ -61,14 +70,13 @@ const initialData = {
     plannedPeriods: string;
   }>,
   plannedPacing: "",
-
-  // Step 4: Finalization and Approval
   modifier: "Admin",
   dateOfModification: new Date() as Date | undefined,
   requiresHODApproval: false,
 };
 
 interface SubjectOutlineForm {
+  subjectId: string;
   mode: "create" | "edit";
   selectedSubject: string;
   subjectName: string;
@@ -90,6 +98,43 @@ interface SubjectOutlineForm {
   requiresHODApproval: boolean;
 }
 
+function subjectToForm(subject: Subject): Partial<SubjectOutlineForm> {
+  const outline = subject.content_outline_table ?? [];
+  return {
+    subjectId: subject.id,
+    selectedSubject: subject.id,
+    subjectName: subject.name,
+    subjectCode: subject.code ?? "",
+    applicableGrade: subject.applicable_grade ?? "",
+    headOfDepartment: subject.head_of_department_id ?? "",
+    creditUnits: subject.credit_units != null ? String(subject.credit_units) : "",
+    continuousAssessment: subject.continuous_assessment != null ? String(subject.continuous_assessment) : "",
+    finalExam: subject.final_exam != null ? String(subject.final_exam) : "",
+    curriculumStandard: subject.curriculum_standard ?? "",
+    contentOutline: outline.length > 0
+      ? outline.map((o) => ({
+          unit: o.unit_definition ?? "",
+          topic: o.topic_definition ?? "",
+          plannedPeriods: o.planned_pacing ?? "",
+        }))
+      : [{ unit: "", topic: "", plannedPeriods: "" }],
+    plannedPacing: outline[0]?.planned_pacing ?? "",
+  };
+}
+
+function formToContentOutline(
+  outline: SubjectOutlineForm["contentOutline"],
+  plannedPacing: string
+): ContentOutlineItem[] {
+  return outline
+    .filter((o) => o.unit || o.topic)
+    .map((o) => ({
+      unit_definition: o.unit,
+      topic_definition: o.topic,
+      planned_pacing: o.plannedPeriods || plannedPacing || "1-week",
+    }));
+}
+
 const gradeOptions = [
   { value: "jss-1", label: "JSS 1" },
   { value: "jss-2", label: "JSS 2" },
@@ -97,18 +142,6 @@ const gradeOptions = [
   { value: "ss-1", label: "SS 1" },
   { value: "ss-2", label: "SS 2" },
   { value: "ss-3", label: "SS 3" },
-  { value: "primary-1", label: "Primary 1" },
-  { value: "primary-2", label: "Primary 2" },
-  { value: "primary-3", label: "Primary 3" },
-  { value: "primary-4", label: "Primary 4" },
-  { value: "primary-5", label: "Primary 5" },
-  { value: "primary-6", label: "Primary 6" },
-];
-
-const hodOptions = [
-  { value: "hod-1", label: "Mr. Uche E." },
-  { value: "hod-2", label: "Dr. Femi I." },
-  { value: "hod-3", label: "Mrs. Kemi O." },
 ];
 
 const curriculumStandardOptions = [
@@ -126,57 +159,175 @@ const pacingOptions = [
 
 export default function AddEditSubjectOutlinePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const editId = searchParams.get("id") ?? "";
+  const user = useSelector(selectUser);
+
   const [activeStep, setActiveStep] = useState<StepId>("identity");
   const [formData, setFormData] = useState<SubjectOutlineForm>(initialData);
+
+  const { data: subjectsResponse } = useGetSubjectsQuery({ _all: true });
+  const { data: schoolsResponse } = useGetSchoolsQuery({ _all: true });
+  const { data: staffResponse } = useGetAllStaffQuery();
+
+  const { data: subjectResponse } = useGetSubjectByIdQuery(editId, {
+    skip: !editId,
+  });
+
+  const [createSubject, { isLoading: isCreating }] = useCreateSubjectMutation();
+  const [updateSubject, { isLoading: isUpdating }] = useUpdateSubjectMutation();
+
+  const subjectsList: Subject[] = useMemo(() => {
+    const d = (subjectsResponse as { data?: Subject[] })?.data;
+    return Array.isArray(d) ? d : [];
+  }, [subjectsResponse]);
+
+  const schoolsList: School[] = useMemo(() => {
+    const d = (schoolsResponse as { data?: School[] })?.data;
+    return Array.isArray(d) ? d : [];
+  }, [schoolsResponse]);
+
+  const staffList = staffResponse?.data ?? [];
+  const schoolId = user?.school_id ?? schoolsList[0]?.id ?? "";
+
+  const subjectOptions = useMemo(
+    () =>
+      subjectsList.map((s) => ({
+        value: s.id,
+        label: s.name,
+      })),
+    [subjectsList]
+  );
+
+  const hodOptions = useMemo(
+    () =>
+      staffList.map((s) => ({
+        value: s.id,
+        label:
+          s.user && typeof s.user === "object" && "first_name" in s.user
+            ? `${(s.user as { first_name?: string }).first_name ?? ""} ${(s.user as { last_name?: string }).last_name ?? ""}`.trim() || s.id
+            : s.id,
+      })),
+    [staffList]
+  );
+
+  useEffect(() => {
+    if (editId && subjectResponse?.data) {
+      setFormData((prev) => ({
+        ...prev,
+        mode: "edit",
+        ...subjectToForm(subjectResponse.data as Subject),
+      }));
+    } else if (editId && !subjectResponse?.data) {
+      // Id in URL but no subject loaded - could be loading or error
+    }
+  }, [editId, subjectResponse?.data]);
+
+  useEffect(() => {
+    if (editId && !subjectResponse?.data && subjectsList.length > 0) {
+      const found = subjectsList.find((s) => s.id === editId);
+      if (found) {
+        setFormData((prev) => ({
+          ...prev,
+          mode: "edit",
+          ...subjectToForm(found),
+        }));
+      }
+    }
+  }, [editId, subjectResponse?.data, subjectsList]);
+
+  useEffect(() => {
+    if (
+      formData.mode === "edit" &&
+      formData.selectedSubject &&
+      formData.selectedSubject !== formData.subjectId
+    ) {
+      const found = subjectsList.find((s) => s.id === formData.selectedSubject);
+      if (found) {
+        setFormData((prev) => ({
+          ...prev,
+          ...subjectToForm(found),
+        }));
+      }
+    }
+  }, [formData.mode, formData.selectedSubject, formData.subjectId, subjectsList]);
 
   const handleStepChange = (stepId: string) => {
     setActiveStep(stepId as StepId);
   };
 
   const handleBack = () => {
-    if (activeStep === "grading") {
-      setActiveStep("identity");
-    } else if (activeStep === "curriculum") {
-      setActiveStep("grading");
-    } else if (activeStep === "finalization") {
-      setActiveStep("curriculum");
-    }
+    if (activeStep === "grading") setActiveStep("identity");
+    else if (activeStep === "curriculum") setActiveStep("grading");
+    else if (activeStep === "finalization") setActiveStep("curriculum");
   };
 
-  const handleSaveDraft = () => {
-    console.log("Save as draft", { ...formData });
-    // Handle save as draft
+  const buildPayload = (status: string) => {
+    const creditUnits = parseInt(formData.creditUnits, 10);
+    const ca = parseInt(formData.continuousAssessment, 10);
+    const fe = parseInt(formData.finalExam, 10);
+    const contentOutline = formToContentOutline(
+      formData.contentOutline,
+      formData.plannedPacing
+    );
+    return {
+      school_id: formData.subjectId ? undefined : schoolId,
+      name: formData.subjectName.trim(),
+      code: formData.subjectCode.trim() || undefined,
+      applicable_grade: formData.applicableGrade || undefined,
+      head_of_department_id: formData.headOfDepartment || null,
+      credit_units: isNaN(creditUnits) ? undefined : creditUnits,
+      continuous_assessment: isNaN(ca) ? undefined : ca,
+      final_exam: isNaN(fe) ? undefined : fe,
+      curriculum_standard: formData.curriculumStandard || undefined,
+      content_outline_table: contentOutline.length > 0 ? contentOutline : undefined,
+      status,
+    };
   };
 
   const handleSaveContinue = () => {
-    if (activeStep === "identity") {
-      setActiveStep("grading");
-    } else if (activeStep === "grading") {
-      setActiveStep("curriculum");
-    } else if (activeStep === "curriculum") {
-      setActiveStep("finalization");
+    if (activeStep === "identity") setActiveStep("grading");
+    else if (activeStep === "grading") setActiveStep("curriculum");
+    else if (activeStep === "curriculum") setActiveStep("finalization");
+  };
+
+  const handleActivate = async () => {
+    if (!formData.subjectName?.trim()) {
+      toast.error("Subject name is required.");
+      return;
+    }
+    if (!schoolId && !formData.subjectId) {
+      toast.error("School is required.");
+      return;
+    }
+    try {
+      if (formData.subjectId) {
+        await updateSubject({
+          id: formData.subjectId,
+          data: { ...buildPayload("approved") },
+        }).unwrap();
+      } else {
+        await createSubject({
+          ...buildPayload("approved"),
+          school_id: schoolId,
+        } as Parameters<typeof createSubject>[0]).unwrap();
+      }
+      toast.success("Subject outline activated.");
+      router.push("/admin/academic/curriculum-management");
+    } catch {
+      toast.error("Failed to activate.");
     }
   };
 
-  const handleActivate = () => {
-    console.log("Subject outline activated", { ...formData });
-    router.push("/admin/academic/curriculum-management");
-  };
-
-  // Get subject name for display
   const getSubjectName = () => {
-    if (formData.mode === "edit") {
-      const selected = [
-        { value: "integrated-science", label: "Integrated Science" },
-        { value: "mathematics", label: "Mathematics" },
-        { value: "english", label: "English" },
-        { value: "physics", label: "Physics" },
-        { value: "chemistry", label: "Chemistry" },
-      ].find((opt) => opt.value === formData.selectedSubject);
-      return selected?.label || "Integrated Science";
+    if (formData.mode === "edit" && formData.selectedSubject) {
+      const s = subjectsList.find((x) => x.id === formData.selectedSubject);
+      return (s?.name ?? formData.subjectName) || "Subject";
     }
-    return formData.subjectName || "Integrated Science";
+    return formData.subjectName || "Subject";
   };
+
+  const isSaving = isCreating || isUpdating;
 
   const renderStepContent = () => {
     switch (activeStep) {
@@ -194,10 +345,10 @@ export default function AddEditSubjectOutlinePage() {
             onFormDataChange={(data) =>
               setFormData((prev) => ({ ...prev, ...data }))
             }
-            onSaveDraft={handleSaveDraft}
             onSaveContinue={handleSaveContinue}
             gradeOptions={gradeOptions}
             hodOptions={hodOptions}
+            subjectOptions={subjectOptions}
           />
         );
 
@@ -213,7 +364,6 @@ export default function AddEditSubjectOutlinePage() {
               setFormData((prev) => ({ ...prev, ...data }))
             }
             onBack={handleBack}
-            onSaveDraft={handleSaveDraft}
             onSaveContinue={handleSaveContinue}
           />
         );
@@ -230,7 +380,6 @@ export default function AddEditSubjectOutlinePage() {
               setFormData((prev) => ({ ...prev, ...data }))
             }
             onBack={handleBack}
-            onSaveDraft={handleSaveDraft}
             onSaveContinue={handleSaveContinue}
             curriculumStandardOptions={curriculumStandardOptions}
             pacingOptions={pacingOptions}
@@ -250,7 +399,6 @@ export default function AddEditSubjectOutlinePage() {
               setFormData((prev) => ({ ...prev, ...data }))
             }
             onBack={handleBack}
-            onSaveDraft={handleSaveDraft}
             onActivate={handleActivate}
           />
         );

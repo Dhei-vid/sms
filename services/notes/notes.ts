@@ -1,37 +1,57 @@
 import { baseApi } from "../baseApi";
-import type { CreateNotesRequest, UpdateNotesRequest } from "./note-types";
 import type {
-  ApiResponse,
-  ApiListResponse,
-  ApiDeleteResponse,
-} from "../shared-types";
+  Notes,
+  CreateNotesRequest,
+  UpdateNotesRequest,
+  NotesListResponse,
+} from "./note-types";
+import type { ApiResponse, ApiDeleteResponse } from "../shared-types";
 
-const BASE = "/notes";
+const BASE = "/notes/";
+
+export interface NotesQueryParams {
+  _all?: boolean;
+  "type[eq]"?: string;
+}
 
 export const notesApi = baseApi.injectEndpoints({
   overrideExisting: true,
   endpoints: (build) => ({
-    getNotes: build.query<ApiListResponse<unknown>, void>({
-      query: () => ({ url: BASE }),
+    getNotes: build.query<
+      NotesListResponse | { data: Notes[] },
+      NotesQueryParams | void
+    >({
+      query: (params) => ({ url: BASE, params: params ?? {} }),
       providesTags: ["Note"],
     }),
 
-    getNoteById: build.query<ApiResponse<unknown>, string>({
-      query: (id) => ({ url: `${BASE}/${id}` }),
+    getLessonPlans: build.query<{ data: Notes[] }, NotesQueryParams | void>({
+      query: (params) => ({
+        url: BASE,
+        params: { _all: "true", "type[eq]": "lesson", ...(params ?? {}) },
+      }),
+      transformResponse: (res: { data?: Notes[] }): { data: Notes[] } => ({
+        data: res?.data ?? [],
+      }),
+      providesTags: ["Note"],
+    }),
+
+    getNoteById: build.query<ApiResponse<Notes>, string>({
+      query: (id) => ({ url: `${BASE}${id}` }),
       providesTags: (_, __, id) => [{ type: "Note", id }],
     }),
 
-    createNote: build.mutation<ApiResponse<unknown>, CreateNotesRequest>({
+    createNote: build.mutation<ApiResponse<Notes>, CreateNotesRequest>({
       query: (body) => ({ url: BASE, method: "POST", body }),
       invalidatesTags: ["Note"],
     }),
 
     updateNote: build.mutation<
-      ApiResponse<unknown>,
+      ApiResponse<Notes>,
       { id: string; data: UpdateNotesRequest }
     >({
       query: ({ id, data }) => ({
-        url: `${BASE}/${id}`,
+        url: `${BASE}${id}`,
         method: "PUT",
         body: data,
       }),
@@ -39,7 +59,7 @@ export const notesApi = baseApi.injectEndpoints({
     }),
 
     deleteNote: build.mutation<ApiDeleteResponse, string>({
-      query: (id) => ({ url: `${BASE}/${id}`, method: "DELETE" }),
+      query: (id) => ({ url: `${BASE}${id}`, method: "DELETE" }),
       invalidatesTags: (_, __, id) => [{ type: "Note", id }, "Note"],
     }),
   }),
@@ -47,6 +67,7 @@ export const notesApi = baseApi.injectEndpoints({
 
 export const {
   useGetNotesQuery,
+  useGetLessonPlansQuery,
   useGetNoteByIdQuery,
   useCreateNoteMutation,
   useUpdateNoteMutation,

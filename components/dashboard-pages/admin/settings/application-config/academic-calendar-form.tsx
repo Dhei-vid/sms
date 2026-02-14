@@ -1,19 +1,66 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useImperativeHandle, forwardRef } from "react";
 import { InputField } from "@/components/ui/input-field";
 import DatePickerIcon from "@/components/ui/date-picker";
 import { Button } from "@/components/ui/button";
 
-export function AcademicCalendarForm() {
-  const [academicYearName, setAcademicYearName] = useState("");
-  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
-  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
-  const [numberOfTerms, setNumberOfTerms] = useState("");
+export interface AcademicCalendarValues {
+  academicYearName: string;
+  startDate: Date | undefined;
+  endDate: Date | undefined;
+  numberOfTerms: string;
+  holidayDate: Date | undefined;
+}
+
+export interface AcademicCalendarFormRef {
+  getValues: () => AcademicCalendarValues;
+}
+
+interface AcademicCalendarFormProps {
+  initialValues?: Partial<AcademicCalendarValues> & {
+    startDate?: string;
+    endDate?: string;
+  };
+}
+
+export const AcademicCalendarForm = forwardRef<AcademicCalendarFormRef, AcademicCalendarFormProps>(
+  function AcademicCalendarForm({ initialValues }, ref) {
+  const [academicYearName, setAcademicYearName] = useState(initialValues?.academicYearName ?? "");
+  const [startDate, setStartDate] = useState<Date | undefined>(() =>
+    initialValues?.startDate ? new Date(initialValues.startDate) : undefined
+  );
+  const [endDate, setEndDate] = useState<Date | undefined>(() =>
+    initialValues?.endDate ? new Date(initialValues.endDate) : undefined
+  );
+  const [numberOfTerms, setNumberOfTerms] = useState(initialValues?.numberOfTerms ?? "");
   const [holidayDate, setHolidayDate] = useState<Date | undefined>(undefined);
   const [startDateOpen, setStartDateOpen] = useState(false);
   const [endDateOpen, setEndDateOpen] = useState(false);
   const [holidayDateOpen, setHolidayDateOpen] = useState(false);
+
+  useEffect(() => {
+    if (initialValues) {
+      if (initialValues.academicYearName !== undefined) setAcademicYearName(initialValues.academicYearName);
+      if (initialValues.numberOfTerms !== undefined) setNumberOfTerms(initialValues.numberOfTerms);
+      if (initialValues.startDate !== undefined) setStartDate(initialValues.startDate ? new Date(initialValues.startDate) : undefined);
+      if (initialValues.endDate !== undefined) setEndDate(initialValues.endDate ? new Date(initialValues.endDate) : undefined);
+    }
+  }, [initialValues?.academicYearName, initialValues?.numberOfTerms, initialValues?.startDate, initialValues?.endDate]);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      getValues: () => ({
+        academicYearName,
+        startDate,
+        endDate,
+        numberOfTerms,
+        holidayDate,
+      }),
+    }),
+    [academicYearName, startDate, endDate, numberOfTerms, holidayDate]
+  );
 
   return (
     <div className="space-y-6">
@@ -96,4 +143,4 @@ export function AcademicCalendarForm() {
       </div>
     </div>
   );
-}
+});

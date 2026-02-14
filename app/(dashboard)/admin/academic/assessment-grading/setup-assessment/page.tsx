@@ -108,8 +108,17 @@ const scaleTypeOptions = [
 
 export default function SetupAssessmentPage() {
   const router = useRouter();
+  const [comingSoon, setComingSoon] = useState(true);
   const [activeStep, setActiveStep] = useState<StepId>("general");
   const [formData, setFormData] = useState<AssessmentFormData>(initialData);
+
+  if (comingSoon) {
+    return (
+      <div className="flex min-h-[400px] items-center justify-center">
+        <div className="text-sm text-gray-600">Coming soon</div>
+      </div>
+    );
+  }
 
   const handleStepChange = (stepId: string) => {
     setActiveStep(stepId as StepId);
@@ -129,8 +138,7 @@ export default function SetupAssessmentPage() {
 
   const handleSaveSetup = () => {
     console.log("Save assessment setup", { ...formData });
-    // Handle save setup
-    router.push("/admin/academic/assessment-grading/dashboard");
+    router.push("/admin/academic/assessment-grading");
   };
 
   const renderStepContent = () => {

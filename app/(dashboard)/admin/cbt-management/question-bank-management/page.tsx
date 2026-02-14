@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MetricCard } from "@/components/dashboard-pages/admin/admissions/components/metric-card";
 import {
@@ -13,8 +13,11 @@ import { SelectItem } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { QuestionReviewModal } from "@/components/dashboard-pages/admin/cbt-management/components/question-review-modal";
+import { useGetCbtQuestionsQuery } from "@/services/cbt-questions/cbt-questions";
+import type { CbtQuestion } from "@/services/cbt-questions/cbt-question-types";
 
 interface QuestionListing {
+  id: string;
   subject: string;
   topicsCovered: number;
   questionTypesCovered: string;
@@ -22,64 +25,64 @@ interface QuestionListing {
   status: "pending-approval" | "sent-back" | "approved" | "rejected";
 }
 
-const questionListingData: QuestionListing[] = [
-  {
-    subject: "Arts & Crafts",
-    topicsCovered: 4,
-    questionTypesCovered: "All 4 question types",
-    submittedBy: "Ms. Zara A.",
-    status: "pending-approval",
-  },
-  {
-    subject: "Computer Science",
-    topicsCovered: 7,
-    questionTypesCovered: "All 4 question types",
-    submittedBy: "Ms. Zara A.",
-    status: "pending-approval",
-  },
-  {
-    subject: "English Language",
-    topicsCovered: 8,
-    questionTypesCovered: "All 4 question types",
-    submittedBy: "Ms. Zara A.",
-    status: "pending-approval",
-  },
-  {
-    subject: "Information Technology",
-    topicsCovered: 3,
-    questionTypesCovered: "All 4 question types",
-    submittedBy: "Ms. Zara A.",
-    status: "sent-back",
-  },
-  {
-    subject: "Integrated Science",
-    topicsCovered: 9,
-    questionTypesCovered: "All 4 question types",
-    submittedBy: "Ms. Zara A.",
-    status: "approved",
-  },
-  {
-    subject: "Mathematics",
-    topicsCovered: 7,
-    questionTypesCovered: "All 4 question types",
-    submittedBy: "Ms. Zara A.",
-    status: "approved",
-  },
-  {
-    subject: "Physical Education",
-    topicsCovered: 7,
-    questionTypesCovered: "All 4 question types",
-    submittedBy: "Ms. Zara A.",
-    status: "approved",
-  },
-  {
-    subject: "Yoruba Language",
-    topicsCovered: 3,
-    questionTypesCovered: "All 4 question types",
-    submittedBy: "Ms. Zara A.",
-    status: "rejected",
-  },
-];
+function getQuestionsList(data: unknown): CbtQuestion[] {
+  if (!data || typeof data !== "object") return [];
+  const d = data as { data?: CbtQuestion[] | { data?: CbtQuestion[] } };
+  if (Array.isArray(d.data)) return d.data;
+  if (d.data && typeof d.data === "object" && Array.isArray((d.data as { data?: CbtQuestion[] }).data)) {
+    return (d.data as { data: CbtQuestion[] }).data;
+  }
+  return [];
+}
+
+function mapApiQuestionToListing(q: CbtQuestion): QuestionListing {
+  const status = (q.status?.toLowerCase() ?? "approved") as QuestionListing["status"];
+  const normalizedStatus: QuestionListing["status"] =
+    status === "pending" || status === "pending-approval"
+      ? "pending-approval"
+      : status === "sent-back"
+        ? "sent-back"
+        : status === "rejected"
+          ? "rejected"
+          : "approved";
+  const submittedBy =
+    q.creator?.first_name || q.creator?.last_name
+      ? [q.creator.first_name, q.creator.last_name].filter(Boolean).join(" ")
+      : q.creator?.email ?? "—";
+  return {
+    id: q.id,
+    subject: q.subject ?? "—",
+    topicsCovered: q.topic_covered ?? 0,
+    questionTypesCovered: q.type ?? q.category ?? "—",
+    submittedBy,
+    status: normalizedStatus,
+  };
+}
+
+function mapApiQuestionToModalQuestion(q: CbtQuestion): {
+  id: string;
+  questionType: string;
+  question: string;
+  answerOptions: { label: string; text: string; isCorrect: boolean }[];
+  explanation: string;
+  topicTag: string;
+} {
+  const options = q.answer_options ?? [];
+  const correctIndex = q.correct_answer ?? 0;
+  const answerOptions = options.map((text, i) => ({
+    label: String.fromCharCode(65 + i),
+    text: String(text),
+    isCorrect: i === correctIndex,
+  }));
+  return {
+    id: q.id,
+    questionType: q.type ?? "Multiple Choice",
+    question: q.question ?? "",
+    answerOptions,
+    explanation: q.explanation ?? "",
+    topicTag: [q.tag, q.category, q.subject].filter(Boolean).join(" · ") || "—",
+  };
+}
 
 const getStatusColor = (status: QuestionListing["status"]) => {
   switch (status) {
@@ -128,43 +131,30 @@ const statusFilterOptions = [
   { value: "rejected", label: "Rejected" },
 ];
 
-const mockQuestions = [
-  {
-    id: "1",
-    questionType: "Multiple Choice Single Answer (MCQ)",
-    question:
-      "In the traditional Yoruba art of fabric decoration, which method involves tying or stitching the fabric before dipping it into indigo dye to create patterns?",
-    answerOptions: [
-      { label: "A", text: "Appliqué", isCorrect: false },
-      { label: "B", text: "Batik", isCorrect: false },
-      { label: "C", text: "Adire", isCorrect: true },
-      { label: "D", text: "Mosaic", isCorrect: false },
-    ],
-    explanation:
-      "Adire specifically refers to the Yoruba resist-dyeing technique where patterns are created by resisting the dye, typically by tying (Adire Elèso) or starching (Adire Eléko). Batik uses wax as the resist agent, and Appliqué involves stitching fabric pieces onto a background.",
-    topicTag: "Topic Tag 1: Nigerian Traditional Textiles: Tie-Dye (Adire)",
-  },
-  {
-    id: "2",
-    questionType: "Multiple Choice Single Answer (MCQ)",
-    question: "What is the primary material used in traditional Adire making?",
-    answerOptions: [
-      { label: "A", text: "Cotton fabric", isCorrect: true },
-      { label: "B", text: "Silk fabric", isCorrect: false },
-      { label: "C", text: "Polyester fabric", isCorrect: false },
-      { label: "D", text: "Linen fabric", isCorrect: false },
-    ],
-    explanation:
-      "Traditional Adire is primarily made using cotton fabric, which is ideal for absorbing the indigo dye and creating the characteristic patterns.",
-    topicTag: "Topic Tag 1: Nigerian Traditional Textiles: Tie-Dye (Adire)",
-  },
-];
-
 export default function QuestionBankManagementPage() {
   const [grade, setGrade] = useState("jss-3");
   const [statusFilter, setStatusFilter] = useState("all");
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [selectedQuestionIndex, setSelectedQuestionIndex] = useState(0);
+
+  const { data: questionsResponse, isLoading: isLoadingQuestions } = useGetCbtQuestionsQuery({ _all: true });
+  const questionsList = useMemo(() => getQuestionsList(questionsResponse), [questionsResponse]);
+  const questionListingData: QuestionListing[] = useMemo(
+    () => questionsList.map(mapApiQuestionToListing),
+    [questionsList],
+  );
+  const filteredListing = useMemo(() => {
+    if (statusFilter === "all") return questionListingData;
+    return questionListingData.filter((q) => q.status === statusFilter);
+  }, [questionListingData, statusFilter]);
+  const modalQuestions = useMemo(
+    () => questionsList.map(mapApiQuestionToModalQuestion),
+    [questionsList],
+  );
+  const pendingCount = useMemo(
+    () => questionListingData.filter((q) => q.status === "pending-approval").length,
+    [questionListingData],
+  );
 
   const columns: TableColumn<QuestionListing>[] = [
     {
@@ -202,7 +192,8 @@ export default function QuestionBankManagementPage() {
       config: {
         label: "Review Content",
         onClick: (row) => {
-          setSelectedQuestionIndex(0);
+          const idx = filteredListing.findIndex((r) => r.id === row.id);
+          setSelectedQuestionIndex(idx >= 0 ? idx : 0);
           setReviewModalOpen(true);
         },
         variant: "outline",
@@ -229,7 +220,7 @@ export default function QuestionBankManagementPage() {
   };
 
   const handleNext = () => {
-    if (selectedQuestionIndex < mockQuestions.length - 1) {
+    if (selectedQuestionIndex < modalQuestions.length - 1) {
       setSelectedQuestionIndex((prev) => prev + 1);
     }
   };
@@ -251,13 +242,13 @@ export default function QuestionBankManagementPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <MetricCard
           title="Questions in Database"
-          value="4,580 Questions"
+          value={isLoadingQuestions ? "—" : `${questionsList.length.toLocaleString()} Questions`}
           subtitle="Measures the availability of the question bank"
           trend="up"
         />
         <MetricCard
           title="Total Pending Approval"
-          value="48 Questions"
+          value={isLoadingQuestions ? "—" : `${pendingCount} Questions`}
           subtitle="Immediate focus on the review backlog"
           trend="up"
         />
@@ -296,16 +287,19 @@ export default function QuestionBankManagementPage() {
         </CardHeader>
         <CardContent>
           <div className="border rounded-lg overflow-hidden">
-            <DataTable
-              columns={columns}
-              data={questionListingData}
-              actions={actions}
-              emptyMessage="No questions found."
-              tableClassName="border-collapse"
-            />
-          </div>
-          <div className="flex justify-center mt-4">
-            <Button variant="outline">Load More</Button>
+            {isLoadingQuestions ? (
+              <div className="py-8 text-center text-muted-foreground text-sm">
+                Loading questions…
+              </div>
+            ) : (
+              <DataTable
+                columns={columns}
+                data={filteredListing}
+                actions={actions}
+                emptyMessage="No questions found."
+                tableClassName="border-collapse"
+              />
+            )}
           </div>
         </CardContent>
       </Card>
@@ -314,10 +308,10 @@ export default function QuestionBankManagementPage() {
       <QuestionReviewModal
         open={reviewModalOpen}
         onOpenChange={setReviewModalOpen}
-        examTitle="JSS 3 Arts & Craft"
-        totalQuestions={30}
-        submittedBy="Ms. Zara A."
-        questions={mockQuestions}
+        examTitle="Question Bank"
+        totalQuestions={modalQuestions.length}
+        submittedBy={filteredListing[selectedQuestionIndex]?.submittedBy ?? "—"}
+        questions={modalQuestions}
         currentQuestionIndex={selectedQuestionIndex}
         onPrevious={handlePrevious}
         onNext={handleNext}

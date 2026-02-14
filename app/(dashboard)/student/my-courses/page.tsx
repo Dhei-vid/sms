@@ -43,7 +43,7 @@ export default function MyCoursesPage() {
         <div className="text-center p-8 text-gray-500">No courses found</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {courses.map((course) => (
+          {/* {courses.map((course) => (
             <CourseCard
               key={course.id}
               courseCode={course.code || course.id}
@@ -53,7 +53,7 @@ export default function MyCoursesPage() {
               latestActivity={course.description || "No recent activity"}
               courseId={course.id}
             />
-          ))}
+          ))} */}
         </div>
       )}
     </div>

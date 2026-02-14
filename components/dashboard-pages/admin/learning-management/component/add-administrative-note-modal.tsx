@@ -9,8 +9,9 @@ import { ChevronDown } from "lucide-react";
 interface AddAdministrativeNoteModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSendNote?: (note: string) => void;
+  onSendNote?: (note: string) => void | Promise<void>;
   staffName?: string;
+  isSubmitting?: boolean;
 }
 
 export function AddAdministrativeNoteModal({
@@ -18,17 +19,17 @@ export function AddAdministrativeNoteModal({
   onOpenChange,
   onSendNote,
   staffName,
+  isSubmitting = false,
 }: AddAdministrativeNoteModalProps) {
   const [note, setNote] = useState("");
 
-  const handleSendNote = () => {
-    if (note.trim()) {
-      if (onSendNote) {
-        onSendNote(note);
-      }
-      setNote("");
-      onOpenChange(false);
+  const handleSendNote = async () => {
+    if (!note.trim()) return;
+    if (onSendNote) {
+      await onSendNote(note);
     }
+    setNote("");
+    onOpenChange(false);
   };
 
   const handleCancel = () => {
@@ -50,9 +51,9 @@ export function AddAdministrativeNoteModal({
           <Button
             className="bg-main-blue text-white hover:bg-main-blue/90"
             onClick={handleSendNote}
-            disabled={!note.trim()}
+            disabled={!note.trim() || isSubmitting}
           >
-            Send Note
+            {isSubmitting ? "Saving…" : "Send Note"}
           </Button>
         </div>
       }

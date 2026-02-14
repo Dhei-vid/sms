@@ -1,40 +1,48 @@
 import { baseApi } from "../baseApi";
 import type {
+  Subject,
   CreateSubjectsRequest,
   UpdateSubjectPayload,
+  SubjectListResponse,
 } from "./subject-types";
 import type {
   ApiResponse,
-  ApiListResponse,
   ApiDeleteResponse,
 } from "../shared-types";
 
-const BASE = "/subjects";
+const BASE = "/subjects/";
+
+export interface SubjectsQueryParams {
+  _all?: boolean;
+}
 
 export const subjectsApi = baseApi.injectEndpoints({
   overrideExisting: true,
   endpoints: (build) => ({
-    getSubjects: build.query<ApiListResponse<unknown>, void>({
-      query: () => ({ url: BASE }),
+    getSubjects: build.query<
+      SubjectListResponse | { data: Subject[] },
+      SubjectsQueryParams | void
+    >({
+      query: (params) => ({ url: BASE, params: params ?? {} }),
       providesTags: ["Subject"],
     }),
 
-    getSubjectById: build.query<ApiResponse<unknown>, string>({
-      query: (id) => ({ url: `${BASE}/${id}` }),
+    getSubjectById: build.query<ApiResponse<Subject>, string>({
+      query: (id) => ({ url: `${BASE}${id}` }),
       providesTags: (_, __, id) => [{ type: "Subject", id }],
     }),
 
-    createSubject: build.mutation<ApiResponse<unknown>, CreateSubjectsRequest>({
+    createSubject: build.mutation<ApiResponse<Subject>, CreateSubjectsRequest>({
       query: (body) => ({ url: BASE, method: "POST", body }),
       invalidatesTags: ["Subject"],
     }),
 
     updateSubject: build.mutation<
-      ApiResponse<unknown>,
+      ApiResponse<Subject>,
       { id: string; data: UpdateSubjectPayload }
     >({
       query: ({ id, data }) => ({
-        url: `${BASE}/${id}`,
+        url: `${BASE}${id}`,
         method: "PUT",
         body: data,
       }),
@@ -42,7 +50,7 @@ export const subjectsApi = baseApi.injectEndpoints({
     }),
 
     deleteSubject: build.mutation<ApiDeleteResponse, string>({
-      query: (id) => ({ url: `${BASE}/${id}`, method: "DELETE" }),
+      query: (id) => ({ url: `${BASE}${id}`, method: "DELETE" }),
       invalidatesTags: (_, __, id) => [{ type: "Subject", id }, "Subject"],
     }),
   }),

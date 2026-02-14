@@ -11,7 +11,7 @@ import type {
   ApiDeleteResponse,
 } from "../shared-types";
 
-const BASE = "/notifications";
+const BASE = "/notifications/";
 
 export const notificationsApi = baseApi.injectEndpoints({
   overrideExisting: true,
@@ -34,7 +34,7 @@ export const notificationsApi = baseApi.injectEndpoints({
     }),
 
     getNotificationById: build.query<ApiResponse<Notifications>, string>({
-      query: (id) => ({ url: `${BASE}/${id}` }),
+      query: (id) => ({ url: `${BASE}${id}` }),
       transformResponse: (response: ApiResponse<Notifications>) => {
         if (
           response.status === false ||
@@ -60,7 +60,7 @@ export const notificationsApi = baseApi.injectEndpoints({
       { id: string; data: UpdateNotifications }
     >({
       query: ({ id, data }) => ({
-        url: `${BASE}/${id}`,
+        url: `${BASE}${id}`,
         method: "PUT",
         body: data,
       }),
@@ -71,7 +71,7 @@ export const notificationsApi = baseApi.injectEndpoints({
     }),
 
     deleteNotification: build.mutation<ApiDeleteResponse, string>({
-      query: (id) => ({ url: `${BASE}/${id}`, method: "DELETE" }),
+      query: (id) => ({ url: `${BASE}${id}`, method: "DELETE" }),
       invalidatesTags: ["Notification"],
     }),
   }),

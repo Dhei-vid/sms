@@ -47,6 +47,8 @@ export interface CreateScheduleEventPayload {
   location: string;
 
   status: "active" | "inactive" | "cancelled";
+
+  invigilator_id?: string | null;
 }
 
 export interface UpdateScheduleEventPayloadStrict {

@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   DataTable,
@@ -7,7 +8,8 @@ import {
   TableAction,
 } from "@/components/ui/data-table";
 import { format } from "date-fns";
-import Link from "next/link";
+import { useGetAllExamResultsQuery } from "@/services/results/results";
+import type { ExamResult } from "@/services/results/result-types";
 
 interface ApprovalQueueItem {
   id: string;
@@ -18,42 +20,39 @@ interface ApprovalQueueItem {
   lastUpdate: Date;
 }
 
-const approvalQueueData: ApprovalQueueItem[] = [
-  {
-    id: "1",
-    gradeLevel: "Primary 5 First Term 2025/2026",
-    totalStudents: 50,
-    submissionStatus: "100% Submitted",
-    submissionPercentage: 100,
-    lastUpdate: new Date(2025, 10, 4),
-  },
-  {
-    id: "2",
-    gradeLevel: "JSS 1 First Term 2025/2026",
-    totalStudents: 65,
-    submissionStatus: "98% Submitted",
-    submissionPercentage: 98,
-    lastUpdate: new Date(2025, 10, 4),
-  },
-  {
-    id: "3",
-    gradeLevel: "JSS 2 First Term 2025/2026",
-    totalStudents: 60,
-    submissionStatus: "100% Submitted",
-    submissionPercentage: 100,
-    lastUpdate: new Date(2025, 10, 4),
-  },
-  {
-    id: "4",
-    gradeLevel: "SS 1 First Term 2025/2026",
-    totalStudents: 55,
-    submissionStatus: "75% Submitted",
-    submissionPercentage: 75,
-    lastUpdate: new Date(2025, 10, 4),
-  },
-];
+function buildApprovalQueueFromResults(data: ExamResult[]): ApprovalQueueItem[] {
+  const byKey = new Map<string, ExamResult[]>();
+  for (const r of data) {
+    const key = `${r.class_name}||${r.term}||${r.session}`;
+    const list = byKey.get(key) ?? [];
+    list.push(r);
+    byKey.set(key, list);
+  }
+  return Array.from(byKey.entries()).map(([key, results]) => {
+    const first = results[0]!;
+    const lastUpdate = results.reduce((latest, r) => {
+      const t = r.updated_at ? new Date(r.updated_at).getTime() : 0;
+      return t > latest ? t : latest;
+    }, 0);
+    return {
+      id: key,
+      gradeLevel: `${first.class_name} ${first.term} ${first.session}`,
+      totalStudents: results.length,
+      submissionStatus: "100% Submitted",
+      submissionPercentage: 100,
+      lastUpdate: new Date(lastUpdate),
+    };
+  });
+}
 
 export default function FinalResultApprovalQueuePage() {
+  const { data, isLoading, isError } = useGetAllExamResultsQuery(undefined);
+  const raw = (data as { data?: ExamResult[] })?.data ?? [];
+  const approvalQueueData = useMemo(
+    () => buildApprovalQueueFromResults(raw),
+    [raw]
+  );
+
   const columns: TableColumn<ApprovalQueueItem>[] = [
     {
       key: "gradeLevel",
@@ -96,11 +95,26 @@ export default function FinalResultApprovalQueuePage() {
       config: {
         label: "Review & Approve",
         href: (row) =>
-          `/admin/academic/assessment-grading/final-result-approval-queue/${row.id}`,
+          `/admin/academic/assessment-grading/final-result-approval-queue/${encodeURIComponent(row.id)}`,
         className: "text-main-blue underline underline-offset-3",
       },
     },
   ];
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="bg-background rounded-md p-6">
+          <h2 className="text-2xl font-bold text-gray-800">
+            Final Results Approval Queue
+          </h2>
+          <p className="text-gray-600 mt-1">
+            Loading results batches...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

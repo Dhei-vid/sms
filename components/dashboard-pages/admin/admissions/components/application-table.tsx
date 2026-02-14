@@ -70,7 +70,7 @@ export function ApplicationTable({
         // but we can also trigger a manual refresh if needed
         router.refresh();
       } else {
-        throw new Error(result.error || "Failed to update status");
+        throw new Error((result as { error?: string }).error || "Failed to update status");
       }
     } catch (error: any) {
       console.error("Error updating status:", error);

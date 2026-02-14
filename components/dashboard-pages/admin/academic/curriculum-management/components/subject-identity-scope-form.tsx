@@ -18,28 +18,20 @@ interface SubjectIdentityScopeFormProps {
   onFormDataChange: (
     data: Partial<SubjectIdentityScopeFormProps["formData"]>,
   ) => void;
-  onSaveDraft: () => void;
   onSaveContinue: () => void;
   gradeOptions: { value: string; label: string }[];
   hodOptions: { value: string; label: string }[];
+  subjectOptions: { value: string; label: string }[];
 }
 
 export function SubjectIdentityScopeForm({
   formData,
   onFormDataChange,
-  onSaveDraft,
   onSaveContinue,
   gradeOptions,
   hodOptions,
+  subjectOptions,
 }: SubjectIdentityScopeFormProps) {
-  const subjectOptions = [
-    { value: "integrated-science", label: "Integrated Science" },
-    { value: "mathematics", label: "Mathematics" },
-    { value: "english", label: "English" },
-    { value: "physics", label: "Physics" },
-    { value: "chemistry", label: "Chemistry" },
-  ];
-
   return (
     <div className="space-y-6">
       <h3 className="text-lg font-semibold text-gray-800">
@@ -134,9 +126,6 @@ export function SubjectIdentityScopeForm({
       </SelectField>
 
       <div className="flex justify-end gap-3 pt-4">
-        <Button variant="outline" onClick={onSaveDraft}>
-          Save as Draft
-        </Button>
         <Button className="w-60" onClick={onSaveContinue}>
           Save & Continue
         </Button>

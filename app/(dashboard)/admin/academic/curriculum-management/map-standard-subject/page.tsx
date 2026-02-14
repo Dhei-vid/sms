@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { StepNavigation, Step } from "@/components/ui/step-navigation";
 import { SelectField } from "@/components/ui/input-field";
@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/data-table";
 import { format } from "date-fns";
 import { AssignmentsIcon, ResourcesAddIcon } from "@hugeicons/core-free-icons";
+import { useGetSubjectsQuery } from "@/services/subjects/subjects";
+import type { Subject } from "@/services/subjects/subject-types";
 
 type StepId = "standards-mapping" | "draft-outlines";
 
@@ -36,29 +38,28 @@ interface DraftOutline {
   lastModifiedDate: Date;
 }
 
+function subjectToDraftOutline(s: Subject): DraftOutline {
+  const grades = s.applicable_grade ? [s.applicable_grade] : [];
+  const ub = s.updated_by;
+  const lastEditedBy =
+    ub && typeof ub === "object"
+      ? `${ub.first_name ?? ""} ${ub.last_name ?? ""}`.trim() || "—"
+      : "—";
+  return {
+    id: s.id,
+    subjectName: s.name,
+    applicableGrades: grades,
+    lastEditedBy,
+    lastModifiedDate: new Date(s.updated_at),
+  };
+}
+
 interface MappingRow {
   id: string;
   internalUnit: string;
   internalTopic: string;
   externalStandard: string;
 }
-
-const draftOutlinesData: DraftOutline[] = [
-  {
-    id: "1",
-    subjectName: "Further Mathematics",
-    applicableGrades: ["SS 1", "SS 2", "SS 3"],
-    lastEditedBy: "Dr. Femi I. (HOD)",
-    lastModifiedDate: new Date(2025, 10, 4, 16, 30),
-  },
-  {
-    id: "2",
-    subjectName: "Integrated Science",
-    applicableGrades: ["JS 1", "JS 2", "JS 3"],
-    lastEditedBy: "Ms. Kara A. (Academic Admin)",
-    lastModifiedDate: new Date(2025, 10, 4, 16, 30),
-  },
-];
 
 const mappingData: MappingRow[] = [
   {
@@ -98,13 +99,6 @@ const mappingData: MappingRow[] = [
   },
 ];
 
-const subjectOptions = [
-  { value: "ss2-biology", label: "SS2 Biology" },
-  { value: "ss2-chemistry", label: "SS2 Chemistry" },
-  { value: "ss2-physics", label: "SS2 Physics" },
-  { value: "jss2-integrated-science", label: "JSS2 Integrated Science" },
-];
-
 const standardOptions = [
   { value: "waec-2026", label: "WAEC 2026 Syllabus" },
   { value: "national-curriculum", label: "National Curriculum" },
@@ -112,9 +106,30 @@ const standardOptions = [
 ];
 
 export default function MapStandardSubjectPage() {
+  const [comingSoon, setComingSoon] = useState(true);
   const [activeStep, setActiveStep] = useState<StepId>("standards-mapping");
   const [selectedSubject, setSelectedSubject] = useState<string>("");
   const [selectedStandard, setSelectedStandard] = useState<string>("");
+
+  const { data: subjectsResponse } = useGetSubjectsQuery({ _all: true });
+  const subjectsList: Subject[] = useMemo(() => {
+    const d = (subjectsResponse as { data?: Subject[] })?.data;
+    return Array.isArray(d) ? d : [];
+  }, [subjectsResponse]);
+
+  const draftOutlinesData: DraftOutline[] = useMemo(
+    () => subjectsList.map(subjectToDraftOutline),
+    [subjectsList]
+  );
+
+  const subjectOptions = useMemo(
+    () =>
+      subjectsList.map((s) => ({
+        value: s.id,
+        label: `${s.name}${s.applicable_grade ? ` (${s.applicable_grade})` : ""}`,
+      })),
+    [subjectsList]
+  );
 
   const handleStepChange = (stepId: string) => {
     setActiveStep(stepId as StepId);
@@ -213,55 +228,61 @@ export default function MapStandardSubjectPage() {
           <Card className="p-0 bg-background">
             <CardContent className="p-6">
               {activeStep === "standards-mapping" ? (
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                      Standards Mapping Interface
-                    </h3>
+                comingSoon ? (
+                  <div className="flex min-h-[300px] items-center justify-center">
+                    <div className="text-sm text-gray-600">Coming soon</div>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                        Standards Mapping Interface
+                      </h3>
+
+                      <div className="space-y-4">
+                        <SelectField
+                          label="Select Subject"
+                          value={selectedSubject}
+                          onValueChange={setSelectedSubject}
+                          placeholder="Choose Subject (e.g., SS2 Biology)"
+                        >
+                          {subjectOptions.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectField>
+
+                        <SelectField
+                          label="Select Standard"
+                          value={selectedStandard}
+                          onValueChange={setSelectedStandard}
+                          placeholder="Choose Standard (e.g., WAEC 2026 Syllabus, National Curriculum, Q4)"
+                        >
+                          {standardOptions.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectField>
+                      </div>
+                    </div>
 
                     <div className="space-y-4">
-                      <SelectField
-                        label="Select Subject"
-                        value={selectedSubject}
-                        onValueChange={setSelectedSubject}
-                        placeholder="Choose Subject (e.g., SS2 Biology)"
-                      >
-                        {subjectOptions.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectField>
-
-                      <SelectField
-                        label="Select Standard"
-                        value={selectedStandard}
-                        onValueChange={setSelectedStandard}
-                        placeholder="Choose Standard (e.g., WAEC 2026 Syllabus, National Curriculum, Q4)"
-                      >
-                        {standardOptions.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectField>
+                      <h4 className="text-sm font-semibold text-gray-800">
+                        Mapping Table
+                      </h4>
+                      <div className="border rounded-lg overflow-hidden">
+                        <DataTable
+                          columns={mappingColumns}
+                          data={mappingData}
+                          emptyMessage="No mappings available. Select a subject and standard to begin."
+                          tableClassName="border-collapse"
+                        />
+                      </div>
                     </div>
                   </div>
-
-                  <div className="space-y-4">
-                    <h4 className="text-sm font-semibold text-gray-800">
-                      Mapping Table
-                    </h4>
-                    <div className="border rounded-lg overflow-hidden">
-                      <DataTable
-                        columns={mappingColumns}
-                        data={mappingData}
-                        emptyMessage="No mappings available. Select a subject and standard to begin."
-                        tableClassName="border-collapse"
-                      />
-                    </div>
-                  </div>
-                </div>
+                )
               ) : (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">

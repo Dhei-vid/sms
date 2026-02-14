@@ -10,6 +10,8 @@ interface ModulePermission {
 }
 
 interface ModulePermissionsFormProps {
+  /** Module names from backend (GET role-templates response.modules). */
+  modules: string[];
   permissions: ModulePermission[];
   onPermissionChange: (
     moduleIndex: number,
@@ -17,18 +19,8 @@ interface ModulePermissionsFormProps {
   ) => void;
 }
 
-const modules = [
-  "Assessment & Grading",
-  "System Settings",
-  "CBT Management",
-  "LMS Management",
-  "Academic Management",
-  "Staff Management",
-  "Admissions and Students",
-  "Finance Management",
-];
-
 export function ModulePermissionsForm({
+  modules,
   permissions,
   onPermissionChange,
 }: ModulePermissionsFormProps) {

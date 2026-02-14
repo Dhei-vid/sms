@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -17,6 +18,8 @@ import {
   Link01Icon,
 } from "@hugeicons/core-free-icons";
 import { useRouter } from "next/navigation";
+import { useGetSubjectsQuery } from "@/services/subjects/subjects";
+import type { Subject } from "@/services/subjects/subject-types";
 
 interface CoverageStatus {
   id: string;
@@ -25,30 +28,6 @@ interface CoverageStatus {
   actualCoverage: number;
   color: string;
 }
-
-const coverageData: CoverageStatus[] = [
-  {
-    id: "1",
-    section: "Senior School (SS)",
-    plannedCoverage: 80,
-    actualCoverage: 75,
-    color: "bg-orange-500",
-  },
-  {
-    id: "2",
-    section: "Junior School (JSS)",
-    plannedCoverage: 75,
-    actualCoverage: 85,
-    color: "bg-green-500",
-  },
-  {
-    id: "3",
-    section: "Primary School",
-    plannedCoverage: 70,
-    actualCoverage: 70,
-    color: "bg-blue-500",
-  },
-];
 
 const quickActions = [
   {
@@ -69,8 +48,48 @@ const quickActions = [
   },
 ];
 
+function deriveCoverage(subjects: Subject[]): CoverageStatus[] {
+  const bySection: Record<string, { total: number; withOutline: number }> = {
+    ss: { total: 0, withOutline: 0 },
+    jss: { total: 0, withOutline: 0 },
+    primary: { total: 0, withOutline: 0 },
+  };
+  for (const s of subjects) {
+    const grade = (s.applicable_grade ?? "").toLowerCase();
+    const outline = s.content_outline_table ?? [];
+    const hasOutline = outline.length > 0 && outline.some((o) => o.unit_definition || o.topic_definition);
+    if (grade.startsWith("ss") || grade.includes("ss-")) {
+      bySection.ss.total++;
+      if (hasOutline) bySection.ss.withOutline++;
+    } else if (grade.startsWith("js") || grade.includes("jss") || grade.includes("js-")) {
+      bySection.jss.total++;
+      if (hasOutline) bySection.jss.withOutline++;
+    } else if (grade.startsWith("primary") || grade.includes("primary") || /p[1-6]/.test(grade)) {
+      bySection.primary.total++;
+      if (hasOutline) bySection.primary.withOutline++;
+    }
+  }
+  const pct = (n: number, d: number) => (d > 0 ? Math.round((n / d) * 100) : 0);
+  return [
+    { id: "1", section: "Senior School (SS)", plannedCoverage: 100, actualCoverage: pct(bySection.ss.withOutline, bySection.ss.total) || 0, color: "bg-orange-500" },
+    { id: "2", section: "Junior School (JSS)", plannedCoverage: 100, actualCoverage: pct(bySection.jss.withOutline, bySection.jss.total) || 0, color: "bg-green-500" },
+    { id: "3", section: "Primary School", plannedCoverage: 100, actualCoverage: pct(bySection.primary.withOutline, bySection.primary.total) || 0, color: "bg-blue-500" },
+  ];
+}
+
 export default function CurriculumManagementPage() {
   const router = useRouter();
+  const { data: subjectsResponse } = useGetSubjectsQuery({ _all: true });
+  const subjectsList: Subject[] = useMemo(() => {
+    const d = (subjectsResponse as { data?: Subject[] })?.data;
+    return Array.isArray(d) ? d : [];
+  }, [subjectsResponse]);
+
+  const coverageData = useMemo(() => deriveCoverage(subjectsList), [subjectsList]);
+  const totalWithOutline = subjectsList.filter(
+    (s) => (s.content_outline_table ?? []).length > 0
+  ).length;
+  const coveragePct = subjectsList.length > 0 ? Math.round((totalWithOutline / subjectsList.length) * 100) : 0;
 
   return (
     <div className="space-y-4">
@@ -89,14 +108,14 @@ export default function CurriculumManagementPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FinancialMetricCard
           title="Curriculum Coverage"
-          value="75% Complete"
-          subtitle="Status of lesson plans"
+          value={`${coveragePct}% Complete`}
+          subtitle="Subjects with content outlines"
           trend="up"
         />
         <FinancialMetricCard
           title="Learning Objectives Mapped"
-          value="98%"
-          subtitle="Completeness of subject outlines"
+          value={`${subjectsList.length} Subjects`}
+          subtitle="Total subject outlines"
           trend="up"
         />
       </div>

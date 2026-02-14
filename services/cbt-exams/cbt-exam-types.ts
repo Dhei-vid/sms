@@ -2,11 +2,51 @@ import { ResponseStatus } from "@/common/types";
 
 export type CBTExamsResponse = { data: [] } & ResponseStatus;
 
+/** Exam as returned by list/detail API (relation serializer) */
+export interface CbtExam {
+  id: string;
+  title: string;
+  category: string;
+  subject: string;
+  completed: boolean;
+  schedule_date: string | null;
+  schedule_time: string | null;
+  location_venue?: string | null;
+  created_at: string;
+  updated_at: string;
+  total_questions?: number | null;
+  duration?: number | null;
+  status?: string | null;
+  [key: string]: unknown;
+}
+
+export interface CbtExamsQueryParams {
+  _all?: boolean;
+  page?: number;
+  limit?: number;
+}
+
 export interface CreateCBTExamsPayload {
   school_id: string;
   title: string;
   category: string;
   subject: string;
+  /** Optional fields supported by backend */
+  duration?: number;
+  total_questions?: number;
+  total_marks_available?: number;
+  applicable_grades?: string;
+  applicable_subjects?: string;
+  type?: string;
+  schedule_date?: string;
+  schedule_time?: string;
+  max_attempt?: number;
+  display_result?: string;
+  question_shuffle?: boolean;
+  answer_shuffle?: boolean;
+  partial_credit?: boolean;
+  question_ids?: string[];
+  location_venue?: string;
 }
 
 export interface AssessmentQuestion {

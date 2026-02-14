@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { ChevronRight, ChevronLeft, Menu } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { menuItems } from "@/common/menu-items";
 import { getRolePath } from "@/utils/menu-utils";
 import { UserRole } from "@/lib/types";

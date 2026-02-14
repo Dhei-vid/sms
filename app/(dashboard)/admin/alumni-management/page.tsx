@@ -93,6 +93,7 @@ const graduationYearOptions = [
 ];
 
 export default function AlumniManagementPage() {
+  const [comingSoon, setComingSoon] = useState<boolean>(true)
   const [searchQuery, setSearchQuery] = useState("");
   const [graduationYear, setGraduationYear] = useState("all");
 
@@ -160,6 +161,16 @@ export default function AlumniManagementPage() {
       },
     },
   ];
+
+  if (comingSoon) {
+    return (
+      <div className="flex h-100 items-center justify-center">
+        <p className="text-sm">
+          Coming soon
+        </p>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-4">

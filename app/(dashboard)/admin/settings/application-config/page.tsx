@@ -1,13 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { StepNavigation, Step } from "@/components/ui/step-navigation";
 import { Calendar03Icon, GraduateMaleIcon } from "@hugeicons/core-free-icons";
-import { AcademicCalendarForm } from "@/components/dashboard-pages/admin/settings/application-config/academic-calendar-form";
+import { AcademicCalendarForm, type AcademicCalendarFormRef } from "@/components/dashboard-pages/admin/settings/application-config/academic-calendar-form";
 import { GradingScalesForm } from "@/components/dashboard-pages/admin/settings/application-config/grading-scales-form";
+import { useAppSelector } from "@/store/hooks";
+import { selectUser } from "@/store/slices/authSlice";
+import {
+  useGetSchoolApplicationConfigQuery,
+  useUpdateSchoolApplicationConfigMutation,
+} from "@/services/schools/schools";
+import type { ApiResponse } from "@/services/shared-types";
+import type { SchoolApplicationConfig } from "@/services/schools/schools-type";
 
 type StepId = "academic-calendar" | "grading-scales";
 
@@ -27,14 +35,31 @@ const steps: Step[] = [
 export default function ApplicationConfigPage() {
   const router = useRouter();
   const [activeStep, setActiveStep] = useState<StepId>("academic-calendar");
+  const user = useAppSelector(selectUser);
+  const schoolId = user?.school_id ?? "";
+  const { data: configResponse, isLoading: configLoading } =
+    useGetSchoolApplicationConfigQuery(schoolId, { skip: !schoolId });
+  const [updateConfig, { isLoading: isSaving }] =
+    useUpdateSchoolApplicationConfigMutation();
+  const academicFormRef = useRef<AcademicCalendarFormRef>(null);
+
+  const config = (configResponse as ApiResponse<SchoolApplicationConfig> | undefined)?.data;
 
   const handleBack = () => {
     router.push("/admin/settings");
   };
 
-  const handleSaveAcademicCalendar = () => {
-    console.log("Save academic calendar");
-    // Handle save logic
+  const handleSaveAcademicCalendar = async () => {
+    if (!schoolId) return;
+    const values = academicFormRef.current?.getValues();
+    if (!values) return;
+    const term = {
+      name: values.academicYearName || "Academic Year",
+      start_date: values.startDate?.toISOString?.()?.slice(0, 10) ?? "",
+      end_date: values.endDate?.toISOString?.()?.slice(0, 10) ?? "",
+      session: values.numberOfTerms || "1",
+    };
+    await updateConfig({ schoolId, data: { term } });
     router.push("/admin/settings");
   };
 
@@ -78,7 +103,22 @@ export default function ApplicationConfigPage() {
             <CardContent className="px-6">
               {activeStep === "academic-calendar" && (
                 <div className="space-y-6">
-                  <AcademicCalendarForm />
+                  <AcademicCalendarForm
+                    ref={academicFormRef}
+                    initialValues={
+                      config?.term
+                        ? {
+                            academicYearName: config.term.name ?? "",
+                            startDate: config.term.start_date ?? undefined,
+                            endDate: config.term.end_date ?? undefined,
+                            numberOfTerms:
+                              typeof config.term.session === "string"
+                                ? config.term.session
+                                : String(config.term.session ?? ""),
+                          }
+                        : undefined
+                    }
+                  />
 
                   <div className="flex justify-end gap-3 pt-4">
                     <Button variant="outline" onClick={handleBack}>
@@ -87,8 +127,9 @@ export default function ApplicationConfigPage() {
                     <Button
                       className="w-60"
                       onClick={handleSaveAcademicCalendar}
+                      disabled={configLoading || isSaving}
                     >
-                      Save & Publish Calendar
+                      {isSaving ? "Saving…" : "Save & Publish Calendar"}
                     </Button>
                   </div>
                 </div>

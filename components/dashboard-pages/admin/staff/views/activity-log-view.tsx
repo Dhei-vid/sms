@@ -68,7 +68,7 @@ export function ActivityLogView({ stakeholder }: ActivityLogViewProps) {
         activityLogRows.push({
           dateTime: format(new Date(note.created_at), "yyyy-MM-dd, h:mm a"),
           activityType: "Note Added",
-          summary: note.content || "A note was added.",
+          summary: note.description || "A note was added.",
         });
       }
     });

@@ -26,11 +26,15 @@ export function PersonalDetailsView({ stakeholder }: PersonalDetailsViewProps) {
   const primaryEmail =
     stakeholder.primary_contact?.user.email || stakeholder.user.email || "—";
   const primaryPhone =
-    stakeholder.primary_contact?.user.phone || stakeholder.user.phone || "—";
+    (() => {
+        const u = stakeholder.primary_contact?.user ?? stakeholder.user;
+        const r = u as unknown as Record<string, unknown>;
+        return (r?.phone ?? r?.phone_number ?? "—") as string;
+      })();
   const emergencyContact = stakeholder.emergency_contact
     ? `${stakeholder.emergency_contact.user.first_name} ${stakeholder.emergency_contact.user.last_name}${stakeholder.emergency_contact_and_phone ? ` - ${stakeholder.emergency_contact_and_phone}` : ""}`
     : stakeholder.emergency_contact_and_phone || "—";
-  const address = stakeholder.user.address || "—";
+  const address = (stakeholder.user as unknown as Record<string, unknown>)?.address ?? "—";
 
   const personalDetailsRows = [
     {
@@ -80,7 +84,7 @@ export function PersonalDetailsView({ stakeholder }: PersonalDetailsViewProps) {
                 <TableCell className="font-medium text-gray-700">
                   {row.field}
                 </TableCell>
-                <TableCell className="text-gray-600">{row.content}</TableCell>
+                <TableCell className="text-gray-600">{String(row.content ?? "—")}</TableCell>
               </TableRow>
             ))}
           </TableBody>

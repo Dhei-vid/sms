@@ -1,12 +1,42 @@
 import { ResponseStatus } from "@/common/types";
 
-export type SubjectListResponse = { data: [] } & ResponseStatus;
+export type SubjectListResponse = { data: Subject[] } & ResponseStatus;
+
+export interface Subject {
+  id: string;
+  creator_id: string;
+  updated_by_id: string | null;
+  school_id: string | null;
+  head_of_department_id: string | null;
+  name: string;
+  code: string | null;
+  applicable_grade: string | null;
+  credit_units: number | null;
+  continuous_assessment: number | null;
+  final_exam: number | null;
+  curriculum_standard: string | null;
+  content_outline_table: ContentOutlineItem[];
+  status: string | null;
+  is_deleted: boolean;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+  head_of_department?: { user?: { first_name?: string; last_name?: string } } | null;
+  updated_by?: { first_name?: string; last_name?: string } | null;
+}
 
 export interface CreateSubjectsRequest {
   school_id: string;
-  head_of_department_id: string;
   name: string;
-  code: string;
+  code?: string;
+  applicable_grade?: string;
+  head_of_department_id?: string | null;
+  credit_units?: number;
+  continuous_assessment?: number;
+  final_exam?: number;
+  curriculum_standard?: string;
+  content_outline_table?: ContentOutlineItem[];
+  status?: string;
 }
 
 export interface ContentOutlineItem {
@@ -16,21 +46,15 @@ export interface ContentOutlineItem {
 }
 
 export interface UpdateSubjectPayload {
-  school_id: string;
-  head_of_department_id: string;
-
-  name: string;
-  code: string;
-
-  applicable_grade: string;
-
-  credit_units: number;
-  continuous_assessment: number;
-  final_exam: number;
-
-  curriculum_standard: string;
-
-  content_outline_table: ContentOutlineItem[];
-
-  status: "draft" | "vetted" | "approved" | string;
+  school_id?: string;
+  head_of_department_id?: string | null;
+  name?: string;
+  code?: string;
+  applicable_grade?: string;
+  credit_units?: number;
+  continuous_assessment?: number;
+  final_exam?: number;
+  curriculum_standard?: string;
+  content_outline_table?: ContentOutlineItem[];
+  status?: "draft" | "vetted" | "approved" | string;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MetricCard } from "@/components/dashboard-pages/admin/admissions/components/metric-card";
 import { QuickActionCard } from "@/components/dashboard-pages/admin/admissions/components/quick-action-card";
@@ -9,67 +9,44 @@ import {
   TableColumn,
   TableAction,
 } from "@/components/ui/data-table";
-import { Button } from "@/components/ui/button";
-import { format } from "date-fns";
 import { useRouter } from "next/navigation";
+import { format } from "date-fns";
 import {
   ManagerIcon,
   CustomizeIcon,
   PayByCheckIcon,
 } from "@hugeicons/core-free-icons";
 import { AddNewAdminModal } from "@/components/dashboard-pages/admin/settings/add-new-admin-modal";
-
-interface AdminRole {
-  id: string;
-  primaryRole: string;
-  assignedTo: string;
-  coreModulesAccessible: string;
-  lastPermissionUpdate: Date;
-}
-
-const adminRoles: AdminRole[] = [
-  {
-    id: "1",
-    primaryRole: "Super Admin",
-    assignedTo: "Principal A. Okoro",
-    coreModulesAccessible: "ALL Modules (Full Access)",
-    lastPermissionUpdate: new Date(2025, 9, 15, 11, 15),
-  },
-  {
-    id: "2",
-    primaryRole: "Academic Dean",
-    assignedTo: "Mr. Femi T.",
-    coreModulesAccessible: "Curriculum, Assessment, LMS",
-    lastPermissionUpdate: new Date(2025, 9, 15, 11, 15),
-  },
-  {
-    id: "3",
-    primaryRole: "IT/System Admin",
-    assignedTo: "Ms. Zara A.",
-    coreModulesAccessible: "System Settings, User Management",
-    lastPermissionUpdate: new Date(2025, 9, 15, 11, 15),
-  },
-  {
-    id: "4",
-    primaryRole: "Finance Admin",
-    assignedTo: "Mr. Peter E.",
-    coreModulesAccessible: "Finance",
-    lastPermissionUpdate: new Date(2025, 9, 15, 11, 15),
-  },
-  {
-    id: "5",
-    primaryRole: "HOD (Admin)",
-    assignedTo: "Mrs. B. Kalu",
-    coreModulesAccessible: "LMS, Assessment (Read-Only)",
-    lastPermissionUpdate: new Date(2025, 9, 15, 11, 15),
-  },
-];
+import { useAppSelector } from "@/store/hooks";
+import { selectUser } from "@/store/slices/authSlice";
+import { useGetSchoolSettingsDashboardQuery } from "@/services/schools/schools";
+import type { ApiResponse } from "@/services/shared-types";
+import type { SchoolSettingsDashboard, SettingsDashboardAdminRole } from "@/services/schools/schools-type";
 
 export default function UserManagementPage() {
   const router = useRouter();
   const [addAdminModalOpen, setAddAdminModalOpen] = useState(false);
+  const user = useAppSelector(selectUser);
+  const schoolId = user?.school_id ?? "";
+  const { data: dashboardResponse, isLoading: dashboardLoading } =
+    useGetSchoolSettingsDashboardQuery(schoolId, { skip: !schoolId });
 
-  const columns: TableColumn<AdminRole>[] = [
+  const dashboard = useMemo(() => {
+    const res = dashboardResponse as ApiResponse<SchoolSettingsDashboard> | undefined;
+    return res?.data;
+  }, [dashboardResponse]);
+
+  const adminRoster = useMemo(() => {
+    const list = dashboard?.adminRoster ?? [];
+    return list.map((row) => ({
+      ...row,
+      lastPermissionUpdate: row.lastPermissionUpdate
+        ? new Date(row.lastPermissionUpdate)
+        : (null as unknown as Date),
+    }));
+  }, [dashboard?.adminRoster]);
+
+  const columns: TableColumn<SettingsDashboardAdminRole & { lastPermissionUpdate: Date | null }>[] = [
     {
       key: "primaryRole",
       title: "Primary Role",
@@ -89,19 +66,20 @@ export default function UserManagementPage() {
       key: "lastPermissionUpdate",
       title: "Last Permission Update",
       render: (value) => (
-        <span className="text-sm">{format(value, "MMM. d, yyyy; h:mma")}</span>
+        <span className="text-sm">
+          {value ? format(value, "MMM. d, yyyy; h:mma") : "—"}
+        </span>
       ),
     },
   ];
 
-  const actions: TableAction<AdminRole>[] = [
+  const actions: TableAction<SettingsDashboardAdminRole & { lastPermissionUpdate: Date | null }>[] = [
     {
       type: "button",
       config: {
         label: "Edit Role & Permissions",
         onClick: (row) => {
-          console.log("Edit role & permissions for", row.primaryRole);
-          // Handle edit role & permissions action
+          router.push(`/admin/settings/edit-role?userId=${row.id}`);
         },
         variant: "link",
         className: "text-main-blue underline underline-offset-3 h-auto",
@@ -126,19 +104,29 @@ export default function UserManagementPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <MetricCard
           title="Active Admins"
-          value="5 Staff Members"
+          value={
+            dashboardLoading
+              ? "—"
+              : `${dashboard?.activeAdminsCount ?? 0} Staff Member${(dashboard?.activeAdminsCount ?? 0) !== 1 ? "s" : ""}`
+          }
           subtitle="Number of active administrative staff"
           trend="up"
         />
         <MetricCard
           title="System Uptime"
-          value="99.98% (Last 30 Days)"
+          value={dashboardLoading ? "—" : (dashboard?.systemUptime ?? "—")}
           subtitle="System availability and reliability"
           trend="up"
         />
         <MetricCard
           title="Last Security Audit"
-          value="Oct. 15, 2025"
+          value={
+            dashboardLoading
+              ? "—"
+              : dashboard?.lastSecurityAudit
+                ? format(new Date(dashboard.lastSecurityAudit), "MMM. d, yyyy")
+                : "—"
+          }
           subtitle="Date of last security audit"
           trend="up"
         />
@@ -184,16 +172,19 @@ export default function UserManagementPage() {
         </CardHeader>
         <CardContent>
           <div className="border rounded-lg overflow-hidden">
-            <DataTable
-              columns={columns}
-              data={adminRoles}
-              actions={actions}
-              emptyMessage="No admin roles found."
-              tableClassName="border-collapse"
-            />
-          </div>
-          <div className="flex justify-center mt-4">
-            <Button variant="outline">Load More</Button>
+            {dashboardLoading ? (
+              <div className="py-8 text-center text-muted-foreground text-sm">
+                Loading admin roster…
+              </div>
+            ) : (
+              <DataTable
+                columns={columns}
+                data={adminRoster}
+                actions={actions}
+                emptyMessage="No admin roles found."
+                tableClassName="border-collapse"
+              />
+            )}
           </div>
         </CardContent>
       </Card>
@@ -203,8 +194,7 @@ export default function UserManagementPage() {
         open={addAdminModalOpen}
         onOpenChange={setAddAdminModalOpen}
         onConfirm={(data) => {
-          console.log("Add new admin:", data);
-          // Handle add admin logic
+          // TODO: wire to create user / assign admin role API when available
         }}
       />
     </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Icon } from "@/components/general/huge-icon";
@@ -8,42 +9,51 @@ import {
   ComputerTerminal01Icon,
   WorkoutRunIcon,
   Agreement02Icon,
+  InformationCircleIcon,
 } from "@hugeicons/core-free-icons";
-import { useGetNoticesQuery } from "@/services/shared";
+import { useGetNotificationsQuery } from "@/services/shared";
 import { format } from "date-fns";
 
-export default function NoticeBoardPage() {
-  const { data: noticesData, isLoading } = useGetNoticesQuery({
-    isPublished: true,
+const getIconForType = (type?: string) => {
+  switch (type) {
+    case "warning":
+      return ComputerTerminal01Icon;
+    case "error":
+      return WorkoutRunIcon;
+    case "success":
+      return Agreement02Icon;
+    case "notice":
+      return InformationCircleIcon;
+    default:
+      return LibrariesIcon;
+  }
+};
+
+export default function StudentNoticeBoardPage() {
+  const { data: notificationsData, isLoading } = useGetNotificationsQuery({
     limit: 100,
   });
 
-  const notices = noticesData?.data || [];
-
-  const getIconForPriority = (priority?: string) => {
-    switch (priority) {
-      case "urgent":
-        return ComputerTerminal01Icon;
-      case "high":
-        return WorkoutRunIcon;
-      case "medium":
-        return Agreement02Icon;
-      default:
-        return LibrariesIcon;
-    }
-  };
+  const notices = useMemo(() => {
+    const list = notificationsData?.data ?? [];
+    return list.filter(
+      (n) =>
+        n.target_audience === "general" ||
+        (Array.isArray(n.specifics) && n.specifics.includes("student")),
+    );
+  }, [notificationsData?.data]);
 
   return (
     <div className="space-y-4">
-      {/* Page Header */}
       <div className="bg-background rounded-md p-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">Notice Board</h1>
+        <h1 className="text-2xl font-bold text-gray-800 mb-2">
+          Notice Board
+        </h1>
         <p className="text-gray-600">
-          View all School-wide Notices, Events, and Key Dates.
+          View notices and announcements for students.
         </p>
       </div>
 
-      {/* Notices List */}
       <Card className="bg-background py-0 overflow-hidden">
         <CardContent className="p-0">
           {isLoading ? (
@@ -56,23 +66,24 @@ export default function NoticeBoardPage() {
             </div>
           ) : (
             notices.map((notice, index) => {
-              const icon = getIconForPriority(notice.priority);
-              const isRecent = notice.createdAt
-                ? new Date(notice.createdAt).getTime() >
+              const icon = getIconForType(notice.type);
+              const isRecent = notice.created_at
+                ? new Date(notice.created_at).getTime() >
                   Date.now() - 24 * 60 * 60 * 1000
                 : false;
+              const authorName =
+                notice.creator?.first_name && notice.creator?.last_name
+                  ? `${notice.creator.first_name} ${notice.creator.last_name}`
+                  : notice.creator?.username ?? "Admin";
 
               return (
                 <div key={notice.id} className="relative cursor-pointer">
                   {index > 0 && <Separator className="my-0" />}
                   <div className="p-6 hover:bg-main-blue/5 transition-colors">
                     <div className="flex gap-4">
-                      {/* Icon */}
                       <div className="flex items-start text-main-blue">
                         <Icon icon={icon} size={24} />
                       </div>
-
-                      {/* Content */}
                       <div className="flex-1">
                         <div className="flex items-start justify-between">
                           <h3 className="font-semibold text-gray-800">
@@ -85,8 +96,6 @@ export default function NoticeBoardPage() {
                         <p className="text-sm text-gray-600 mb-4">
                           {notice.content}
                         </p>
-
-                        {/* Footer - Meta Data */}
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-4">
                             <div className="flex items-center gap-2 bg-gray-100 rounded-full px-3 py-1">
@@ -94,15 +103,15 @@ export default function NoticeBoardPage() {
                                 Posted by:
                               </span>
                               <span className="text-xs font-medium text-gray-700">
-                                {notice.authorName || "Admin"}
+                                {authorName}
                               </span>
                             </div>
                           </div>
                           <span className="text-xs text-gray-500">
                             Posted:{" "}
-                            {notice.createdAt
+                            {notice.created_at
                               ? format(
-                                  new Date(notice.createdAt),
+                                  new Date(notice.created_at),
                                   "MMM d, yyyy; h:mm a",
                                 )
                               : "N/A"}

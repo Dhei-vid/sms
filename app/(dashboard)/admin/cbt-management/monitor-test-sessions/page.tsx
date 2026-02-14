@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MetricCard } from "@/components/dashboard-pages/admin/admissions/components/metric-card";
 import {
@@ -11,10 +11,14 @@ import {
 import { SelectField } from "@/components/ui/input-field";
 import { SelectItem } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
 import { MonitorLiveTestSessionModal } from "@/components/dashboard-pages/admin/cbt-management/components/monitor-live-test-session-modal";
 import { ScriptReviewModal } from "@/components/dashboard-pages/admin/cbt-management/components/script-review-modal";
+import { useGetCbtExamsQuery } from "@/services/cbt-exams/cbt-exams";
+import { useGetCbtResultsQuery, useGetCbtResultByIdQuery } from "@/services/cbt-results/cbt-results";
+import type { CbtExam } from "@/services/cbt-exams/cbt-exam-types";
+import type { CbtResult } from "@/services/cbt-results/cbt-result-types";
 
 interface LiveTestSession {
   id: string;
@@ -29,127 +33,61 @@ interface LiveTestSession {
   status: "in-progress" | "completed" | "scheduled";
 }
 
-const liveTestSessions: LiveTestSession[] = [
-  {
-    id: "1",
-    examTitle: "JSS 3 Arts & Crafts CBT Examination",
-    class: "JSS 3",
-    invigilator: "Ms. Zara A.",
-    startTime: new Date(2025, 10, 7, 10, 0),
-    timeRemaining: "00:45:30",
-    totalStudents: 43,
-    activeStudents: 42,
-    submittedStudents: 1,
-    status: "in-progress",
-  },
-  {
-    id: "2",
-    examTitle: "SS2 Chemistry Mid-Term",
-    class: "SS 2",
-    invigilator: "Mr. Adebayo K.",
-    startTime: new Date(2025, 10, 7, 9, 30),
-    timeRemaining: "01:15:00",
-    totalStudents: 38,
-    activeStudents: 35,
-    submittedStudents: 3,
-    status: "in-progress",
-  },
-  {
-    id: "3",
-    examTitle: "JSS1 Computer Science Quiz",
-    class: "JSS 1",
-    invigilator: "Ms. Fatima B.",
-    startTime: new Date(2025, 10, 7, 11, 0),
-    timeRemaining: "00:00:00",
-    totalStudents: 45,
-    activeStudents: 0,
-    submittedStudents: 45,
-    status: "completed",
-  },
-];
+function getExamsList(data: unknown): CbtExam[] {
+  if (!data || typeof data !== "object") return [];
+  const d = data as { data?: CbtExam[] | { data?: CbtExam[] } };
+  if (Array.isArray(d.data)) return d.data;
+  if (d.data && typeof d.data === "object" && Array.isArray((d.data as { data?: CbtExam[] }).data)) {
+    return (d.data as { data: CbtExam[] }).data;
+  }
+  return [];
+}
 
-const mockStudents = [
-  {
-    id: "1",
-    fullName: "Chinedu Nwokodi",
-    schoolId: "nwokodi.m178023",
-    examStartTime: "10:00 AM",
-    timeElapsed: "00:15:30",
-    questionsAnswered: 25,
-    totalQuestions: 50,
-    status: "active" as const,
-  },
-  {
-    id: "2",
-    fullName: "Adebisi Deborah",
-    schoolId: "adebisi.m178024",
-    examStartTime: "10:00 AM",
-    timeElapsed: "00:15:30",
-    questionsAnswered: 32,
-    totalQuestions: 50,
-    status: "active" as const,
-  },
-  {
-    id: "3",
-    fullName: "Dauda Ahfiz",
-    schoolId: "ahfiz.m178025",
-    examStartTime: "10:00 AM",
-    timeElapsed: "00:15:30",
-    questionsAnswered: 45,
-    totalQuestions: 50,
-    status: "active" as const,
-  },
-  {
-    id: "4",
-    fullName: "Sarah Collins",
-    schoolId: "collins.m178026",
-    examStartTime: "10:05 AM",
-    timeElapsed: "00:10:00",
-    questionsAnswered: 1,
-    totalQuestions: 50,
-    status: "active" as const,
-  },
-  {
-    id: "5",
-    fullName: "John Terjiri",
-    schoolId: "terjiri.m178027",
-    examStartTime: "10:05 AM",
-    timeElapsed: "00:10:00",
-    questionsAnswered: 17,
-    totalQuestions: 50,
-    status: "active" as const,
-  },
-  {
-    id: "6",
-    fullName: "Chinedu Nwokodi",
-    schoolId: "nwokodi.m178023",
-    examStartTime: "10:05 AM",
-    timeElapsed: "00:10:00",
-    questionsAnswered: 10,
-    totalQuestions: 50,
-    status: "active" as const,
-  },
-  {
-    id: "7",
-    fullName: "Adebisi Deborah",
-    schoolId: "adebisi.m178024",
-    examStartTime: "10:10 AM",
-    timeElapsed: "00:05:00",
-    questionsAnswered: 25,
-    totalQuestions: 50,
-    status: "active" as const,
-  },
-  {
-    id: "8",
-    fullName: "Dauda Ahfiz",
-    schoolId: "ahfiz.m178025",
-    examStartTime: "10:00 AM",
-    timeElapsed: "00:15:30",
-    questionsAnswered: 50,
-    totalQuestions: 50,
-    status: "submitted" as const,
-  },
-];
+function getResultsList(data: unknown): CbtResult[] {
+  if (!data || typeof data !== "object") return [];
+  const d = data as { data?: CbtResult[] | { data?: CbtResult[] } };
+  if (Array.isArray(d.data)) return d.data;
+  if (d.data && typeof d.data === "object" && Array.isArray((d.data as { data?: CbtResult[] }).data)) {
+    return (d.data as { data: CbtResult[] }).data;
+  }
+  return [];
+}
+
+function formatTimeElapsed(seconds: number): string {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  const parts = [h, m, s].map((n) => String(n).padStart(2, "0"));
+  return `${parts[0]}:${parts[1]}:${parts[2]}`;
+}
+
+function getInvigilatorDisplay(exam: CbtExam): string {
+  const inv = (exam as { assigned_invigilators_details?: Array<{ user?: { first_name?: string; last_name?: string } }> }).assigned_invigilators_details;
+  if (Array.isArray(inv) && inv.length > 0 && inv[0].user) {
+    const u = inv[0].user;
+    const name = [u.first_name, u.last_name].filter(Boolean).join(" ").trim();
+    return name || "—";
+  }
+  return "—";
+}
+
+function computeTimeRemaining(exam: CbtExam): string {
+  const scheduleDate = exam.schedule_date;
+  const scheduleTime = exam.schedule_time;
+  const duration = exam.duration;
+  if (!scheduleDate || !scheduleTime || duration == null) return "—";
+  try {
+    const start = new Date(`${scheduleDate}T${scheduleTime}`);
+    const end = new Date(start.getTime() + duration * 60 * 1000);
+    const now = new Date();
+    if (now >= end) return "00:00:00";
+    const ms = end.getTime() - now.getTime();
+    const s = Math.floor(ms / 1000);
+    return formatTimeElapsed(s);
+  } catch {
+    return "—";
+  }
+}
 
 const getStatusColor = (status: LiveTestSession["status"]) => {
   switch (status) {
@@ -184,80 +122,180 @@ const statusFilterOptions = [
   { value: "scheduled", label: "Scheduled" },
 ];
 
-const mockQuestionResponses = [
-  {
-    id: "1",
-    questionType: "Multiple Choice Single Answer (MCQ)",
-    question:
-      "In the traditional Yoruba art of fabric decoration, which method involves tying or stitching the fabric before dipping it into indigo dye to create patterns?",
-    correctAnswer: "C Adire",
-    studentResponse: "C Adire",
-    scoreEarned: "1/1",
-    isCorrect: true,
-    topicTag: "Topic Tag 1: Nigerian Traditional Textiles: Tie-Dye (Adire)",
-  },
-  {
-    id: "2",
-    questionType: "Multiple Choice Single Answer (MCQ)",
-    question: "What is the primary material used in traditional Adire making?",
-    correctAnswer: "A Cotton fabric",
-    studentResponse: "B Silk fabric",
-    scoreEarned: "0/1",
-    isCorrect: false,
-    topicTag: "Topic Tag 1: Nigerian Traditional Textiles: Tie-Dye (Adire)",
-  },
-];
-
-const mockStudentInfo = {
-  id: "1",
-  fullName: "Dauda Ahifz",
-  schoolId: "ahifz.m178023",
-  currentClass: "Senior Secondary 2 (SS2)",
-  rawScore: 45,
-  totalScore: 50,
-};
-
 export default function MonitorTestSessionsPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [monitorModalOpen, setMonitorModalOpen] = useState(false);
   const [scriptReviewModalOpen, setScriptReviewModalOpen] = useState(false);
-  const [selectedSession, setSelectedSession] =
-    useState<LiveTestSession | null>(null);
-  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(
-    null,
-  );
+  const [selectedSession, setSelectedSession] = useState<LiveTestSession | null>(null);
+  const [selectedResultId, setSelectedResultId] = useState<string | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
-  const filteredSessions = liveTestSessions.filter((session) => {
-    if (statusFilter === "all") return true;
-    return session.status === statusFilter;
+  const { data: examsResponse, isLoading: isLoadingExams } = useGetCbtExamsQuery({ _all: true });
+  const { data: resultsResponse, isLoading: isLoadingResults } = useGetCbtResultsQuery({ _all: true });
+  const { data: selectedResultResponse } = useGetCbtResultByIdQuery(selectedResultId ?? "", {
+    skip: !selectedResultId,
   });
 
+  const examsList = useMemo(() => getExamsList(examsResponse), [examsResponse]);
+  const resultsList = useMemo(() => getResultsList(resultsResponse), [resultsResponse]);
+
+  const liveTestSessions: LiveTestSession[] = useMemo(() => {
+    return examsList.map((exam) => {
+      const examResults = resultsList.filter((r) => r.exam_id === exam.id);
+      const activeStudents = examResults.filter((r) => !r.completed_at).length;
+      const submittedStudents = examResults.filter((r) => r.completed_at).length;
+      const scheduleDate = exam.schedule_date;
+      const scheduleTime = exam.schedule_time;
+      let startTime: Date;
+      try {
+        if (scheduleDate && scheduleTime) {
+          startTime = new Date(`${scheduleDate}T${scheduleTime}`);
+        } else {
+          startTime = parseISO(exam.created_at);
+        }
+      } catch {
+        startTime = parseISO(exam.created_at);
+      }
+      const isScheduled = startTime > new Date();
+      const status: LiveTestSession["status"] = exam.completed
+        ? "completed"
+        : isScheduled
+          ? "scheduled"
+          : "in-progress";
+      return {
+        id: exam.id,
+        examTitle: exam.title,
+        class: exam.applicable_grades ?? "—",
+        invigilator: getInvigilatorDisplay(exam),
+        startTime,
+        timeRemaining: status === "in-progress" ? computeTimeRemaining(exam) : status === "completed" ? "00:00:00" : "—",
+        totalStudents: examResults.length,
+        activeStudents,
+        submittedStudents,
+        status,
+      };
+    }).filter((s) => s.totalStudents > 0);
+  }, [examsList, resultsList]);
+
+  const filteredSessions = useMemo(() => {
+    if (statusFilter === "all") return liveTestSessions;
+    return liveTestSessions.filter((s) => s.status === statusFilter);
+  }, [liveTestSessions, statusFilter]);
+
+  const selectedExam = useMemo(
+    () => (selectedSession ? examsList.find((e) => e.id === selectedSession.id) : null),
+    [selectedSession, examsList],
+  );
+  const resultsForSelectedExam = useMemo(
+    () => (selectedSession ? resultsList.filter((r) => r.exam_id === selectedSession.id) : []),
+    [selectedSession, resultsList],
+  );
+
+  const studentsForModal = useMemo(() => {
+    return resultsForSelectedExam.map((r) => {
+      const fullName =
+        r.stakeholder?.user
+          ? [r.stakeholder.user.first_name, r.stakeholder.user.last_name].filter(Boolean).join(" ").trim()
+          : r.user
+            ? [r.user.first_name, r.user.last_name].filter(Boolean).join(" ").trim()
+            : "";
+      const schoolId =
+        (r.stakeholder && (r.stakeholder as { student_id?: string }).student_id) ||
+        r.user?.email ||
+        "—";
+      const examStartTime = r.created_at ? format(parseISO(r.created_at), "h:mm a") : "—";
+      const timeElapsed = formatTimeElapsed(r.total_time_spent ?? 0);
+      const questionsAnswered = Array.isArray(r.answers) ? r.answers.length : 0;
+      const totalQuestions = selectedExam?.total_questions ?? 0;
+      const status = r.completed_at ? ("submitted" as const) : ("active" as const);
+      return {
+        id: r.id,
+        fullName: fullName || "—",
+        schoolId,
+        examStartTime,
+        timeElapsed,
+        questionsAnswered,
+        totalQuestions,
+        status,
+      };
+    });
+  }, [resultsForSelectedExam, selectedExam]);
+
+  const selectedResult = selectedResultResponse?.data as CbtResult | undefined;
+  const scriptReviewStudent = useMemo(() => {
+    if (!selectedResult) return null;
+    const fullName =
+      selectedResult.stakeholder?.user
+        ? [selectedResult.stakeholder.user.first_name, selectedResult.stakeholder.user.last_name].filter(Boolean).join(" ").trim()
+        : selectedResult.user
+          ? [selectedResult.user.first_name, selectedResult.user.last_name].filter(Boolean).join(" ").trim()
+          : "";
+    const schoolId =
+      (selectedResult.stakeholder && (selectedResult.stakeholder as { student_id?: string }).student_id) ||
+      selectedResult.user?.email ||
+      "—";
+    return {
+      id: selectedResult.id,
+      fullName: fullName || "—",
+      schoolId,
+      currentClass: selectedExam?.applicable_grades ?? "—",
+      rawScore: selectedResult.score ?? 0,
+      totalScore: (selectedResult.exam && (selectedResult.exam as { total_marks_available?: number }).total_marks_available) ?? selectedResult.score ?? 0,
+    };
+  }, [selectedResult, selectedExam]);
+
+  const scriptReviewQuestions = useMemo(() => {
+    if (!selectedResult || !selectedResult.exam) return [];
+    const exam = selectedResult.exam as { questions?: Array<{ id: string; question?: string; answer_options?: string[]; correct_answer?: number }> };
+    const questions = exam.questions;
+    const answers = Array.isArray(selectedResult.answers) ? selectedResult.answers : [];
+    if (!Array.isArray(questions) || questions.length === 0) {
+      return answers.map((a, i) => ({
+        id: String(i),
+        questionType: "Multiple Choice",
+        question: `Question ${i + 1}`,
+        correctAnswer: "—",
+        studentResponse: a.selected_option != null ? String(a.selected_option) : "—",
+        scoreEarned: a.is_correct ? "1/1" : "0/1",
+        isCorrect: !!a.is_correct,
+        topicTag: "—",
+      }));
+    }
+    return answers.map((ans, i) => {
+      const q = questions[i] ?? questions[0];
+      const opts = q.answer_options ?? [];
+      const correctIdx = q.correct_answer ?? 0;
+      const correctLabel = opts[correctIdx] != null ? `${String.fromCharCode(65 + correctIdx)} ${opts[correctIdx]}` : "—";
+      const studentLabel = ans.selected_option != null && opts[ans.selected_option] != null
+        ? `${String.fromCharCode(65 + ans.selected_option)} ${opts[ans.selected_option]}`
+        : String(ans.selected_option ?? "—");
+      return {
+        id: q.id,
+        questionType: "Multiple Choice",
+        question: q.question ?? "",
+        correctAnswer: correctLabel,
+        studentResponse: studentLabel,
+        scoreEarned: ans.is_correct ? "1/1" : "0/1",
+        isCorrect: !!ans.is_correct,
+        topicTag: "—",
+      };
+    });
+  }, [selectedResult]);
+
   const columns: TableColumn<LiveTestSession>[] = [
+    { key: "examTitle", title: "Subjects", className: "font-medium" },
+    { key: "class", title: "Grade", render: (value) => <span className="text-sm">{value}</span> },
+    { key: "activeStudents", title: "Attendance", render: (value) => <span className="text-sm">{value}</span> },
+    { key: "invigilator", title: "Invigilator", render: (value) => <span className="text-sm">{value}</span> },
+    { key: "timeRemaining", title: "Time Remaining", render: (value) => <span className="text-sm">{value}</span> },
     {
-      key: "examTitle",
-      title: "Subjects",
-      className: "font-medium",
-    },
-    {
-      key: "class",
-      title: "Grade",
-      render: (value) => <span className="text-sm">{value}</span>,
-    },
-    {
-      key: "activeStudents",
-      title: "Attendance",
-      render: (value) => <span className="text-sm">{value}</span>,
-    },
-    {
-      key: "invigilator",
-      title: "Invigilator",
-      render: (value) => <span className="text-sm">{value}</span>,
-    },
-    {
-      key: "timeRemaining",
-      title: "Time Remaining",
-      render: (value) => <span className={cn("text-sm")}>{value}</span>,
+      key: "status",
+      title: "Status",
+      render: (value, row) => (
+        <span className={cn("text-sm font-medium capitalize", getStatusColor(row.status))}>
+          {getStatusLabel(row.status)}
+        </span>
+      ),
     },
   ];
 
@@ -267,85 +305,63 @@ export default function MonitorTestSessionsPage() {
       config: {
         label: "Monitor Session",
         onClick: (row) => {
-          if (row.status === "in-progress") {
-            setSelectedSession(row);
-            setMonitorModalOpen(true);
-          }
+          setSelectedSession(row);
+          setMonitorModalOpen(true);
         },
         variant: "link",
-        disabled: (row) => row.status !== "in-progress",
+        disabled: (row) => row.status === "scheduled",
         className: "text-main-blue underline underline-offset-3 h-auto",
       },
     },
   ];
 
-  const handleReviewScript = (studentId: string) => {
-    setSelectedStudentId(studentId);
+  const handleReviewScript = (resultId: string) => {
+    setSelectedResultId(resultId);
     setCurrentQuestionIndex(0);
     setScriptReviewModalOpen(true);
   };
 
   const handlePreviousQuestion = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex((prev) => prev - 1);
-    }
+    if (currentQuestionIndex > 0) setCurrentQuestionIndex((prev) => prev - 1);
   };
 
   const handleNextQuestion = () => {
-    if (currentQuestionIndex < mockQuestionResponses.length - 1) {
+    if (currentQuestionIndex < scriptReviewQuestions.length - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
     }
   };
 
-  const handleLoadMore = () => {
-    console.log("Load more students");
-    // Handle load more
-  };
+  const isLoading = isLoadingExams || isLoadingResults;
+  const inProgressSessions = liveTestSessions.filter((s) => s.status === "in-progress");
+  const totalActiveStudents = inProgressSessions.reduce((sum, s) => sum + s.activeStudents, 0);
 
   return (
     <div className="space-y-4">
-      {/* Header */}
       <div className="bg-background rounded-md p-6">
-        <h2 className="text-2xl font-bold text-gray-800">
-          Monitor Live Test Sessions
-        </h2>
+        <h2 className="text-2xl font-bold text-gray-800">Monitor Live Test Sessions</h2>
         <p className="text-gray-600 mt-1">
-          This screen provides a real-time status of all students currently
-          taking a specific Computer-Based test (CBT) exam.
+          This screen provides a real-time status of all students currently taking a specific Computer-Based test (CBT) exam.
         </p>
       </div>
 
-      {/* Key Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <MetricCard
           title="Total Number of Exams Live"
-          value={liveTestSessions
-            .filter((s) => s.status === "in-progress")
-            .length.toString()}
+          value={isLoading ? "—" : String(inProgressSessions.length)}
           trend="up"
         />
         <MetricCard
           title="Total Number of Students on System"
-          value={liveTestSessions
-            .filter((s) => s.status === "in-progress")
-            .reduce((sum, s) => sum + s.activeStudents, 0)
-            .toString()}
+          value={isLoading ? "—" : String(totalActiveStudents)}
           trend="up"
         />
       </div>
 
-      {/* Live Test Sessions Table */}
       <Card>
-        <CardHeader className="flex items-center justify-between">
-          <CardTitle className="text-lg font-semibold text-gray-800">
-            Live Test Sessions
-          </CardTitle>
-          <div className="flex gap-2">
-            <SelectField
-              value={statusFilter}
-              onValueChange={setStatusFilter}
-              placeholder="Status Filter"
-            >
+        <CardHeader className="flex items-center justify-between gap-4">
+          <CardTitle className="text-lg font-semibold text-gray-800 shrink-0">Live Test Sessions</CardTitle>
+          <div className="flex justify-end shrink-0 w-[180px]">
+            <SelectField value={statusFilter} onValueChange={setStatusFilter} placeholder="Status Filter">
               {statusFilterOptions.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
@@ -356,21 +372,21 @@ export default function MonitorTestSessionsPage() {
         </CardHeader>
         <CardContent>
           <div className="border rounded-lg overflow-hidden">
-            <DataTable
-              columns={columns}
-              data={filteredSessions}
-              actions={actions}
-              emptyMessage="No live test sessions found."
-              tableClassName="border-collapse"
-            />
-          </div>
-          <div className="flex justify-center mt-4">
-            <Button variant="outline">Load More</Button>
+            {isLoading ? (
+              <div className="py-8 text-center text-muted-foreground text-sm">Loading sessions…</div>
+            ) : (
+              <DataTable
+                columns={columns}
+                data={filteredSessions}
+                actions={actions}
+                emptyMessage="No live test sessions found."
+                tableClassName="border-collapse"
+              />
+            )}
           </div>
         </CardContent>
       </Card>
 
-      {/* Monitor Live Test Session Modal */}
       {selectedSession && (
         <MonitorLiveTestSessionModal
           open={monitorModalOpen}
@@ -379,23 +395,19 @@ export default function MonitorTestSessionsPage() {
           totalStudents={selectedSession.totalStudents}
           invigilator={selectedSession.invigilator}
           timeRemaining={selectedSession.timeRemaining}
-          students={mockStudents}
+          students={studentsForModal}
           onReviewScript={handleReviewScript}
-          onLoadMore={handleLoadMore}
-          hasMore={true}
+          hasMore={false}
         />
       )}
 
-      {/* Script Review Modal */}
-      {selectedStudentId && (
+      {selectedResultId && scriptReviewStudent && (
         <ScriptReviewModal
           open={scriptReviewModalOpen}
           onOpenChange={setScriptReviewModalOpen}
-          examTitle={
-            selectedSession?.examTitle || "JSS 3 Arts & Crafts CBT Examination"
-          }
-          student={mockStudentInfo}
-          questions={mockQuestionResponses}
+          examTitle={selectedSession?.examTitle ?? "Exam"}
+          student={scriptReviewStudent}
+          questions={scriptReviewQuestions}
           currentQuestionIndex={currentQuestionIndex}
           onPrevious={handlePreviousQuestion}
           onNext={handleNextQuestion}

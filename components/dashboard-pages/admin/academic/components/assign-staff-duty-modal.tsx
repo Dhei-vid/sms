@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { ModalContainer } from "@/components/ui/modal-container";
+import { useAssignDutyMutation } from "@/services/stakeholders/stakeholders";
+import { useGetAllStaffQuery } from "@/services/stakeholders/stakeholders";
+import { toast } from "sonner";
 import { InputField } from "@/components/ui/input-field";
 import { SelectField } from "@/components/ui/input-field";
 import { Button } from "@/components/ui/button";
@@ -36,12 +39,6 @@ interface DutyAssignmentData {
 }
 
 const classOptions = [
-  { value: "primary-1", label: "Primary 1" },
-  { value: "primary-2", label: "Primary 2" },
-  { value: "primary-3", label: "Primary 3" },
-  { value: "primary-4", label: "Primary 4" },
-  { value: "primary-5", label: "Primary 5" },
-  { value: "primary-6", label: "Primary 6" },
   { value: "jss-1", label: "JSS 1" },
   { value: "jss-2", label: "JSS 2" },
   { value: "jss-3", label: "JSS 3" },
@@ -85,23 +82,36 @@ const classroomOptions = [
   { value: "lab-1", label: "Lab 1" },
 ];
 
-const teacherOptions = [
-  { value: "teacher-1", label: "Mr. Uche E." },
-  { value: "teacher-2", label: "Dr. Femi I." },
-  { value: "teacher-3", label: "Mrs. Kemi O." },
-];
 
-const staffOptions = [
-  { value: "staff-1", label: "Mr. John Doe" },
-  { value: "staff-2", label: "Mrs. Jane Smith" },
-  { value: "staff-3", label: "Dr. Michael Brown" },
-];
+function getNextWeekday(dayName: string): Date {
+  const days: Record<string, number> = { monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5 };
+  const target = days[dayName.toLowerCase()] ?? 1;
+  const d = new Date();
+  const diff = (target - d.getDay() + 7) % 7 || 7;
+  d.setDate(d.getDate() + diff);
+  return d;
+}
 
 export function AssignStaffDutyModal({
   open,
   onOpenChange,
   onConfirm,
 }: AssignStaffDutyModalProps) {
+  const [assignDuty, { isLoading }] = useAssignDutyMutation();
+  const { data: staffResponse } = useGetAllStaffQuery(undefined, { skip: !open });
+
+  const staffList = staffResponse?.data ?? [];
+  const teachers = staffList.filter((s) => s.type === "teacher");
+  const staffMembers = staffList.filter((s) => s.type === "staff" || s.type === "teacher");
+  const teacherOptions = teachers.map((t) => ({
+    value: t.id,
+    label: t.user ? `${(t.user as { first_name?: string }).first_name ?? ""} ${(t.user as { last_name?: string }).last_name ?? ""}`.trim() || t.id : t.id,
+  }));
+  const staffOptions = staffMembers.map((t) => ({
+    value: t.id,
+    label: t.user ? `${(t.user as { first_name?: string }).first_name ?? ""} ${(t.user as { last_name?: string }).last_name ?? ""}`.trim() || t.id : t.id,
+  }));
+
   const [dutyType, setDutyType] = useState<DutyType>("teaching");
   const [formData, setFormData] = useState<DutyAssignmentData>({
     dutyType: "teaching",
@@ -130,26 +140,67 @@ export function AssignStaffDutyModal({
     onOpenChange(open);
   };
 
-  const handleSubmit = () => {
-    const submitData: DutyAssignmentData = {
-      ...formData,
-      dutyType,
+  const handleSubmit = async () => {
+    const stakeholderId = dutyType === "teaching" ? formData.teacher : formData.staffMember;
+    if (!stakeholderId) {
+      toast.error("Please select a staff member");
+      return;
+    }
+
+    const isTeaching = dutyType === "teaching";
+    let payload: Record<string, unknown> = {
+      type: isTeaching ? "teaching" : "non teaching",
+      stakeholder_id: stakeholderId,
     };
 
-    if (dutyType === "non-teaching") {
-      submitData.startTime = `${startTime.hour.padStart(2, "0")}:${
-        startTime.minute
-      } ${startTime.period}`;
-      submitData.endTime = `${endTime.hour.padStart(2, "0")}:${
-        endTime.minute
-      } ${endTime.period}`;
+    if (isTeaching) {
+      const dateForDay = formData.day ? getNextWeekday(formData.day) : new Date();
+      payload = {
+        ...payload,
+        class_grade: formData.class ?? "",
+        subject: formData.subject ?? "",
+        date: formatDate(dateForDay),
+        period: formData.period ?? "",
+        classroom: formData.classroom ?? "",
+      };
+    } else {
+      const dateStr = formData.date ? formatDate(formData.date) : formatDate(new Date());
+      const st = `${startTime.hour.padStart(2, "0")}:${startTime.minute}:00`;
+      const et = `${endTime.hour.padStart(2, "0")}:${endTime.minute}:00`;
+      payload = {
+        ...payload,
+        duty_type: formData.dutyTypeName ?? "",
+        date: dateStr,
+        start_time: to24h(st, startTime.period),
+        end_time: to24h(et, endTime.period),
+      };
     }
 
-    if (onConfirm) {
-      onConfirm(submitData);
+    try {
+      await assignDuty(payload as unknown as Parameters<typeof assignDuty>[0]).unwrap();
+      toast.success("Duty assigned successfully");
+      onConfirm?.({
+        ...formData,
+        dutyType,
+        startTime: (payload as { start_time?: string }).start_time,
+        endTime: (payload as { end_time?: string }).end_time,
+      });
+      handleClose(false);
+    } catch {
+      toast.error("Failed to assign duty");
     }
-    handleClose(false);
   };
+
+  function formatDate(d: Date): string {
+    return d.toISOString().slice(0, 10);
+  }
+
+  function to24h(time: string, period: string): string {
+    let [h, m] = time.split(":").map(Number);
+    if (period === "PM" && h < 12) h += 12;
+    if (period === "AM" && h === 12) h = 0;
+    return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:00`;
+  }
 
   return (
     <ModalContainer
@@ -346,13 +397,15 @@ export function AssignStaffDutyModal({
 
         {/* Action Buttons */}
         <div className="grid grid-cols-2 gap-3 pt-4">
-          <Button variant="outline" onClick={() => handleClose(false)}>
+          <Button variant="outline" onClick={() => handleClose(false)} disabled={isLoading}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit}>
-            {dutyType === "teaching"
-              ? "Confirm & Update Timetable"
-              : "Confirm Duty Assignment"}
+          <Button onClick={handleSubmit} disabled={isLoading}>
+            {isLoading
+              ? "Saving..."
+              : dutyType === "teaching"
+                ? "Confirm & Update Timetable"
+                : "Confirm Duty Assignment"}
           </Button>
         </div>
       </div>

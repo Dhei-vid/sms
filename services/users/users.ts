@@ -35,8 +35,8 @@ export const usersApi = baseApi.injectEndpoints({
             queryParams.set("isSuperuser", params.isSuperuser.toString());
         }
         const qs = queryParams.toString();
-        if (hasRoleFilter) return `/users?_all${qs ? `&${qs}` : ""}`;
-        return `/users${qs ? `?${qs}` : ""}`;
+        if (hasRoleFilter) return `/users/?_all${qs ? `&${qs}` : ""}`;
+        return `/users/${qs ? `?${qs}` : ""}`;
       },
       transformResponse: (response: ApiListResponse<User>) => {
         if (
@@ -51,12 +51,12 @@ export const usersApi = baseApi.injectEndpoints({
     }),
 
     getUserById: build.query<UserResponse, string>({
-      query: (id) => ({ url: `/users/${id}` }),
+      query: (id) => ({ url: `/users/${id}/` }),
       providesTags: (_, __, id) => [{ type: "User", id }],
     }),
 
     createUser: build.mutation<UserResponse, CreateUserRequest>({
-      query: (body) => ({ url: "/users", method: "POST", body }),
+      query: (body) => ({ url: "/users/", method: "POST", body }),
       invalidatesTags: ["User"],
     }),
 
@@ -65,7 +65,7 @@ export const usersApi = baseApi.injectEndpoints({
       { id: string; data: UpdateUserRequest }
     >({
       query: ({ id, data }) => ({
-        url: `/users/${id}`,
+        url: `/users/${id}/`,
         method: "PUT",
         body: data,
       }),
@@ -73,13 +73,13 @@ export const usersApi = baseApi.injectEndpoints({
     }),
 
     deleteUser: build.mutation<DeleteUserResponse, string>({
-      query: (id) => ({ url: `/users/${id}`, method: "DELETE" }),
+      query: (id) => ({ url: `/users/${id}/`, method: "DELETE" }),
       invalidatesTags: ["User"],
     }),
 
     admissionRegister: build.mutation<CreateAdmissionResponse, FormData>({
       query: (body) => ({
-        url: "/users/admission/register",
+        url: "/users/admission/register/",
         method: "POST",
         body,
       }),
@@ -88,11 +88,10 @@ export const usersApi = baseApi.injectEndpoints({
   }),
 });
 
-export const {
-  useGetUsersQuery,
-  useGetUserByIdQuery,
-  useCreateUserMutation,
-  useUpdateUserMutation,
-  useDeleteUserMutation,
-  useAdmissionRegisterMutation,
-} = usersApi;
+export const useGetUsersQuery = usersApi.endpoints.getUsers.useQuery;
+export const useGetUserByIdQuery = usersApi.endpoints.getUserById.useQuery;
+export const useCreateUserMutation = usersApi.endpoints.createUser.useMutation;
+export const useUpdateUserMutation = usersApi.endpoints.updateUser.useMutation;
+export const useDeleteUserMutation = usersApi.endpoints.deleteUser.useMutation;
+export const useAdmissionRegisterMutation =
+  usersApi.endpoints.admissionRegister.useMutation;

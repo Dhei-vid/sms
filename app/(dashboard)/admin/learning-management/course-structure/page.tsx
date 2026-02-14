@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { StepNavigation, Step } from "@/components/ui/step-navigation";
 import { InputField } from "@/components/ui/input-field";
@@ -9,26 +9,26 @@ import { SelectItem } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import {
   AssignmentsIcon,
   ResourcesAddIcon,
   Csv02Icon,
 } from "@hugeicons/core-free-icons";
 import { Icon } from "@/components/general/huge-icon";
+import { useGetSubjectsQuery } from "@/services/subjects/subjects";
+import { useGetSchoolsQuery } from "@/services/schools/schools";
+import { useGetAllStaffQuery } from "@/services/stakeholders/stakeholders";
+import { useCreateCourseMutation } from "@/services/courses/courses";
+import { useAppSelector } from "@/store/hooks";
+import { selectUser } from "@/store/slices/authSlice";
+import { getApiErrorMessage } from "@/lib/format-api-error";
 
 type StepId = "core-identity" | "digital-structure";
 
 const steps: Step[] = [
-  {
-    id: "core-identity",
-    label: "Core Course Identity",
-    icon: AssignmentsIcon,
-  },
-  {
-    id: "digital-structure",
-    label: "Digital Structure Definition",
-    icon: ResourcesAddIcon,
-  },
+  { id: "core-identity", label: "Core Course Identity", icon: AssignmentsIcon },
+  { id: "digital-structure", label: "Digital Structure Definition", icon: ResourcesAddIcon },
 ];
 
 const gradeOptions = [
@@ -40,41 +40,24 @@ const gradeOptions = [
   { value: "ss-3", label: "SS 3" },
 ];
 
-const subjectOptions = [
-  { value: "integrated-science", label: "Integrated Science" },
-  { value: "mathematics", label: "Mathematics" },
-  { value: "english", label: "English Language" },
-  { value: "physics", label: "Physics" },
-  { value: "chemistry", label: "Chemistry" },
-  { value: "biology", label: "Biology" },
-];
-
-const instructorOptions = [
-  { value: "ms-zara-a", label: "Ms. Zara A." },
-  { value: "mr-adebayo-k", label: "Mr. Adebayo K." },
-  { value: "ms-fatima-b", label: "Ms. Fatima B." },
-  { value: "mr-femi-t", label: "Mr. Femi T." },
-];
-
 const approvalOptions = [
-  { value: "hod-approval", label: "HOD Approval Required" },
-  { value: "auto-publish", label: "Auto-Publish" },
+  { value: "hod_approval", label: "HOD Approval Required" },
+  { value: "auto_publish", label: "Auto-Publish" },
 ];
 
 const initialData = {
-  // Step 1: Core Course Identity
+  schoolId: "",
   courseTitle: "",
   applicableSubject: "",
   applicableGrade: "",
   leadInstructor: "",
-
-  // Step 2: Digital Structure Definition
   units: [""] as string[],
   topics: [""] as string[],
   contentApproval: "",
 };
 
 interface CourseStructureFormData {
+  schoolId: string;
   courseTitle: string;
   applicableSubject: string;
   applicableGrade: string;
@@ -86,9 +69,44 @@ interface CourseStructureFormData {
 
 export default function CourseStructurePage() {
   const router = useRouter();
+  const user = useAppSelector(selectUser);
   const [currentStep, setCurrentStep] = useState<StepId>("core-identity");
-  const [formData, setFormData] =
-    useState<CourseStructureFormData>(initialData);
+  const [formData, setFormData] = useState<CourseStructureFormData>(initialData);
+
+  const { data: subjectsResponse } = useGetSubjectsQuery({ _all: true });
+  const { data: schoolsResponse, isLoading: isLoadingSchools } = useGetSchoolsQuery({ _all: true });
+  const { data: staffResponse } = useGetAllStaffQuery();
+  const [createCourse, { isLoading: isCreating }] = useCreateCourseMutation();
+
+  const subjectOptions = useMemo(() => {
+    const d = (subjectsResponse as { data?: { id: string; name: string }[] })?.data;
+    const arr = Array.isArray(d) ? d : [];
+    return arr.map((s) => ({ value: s.id, label: s.name || s.id }));
+  }, [subjectsResponse]);
+
+  const schoolOptions = useMemo(() => {
+    const d = (schoolsResponse as { data?: { id: string; name: string }[] })?.data;
+    const arr = Array.isArray(d) ? d : [];
+    return arr.map((s) => ({ value: s.id, label: s.name || s.id }));
+  }, [schoolsResponse]);
+
+  const instructorOptions = useMemo(() => {
+    const staff = (staffResponse as { data?: { id: string; type?: string; user?: { first_name?: string; last_name?: string } }[] })?.data ?? [];
+    const teachers = staff.filter((s) => s.type === "teacher");
+    return teachers.map((s) => {
+      const u = s.user;
+      const label = u && typeof u === "object"
+        ? [u.first_name, u.last_name].filter(Boolean).join(" ").trim() || s.id
+        : s.id;
+      return { value: s.id, label };
+    });
+  }, [staffResponse]);
+
+  useEffect(() => {
+    if (user?.school_id && !formData.schoolId && schoolOptions.some((o) => o.value === user.school_id)) {
+      setFormData((prev) => ({ ...prev, schoolId: user.school_id ?? "" }));
+    }
+  }, [user?.school_id, formData.schoolId, schoolOptions]);
 
   const handleStepChange = (stepId: string) => {
     setCurrentStep(stepId as StepId);
@@ -110,10 +128,35 @@ export default function CourseStructurePage() {
     router.push("/admin/learning-management");
   };
 
-  const handleCreateCourseShell = () => {
-    console.log("Create course shell", formData);
-    // Handle form submission
-    router.push("/admin/learning-management");
+  const handleCreateCourseShell = async () => {
+    const schoolId = (formData.schoolId && formData.schoolId.trim()) || user?.school_id || null;
+    if (!schoolId) {
+      toast.error("Please select a school.");
+      return;
+    }
+    if (!formData.courseTitle?.trim()) {
+      toast.error("Course title is required.");
+      return;
+    }
+    const units = formData.units.filter((u) => u.trim());
+    const topics = formData.topics.filter((t) => t.trim());
+    try {
+      await createCourse({
+        school_id: schoolId,
+        title: formData.courseTitle.trim(),
+        subject_id: formData.applicableSubject?.trim() || null,
+        applicable_grade: formData.applicableGrade?.trim() || null,
+        lead_instructor_id: formData.leadInstructor?.trim() || null,
+        units: units.length ? units : [],
+        topics: topics.length ? topics : [],
+        content_approval: formData.contentApproval?.trim() || null,
+      }).unwrap();
+      toast.success("Course created successfully.");
+      router.push("/admin/learning-management");
+    } catch (err) {
+      const data = err && typeof err === "object" && "data" in err ? (err as { data?: unknown }).data : undefined;
+      toast.error(getApiErrorMessage(data, "Failed to create course."));
+    }
   };
 
   const handleAddUnit = () => {
@@ -169,15 +212,32 @@ export default function CourseStructurePage() {
             </div>
 
             <div className="space-y-4">
+              <SelectField
+                label="School"
+                value={formData.schoolId}
+                onValueChange={(v) => setFormData((prev) => ({ ...prev, schoolId: v }))}
+                placeholder={isLoadingSchools ? "Loading schools…" : "Select school"}
+                disabled={isLoadingSchools}
+              >
+                {schoolOptions.length > 0
+                  ? schoolOptions.map((o) => (
+                      <SelectItem key={o.value} value={o.value}>
+                        {o.label}
+                      </SelectItem>
+                    ))
+                  : (
+                      <SelectItem value="__none__" disabled>
+                        {isLoadingSchools ? "Loading…" : "No schools found"}
+                      </SelectItem>
+                    )}
+              </SelectField>
+
               <InputField
                 label="Course Title"
-                placeholder="Text Input (e.g., JSS3 Integrated Science)"
+                placeholder="e.g., JSS3 Integrated Science"
                 value={formData.courseTitle}
                 onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    courseTitle: e.target.value,
-                  }))
+                  setFormData((prev) => ({ ...prev, courseTitle: e.target.value }))
                 }
               />
 
@@ -187,13 +247,19 @@ export default function CourseStructurePage() {
                 onValueChange={(value) =>
                   setFormData((prev) => ({ ...prev, applicableSubject: value }))
                 }
-                placeholder="Dropdown Select (Links to Curriculum Module)"
+                placeholder={subjectOptions.length ? "Select subject" : "No subjects found"}
               >
-                {subjectOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
+                {subjectOptions.length > 0
+                  ? subjectOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))
+                  : (
+                      <SelectItem value="__none__" disabled>
+                        No subjects found
+                      </SelectItem>
+                    )}
               </SelectField>
 
               <SelectField
@@ -217,13 +283,19 @@ export default function CourseStructurePage() {
                 onValueChange={(value) =>
                   setFormData((prev) => ({ ...prev, leadInstructor: value }))
                 }
-                placeholder="Staff Directory Search (e.g., Ms. Zara A.)"
+                placeholder={instructorOptions.length ? "Select teacher" : "No teachers found"}
               >
-                {instructorOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
+                {instructorOptions.length > 0
+                  ? instructorOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))
+                  : (
+                      <SelectItem value="__none__" disabled>
+                        No teachers found
+                      </SelectItem>
+                    )}
               </SelectField>
             </div>
 
@@ -346,8 +418,9 @@ export default function CourseStructurePage() {
               <Button
                 className="bg-main-blue text-white hover:bg-main-blue/90"
                 onClick={handleCreateCourseShell}
+                disabled={isCreating}
               >
-                Create Course Shell & Save
+                {isCreating ? "Creating…" : "Create Course Shell & Save"}
               </Button>
             </div>
           </div>

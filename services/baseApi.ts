@@ -9,6 +9,7 @@ import type { RootState } from "@/store";
 import { clearError, setError } from "@/store/errorSlice";
 import { logout, selectToken } from "@/store/slices/authSlice";
 import { toast } from "sonner";
+import { getApiErrorMessage } from "@/lib/format-api-error";
 
 /**
  * API Configuration (centralized here).
@@ -214,17 +215,18 @@ const baseQueryWithErrorHandling: BaseQueryFn<
   // Handle errors
   if (result.error) {
     const status = result.error.status;
-    const data = result.error.data as { message?: string } | undefined;
+    const data = result.error.data;
 
     // Check if we got an HTML response (404 from Next.js routing)
     const isHtmlResponse =
       typeof data === "string" && (data as string).includes("<!DOCTYPE html>");
 
-    let errorMessage =
-      data?.message || "Something went wrong. Please try again.";
+    // Descriptive message from API body (Django field errors, detail, message, etc.)
+    let errorMessage = getApiErrorMessage(data);
 
-    // If we got HTML, it means Next.js routed the request (baseUrl issue)
-    if (isHtmlResponse || (status === 404 && !data?.message)) {
+    // If we got HTML, or 404 without any API error message, treat as endpoint not found
+    const defaultMsg = "Something went wrong. Please try again.";
+    if (isHtmlResponse || (status === 404 && errorMessage === defaultMsg)) {
       errorMessage = `API endpoint not found. Check API configuration. Attempted: ${fullUrl}`;
       console.error("❌ API Request Failed:", {
         baseUrl,
@@ -308,6 +310,8 @@ export const baseApi = createApi({
     "School",
     "Student",
     "Course",
+    "ContentSubmission",
+    "TeacherActivity",
     "Assignment",
     "Grade",
     "Attendance",
@@ -331,6 +335,7 @@ export const baseApi = createApi({
     "CbtExam",
     "CbtResult",
     "CbtQuestion",
+    "ExamResult",
     "Subscription",
     "Transport",
     "Hostel",

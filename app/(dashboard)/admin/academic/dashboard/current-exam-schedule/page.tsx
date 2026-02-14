@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,52 +13,10 @@ import {
 } from "@/components/ui/table";
 import { SelectField } from "@/components/ui/input-field";
 import { SelectItem } from "@/components/ui/select";
-
-interface ExamSchedule {
-  id: string;
-  dateTime: string;
-  examName: string;
-  location: string;
-  invigilatorsAssigned: string;
-}
-
-const examSchedules: ExamSchedule[] = [
-  {
-    id: "1",
-    dateTime: "Nov. 15, 2025 (9:00 AM - 11:00 AM)",
-    examName: "SS2 Chemistry Exam",
-    location: "Hall A",
-    invigilatorsAssigned: "Nil",
-  },
-  {
-    id: "2",
-    dateTime: "Nov. 15, 2025 (9:00 AM - 11:00 AM)",
-    examName: "JS 3 Information Technology Exam",
-    location: "Hall B",
-    invigilatorsAssigned: "Mr. Uche E.",
-  },
-  {
-    id: "3",
-    dateTime: "Nov. 15, 2025 (9:00 AM - 11:00 AM)",
-    examName: "JS 1 Information Technology Exam",
-    location: "Hall A",
-    invigilatorsAssigned: "Ms. Zara A.",
-  },
-  {
-    id: "4",
-    dateTime: "Nov. 15, 2025 (9:00 AM - 11:00 AM)",
-    examName: "SS 1 Chemistry Exam",
-    location: "Hall C",
-    invigilatorsAssigned: "Mrs. Kemi O.",
-  },
-  {
-    id: "5",
-    dateTime: "Nov. 15, 2025 (9:00 AM - 11:00 AM)",
-    examName: "JS 3 Quantitative Reasoning",
-    location: "Hall B",
-    invigilatorsAssigned: "Dr. Femi I.",
-  },
-];
+import { useGetExamSchedulesQuery } from "@/services/schedules/schedules";
+import type { ScheduleEvent } from "@/services/schedules/schedule-types";
+import { format } from "date-fns";
+import { AssignInvigilatorModal } from "@/components/dashboard-pages/admin/academic/components/assign-invigilator-modal";
 
 const dateFilterOptions = [
   { value: "today", label: "Today" },
@@ -74,9 +32,70 @@ const sectionFilterOptions = [
   { value: "sss", label: "SSS" },
 ];
 
+function getDateRange(filter: string): { dateFrom: string; dateTo: string } {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  let dateTo = new Date(today);
+  if (filter === "today") {
+    dateTo.setDate(dateTo.getDate() + 1);
+  } else if (filter === "this-week") {
+    dateTo.setDate(dateTo.getDate() + 7);
+  } else if (filter === "this-month") {
+    dateTo.setMonth(dateTo.getMonth() + 1);
+  } else {
+    dateTo.setFullYear(dateTo.getFullYear() + 2);
+  }
+  return {
+    dateFrom: format(today, "yyyy-MM-dd"),
+    dateTo: format(dateTo, "yyyy-MM-dd"),
+  };
+}
+
 export default function CurrentExamSchedulePage() {
   const [dateFilter, setDateFilter] = useState("today");
   const [sectionFilter, setSectionFilter] = useState("all");
+  const [assignModalOpen, setAssignModalOpen] = useState(false);
+  const [selectedSchedule, setSelectedSchedule] = useState<ScheduleEvent | null>(null);
+
+  const { dateFrom, dateTo } = getDateRange(dateFilter);
+  const { data: schedulesResponse, isLoading } = useGetExamSchedulesQuery({
+    dateFrom,
+    dateTo,
+  });
+
+  const rawSchedules = schedulesResponse?.data ?? [];
+  const examSchedules = useMemo(() => {
+    const list = rawSchedules;
+    return list
+      .filter((s: ScheduleEvent) => {
+        if (sectionFilter === "all") return true;
+        const title = (s.title || "").toLowerCase();
+        if (sectionFilter === "primary") return title.includes("primary") || /p[1-6]/i.test(title);
+        if (sectionFilter === "jss") return /js[s]?|jss/i.test(title);
+        if (sectionFilter === "sss") return /ss[s]?|sss/i.test(title);
+        return true;
+      })
+      .map((s: ScheduleEvent) => {
+        const inv = s.invigilator as { user?: { first_name?: string; last_name?: string } } | null | undefined;
+        const invName = inv?.user ? `${inv.user.first_name ?? ""} ${inv.user.last_name ?? ""}`.trim() || "Unassigned" : "Unassigned";
+        return {
+          id: s.id,
+          dateTime: s.date
+            ? format(new Date(s.date), "MMM dd, yyyy") +
+              (s.start_time ? ` (${String(s.start_time).slice(0, 5)} - ${s.end_time ? String(s.end_time).slice(0, 5) : "—"})` : "")
+            : "—",
+          examName: s.title || s.description || "Exam",
+          location: s.location || "—",
+          invigilatorsAssigned: invName,
+        schedule: s,
+      };
+      });
+  }, [rawSchedules, sectionFilter]);
+
+  const openAssignModal = (schedule: ScheduleEvent) => {
+    setSelectedSchedule(schedule);
+    setAssignModalOpen(true);
+  };
 
   return (
     <div className="space-y-4">
@@ -145,7 +164,13 @@ export default function CurrentExamSchedulePage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {examSchedules.length === 0 ? (
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="h-32 text-center text-gray-500">
+                      Loading...
+                    </TableCell>
+                  </TableRow>
+                ) : examSchedules.length === 0 ? (
                   <TableRow>
                     <TableCell
                       colSpan={5}
@@ -173,10 +198,7 @@ export default function CurrentExamSchedulePage() {
                         <Button
                           variant="link"
                           className="text-main-blue p-0 h-auto"
-                          onClick={() => {
-                            // Handle assign invigilator
-                            console.log("Assign invigilator for", exam.id);
-                          }}
+                          onClick={() => openAssignModal(exam.schedule)}
                         >
                           Assign Invigilator
                         </Button>
@@ -192,6 +214,12 @@ export default function CurrentExamSchedulePage() {
           </div>
         </CardContent>
       </Card>
+
+      <AssignInvigilatorModal
+        open={assignModalOpen}
+        onOpenChange={setAssignModalOpen}
+        schedule={selectedSchedule}
+      />
     </div>
   );
 }

@@ -14,12 +14,14 @@ interface AccessRulesFormProps {
     time: string;
     maxAttempts: string;
     displayResults: string;
+    locationVenue: string;
   };
   onFormDataChange: (data: Partial<AccessRulesFormProps["formData"]>) => void;
   onBack: () => void;
   onCancel: () => void;
   onSaveAndSelectQuestions: () => void;
   displayResultsOptions: { value: string; label: string }[];
+  isLoading?: boolean;
 }
 
 export function AccessRulesForm({
@@ -29,6 +31,7 @@ export function AccessRulesForm({
   onCancel,
   onSaveAndSelectQuestions,
   displayResultsOptions,
+  isLoading = false,
 }: AccessRulesFormProps) {
   const [dateOpen, setDateOpen] = useState(false);
 
@@ -86,6 +89,13 @@ export function AccessRulesForm({
         />
       </div>
 
+      <InputField
+        label="Testing Venue (Location)"
+        value={formData.locationVenue}
+        onChange={(e) => onFormDataChange({ locationVenue: e.target.value })}
+        placeholder="e.g. CBT Lab 1, Hall A (optional)"
+      />
+
       <SelectField
         label="Display Results"
         value={formData.displayResults}
@@ -103,8 +113,12 @@ export function AccessRulesForm({
         <Button variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-        <Button className="w-60" onClick={onSaveAndSelectQuestions}>
-          Save & Select Questions
+        <Button
+          className="w-60"
+          onClick={onSaveAndSelectQuestions}
+          disabled={isLoading}
+        >
+          {isLoading ? "Creating…" : "Save & Select Questions"}
         </Button>
       </div>
     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MetricCard } from "@/components/dashboard-pages/admin/admissions/components/metric-card";
 import {
@@ -8,109 +8,51 @@ import {
   TableColumn,
   TableAction,
 } from "@/components/ui/data-table";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { useGetTeacherActivityQuery, useGetTeacherActivityLogQuery, useCreateTeacherAdministrativeNoteMutation } from "@/services/courses/courses";
+import type { TeacherActivityItem, TeacherActivityLogEntry } from "@/services/courses/courses-type";
 import { ActivityLogModal } from "@/components/dashboard-pages/admin/learning-management/component/activity-log-modal";
-
-interface StaffActivity {
-  id: string;
-  fullName: string;
-  staffId: string;
-  department: string;
-  lmsLogin: number;
-  complianceRate: string;
-  complianceStatus: string;
-}
-
-const staffActivities: StaffActivity[] = [
-  {
-    id: "1",
-    fullName: "Mr. Chinedu Okafor",
-    staffId: "okafor.T178023",
-    department: "Arts & Crafts",
-    lmsLogin: 5,
-    complianceRate: "100%",
-    complianceStatus: "On Time",
-  },
-  {
-    id: "2",
-    fullName: "Mrs. Helen Davies",
-    staffId: "Davies.T178024",
-    department: "Science",
-    lmsLogin: 1,
-    complianceRate: "50%",
-    complianceStatus: "1 Week Late",
-  },
-  {
-    id: "3",
-    fullName: "Ms. Tolu Adebayo",
-    staffId: "adebayo.T178025",
-    department: "Mathematics",
-    lmsLogin: 0,
-    complianceRate: "100%",
-    complianceStatus: "On Time",
-  },
-  {
-    id: "4",
-    fullName: "Mr. Biodun Eke",
-    staffId: "eke.T178026",
-    department: "Humanities",
-    lmsLogin: 4,
-    complianceRate: "100%",
-    complianceStatus: "On Time",
-  },
-  {
-    id: "5",
-    fullName: "Mrs. Uche Nwachukwu",
-    staffId: "nwachukwu.T178027",
-    department: "Arts & Crafts",
-    lmsLogin: 5,
-    complianceRate: "100%",
-    complianceStatus: "On Time",
-  },
-  {
-    id: "6",
-    fullName: "Mr. Sola Adeniyi",
-    staffId: "adeniyi.m178023",
-    department: "Science",
-    lmsLogin: 1,
-    complianceRate: "100%",
-    complianceStatus: "On Time",
-  },
-  {
-    id: "7",
-    fullName: "Mrs. Rukky Yakubu",
-    staffId: "yakubu.T178024",
-    department: "Mathematics",
-    lmsLogin: 0,
-    complianceRate: "50%",
-    complianceStatus: "1 Week Late",
-  },
-  {
-    id: "8",
-    fullName: "Ms. Funmilayo Bola",
-    staffId: "bola.T178025",
-    department: "Humanities",
-    lmsLogin: 4,
-    complianceRate: "100%",
-    complianceStatus: "On Time",
-  },
-];
-
-// const getComplianceColor = (status: string) => {
-//   if (status === "On Time") {
-//     return "text-green-600";
-//   }
-//   return "text-orange-600";
-// };
 
 export default function TeacherActivityPage() {
   const [activityLogModalOpen, setActivityLogModalOpen] = useState(false);
-  const [selectedStaff, setSelectedStaff] = useState<StaffActivity | null>(
-    null,
-  );
+  const [selectedStaff, setSelectedStaff] = useState<TeacherActivityItem | null>(null);
 
-  const columns: TableColumn<StaffActivity>[] = [
+  const { data: response, isLoading } = useGetTeacherActivityQuery();
+  const staffId = selectedStaff?.id ?? "";
+  const { data: activityLogResponse, isLoading: activityLogLoading } =
+    useGetTeacherActivityLogQuery(staffId, {
+      skip: !staffId || !activityLogModalOpen,
+    });
+  const [createNote, { isLoading: isAddingNote }] =
+    useCreateTeacherAdministrativeNoteMutation();
+  const activityLogEntries = useMemo(() => {
+    const d = activityLogResponse as { data?: TeacherActivityLogEntry[] } | undefined;
+    const list = d?.data ?? [];
+    return list.map((e) => ({
+      id: e.id,
+      loggedAction: e.loggedAction ?? 'Content Upload',
+      dateTime: e.dateTime ? new Date(e.dateTime) : new Date(0),
+      associatedCourseResource: e.associatedCourseResource ?? 'N/A',
+      status: e.status ?? 'N/A',
+    }));
+  }, [activityLogResponse]);
+  const staffActivities = useMemo(() => {
+    const d = response as { data?: TeacherActivityItem[] } | undefined;
+    return d?.data ?? [];
+  }, [response]);
+
+  const submissionRatePct = useMemo(() => {
+    if (staffActivities.length === 0) return "0%";
+    const onTime = staffActivities.filter((s) => s.complianceStatus === "On Time" || s.approvedCount === s.contentSubmissionsCount).length;
+    return `${Math.round((100 * onTime) / staffActivities.length)}%`;
+  }, [staffActivities]);
+
+  const avgUploads = useMemo(() => {
+    if (staffActivities.length === 0) return "0";
+    const total = staffActivities.reduce((acc, s) => acc + (s.contentSubmissionsCount ?? 0), 0);
+    return (total / staffActivities.length).toFixed(1);
+  }, [staffActivities]);
+
+  const columns: TableColumn<TeacherActivityItem>[] = [
     {
       key: "fullName",
       title: "Full Name + Staff ID",
@@ -124,7 +66,7 @@ export default function TeacherActivityPage() {
     {
       key: "department",
       title: "Department",
-      render: (value) => <span className="text-sm">{value}</span>,
+      render: (value) => <span className="text-sm">{value || "—"}</span>,
     },
     {
       key: "lmsLogin",
@@ -137,16 +79,16 @@ export default function TeacherActivityPage() {
     },
     {
       key: "complianceStatus",
-      title: "Pending Content Submissions",
+      title: "Compliance",
       render: (value, row) => (
-        <span className={cn("text-sm font-medium")}>
+        <span className="text-sm font-medium">
           {value} ({row.complianceRate})
         </span>
       ),
     },
   ];
 
-  const actions: TableAction<StaffActivity>[] = [
+  const actions: TableAction<TeacherActivityItem>[] = [
     {
       type: "button",
       config: {
@@ -161,24 +103,8 @@ export default function TeacherActivityPage() {
     },
   ];
 
-  const handleAddAdministrativeNote = (note: string) => {
-    console.log(
-      "Add administrative note for",
-      selectedStaff?.fullName,
-      ":",
-      note,
-    );
-    // Handle add administrative note action - the modal already adds it to the table
-  };
-
-  const handleLoadMore = () => {
-    console.log("Load more activities");
-    // Handle load more activities
-  };
-
   return (
     <div className="space-y-4">
-      {/* Header */}
       <div className="bg-background rounded-md p-6">
         <h2 className="text-2xl font-bold text-gray-800">
           Teacher Activity Audit & Compliance
@@ -189,29 +115,27 @@ export default function TeacherActivityPage() {
         </p>
       </div>
 
-      {/* Key Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <MetricCard
           title="Lesson Plan Submission Rate"
-          value="95%"
-          subtitle="Percentage of teachers submitting on time"
+          value={isLoading ? "—" : submissionRatePct}
+          subtitle="Percentage of teachers with full compliance"
           trend="up"
         />
         <MetricCard
-          title="Average Content Uploads (Last 30 Days)"
-          value="4.2 per Teacher"
-          subtitle="Average uploads per teacher"
+          title="Average Content Uploads"
+          value={isLoading ? "—" : `${avgUploads} per Teacher`}
+          subtitle="Average submissions per teacher"
           trend="up"
         />
         <MetricCard
-          title="Pending Content Review"
-          value="5 Submissions"
-          subtitle="Content awaiting review"
+          title="Teachers Tracked"
+          value={isLoading ? "—" : `${staffActivities.length} Teacher${staffActivities.length !== 1 ? "s" : ""}`}
+          subtitle="Teaching staff in this school"
           trend="up"
         />
       </div>
 
-      {/* Staff Audit Table */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-gray-800">
@@ -224,28 +148,36 @@ export default function TeacherActivityPage() {
         </CardHeader>
         <CardContent>
           <div className="border rounded-lg overflow-hidden">
-            <DataTable
-              columns={columns}
-              data={staffActivities}
-              actions={actions}
-              emptyMessage="No staff activity data found."
-              tableClassName="border-collapse"
-            />
-          </div>
-          <div className="flex justify-center mt-4">
-            <Button variant="outline">Load More</Button>
+            {isLoading ? (
+              <div className="py-8 text-center text-muted-foreground text-sm">
+                Loading teacher activity…
+              </div>
+            ) : (
+              <DataTable
+                columns={columns}
+                data={staffActivities}
+                actions={actions}
+                emptyMessage="No staff activity data found."
+                tableClassName="border-collapse"
+              />
+            )}
           </div>
         </CardContent>
       </Card>
 
-      {/* Activity Log Modal */}
       <ActivityLogModal
         open={activityLogModalOpen}
         onOpenChange={setActivityLogModalOpen}
         staffName={selectedStaff?.fullName}
-        onAddAdministrativeNote={handleAddAdministrativeNote}
-        onLoadMore={handleLoadMore}
-        hasMore={true}
+        activities={activityLogEntries}
+        isLoading={activityLogLoading}
+        isAddingNote={isAddingNote}
+        onAddAdministrativeNote={async (note) => {
+          if (!selectedStaff?.id) return;
+          await createNote({ staffId: selectedStaff.id, note });
+        }}
+        onLoadMore={() => {}}
+        hasMore={false}
       />
     </div>
   );

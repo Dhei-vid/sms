@@ -3,12 +3,29 @@
 import { useState } from "react";
 import { ModalContainer } from "@/components/ui/modal-container";
 import { SelectField } from "@/components/ui/input-field";
+import { InputField } from "@/components/ui/input-field";
 import { SelectItem } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+
+interface ExamOption {
+  value: string;
+  label: string;
+}
+
+interface InvigilatorOption {
+  value: string;
+  label: string;
+}
 
 interface DeploySchedulingModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Exam options from API */
+  examOptions?: ExamOption[];
+  /** Suggested venues (e.g. distinct CbtExam.location_venue from API); user can type any string */
+  venueSuggestions?: string[];
+  /** Invigilator options (e.g. teachers from API) */
+  invigilatorOptions?: InvigilatorOption[];
   onScheduleAndActivate?: (data: {
     exam: string;
     venue: string;
@@ -16,30 +33,12 @@ interface DeploySchedulingModalProps {
   }) => void;
 }
 
-const examOptions = [
-  { value: "ss2-biology-midterm", label: "SS2 Biology Mid-Term" },
-  { value: "jss3-arts-crafts", label: "JSS 3 Arts & Crafts CBT Examination" },
-  { value: "ss1-chemistry", label: "SS1 Chemistry Final Exam" },
-  { value: "jss1-computer-science", label: "JSS1 Computer Science Quiz" },
-];
-
-const venueOptions = [
-  { value: "cbt-lab-1", label: "CBT Lab 1" },
-  { value: "hall-a", label: "Hall A" },
-  { value: "library-annex", label: "Library Annex" },
-  { value: "cbt-lab-2", label: "CBT Lab 2" },
-];
-
-const invigilatorOptions = [
-  { value: "ms-zara-a", label: "Ms. Zara A." },
-  { value: "mr-adebayo-k", label: "Mr. Adebayo K." },
-  { value: "ms-fatima-b", label: "Ms. Fatima B." },
-  { value: "mr-femi-t", label: "Mr. Femi T." },
-];
-
 export function DeploySchedulingModal({
   open,
   onOpenChange,
+  examOptions = [],
+  venueSuggestions = [],
+  invigilatorOptions = [],
   onScheduleAndActivate,
 }: DeploySchedulingModalProps) {
   const [exam, setExam] = useState("");
@@ -54,13 +53,15 @@ export function DeploySchedulingModal({
   };
 
   const handleScheduleAndActivate = () => {
-    if (exam && venue && invigilator) {
+    if (exam && venue.trim() && invigilator) {
       if (onScheduleAndActivate) {
-        onScheduleAndActivate({ exam, venue, invigilator });
+        onScheduleAndActivate({ exam, venue: venue.trim(), invigilator });
       }
       handleCancel();
     }
   };
+
+  const venueListId = "deploy-venue-list";
 
   return (
     <ModalContainer
@@ -75,7 +76,7 @@ export function DeploySchedulingModal({
           </Button>
           <Button
             onClick={handleScheduleAndActivate}
-            disabled={!exam || !venue || !invigilator}
+            disabled={!exam || !venue.trim() || !invigilator}
           >
             Schedule & Activate
           </Button>
@@ -83,46 +84,70 @@ export function DeploySchedulingModal({
       }
     >
       <div className="space-y-6">
-        {/* Select Exam to Deploy */}
+        {/* Select Exam to Deploy - from API */}
         <SelectField
           label="Select Exam to Deploy"
           value={exam}
           onValueChange={setExam}
-          placeholder="Dropdown Search: Lists all 'Finalized' CBT exams (e.g., SS2 Biology Mid-Term)"
+          placeholder={
+            examOptions.length > 0
+              ? "Select a finalized CBT exam"
+              : "No exams available"
+          }
         >
-          {examOptions.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
+          {examOptions.length > 0 ? (
+            examOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))
+          ) : (
+            <SelectItem value="__none__" disabled>
+              No exams available
             </SelectItem>
-          ))}
+          )}
         </SelectField>
 
-        {/* Testing Venue */}
-        <SelectField
-          label="Testing Venue"
-          value={venue}
-          onValueChange={setVenue}
-          placeholder="Dropdown Select: CBT Lab 1, Hall A, Library Annex"
-        >
-          {venueOptions.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
-        </SelectField>
+        {/* Testing Venue - free text, CbtExam.location_venue; suggestions from existing exams */}
+        <div className="space-y-2">
+          <InputField
+            label="Testing Venue"
+            value={venue}
+            onChange={(e) => setVenue(e.target.value)}
+            placeholder="e.g. CBT Lab 1, Hall A (any text)"
+            list={venueSuggestions.length > 0 ? venueListId : undefined}
+          />
+          {venueSuggestions.length > 0 && (
+            <datalist id={venueListId}>
+              {venueSuggestions.map((v) => (
+                <option key={v} value={v} />
+              ))}
+            </datalist>
+          )}
+        </div>
 
-        {/* Invigilator Assignment */}
+        {/* Invigilator Assignment - from API (teachers) */}
         <SelectField
           label="Invigilator Assignment"
           value={invigilator}
           onValueChange={setInvigilator}
-          placeholder="Staff Directory Search"
+          placeholder={
+            invigilatorOptions.length > 0
+              ? "Select a teacher"
+              : "No teachers available"
+          }
         >
-          {invigilatorOptions.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
+          {invigilatorOptions.length > 0 ? (
+            invigilatorOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))
+          ) : (
+            <SelectItem value="__none__" disabled>
+              No teachers found
             </SelectItem>
-          ))}
+          )}
         </SelectField>
       </div>
     </ModalContainer>

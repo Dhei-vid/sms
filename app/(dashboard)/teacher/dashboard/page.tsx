@@ -1,9 +1,14 @@
 "use client";
 
+import { useMemo } from "react";
+import { useAppSelector } from "@/store/hooks";
+import { selectUser } from "@/store/slices/authSlice";
 import { MetricCard } from "@/components/dashboard-pages/admin/admissions/components/metric-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable, TableColumn } from "@/components/ui/data-table";
 import Link from "next/link";
+import { useGetNotificationsQuery } from "@/services/shared";
+import { format } from "date-fns";
 
 interface TaskItem {
   id: string;
@@ -50,6 +55,28 @@ const tasks: TaskItem[] = [
 ];
 
 export default function TeacherDashboardPage() {
+  const user = useAppSelector(selectUser);
+  const { data: notificationsData } = useGetNotificationsQuery(
+    { limit: 5 },
+    { skip: !user?.id },
+  );
+
+  const noticeBoardItems = useMemo(() => {
+    const list = notificationsData?.data ?? [];
+    const forTeacher = list.filter(
+      (n) =>
+        n.target_audience === "general" ||
+        (Array.isArray(n.specifics) && n.specifics.includes("teacher")),
+    );
+    return forTeacher.slice(0, 5).map((n) => ({
+      title: n.title ?? "",
+      description: n.content ?? "",
+      time: n.created_at
+        ? format(new Date(n.created_at), "MMM d, yyyy; h:mm a")
+        : "",
+    }));
+  }, [notificationsData?.data]);
+
   const taskColumns: TableColumn<TaskItem>[] = [
     {
       key: "taskType",
@@ -140,13 +167,22 @@ export default function TeacherDashboardPage() {
             Today on the Notice Board
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-1">
-          <p className="font-medium text-gray-800">Meeting With All HODs</p>
-          <p className="text-sm text-gray-600">
-            All HODs to attend curriculum meeting.{" "}
-            <span className="font-medium">Date:</span> Nov. 13, 2025{" "}
-            <span className="font-medium">Time:</span> 12:00PM (Break Period)
-          </p>
+        <CardContent className="space-y-3">
+          {noticeBoardItems.length === 0 ? (
+            <p className="text-sm text-gray-500">No notices at the moment.</p>
+          ) : (
+            noticeBoardItems.map((notice, index) => (
+              <div key={index}>
+                <p className="font-medium text-gray-800">{notice.title}</p>
+                <p className="text-sm text-gray-600">
+                  {notice.description}{" "}
+                  {notice.time && (
+                    <span className="text-gray-500">— {notice.time}</span>
+                  )}
+                </p>
+              </div>
+            ))
+          )}
         </CardContent>
       </Card>
 

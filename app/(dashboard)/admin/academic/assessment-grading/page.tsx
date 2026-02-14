@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { QuickActionCard } from "@/components/dashboard-pages/admin/admissions/components/quick-action-card";
@@ -14,6 +15,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { MetricCard } from "@/components/dashboard-pages/admin/admissions/components/metric-card";
+import { useGetAllExamResultsQuery } from "@/services/results/results";
+import type { ExamResult } from "@/services/results/result-types";
 
 interface GradeSubmissionProgress {
   section: string;
@@ -22,29 +25,81 @@ interface GradeSubmissionProgress {
   barColor: string;
 }
 
-const gradeSubmissionProgress: GradeSubmissionProgress[] = [
-  {
-    section: "Senior School (SS)",
-    expectedPercentage: 100,
-    submittedPercentage: 75,
-    barColor: "bg-orange-500",
-  },
-  {
-    section: "Junior School (JSS)",
-    expectedPercentage: 100,
-    submittedPercentage: 85,
-    barColor: "bg-green-500",
-  },
-  {
-    section: "Primary School",
-    expectedPercentage: 100,
-    submittedPercentage: 70,
-    barColor: "bg-blue-500",
-  },
-];
+function aggregateFromResults(data: ExamResult[]): {
+  gradeSubmissionComplete: number;
+  lateGradesCount: number;
+  resultsReadyForApproval: number;
+  gradeSubmissionProgress: GradeSubmissionProgress[];
+} {
+  const byKey = new Map<string, ExamResult[]>();
+  const bySection = new Map<string, ExamResult[]>();
+  for (const r of data) {
+    const key = `${r.class_name}||${r.term}||${r.session}`;
+    const list = byKey.get(key) ?? [];
+    list.push(r);
+    byKey.set(key, list);
+
+    const section = inferSection(r.class_name);
+    const sectionList = bySection.get(section) ?? [];
+    sectionList.push(r);
+    bySection.set(section, sectionList);
+  }
+
+  const batchesCount = byKey.size;
+  const totalStudents = data.length;
+  const resultsReadyForApproval = batchesCount;
+
+  const lateGradesCount = 0;
+
+  const sections: Record<string, { label: string; color: string }> = {
+    ss: { label: "Senior School (SS)", color: "bg-orange-500" },
+    jss: { label: "Junior School (JSS)", color: "bg-green-500" },
+    primary: { label: "Primary School", color: "bg-blue-500" },
+  };
+  const gradeSubmissionProgress: GradeSubmissionProgress[] = Object.entries(
+    sections
+  ).map(([key, { label, color }]) => {
+    const list = bySection.get(key) ?? [];
+    const count = list.length;
+    const expected = count > 0 ? 100 : 0;
+    const submitted = count > 0 ? 100 : 0;
+    return {
+      section: label,
+      expectedPercentage: expected,
+      submittedPercentage: submitted,
+      barColor: color,
+    };
+  });
+
+  const gradeSubmissionComplete =
+    totalStudents > 0 ? Math.min(100, Math.round((totalStudents / totalStudents) * 100)) : 0;
+
+  return {
+    gradeSubmissionComplete: totalStudents > 0 ? 100 : 0,
+    lateGradesCount,
+    resultsReadyForApproval,
+    gradeSubmissionProgress,
+  };
+}
+
+function inferSection(class_name: string): string {
+  const c = (class_name || "").toLowerCase();
+  if (c.startsWith("ss") || c.includes("senior")) return "ss";
+  if (c.startsWith("jss") || c.includes("junior")) return "jss";
+  return "primary";
+}
 
 export default function AssessmentGradingDashboardPage() {
   const router = useRouter();
+  const { data, isLoading } = useGetAllExamResultsQuery(undefined);
+  const raw = (data as { data?: ExamResult[] })?.data ?? [];
+
+  const {
+    gradeSubmissionComplete,
+    lateGradesCount,
+    resultsReadyForApproval,
+    gradeSubmissionProgress,
+  } = useMemo(() => aggregateFromResults(raw), [raw]);
 
   return (
     <div className="space-y-4">
@@ -64,17 +119,17 @@ export default function AssessmentGradingDashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <MetricCard
           title="Grade Submission Status"
-          value="85% Complete"
+          value={isLoading ? "—" : `${gradeSubmissionComplete}% Complete`}
           subtitle="Tracks % of all expected grades."
         />
         <MetricCard
           title="Late Grades"
-          value="12 Submissions"
+          value={isLoading ? "—" : `${lateGradesCount} Submissions`}
           subtitle="Identifies grades that have missed the deadline."
         />
         <MetricCard
           title="Results Ready for Approval"
-          value="2 Grade Levels"
+          value={isLoading ? "—" : `${resultsReadyForApproval} Grade Levels`}
           subtitle="Processed results awaiting final sign-off"
         />
       </div>

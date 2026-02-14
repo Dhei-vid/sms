@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SelectField } from "@/components/ui/input-field";
 import { SelectItem } from "@/components/ui/select";
@@ -12,6 +12,8 @@ import {
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { ArrowUpRight } from "lucide-react";
+import { useGetLessonPlansQuery } from "@/services/notes/notes";
+import type { Notes } from "@/services/notes/note-types";
 
 interface LessonPlan {
   id: string;
@@ -23,80 +25,26 @@ interface LessonPlan {
   status: "pending" | "sent-back" | "approved";
 }
 
-const lessonPlansData: LessonPlan[] = [
-  {
-    id: "1",
-    subject: "Integrated Science",
-    submittedBy: "Ms. Zara A.",
-    submittedByUsername: "adekule.T170823",
-    unitTopic: "Unit 4: Photosynthesis",
-    dateSubmitted: new Date(2025, 10, 4),
-    status: "pending",
-  },
-  {
-    id: "2",
-    subject: "Integrated Science",
-    submittedBy: "Ms. Zara A.",
-    submittedByUsername: "adekule.T170823",
-    unitTopic: "Unit 4: Photosynthesis",
-    dateSubmitted: new Date(2025, 10, 4),
-    status: "pending",
-  },
-  {
-    id: "3",
-    subject: "Integrated Science",
-    submittedBy: "Ms. Zara A.",
-    submittedByUsername: "adekule.T170823",
-    unitTopic: "Unit 4: Photosynthesis",
-    dateSubmitted: new Date(2025, 10, 4),
-    status: "sent-back",
-  },
-  {
-    id: "4",
-    subject: "Integrated Science",
-    submittedBy: "Ms. Zara A.",
-    submittedByUsername: "adekule.T170823",
-    unitTopic: "Unit 4: Photosynthesis",
-    dateSubmitted: new Date(2025, 10, 4),
-    status: "approved",
-  },
-  {
-    id: "5",
-    subject: "Integrated Science",
-    submittedBy: "Ms. Zara A.",
-    submittedByUsername: "adekule.T170823",
-    unitTopic: "Unit 4: Photosynthesis",
-    dateSubmitted: new Date(2025, 10, 4),
-    status: "approved",
-  },
-  {
-    id: "6",
-    subject: "Integrated Science",
-    submittedBy: "Ms. Zara A.",
-    submittedByUsername: "adekule.T170823",
-    unitTopic: "Unit 4: Photosynthesis",
-    dateSubmitted: new Date(2025, 10, 4),
-    status: "approved",
-  },
-  {
-    id: "7",
-    subject: "Integrated Science",
-    submittedBy: "Ms. Zara A.",
-    submittedByUsername: "adekule.T170823",
-    unitTopic: "Unit 4: Photosynthesis",
-    dateSubmitted: new Date(2025, 10, 4),
-    status: "approved",
-  },
-  {
-    id: "8",
-    subject: "Integrated Science",
-    submittedBy: "Ms. Zara A.",
-    submittedByUsername: "adekule.T170823",
-    unitTopic: "Unit 4: Photosynthesis",
-    dateSubmitted: new Date(2025, 10, 4),
-    status: "approved",
-  },
-];
+function noteToLessonPlan(n: Notes): LessonPlan {
+  const creator = n.creator as { first_name?: string; last_name?: string; username?: string } | undefined;
+  const submittedBy = creator
+    ? `${creator.first_name ?? ""} ${creator.last_name ?? ""}`.trim() || "—"
+    : "—";
+  const submittedByUsername = creator?.username ?? "—";
+  const status = (n.status ?? "pending") as LessonPlan["status"];
+  const validStatus = ["pending", "sent-back", "approved"].includes(status)
+    ? status
+    : "pending";
+  return {
+    id: n.id,
+    subject: n.title,
+    submittedBy,
+    submittedByUsername,
+    unitTopic: n.description ?? n.title,
+    dateSubmitted: new Date(n.created_at),
+    status: validStatus,
+  };
+}
 
 const schoolLevelOptions = [
   { value: "junior-secondary", label: "Junior Secondary School" },
@@ -164,6 +112,12 @@ export default function LessonPlanReviewPage() {
   const [grade, setGrade] = useState("js-2");
   const [week, setWeek] = useState("4");
 
+  const { data: lessonPlansResponse, isLoading } = useGetLessonPlansQuery();
+  const lessonPlansData: LessonPlan[] = useMemo(() => {
+    const list = lessonPlansResponse?.data ?? [];
+    return list.map(noteToLessonPlan);
+  }, [lessonPlansResponse?.data]);
+
   const pendingCount = lessonPlansData.filter(
     (plan) => plan.status === "pending",
   ).length;
@@ -208,11 +162,11 @@ export default function LessonPlanReviewPage() {
     },
   ];
 
-  const draftOutlinesActions: TableAction[] = [
+  const tableActions: TableAction<LessonPlan>[] = [
     {
       type: "link",
       config: {
-        label: "Continue Editing",
+        label: "Review",
         href: (row) =>
           `/admin/academic/curriculum-management/lesson-plan-review/${row.id}`,
         className: "text-main-blue hover:text-main-blue/80",
@@ -298,8 +252,12 @@ export default function LessonPlanReviewPage() {
             <DataTable
               columns={columns}
               data={lessonPlansData}
-              actions={draftOutlinesActions}
-              emptyMessage="No lesson plans submitted yet."
+              actions={tableActions}
+              emptyMessage={
+                isLoading
+                  ? "Loading..."
+                  : "No lesson plans submitted yet."
+              }
               tableClassName="border-collapse"
             />
           </div>

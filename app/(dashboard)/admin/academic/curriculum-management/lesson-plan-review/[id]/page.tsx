@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,6 +11,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useGetNoteByIdQuery, useUpdateNoteMutation } from "@/services/notes/notes";
+import type { Notes } from "@/services/notes/note-types";
+import { toast } from "sonner";
 
 interface LessonPlanDetail {
   id: string;
@@ -28,28 +31,27 @@ interface LessonPlanDetail {
   emergencyContact: string;
 }
 
-// Mock data - in real app, this would be fetched based on id
-const getLessonPlanDetail = (id: string): LessonPlanDetail => {
+function noteToLessonPlanDetail(n: Notes): LessonPlanDetail {
+  const creator = n.creator as { first_name?: string; last_name?: string } | undefined;
+  const submittedBy = creator
+    ? `${creator.first_name ?? ""} ${creator.last_name ?? ""}`.trim() || "—"
+    : "—";
   return {
-    id,
-    subject: "Integrated Science",
-    week: "Week 4",
-    unit: "Unit 4: Photosynthesis",
-    submittedBy: "Ms. Zara A.",
-    curriculumCheck: "Content matches 95%",
-    topic: "The Role of Chlorophyll",
-    duration: "2 Periods (80 minutes)",
-    learningObjectives:
-      "At the end of the lesson, students will be able to: 1. Define chlorophyll. 2. State the key stages of light reaction. 3. Relate chlorophyll function to plant energy conversion.",
-    instructionalMaterials:
-      "Whiteboard, Markers, Chlorophyll Extraction Kit (requires lab booking), Handout on Photosynthesis.",
-    teachingActivities:
-      "1. Engage (10 min): Ask students why plants are green.\n2. Explore (40 min): Demonstrate chlorophyll extraction using alcohol bath.\n3. Explain (20 min): Lecture on light absorption, referencing the demonstration.",
-    assessment:
-      "Formative: Question-and-answer session (Q&A). Summative: Exit Ticket (3 questions on chlorophyll's role).",
+    id: n.id,
+    subject: n.title,
+    week: "",
+    unit: n.description ?? n.title,
+    submittedBy,
+    curriculumCheck: "—",
+    topic: n.title,
+    duration: n.duration ?? "—",
+    learningObjectives: n.learning_objectives ?? "—",
+    instructionalMaterials: n.instructional_materials ?? "—",
+    teachingActivities: n.teaching_activities ?? "—",
+    assessment: n.assessment ?? "—",
     emergencyContact: "",
   };
-};
+}
 
 const planFields = [
   { key: "topic", label: "Topic" },
@@ -61,29 +63,58 @@ const planFields = [
   { key: "emergencyContact", label: "Emergency Contact" },
 ];
 
-export default function LessonPlanReviewDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function LessonPlanReviewDetailPage() {
   const router = useRouter();
-  const lessonPlan = getLessonPlanDetail(params.id as string);
+  const params = useParams();
+  const id = params?.id as string;
 
-  const handleSendBack = () => {
-    // Handle send back for revision
-    console.log("Send back for revision", lessonPlan.id);
-    router.push("/admin/academic/curriculum-management/lesson-plan-review");
+  const { data: noteResponse, isLoading } = useGetNoteByIdQuery(id, {
+    skip: !id,
+  });
+  const [updateNote, { isLoading: isUpdating }] = useUpdateNoteMutation();
+
+  const note = noteResponse?.data as Notes | undefined;
+  const lessonPlan = note ? noteToLessonPlanDetail(note) : null;
+
+  const handleSendBack = async () => {
+    if (!id) return;
+    try {
+      await updateNote({ id, data: { status: "sent-back" } }).unwrap();
+      toast.success("Plan sent back for revision.");
+      router.push("/admin/academic/curriculum-management/lesson-plan-review");
+    } catch {
+      toast.error("Failed to send back.");
+    }
   };
 
-  const handleApprove = () => {
-    // Handle approve plan
-    console.log("Approve plan", lessonPlan.id);
-    router.push("/admin/academic/curriculum-management/lesson-plan-review");
+  const handleApprove = async () => {
+    if (!id) return;
+    try {
+      await updateNote({ id, data: { status: "approved" } }).unwrap();
+      toast.success("Plan approved.");
+      router.push("/admin/academic/curriculum-management/lesson-plan-review");
+    } catch {
+      toast.error("Failed to approve.");
+    }
   };
 
   const getFieldValue = (key: string): string => {
-    return lessonPlan[key as keyof LessonPlanDetail] || "";
+    return lessonPlan?.[key as keyof LessonPlanDetail] ?? "";
   };
+
+  if (!id) {
+    return (
+      <div className="p-6 text-gray-600">Invalid plan ID.</div>
+    );
+  }
+
+  if (isLoading || !lessonPlan) {
+    return (
+      <div className="p-6 text-gray-600">
+        {isLoading ? "Loading..." : "Plan not found."}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -152,15 +183,17 @@ export default function LessonPlanReviewDetailPage({
             <Button
               variant="outline"
               onClick={handleSendBack}
+              disabled={isUpdating}
               className="hover:bg-gray-200"
             >
               Send Back for Revision
             </Button>
             <Button
               onClick={handleApprove}
+              disabled={isUpdating}
               className="bg-main-blue text-white hover:bg-main-blue/90"
             >
-              Approve Plan
+              {isUpdating ? "Saving…" : "Approve Plan"}
             </Button>
           </div>
         </CardContent>

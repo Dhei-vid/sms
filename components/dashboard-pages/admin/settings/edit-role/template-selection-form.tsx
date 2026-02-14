@@ -7,6 +7,11 @@ import {
 } from "@/components/ui/input-field";
 import { SelectItem } from "@/components/ui/select";
 
+interface TemplateOption {
+  value: string;
+  label: string;
+}
+
 interface TemplateSelectionFormProps {
   selectedTemplate: string;
   templateName: string;
@@ -14,16 +19,8 @@ interface TemplateSelectionFormProps {
   onTemplateChange: (value: string) => void;
   onTemplateNameChange: (value: string) => void;
   onTemplateDescriptionChange: (value: string) => void;
+  templateOptions?: TemplateOption[];
 }
-
-const templateOptions = [
-  { value: "hod", label: "HOD (Head of Department)" },
-  { value: "teacher", label: "Teacher" },
-  { value: "exam-officer", label: "Exam Officer" },
-  { value: "finance-admin", label: "Finance Admin" },
-  { value: "academic-dean", label: "Academic Dean" },
-  { value: "super-admin", label: "Super Admin" },
-];
 
 export function TemplateSelectionForm({
   selectedTemplate,
@@ -32,6 +29,7 @@ export function TemplateSelectionForm({
   onTemplateChange,
   onTemplateNameChange,
   onTemplateDescriptionChange,
+  templateOptions = [],
 }: TemplateSelectionFormProps) {
   return (
     <div className="space-y-6">
@@ -46,7 +44,7 @@ export function TemplateSelectionForm({
           label="Select Template to Edit"
           value={selectedTemplate}
           onValueChange={onTemplateChange}
-          placeholder="Dropdown Select"
+          placeholder={templateOptions.length === 0 ? "No templates" : "Select a template"}
         >
           {templateOptions.map((option) => (
             <SelectItem key={option.value} value={option.value}>

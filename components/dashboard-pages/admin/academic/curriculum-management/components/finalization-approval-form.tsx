@@ -17,7 +17,6 @@ interface FinalizationApprovalFormProps {
     data: Partial<FinalizationApprovalFormProps["formData"]>,
   ) => void;
   onBack: () => void;
-  onSaveDraft: () => void;
   onActivate: () => void;
 }
 
@@ -25,7 +24,6 @@ export function FinalizationApprovalForm({
   formData,
   onFormDataChange,
   onBack,
-  onSaveDraft,
   onActivate,
 }: FinalizationApprovalFormProps) {
   const [datePickerOpen, setDatePickerOpen] = useState(false);
@@ -89,8 +87,8 @@ export function FinalizationApprovalForm({
       </div>
 
       <div className="flex justify-end gap-3 pt-4">
-        <Button variant="outline" onClick={onSaveDraft}>
-          Save as Draft
+        <Button variant="outline" onClick={onBack}>
+          Back
         </Button>
         <Button className="w-60" onClick={onActivate}>
           Activate Subject

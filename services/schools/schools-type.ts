@@ -188,6 +188,19 @@ export interface CreateSchoolRequest {
 }
 
 /**
+ * Timetable fields only - for partial update via PUT /schools/<id>
+ */
+export interface TimetableUpdatePayload {
+  timetable_name?: string;
+  applicable_school_grade?: string;
+  academic_term?: string;
+  school_days?: string[];
+  no_of_periods_per_day?: number;
+  default_period_duration?: number;
+  break_periods?: Break[];
+}
+
+/**
  * School update request payload
  */
 export interface UpdateSchoolRequest {
@@ -253,4 +266,115 @@ export type DeleteSchoolResponse = ApiDeleteResponse;
 /**
  * School query parameters for filtering and pagination
  */
-export interface SchoolQueryParams extends BaseQueryParams {}
+export interface SchoolQueryParams extends BaseQueryParams {
+  _all?: boolean;
+}
+
+/**
+ * Application config returned by GET/PUT /schools/:id/application-config
+ */
+export interface SchoolApplicationConfig {
+  term: Term;
+  score: Score;
+  timetable_name: string | null;
+  applicable_school_grade: string | null;
+  academic_term: string | null;
+  school_days: string[];
+  no_of_periods_per_day: number | null;
+  default_period_duration: number | null;
+  break_periods: Break[];
+}
+
+/**
+ * Payload for PUT /schools/:id/application-config (all optional)
+ */
+export interface SchoolApplicationConfigUpdate {
+  term?: Term;
+  score?: Score;
+  timetable_name?: string | null;
+  applicable_school_grade?: string | null;
+  academic_term?: string | null;
+  school_days?: string[];
+  no_of_periods_per_day?: number | null;
+  default_period_duration?: number | null;
+  break_periods?: Break[];
+}
+
+/**
+ * Admin roster entry from GET /schools/:id/settings-dashboard
+ */
+export interface SettingsDashboardAdminRole {
+  id: string;
+  primaryRole: string;
+  assignedTo: string;
+  coreModulesAccessible: string;
+  lastPermissionUpdate: string | null;
+}
+
+/**
+ * Response from GET/PUT /schools/:id/settings-dashboard
+ */
+export interface SchoolSettingsDashboard {
+  activeAdminsCount: number;
+  lastSecurityAudit: string | null;
+  systemUptime: string | null;
+  adminRoster: SettingsDashboardAdminRole[];
+}
+
+/**
+ * Payload for PUT /schools/:id/settings-dashboard (optional metrics)
+ */
+export interface SchoolSettingsDashboardUpdate {
+  lastSecurityAudit?: string | null;
+  systemUptime?: string | null;
+}
+
+/**
+ * Module permission for role template (edit-role)
+ */
+export interface RoleTemplateModulePermission {
+  module: string;
+  readOnly: boolean;
+  readWrite: boolean;
+  none: boolean;
+}
+
+/**
+ * Role template (edit-role).
+ * `permissions` is resolved from modulePermissions and matches User.permissions / stakeholder.user.permissions.
+ * When assigning this role to a user or stakeholder, set the linked user's permissions to this array.
+ */
+export interface RoleTemplate {
+  id: string;
+  name: string;
+  description: string;
+  modulePermissions: RoleTemplateModulePermission[];
+  /** Resolved permission strings for User.permissions (and stakeholder.user); use when assigning this role. */
+  permissions?: string[];
+}
+
+/**
+ * Response from GET /schools/:id/role-template-modules (canonical list from backend)
+ */
+export interface RoleTemplateModulesResponse {
+  modules: string[];
+}
+
+/**
+ * Response from GET /schools/:id/role-templates
+ */
+export interface RoleTemplatesListResponse {
+  roleTemplates: RoleTemplate[];
+  /** Canonical list of module names for permission matrix (from backend). */
+  modules: string[];
+}
+
+/**
+ * Payload for PUT /schools/:id/role-templates/:templateId
+ */
+export interface RoleTemplateUpdatePayload {
+  id: string;
+  name: string;
+  description: string;
+  modulePermissions: RoleTemplateModulePermission[];
+}

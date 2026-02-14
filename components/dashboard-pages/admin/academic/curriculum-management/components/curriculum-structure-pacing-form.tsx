@@ -29,7 +29,6 @@ interface CurriculumStructurePacingFormProps {
     data: Partial<CurriculumStructurePacingFormProps["formData"]>,
   ) => void;
   onBack: () => void;
-  onSaveDraft: () => void;
   onSaveContinue: () => void;
   curriculumStandardOptions: { value: string; label: string }[];
   pacingOptions: { value: string; label: string }[];
@@ -40,7 +39,6 @@ export function CurriculumStructurePacingForm({
   formData,
   onFormDataChange,
   onBack,
-  onSaveDraft,
   onSaveContinue,
   curriculumStandardOptions,
   pacingOptions,
@@ -209,9 +207,6 @@ export function CurriculumStructurePacingForm({
       <div className="flex justify-end gap-3 pt-4">
         <Button variant="outline" onClick={onBack}>
           Back
-        </Button>
-        <Button variant="outline" onClick={onSaveDraft}>
-          Save as Draft
         </Button>
         <Button className="w-60" onClick={onSaveContinue}>
           Save & Continue

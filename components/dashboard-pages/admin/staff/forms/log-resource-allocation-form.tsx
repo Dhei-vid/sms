@@ -141,7 +141,6 @@ export function LogResourceAllocationForm({
           onValueChange={(value) =>
             setFormData({ ...formData, schoolId: value })
           }
-          disabled={isLoadingSchools}
           required
         >
           {schools.map((school) => (
@@ -160,7 +159,6 @@ export function LogResourceAllocationForm({
           onValueChange={(value) =>
             setFormData({ ...formData, staffMember: value })
           }
-          disabled={isLoadingStaff}
         >
           {staffMembers.map((staff) => {
             const fullName = staff.user

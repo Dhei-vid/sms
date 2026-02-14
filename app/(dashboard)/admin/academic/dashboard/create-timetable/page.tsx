@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StepNavigation, Step } from "@/components/ui/step-navigation";
@@ -17,7 +17,12 @@ import {
 } from "@hugeicons/core-free-icons";
 import { useRouter } from "next/navigation";
 import { BreaksSpecialPeriodsModal } from "@/components/dashboard-pages/admin/finance/components/breaks-special-periods-modal";
-import { cn } from "@/lib/utils";
+import {
+  useGetSchoolsQuery,
+  useUpdateSchoolTimetableMutation,
+} from "@/services/schools/schools";
+import type { Break, School } from "@/services/schools/schools-type";
+import { toast } from "sonner";
 
 type StepId = "scope" | "time-slot";
 
@@ -35,6 +40,7 @@ const steps: Step[] = [
 ];
 
 const initialData = {
+  schoolId: "",
   // Step 1: Define Timetable Scope
   timetableName: "",
   applicableSchoolGrade: "",
@@ -45,10 +51,11 @@ const initialData = {
   numberOfPeriodsPerDay: "",
   defaultPeriodDuration: "",
   applicableSchoolGradeStep2: "",
-  academicTermStep2: "",
+  breakPeriods: [] as Break[],
 };
 
 interface TimetableForm {
+  schoolId: string;
   timetableName: string;
   applicableSchoolGrade: string;
   academicTerm: string;
@@ -56,16 +63,30 @@ interface TimetableForm {
   numberOfPeriodsPerDay: string;
   defaultPeriodDuration: string;
   applicableSchoolGradeStep2: string;
-  academicTermStep2: string;
+  breakPeriods: Break[];
+}
+
+function timeRangeTo24h(timeRange: {
+  startHour: string;
+  startMinute: string;
+  startPeriod: "AM" | "PM";
+  endHour: string;
+  endMinute: string;
+  endPeriod: "AM" | "PM";
+}) {
+  const to24 = (h: string, m: string, period: "AM" | "PM") => {
+    let hour = parseInt(h, 10);
+    if (period === "PM" && hour !== 12) hour += 12;
+    if (period === "AM" && hour === 12) hour = 0;
+    return `${hour.toString().padStart(2, "0")}:${m.padStart(2, "0")}:00`;
+  };
+  return {
+    start_time: to24(timeRange.startHour, timeRange.startMinute, timeRange.startPeriod),
+    end_time: to24(timeRange.endHour, timeRange.endMinute, timeRange.endPeriod),
+  };
 }
 
 const schoolGradeOptions = [
-  { value: "primary-1", label: "Primary 1" },
-  { value: "primary-2", label: "Primary 2" },
-  { value: "primary-3", label: "Primary 3" },
-  { value: "primary-4", label: "Primary 4" },
-  { value: "primary-5", label: "Primary 5" },
-  { value: "primary-6", label: "Primary 6" },
   { value: "jss-1", label: "JSS 1" },
   { value: "jss-2", label: "JSS 2" },
   { value: "jss-3", label: "JSS 3" },
@@ -94,6 +115,44 @@ export default function CreateTimetablePage() {
   const [formData, setFormData] = useState<TimetableForm>(initialData);
   const [breakModalOpen, setBreakModalOpen] = useState(false);
 
+  const { data: schoolsResponse } = useGetSchoolsQuery({ _all: true });
+  const schoolsList: School[] = Array.isArray((schoolsResponse as { data?: unknown })?.data)
+    ? ((schoolsResponse as { data: School[] }).data)
+    : [];
+
+  const school = schoolsList.find((s) => s.id === formData.schoolId) ?? null;
+
+  const [updateTimetable, { isLoading: isSubmitting }] =
+    useUpdateSchoolTimetableMutation();
+
+  const lastPrefilledSchoolId = useRef<string | null>(null);
+  useEffect(() => {
+    if (!school) return;
+    if (lastPrefilledSchoolId.current === school.id) return;
+    lastPrefilledSchoolId.current = school.id;
+    setFormData((prev) => ({
+      ...prev,
+      timetableName: school.timetable_name ?? prev.timetableName,
+      applicableSchoolGrade:
+        school.applicable_school_grade ?? prev.applicableSchoolGrade,
+      academicTerm: school.academic_term ?? prev.academicTerm,
+      schoolDays: Array.isArray(school.school_days)
+        ? school.school_days
+        : prev.schoolDays,
+      numberOfPeriodsPerDay:
+        school.no_of_periods_per_day != null
+          ? String(school.no_of_periods_per_day)
+          : prev.numberOfPeriodsPerDay,
+      defaultPeriodDuration:
+        school.default_period_duration != null
+          ? String(school.default_period_duration)
+          : prev.defaultPeriodDuration,
+      breakPeriods: Array.isArray(school.break_periods)
+        ? (school.break_periods as Break[])
+        : prev.breakPeriods,
+    }));
+  }, [school, formData.schoolId]);
+
   const handleStepChange = (stepId: string) => {
     setActiveStep(stepId as StepId);
   };
@@ -114,13 +173,55 @@ export default function CreateTimetablePage() {
     router.back();
   };
 
-  const handleSubmit = () => {
-    // Handle final submission
-    console.log("Create timetable submitted", {
-      ...formData,
-    });
-    // In a real app, this would submit to an API
-    router.push("/admin/academic");
+  const handleSubmit = async () => {
+    if (!formData.schoolId) {
+      toast.error("Please select a school.");
+      return;
+    }
+    const noOfPeriods = parseInt(formData.numberOfPeriodsPerDay, 10);
+    const defaultDuration = parseInt(formData.defaultPeriodDuration, 10);
+    if (isNaN(noOfPeriods) || noOfPeriods <= 0) {
+      toast.error("Please enter a valid number of periods per day.");
+      return;
+    }
+    if (isNaN(defaultDuration) || defaultDuration <= 0) {
+      toast.error("Please enter a valid default period duration (minutes).");
+      return;
+    }
+    const applicableGrade =
+      formData.applicableSchoolGrade || formData.applicableSchoolGradeStep2;
+    const academicTerm = formData.academicTerm;
+    if (!formData.timetableName?.trim()) {
+      toast.error("Please enter a timetable name.");
+      return;
+    }
+    if (formData.schoolDays.length === 0) {
+      toast.error("Please select at least one school day.");
+      return;
+    }
+
+    try {
+      await updateTimetable({
+        id: formData.schoolId,
+        data: {
+          timetable_name: formData.timetableName.trim(),
+          applicable_school_grade: applicableGrade || undefined,
+          academic_term: academicTerm || undefined,
+          school_days: formData.schoolDays,
+          no_of_periods_per_day: noOfPeriods,
+          default_period_duration: defaultDuration,
+          break_periods:
+            formData.breakPeriods.length > 0 ? formData.breakPeriods : undefined,
+        },
+      }).unwrap();
+      toast.success("Timetable saved successfully.");
+    } catch (err: unknown) {
+      const msg =
+        err && typeof err === "object" && "data" in err
+          ? (err as { data?: { message?: string } }).data?.message
+          : "Failed to save timetable.";
+      toast.error(String(msg));
+    }
   };
 
   const handleDayToggle = (day: string) => {
@@ -140,6 +241,22 @@ export default function CreateTimetablePage() {
             <h3 className="text-lg font-semibold text-gray-800">
               Define Timetable Scope
             </h3>
+
+            <SelectField
+              label="School"
+              value={formData.schoolId}
+              onValueChange={(value) => {
+                lastPrefilledSchoolId.current = null;
+                setFormData((prev) => ({ ...prev, schoolId: value }));
+              }}
+              placeholder="Select a school"
+            >
+              {schoolsList.map((s) => (
+                <SelectItem key={s.id} value={s.id}>
+                  {s.name}
+                </SelectItem>
+              ))}
+            </SelectField>
 
             <InputField
               label="Timetable Name"
@@ -229,7 +346,7 @@ export default function CreateTimetablePage() {
 
             <InputField
               label="Number of Periods Per Day"
-              placeholder="placeholder"
+              placeholder="e.g. 8"
               type="number"
               value={formData.numberOfPeriodsPerDay}
               onChange={(e) =>
@@ -241,9 +358,9 @@ export default function CreateTimetablePage() {
             />
 
             <InputField
-              label="Default Period Duration"
-              placeholder="placeholder"
-              type="text"
+              label="Default Period Duration (minutes)"
+              placeholder="e.g. 45"
+              type="number"
               value={formData.defaultPeriodDuration}
               onChange={(e) =>
                 setFormData((prev) => ({
@@ -284,29 +401,45 @@ export default function CreateTimetablePage() {
               </div>
             </div>
 
-            <SelectField
-              label="Academic Term"
-              value={formData.academicTermStep2}
-              onValueChange={(value) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  academicTermStep2: value,
-                }))
-              }
-              placeholder="E.g., First Term, Second Term"
-            >
-              {academicTermOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectField>
+            {formData.breakPeriods.length > 0 && (
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Added Breaks/Periods</Label>
+                <ul className="space-y-1 text-sm text-gray-600">
+                  {formData.breakPeriods.map((bp, idx) => (
+                    <li key={idx} className="flex items-center justify-between gap-2">
+                      <span>
+                        {bp.title} ({bp.start_time} - {bp.end_time})
+                      </span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 text-red-600 hover:text-red-700"
+                        onClick={() =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            breakPeriods: prev.breakPeriods.filter((_, i) => i !== idx),
+                          }))
+                        }
+                      >
+                        Remove
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             <div className="flex justify-end gap-3 pt-4">
               <Button variant="outline" onClick={handleBack}>
                 Back
               </Button>
-              <Button onClick={handleSubmit}>Review & Save Template</Button>
+              <Button
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Saving…" : "Review & Save Template"}
+              </Button>
             </div>
           </div>
         );
@@ -357,8 +490,17 @@ export default function CreateTimetablePage() {
         open={breakModalOpen}
         onOpenChange={setBreakModalOpen}
         onSubmit={(data) => {
-          console.log("Break/Period added", data);
-          // Handle break/period addition
+          const { start_time, end_time } = timeRangeTo24h(data.timeRange);
+          const newBreak: Break = {
+            title: data.title,
+            type: "break",
+            start_time,
+            end_time,
+          };
+          setFormData((prev) => ({
+            ...prev,
+            breakPeriods: [...prev.breakPeriods, newBreak],
+          }));
         }}
       />
     </div>

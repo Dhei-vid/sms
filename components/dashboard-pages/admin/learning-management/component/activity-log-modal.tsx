@@ -21,72 +21,38 @@ interface ActivityLogModalProps {
   onOpenChange: (open: boolean) => void;
   staffName?: string;
   activities?: ActivityLogEntry[];
-  onAddAdministrativeNote?: (note: string) => void;
+  isLoading?: boolean;
+  isAddingNote?: boolean;
+  onAddAdministrativeNote?: (note: string) => void | Promise<void>;
   onLoadMore?: () => void;
   hasMore?: boolean;
 }
-
-const mockActivities: ActivityLogEntry[] = [
-  {
-    id: "1",
-    loggedAction: "Lesson Plan Submitted",
-    dateTime: new Date(2025, 10, 7, 10, 45),
-    associatedCourseResource: "SS2 Physics",
-    status: "Pending HOD Approval",
-  },
-  {
-    id: "2",
-    loggedAction: "Course Content Upload",
-    dateTime: new Date(2025, 10, 7, 10, 45),
-    associatedCourseResource: "Video: Energy Conservation",
-    status: "Pending Review",
-  },
-  {
-    id: "3",
-    loggedAction: "LMS Login",
-    dateTime: new Date(2025, 10, 7, 10, 45),
-    associatedCourseResource: "N/A",
-    status: "Successfully logged in.",
-  },
-  {
-    id: "4",
-    loggedAction: "Quiz Edited",
-    dateTime: new Date(2025, 10, 7, 10, 45),
-    associatedCourseResource: "JSS3 Maths Quiz 2",
-    status: "Saved as Draft.",
-  },
-];
 
 export function ActivityLogModal({
   open,
   onOpenChange,
   staffName,
-  activities = mockActivities,
+  activities,
+  isLoading = false,
+  isAddingNote = false,
   onAddAdministrativeNote,
   onLoadMore,
   hasMore = false,
 }: ActivityLogModalProps) {
   const [addNoteModalOpen, setAddNoteModalOpen] = useState(false);
+  const activityList = activities ?? [];
   const [activityLog, setActivityLog] =
-    useState<ActivityLogEntry[]>(activities);
+    useState<ActivityLogEntry[]>(activityList);
 
-  // Update activity log when activities prop changes
+  // Sync activity log from server (includes persisted administrative notes)
   React.useEffect(() => {
-    setActivityLog(activities);
-  }, [activities]);
+    setActivityLog(activityList);
+  }, [activityList]);
 
-  const handleAddNote = (note: string) => {
-    // Add the administrative note as a new activity log entry
-    const newEntry: ActivityLogEntry = {
-      id: `note-${Date.now()}`,
-      loggedAction: "Administrative Note Added",
-      dateTime: new Date(),
-      associatedCourseResource: "N/A",
-      status: note,
-    };
-    setActivityLog((prev) => [newEntry, ...prev]);
+  const handleAddNote = async (note: string) => {
     if (onAddAdministrativeNote) {
-      onAddAdministrativeNote(note);
+      await onAddAdministrativeNote(note);
+      setAddNoteModalOpen(false);
     }
   };
 
@@ -106,7 +72,7 @@ export function ActivityLogModal({
     {
       key: "associatedCourseResource",
       title: "Associated Course/Resource",
-      render: (value) => <span className="text-sm">{value}</span>,
+      render: (value) => <span className="text-sm">{value ?? "—"}</span>,
     },
     {
       key: "status",
@@ -136,13 +102,19 @@ export function ActivityLogModal({
     >
       <div className="border rounded-lg overflow-hidden">
         <div className="overflow-x-auto max-h-[60vh]">
-          <DataTable
-            columns={columns}
-            data={activityLog}
-            emptyMessage="No activity log entries found."
-            tableClassName="border-collapse"
-            showActionsColumn={false}
-          />
+          {isLoading ? (
+            <div className="py-8 text-center text-muted-foreground text-sm">
+              Loading activity log…
+            </div>
+          ) : (
+            <DataTable
+              columns={columns}
+              data={activityLog}
+              emptyMessage="No activity log entries found."
+              tableClassName="border-collapse"
+              showActionsColumn={false}
+            />
+          )}
         </div>
       </div>
 
@@ -152,6 +124,7 @@ export function ActivityLogModal({
         onOpenChange={setAddNoteModalOpen}
         onSendNote={handleAddNote}
         staffName={staffName}
+        isSubmitting={isAddingNote}
       />
     </ModalContainer>
   );

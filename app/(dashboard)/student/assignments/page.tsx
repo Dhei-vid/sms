@@ -81,13 +81,15 @@ export default function AssignmentsPage() {
           status = "Overdue";
         }
 
+        const courseName =
+          (assignment as Record<string, unknown>).courseName;
+        const subjectStr: string =
+          typeof courseName === "string" ? courseName : "N/A";
+
         return {
           ...assignment,
           assignmentName: assignment.title ?? "Untitled",
-          subject:
-            typeof assignment.courseName === "string"
-              ? assignment.courseName
-              : "N/A",
+          subject: subjectStr,
           totalMarks:
             maxScoreNum > 0 ? `${maxScoreNum} Marks` : "N/A",
           dueDateTime: assignment.dueDate
@@ -97,18 +99,18 @@ export default function AssignmentsPage() {
           actionLabel,
           grade,
           maxScore: maxScoreNum > 0 ? maxScoreNum : undefined,
-        };
+        } satisfies AssignmentRow;
       })
-      .filter((assignment) => {
+      .filter((row) => {
         if (!searchQuery) return true;
         const query = searchQuery.toLowerCase();
-        const title = String(assignment.title ?? "");
-        const subject = String(assignment.subject ?? "");
+        const title = String(row.title ?? "");
+        const subject = String(row.subject ?? "");
         return (
           title.toLowerCase().includes(query) ||
           subject.toLowerCase().includes(query)
         );
-      }) as AssignmentRow[];
+      });
   }, [assignmentsData, gradesData, searchQuery]);
 
   const upcomingAssignments = assignments.filter((assignment) => {
@@ -155,7 +157,7 @@ export default function AssignmentsPage() {
         )
       : 0;
 
-  const nextUpcomingQuiz = upcomingAssignments.find((a) => a.type === "quiz");
+  const nextUpcomingQuiz = upcomingAssignments.find((a) =>  a.id);
 
   const latestGraded = [...gradedAssignments].sort((a, b) => {
     const aAt = a.grade?.createdAt;

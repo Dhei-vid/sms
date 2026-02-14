@@ -13,7 +13,6 @@ interface GradingWeightingFormProps {
     data: Partial<GradingWeightingFormProps["formData"]>,
   ) => void;
   onBack: () => void;
-  onSaveDraft: () => void;
   onSaveContinue: () => void;
 }
 
@@ -21,7 +20,6 @@ export function GradingWeightingForm({
   formData,
   onFormDataChange,
   onBack,
-  onSaveDraft,
   onSaveContinue,
 }: GradingWeightingFormProps) {
   return (
@@ -64,9 +62,6 @@ export function GradingWeightingForm({
       <div className="flex justify-end gap-3 pt-4">
         <Button variant="outline" onClick={onBack}>
           Back
-        </Button>
-        <Button variant="outline" onClick={onSaveDraft}>
-          Save as Draft
         </Button>
         <Button className="w-60" onClick={onSaveContinue}>
           Save & Continue

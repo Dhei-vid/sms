@@ -1,13 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { StepNavigation, Step } from "@/components/ui/step-navigation";
 import { AssignmentsIcon, ResourcesAddIcon } from "@hugeicons/core-free-icons";
 import { useRouter } from "next/navigation";
+import { useAppSelector } from "@/store/hooks";
+import { selectUser } from "@/store/slices/authSlice";
+import { toast } from "sonner";
 import { BasicExamDefinitionForm } from "@/components/dashboard-pages/admin/cbt-management/forms/basic-exam-definition-form";
 import { QuestionSelectionForm } from "@/components/dashboard-pages/admin/cbt-management/forms/question-selection-form";
 import { AccessRulesForm } from "@/components/dashboard-pages/admin/cbt-management/forms/access-rules-form";
+import { useCreateCbtExamMutation } from "@/services/cbt-exams/cbt-exams";
+import { useGetSubjectsQuery } from "@/services/subjects/subjects";
+import { useGetSchoolsQuery } from "@/services/schools/schools";
+import type { Subject } from "@/services/subjects/subject-types";
+import type { School } from "@/services/schools/schools-type";
+import { format } from "date-fns";
+import { getApiErrorMessage } from "@/lib/format-api-error";
 
 type StepId = "basic" | "question" | "access";
 
@@ -29,29 +39,8 @@ const steps: Step[] = [
   },
 ];
 
-const initialData = {
-  // Step 1: Basic Exam Definition
-  examName: "",
-  applicableSubject: "",
-  applicableGrade: "",
-  totalMarks: "",
-  totalQuestions: "",
-  timeAllowed: "",
-  examMode: "",
-
-  // Step 2: Question Selection
-  questionShuffle: false,
-  answerShuffle: false,
-  partialCredit: false,
-
-  // Step 3: Access Rules
-  date: undefined as Date | undefined,
-  time: "",
-  maxAttempts: "",
-  displayResults: "",
-};
-
 interface CBTExamFormData {
+  schoolId: string;
   examName: string;
   applicableSubject: string;
   applicableGrade: string;
@@ -66,15 +55,60 @@ interface CBTExamFormData {
   time: string;
   maxAttempts: string;
   displayResults: string;
+  locationVenue: string;
 }
 
-const subjectOptions = [
-  { value: "biology", label: "Biology" },
-  { value: "chemistry", label: "Chemistry" },
-  { value: "physics", label: "Physics" },
-  { value: "mathematics", label: "Mathematics" },
-  { value: "english", label: "English Language" },
-];
+const getInitialData = (userSchoolId: string | null): CBTExamFormData => ({
+  schoolId: userSchoolId ?? "",
+  examName: "",
+  applicableSubject: "",
+  applicableGrade: "",
+  totalMarks: "",
+  totalQuestions: "",
+  timeAllowed: "",
+  examMode: "",
+  questionShuffle: false,
+  answerShuffle: false,
+  partialCredit: false,
+  date: undefined,
+  time: "",
+  maxAttempts: "",
+  displayResults: "",
+  locationVenue: "",
+});
+
+function getSubjectsList(data: unknown): Subject[] {
+  if (!data || typeof data !== "object") return [];
+  const d = data as { data?: Subject[] | { data?: Subject[] } };
+  if (Array.isArray(d.data)) return d.data;
+  if (d.data && typeof d.data === "object" && Array.isArray((d.data as { data?: Subject[] }).data)) {
+    return (d.data as { data: Subject[] }).data;
+  }
+  return [];
+}
+
+function getSchoolsList(data: unknown): School[] {
+  if (!data || typeof data !== "object") return [];
+  const d = data as { data?: School[] | { data?: School[] } };
+  if (Array.isArray(d.data)) return d.data;
+  if (d.data && typeof d.data === "object" && Array.isArray((d.data as { data?: School[] }).data)) {
+    return (d.data as { data: School[] }).data;
+  }
+  return [];
+}
+
+/** Convert "HH:mm AM/PM" from TimeInput to Django time format "HH:mm" (24-hour). */
+function to24HourTime(timeStr: string): string | undefined {
+  if (!timeStr || typeof timeStr !== "string") return undefined;
+  const match = timeStr.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!match) return undefined;
+  let hour = parseInt(match[1], 10);
+  const minute = match[2];
+  const period = match[3].toUpperCase();
+  if (period === "PM" && hour !== 12) hour += 12;
+  if (period === "AM" && hour === 12) hour = 0;
+  return `${String(hour).padStart(2, "0")}:${minute}`;
+}
 
 const gradeOptions = [
   { value: "jss-1", label: "JSS 1" },
@@ -99,8 +133,32 @@ const displayResultsOptions = [
 
 export default function NewCBTExamPage() {
   const router = useRouter();
+  const user = useAppSelector(selectUser);
+  const [createCbtExam, { isLoading: isCreating }] = useCreateCbtExamMutation();
+  const { data: subjectsResponse, isLoading: isLoadingSubjects } = useGetSubjectsQuery({ _all: true });
+  const { data: schoolsResponse, isLoading: isLoadingSchools } = useGetSchoolsQuery({ _all: true });
+  const subjectsList = useMemo(() => getSubjectsList(subjectsResponse), [subjectsResponse]);
+  const schoolsList = useMemo(() => getSchoolsList(schoolsResponse), [schoolsResponse]);
+  const subjectOptions = useMemo(
+    () =>
+      subjectsList.map((s) => ({
+        value: s.name,
+        label: s.name,
+      })),
+    [subjectsList],
+  );
+  const schoolOptions = useMemo(
+    () =>
+      schoolsList.map((s) => ({
+        value: s.id,
+        label: s.name,
+      })),
+    [schoolsList],
+  );
   const [activeStep, setActiveStep] = useState<StepId>("basic");
-  const [formData, setFormData] = useState<CBTExamFormData>(initialData);
+  const [formData, setFormData] = useState<CBTExamFormData>(() =>
+    getInitialData(user?.school_id ?? null),
+  );
 
   const handleStepChange = (stepId: string) => {
     setActiveStep(stepId as StepId);
@@ -118,10 +176,59 @@ export default function NewCBTExamPage() {
     router.back();
   };
 
-  const handleSaveAndSelectQuestions = () => {
-    console.log("Save and select questions", { ...formData });
-    // Handle save and select questions
-    router.push("/admin/cbt-management");
+  const handleSaveAndSelectQuestions = async () => {
+    const selectedSchool =
+      formData.schoolId != null && String(formData.schoolId).trim() !== ""
+        ? String(formData.schoolId).trim()
+        : "";
+    const schoolId = selectedSchool || (user != null ? user.school_id : null) || null;
+    if (!schoolId) {
+      toast.error("Please select a school.");
+      return;
+    }
+    if (!formData.examName?.trim()) {
+      toast.error("Exam name is required.");
+      return;
+    }
+    if (formData.totalMarks?.trim()) {
+      const totalMarks = parseInt(formData.totalMarks.trim(), 10);
+      if (isNaN(totalMarks) || totalMarks < 100) {
+        toast.error("Total marks must be 100 or greater.");
+        return;
+      }
+    }
+    const scheduleTime24 = formData.time ? to24HourTime(formData.time) : undefined;
+    const payload = {
+      school_id: schoolId,
+      title: formData.examName.trim(),
+      category: formData.examMode || "others",
+      subject: formData.applicableSubject || formData.examName.trim(),
+      duration: formData.timeAllowed ? parseInt(formData.timeAllowed, 10) : undefined,
+      total_questions: formData.totalQuestions ? parseInt(formData.totalQuestions, 10) : undefined,
+      total_marks_available: formData.totalMarks ? parseInt(formData.totalMarks, 10) : undefined,
+      applicable_grades: formData.applicableGrade || undefined,
+      applicable_subjects: formData.applicableSubject || undefined,
+      type: formData.examMode === "final-exam" ? "final" : formData.examMode || "others",
+      schedule_date: formData.date ? format(formData.date, "yyyy-MM-dd") : undefined,
+      ...(scheduleTime24 ? { schedule_time: scheduleTime24 } : {}),
+      max_attempt: formData.maxAttempts ? parseInt(formData.maxAttempts, 10) : undefined,
+      display_result: formData.displayResults || undefined,
+      question_shuffle: formData.questionShuffle,
+      answer_shuffle: formData.answerShuffle,
+      partial_credit: formData.partialCredit,
+      ...(formData.locationVenue.trim() ? { location_venue: formData.locationVenue.trim() } : {}),
+    };
+    try {
+      await createCbtExam(payload).unwrap();
+      toast.success("CBT exam created successfully.");
+      router.push("/admin/cbt-management");
+    } catch (err) {
+      // baseApi already shows a toast with getApiErrorMessage; show again here so form errors are visible if global toast was skipped
+      const data = err && typeof err === "object" && "data" in err
+        ? (err as { data?: unknown }).data
+        : undefined;
+      toast.error(getApiErrorMessage(data, "Failed to create CBT exam."));
+    }
   };
 
   const renderStepContent = () => {
@@ -130,6 +237,7 @@ export default function NewCBTExamPage() {
         return (
           <BasicExamDefinitionForm
             formData={{
+              schoolId: formData.schoolId,
               examName: formData.examName,
               applicableSubject: formData.applicableSubject,
               applicableGrade: formData.applicableGrade,
@@ -143,9 +251,12 @@ export default function NewCBTExamPage() {
             }
             onCancel={handleCancel}
             onNext={() => setActiveStep("question")}
+            schoolOptions={schoolOptions}
             subjectOptions={subjectOptions}
             gradeOptions={gradeOptions}
             examModeOptions={examModeOptions}
+            isLoadingSchools={isLoadingSchools}
+            isLoadingSubjects={isLoadingSubjects}
           />
         );
 
@@ -174,6 +285,7 @@ export default function NewCBTExamPage() {
               time: formData.time,
               maxAttempts: formData.maxAttempts,
               displayResults: formData.displayResults,
+              locationVenue: formData.locationVenue,
             }}
             onFormDataChange={(data) =>
               setFormData((prev) => ({ ...prev, ...data }))
@@ -182,6 +294,7 @@ export default function NewCBTExamPage() {
             onCancel={handleCancel}
             onSaveAndSelectQuestions={handleSaveAndSelectQuestions}
             displayResultsOptions={displayResultsOptions}
+            isLoading={isCreating}
           />
         );
 

@@ -48,9 +48,7 @@ export default function AdminStudentAssignmentsPage() {
         if (!searchQuery) return true;
         const q = searchQuery.toLowerCase();
         return (
-          (assignment.title ?? "").toLowerCase().includes(q) ||
-          (assignment.courseName ?? "").toLowerCase().includes(q) ||
-          (assignment.subject ?? "").toLowerCase().includes(q)
+          (assignment.title ?? "").toLowerCase().includes(q)
         );
       });
   }, [assignmentsData, searchQuery]);
@@ -196,7 +194,8 @@ export default function AdminStudentAssignmentsPage() {
             ) : (
               <DataTable
                 columns={columns}
-                data={assignments}
+                data={[]
+                }
                 showActionsColumn={false}
               />
             )}

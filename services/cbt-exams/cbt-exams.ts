@@ -1,5 +1,5 @@
 import { baseApi } from "../baseApi";
-import type { CreateCBTExamsPayload } from "./cbt-exam-types";
+import type { CreateCBTExamsPayload, CbtExam, CbtExamsQueryParams } from "./cbt-exam-types";
 import type {
   ApiResponse,
   ApiListResponse,
@@ -11,23 +11,29 @@ const BASE = "/cbts/exams";
 export const cbtExamsApi = baseApi.injectEndpoints({
   overrideExisting: true,
   endpoints: (build) => ({
-    getCbtExams: build.query<ApiListResponse<unknown>, void>({
-      query: () => ({ url: BASE }),
+    getCbtExams: build.query<
+      ApiListResponse<CbtExam> | ApiResponse<CbtExam[]>,
+      CbtExamsQueryParams | void
+    >({
+      query: (params) => ({
+        url: BASE,
+        params: params?._all ? { _all: "true", ...params } : params ?? {},
+      }),
       providesTags: ["CbtExam"],
     }),
 
-    getCbtExamById: build.query<ApiResponse<unknown>, string>({
+    getCbtExamById: build.query<ApiResponse<CbtExam>, string>({
       query: (id) => ({ url: `${BASE}/${id}` }),
       providesTags: (_, __, id) => [{ type: "CbtExam", id }],
     }),
 
-    createCbtExam: build.mutation<ApiResponse<unknown>, CreateCBTExamsPayload>({
+    createCbtExam: build.mutation<ApiResponse<CbtExam>, CreateCBTExamsPayload>({
       query: (body) => ({ url: BASE, method: "POST", body }),
       invalidatesTags: ["CbtExam"],
     }),
 
     updateCbtExam: build.mutation<
-      ApiResponse<unknown>,
+      ApiResponse<CbtExam>,
       { id: string; data: Partial<CreateCBTExamsPayload> }
     >({
       query: ({ id, data }) => ({

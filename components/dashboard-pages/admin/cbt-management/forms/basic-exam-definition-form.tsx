@@ -7,6 +7,7 @@ import { SelectItem } from "@/components/ui/select";
 
 interface BasicExamDefinitionFormProps {
   formData: {
+    schoolId: string;
     examName: string;
     applicableSubject: string;
     applicableGrade: string;
@@ -20,9 +21,12 @@ interface BasicExamDefinitionFormProps {
   ) => void;
   onCancel: () => void;
   onNext: () => void;
+  schoolOptions: { value: string; label: string }[];
   subjectOptions: { value: string; label: string }[];
   gradeOptions: { value: string; label: string }[];
   examModeOptions: { value: string; label: string }[];
+  isLoadingSchools?: boolean;
+  isLoadingSubjects?: boolean;
 }
 
 export function BasicExamDefinitionForm({
@@ -30,15 +34,42 @@ export function BasicExamDefinitionForm({
   onFormDataChange,
   onCancel,
   onNext,
+  schoolOptions,
   subjectOptions,
   gradeOptions,
   examModeOptions,
+  isLoadingSchools = false,
+  isLoadingSubjects = false,
 }: BasicExamDefinitionFormProps) {
+  const totalMarksNum = formData.totalMarks.trim() !== "" ? parseInt(formData.totalMarks, 10) : NaN;
+  const totalMarksInvalid = !isNaN(totalMarksNum) && totalMarksNum < 100;
+  const totalMarksError = formData.totalMarks.trim() !== "" && (isNaN(totalMarksNum) || totalMarksInvalid);
+
   return (
     <div className="space-y-6">
       <h3 className="text-lg font-semibold text-gray-800">
         Basic Exam Definition
       </h3>
+
+      <SelectField
+        label="School"
+        value={formData.schoolId}
+        onValueChange={(value) => onFormDataChange({ schoolId: value })}
+        placeholder={isLoadingSchools ? "Loading schools…" : "Select a school"}
+        disabled={isLoadingSchools}
+      >
+        {schoolOptions.length > 0 ? (
+          schoolOptions.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))
+        ) : (
+          <SelectItem value="__none__" disabled>
+            {isLoadingSchools ? "Loading…" : "No schools found"}
+          </SelectItem>
+        )}
+      </SelectField>
 
       <InputField
         label="Exam Name"
@@ -53,13 +84,20 @@ export function BasicExamDefinitionForm({
         onValueChange={(value) =>
           onFormDataChange({ applicableSubject: value })
         }
-        placeholder="Dropdown Select: (e.g., Biology)"
+        placeholder={isLoadingSubjects ? "Loading subjects…" : "Dropdown Select: (e.g., Biology)"}
+        disabled={isLoadingSubjects}
       >
-        {subjectOptions.map((option) => (
-          <SelectItem key={option.value} value={option.value}>
-            {option.label}
+        {subjectOptions.length > 0 ? (
+          subjectOptions.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))
+        ) : (
+          <SelectItem value="__none__" disabled>
+            {isLoadingSubjects ? "Loading…" : "No subjects found"}
           </SelectItem>
-        ))}
+        )}
       </SelectField>
 
       <SelectField
@@ -75,13 +113,23 @@ export function BasicExamDefinitionForm({
         ))}
       </SelectField>
 
-      <InputField
-        label="Total Marks"
-        type="number"
-        placeholder="Number Input (e.g., 50)"
-        value={formData.totalMarks}
-        onChange={(e) => onFormDataChange({ totalMarks: e.target.value })}
-      />
+      <div className="space-y-1">
+        <InputField
+          label="Total Marks"
+          type="number"
+          min={100}
+          placeholder="e.g. 100 (minimum 100)"
+          value={formData.totalMarks}
+          onChange={(e) => onFormDataChange({ totalMarks: e.target.value })}
+          className={totalMarksError ? "border-destructive" : undefined}
+          aria-invalid={totalMarksError}
+        />
+        {totalMarksError && (
+          <p className="text-sm text-destructive">
+            Total marks must be 100 or greater.
+          </p>
+        )}
+      </div>
 
       <InputField
         label="Total Questions"
@@ -116,7 +164,7 @@ export function BasicExamDefinitionForm({
         <Button variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-        <Button className="w-60" onClick={onNext}>
+        <Button className="w-60" onClick={onNext} disabled={totalMarksError}>
           Next
         </Button>
       </div>

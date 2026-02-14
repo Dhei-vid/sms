@@ -230,7 +230,7 @@ export const menuItems: MenuItem[] = [
         label: "Reporting & Compliance",
         icon: ArrowRight02Icon,
         href: "/finance/reporting-and-compliance",
-        roles: ["admin"],
+        roles: [],
       },
     ],
   },
@@ -309,7 +309,7 @@ export const menuItems: MenuItem[] = [
     label: "Report & Analysis",
     icon: AnalyticsUpIcon,
     href: "/reports",
-    roles: ["admin"],
+    roles: [],
   },
   {
     id: "alumni-management",

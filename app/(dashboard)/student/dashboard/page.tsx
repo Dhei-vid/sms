@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { useAppSelector } from "@/store/hooks";
 import { selectUser } from "@/store/slices/authSlice";
 import { MetricCard } from "@/components/dashboard-pages/admin/admissions/components/metric-card";
@@ -7,33 +8,37 @@ import { WalletBalanceCard } from "@/components/dashboard-pages/student/dashboar
 import { UpcomingEventsCard } from "@/components/dashboard-pages/student/dashboard/upcoming-events-card";
 import { StudentNoticeBoardCard } from "@/components/dashboard-pages/student/dashboard/notice-board-card";
 import { PersonalTaskList } from "@/components/dashboard-pages/student/dashboard/personal-task-list";
-import { useGetCoursesQuery } from "@/services/shared";
 import { useGetAssignmentsQuery } from "@/services/shared";
-import { useGetNoticesQuery } from "@/services/shared";
+import { useGetNotificationsQuery } from "@/services/shared";
 import { useGetCalendarEventsQuery } from "@/services/shared";
-import { useGetStudentByIdQuery } from "@/services/shared";
+import { useGetAllStudentsQuery } from "@/services/stakeholders/stakeholders";
 import { useGetWalletBalanceQuery } from "@/services/wallet/wallet";
 import { format } from "date-fns";
 
 export default function StudentDashboard() {
   const user = useAppSelector(selectUser);
 
-  // Fetch student data by ID - this ensures data is cached and shared across dashboards
-  // When admin/parent views this same student, they'll get cached data
-  const { data: studentData } = useGetStudentByIdQuery(user?.id || "", {
-    skip: !user?.id, // Skip if no user ID
+  const { data: studentsResponse } = useGetAllStudentsQuery(undefined, {
+    skip: !user?.id,
   });
 
-  console.log("User ", user);
+  const student = useMemo(() => {
+    if (!user?.id || !studentsResponse?.data) return null;
+    return (
+      studentsResponse.data.find(
+        (s) => s.user_id === user.id || s.user?.id === user.id,
+      ) ?? null
+    );
+  }, [user?.id, studentsResponse?.data]);
 
-  // Use student data if available, fallback to auth user
-  const student = studentData || user;
-
-  const { data: coursesData } = useGetCoursesQuery({ limit: 10 });
   const { data: assignmentsData } = useGetAssignmentsQuery(
-    student?.id ? { studentId: student.id, limit: 5 } : undefined,
+    user?.id ? { studentId: user.id, limit: 5 } : undefined,
+    { skip: !user?.id },
   );
-  const { data: noticesData } = useGetNoticesQuery({ limit: 2 });
+  const { data: notificationsData } = useGetNotificationsQuery(
+    { limit: 5 },
+    { skip: !user?.id },
+  );
   const { data: calendarData } = useGetCalendarEventsQuery({ limit: 2 });
   const { data: walletData } = useGetWalletBalanceQuery(user?.id ?? undefined, {
     skip: !user?.id,
@@ -46,29 +51,42 @@ export default function StudentDashboard() {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       return dueDate >= today;
-    }) || [];
+    }) ?? [];
 
-  const upcomingEvents =
-    calendarData?.data?.map((event) => ({
-      title: event.title,
-      description: event.description || "",
-      date: event.startDate
-        ? format(new Date(event.startDate), "MMM d, yyyy; h:mm a")
-        : "",
-    })) || [];
+  const upcomingEvents = useMemo(
+    () =>
+      calendarData?.data?.map((event) => ({
+        title: event.title ?? "",
+        description: event.description ?? "",
+        date: event.startDate
+          ? format(new Date(event.startDate), "MMM d, yyyy; h:mm a")
+          : "",
+      })) ?? [],
+    [calendarData?.data],
+  );
 
-  const latestNotices = noticesData?.data?.slice(0, 2) || [];
+  const latestNotices = useMemo(() => {
+    const list = notificationsData?.data ?? [];
+    const forStudent = list.filter(
+      (n) =>
+        n.target_audience === "general" ||
+        (Array.isArray(n.specifics) && n.specifics.includes("student")),
+    );
+    return forStudent.slice(0, 5);
+  }, [notificationsData?.data]);
 
-  const nextClass = upcomingEvents[0] || null;
+  const nextClass = upcomingEvents[0] ?? null;
 
-  const displayName = student
-    ? `${student.first_name || ""} ${student.last_name || ""}`.trim() ||
-      student.first_name ||
+  const displayName = student?.user
+    ? `${student.user.first_name ?? ""} ${student.user.last_name ?? ""}`.trim() ||
+      student.user.first_name ||
       "Student"
-    : "Student";
-  const displayEmail = student?.email || "";
-  const className =
-    (student as any)?.className || (student as any)?.class?.name || "";
+    : user
+      ? `${user.first_name ?? ""} ${user.last_name ?? ""}`.trim() || user.first_name || "Student"
+      : "Student";
+  const displayEmail =
+    student?.user?.email ?? student?.school_email ?? user?.email ?? "";
+  const className = student?.class_assigned ?? "";
 
   return (
     <div className="space-y-4">
@@ -125,7 +143,9 @@ export default function StudentDashboard() {
               : undefined
           }
           lastTransaction={
-            walletData?.data?.updated_at
+            walletData?.data &&
+            "updated_at" in walletData.data &&
+            walletData.data.updated_at
               ? format(
                   new Date(walletData.data.updated_at),
                   "MMM d, yyyy; h:mm a",
@@ -143,10 +163,10 @@ export default function StudentDashboard() {
         {/* Today on the Notice Board */}
         <StudentNoticeBoardCard
           notices={latestNotices.map((notice) => ({
-            title: notice.title,
-            description: notice.content || "",
-            time: notice.createdAt
-              ? format(new Date(notice.createdAt), "MMM d, yyyy; h:mm a")
+            title: notice.title ?? "",
+            description: notice.content ?? "",
+            time: notice.created_at
+              ? format(new Date(notice.created_at), "MMM d, yyyy; h:mm a")
               : "",
           }))}
         />

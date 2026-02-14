@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,13 @@ import {
   TransactionHistoryIcon,
 } from "@hugeicons/core-free-icons";
 import { cn } from "@/lib/utils";
+import { useGetAcademicAnalyticsQuery } from "@/services/results/results";
+import {
+  useGetStudentMetricsQuery,
+  useGetStaffUtilizationQuery,
+} from "@/services/stakeholders/stakeholders";
+import { useGetExamSchedulesQuery } from "@/services/schedules/schedules";
+import { format } from "date-fns";
 
 interface AcademicTask {
   id: string;
@@ -25,16 +32,25 @@ interface AcademicTask {
   assignedTo: string;
 }
 
-const gradeDistribution = [
-  { label: "A-Grade", value: 70, color: "bg-teal-500" },
-  { label: "B-Grade", value: 45, color: "bg-orange-500" },
-  { label: "C-Grade", value: 65, color: "bg-purple-500" },
-  { label: "D-Grade", value: 25, color: "bg-blue-500" },
-  { label: "E-Grade", value: 10, color: "bg-red-500" },
-  { label: "F-Grade", value: 5, color: "bg-gray-400" },
-];
+const GRADE_COLORS: Record<string, string> = {
+  "A-Grade": "bg-teal-500",
+  "B-Grade": "bg-orange-500",
+  "C-Grade": "bg-purple-500",
+  "D-Grade": "bg-blue-500",
+  "E-Grade": "bg-red-500",
+  "F-Grade": "bg-gray-400",
+};
 
-const staffUtilization = [
+function scoreToLetter(score: number): string {
+  if (score >= 70) return "A";
+  if (score >= 60) return "B";
+  if (score >= 50) return "C";
+  if (score >= 45) return "D";
+  if (score >= 40) return "E";
+  return "F";
+}
+
+const DEFAULT_STAFF_UTILIZATION = [
   { label: "Teaching Time", value: 70, color: "bg-blue-600" },
   { label: "Admin/Duty", value: 18, color: "bg-blue-300" },
   { label: "Free Periods", value: 12, color: "bg-orange-500" },
@@ -63,30 +79,6 @@ const quickActions = [
   },
 ];
 
-const upcomingTasks: AcademicTask[] = [
-  {
-    id: "1",
-    type: "Assessment Setup",
-    date: "Nov 08, 2025",
-    description: "SS2 Chemistry Mid-Term Exam (Upload Questions)",
-    assignedTo: "Mr. Uche E.",
-  },
-  {
-    id: "2",
-    type: "Administrative Duty",
-    date: "Nov. 11, 2025",
-    description: "SS3 Mock Exam Invigilation (Hall B)",
-    assignedTo: "Dr. Femi I.",
-  },
-  {
-    id: "3",
-    type: "Grade Submission",
-    date: "Nov. 22, 2025",
-    description: "Primary 4 Art (Submit Continuous Assessment Scores)",
-    assignedTo: "Mrs. Kemi O.",
-  },
-];
-
 const classOptions = [
   { value: "all", label: "All Classes" },
   { value: "primary", label: "Primary" },
@@ -105,6 +97,73 @@ export default function AcademicManagementPage() {
   const [selectedClass, setSelectedClass] = useState("all");
   const [selectedYear, setSelectedYear] = useState("2025-2026");
   const [assignDutyModalOpen, setAssignDutyModalOpen] = useState(false);
+
+  const currentYear = new Date().getFullYear();
+  const sessionParam = selectedYear === "all" ? undefined : selectedYear;
+
+  const { data: analyticsData } = useGetAcademicAnalyticsQuery({
+    session: sessionParam,
+    class_name: selectedClass === "all" ? undefined : selectedClass,
+  });
+
+  const { data: studentMetricsResponse } = useGetStudentMetricsQuery();
+  const { data: staffUtilizationResponse } = useGetStaffUtilizationQuery();
+
+  const staffUtilization =
+    staffUtilizationResponse?.data?.breakdown ?? DEFAULT_STAFF_UTILIZATION;
+
+  const today = format(new Date(), "yyyy-MM-dd");
+  const thirtyDaysLater = format(
+    new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    "yyyy-MM-dd"
+  );
+  const { data: examSchedulesResponse } = useGetExamSchedulesQuery({
+    dateFrom: today,
+    dateTo: thirtyDaysLater,
+  });
+
+  const analytics = analyticsData;
+  const studentMetrics = studentMetricsResponse?.data;
+
+  const gradeDistribution = useMemo(() => {
+    const dist = analytics?.grade_distribution ?? [
+      { label: "A-Grade", grade: "A+", value: 0 },
+      { label: "B-Grade", grade: "B", value: 0 },
+      { label: "C-Grade", grade: "C", value: 0 },
+      { label: "D-Grade", grade: "D", value: 0 },
+      { label: "E-Grade", grade: "E", value: 0 },
+      { label: "F-Grade", grade: "F", value: 0 },
+    ];
+    const maxVal = Math.max(1, ...dist.map((d) => d.value));
+    return dist.map((d) => ({
+      ...d,
+      color: GRADE_COLORS[d.label] ?? "bg-gray-400",
+      barHeight: Math.round((d.value / maxVal) * 100),
+    }));
+  }, [analytics?.grade_distribution]);
+
+  const upcomingTasks: AcademicTask[] = useMemo(() => {
+    const schedules = examSchedulesResponse?.data ?? [];
+    return schedules.slice(0, 5).map((s, i) => {
+      const inv = s.invigilator as { user?: { first_name?: string; last_name?: string } } | null | undefined;
+      const name = inv?.user ? `${inv.user.first_name ?? ""} ${inv.user.last_name ?? ""}`.trim() : "Unassigned";
+      return {
+        id: s.id || String(i),
+        type: "Exam",
+        date: s.date
+          ? format(new Date(s.date), "MMM dd, yyyy") +
+            (s.start_time
+              ? ` (${String(s.start_time).slice(0, 5)} - ${s.end_time ? String(s.end_time).slice(0, 5) : "—"})`
+              : "")
+          : "—",
+        description: s.title || s.description || "Scheduled exam",
+        assignedTo: name || "Unassigned",
+      };
+    });
+  }, [examSchedulesResponse?.data]);
+
+  const averageScore = analytics?.average_score ?? 0;
+  const averageGradeDisplay = `${averageScore.toFixed(1)}% (${scoreToLetter(averageScore)})`;
 
   // Calculate donut chart segments
   const total = staffUtilization.reduce((sum, item) => sum + item.value, 0);
@@ -139,13 +198,13 @@ export default function AcademicManagementPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FinancialMetricCard
           title="Average Student Grade (Current Term)"
-          value="78.5% (B)"
-          subtitle="Tracks overall academic performance."
+          value={averageGradeDisplay}
+          subtitle={`Tracks overall academic performance.${studentMetrics?.academic_at_risk?.count ? ` ${studentMetrics.academic_at_risk.count} students at risk.` : ""}`}
           trend="up"
         />
         <FinancialMetricCard
           title="Staff Workload Utilization"
-          value="85%"
+          value={`${staffUtilization.find((s) => s.label === "Teaching Time")?.value ?? 0}%`}
           subtitle="Measures teacher time allocated to classes."
           trend="up"
         />
@@ -186,20 +245,27 @@ export default function AcademicManagementPage() {
                   <div className="w-full flex flex-col items-center justify-end h-full">
                     <div
                       className={cn(
-                        "w-full rounded-t transition-all",
+                        "w-full rounded-t transition-all min-h-[4px]",
                         grade.color,
                       )}
-                      style={{ height: `${grade.value}%` }}
+                      style={{ height: `${grade.barHeight}%` }}
                     />
                   </div>
                   <span className="text-xs text-gray-600 mt-2 text-center">
                     {grade.label}
                   </span>
+                  <span className="text-[10px] text-gray-400">
+                    {grade.value}
+                  </span>
                 </div>
               ))}
             </div>
             <div className="mt-6">
-              <Button variant="outline" className="w-full h-auto">
+              <Button
+                variant="outline"
+                className="w-full h-auto"
+                onClick={() => router.push("/admin/students/all")}
+              >
                 View Student Progress
               </Button>
             </div>
@@ -234,7 +300,7 @@ export default function AcademicManagementPage() {
                   }
 
                   if (action.title === "Review Curriculum Gaps") {
-                    router.push("dashboard/curriculum-management");
+                    router.push("/admin/academic/curriculum-management");
                   }
                 }}
               />
@@ -374,10 +440,6 @@ export default function AcademicManagementPage() {
       <AssignStaffDutyModal
         open={assignDutyModalOpen}
         onOpenChange={setAssignDutyModalOpen}
-        onConfirm={(data) => {
-          console.log("Assign staff to duty", data);
-          // Handle confirmation logic
-        }}
       />
     </div>
   );

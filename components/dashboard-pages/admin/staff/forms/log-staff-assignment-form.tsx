@@ -145,7 +145,6 @@ export function LogStaffAssignmentForm({
           onValueChange={(value) =>
             setFormData({ ...formData, schoolId: value })
           }
-          disabled={isLoadingSchools}
           required
         >
           {schools.map((school) => (
@@ -164,7 +163,6 @@ export function LogStaffAssignmentForm({
           onValueChange={(value) =>
             setFormData({ ...formData, staffMember: value })
           }
-          disabled={isLoadingStaff}
         >
           {staffMembers.map((staff) => {
             const fullName = staff.user
@@ -258,7 +256,6 @@ export function LogStaffAssignmentForm({
           onValueChange={(value) =>
             setFormData({ ...formData, supervisor: value })
           }
-          disabled={isLoadingStaff}
         >
           {staffMembers.map((staff) => {
             const fullName = staff.user

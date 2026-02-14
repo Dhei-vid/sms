@@ -71,18 +71,18 @@ export default function AdmissionsPage() {
   }
 
   const quickActions: QuickAction[] = [
-    {
-      title: "New Applications",
-      description: "Review new applications.",
-      icon: DocumentValidationIcon,
-      onClick: () => router.push("admissions/add"),
-    },
-    {
-      title: "Pending Fees",
-      description: "See applications awaiting enrollment payment.",
-      icon: PendulumIcon,
-      onClick: () => console.log("Pending Fees clicked"),
-    },
+    // {
+    //   title: "New Applications",
+    //   description: "Review new applications.",
+    //   icon: DocumentValidationIcon,
+    //   onClick: () => router.push("admissions/add"),
+    // },
+    // {
+    //   title: "Pending Fees",
+    //   description: "See applications awaiting enrollment payment.",
+    //   icon: PendulumIcon,
+    //   onClick: () => console.log("Pending Fees clicked"),
+    // },
     {
       title: "Add New Applicant",
       description: "Manually add an applicant.",

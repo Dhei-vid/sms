@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useMemo } from "react";
+import { useParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DocumentValidationIcon } from "@hugeicons/core-free-icons";
@@ -9,8 +9,13 @@ import { Icon } from "@/components/general/huge-icon";
 import { StudentNavigation } from "@/components/dashboard-pages/admin/academic/assessment-grading/final-result-approval-queue/student-navigation";
 import { ResultsTable } from "@/components/dashboard-pages/admin/academic/assessment-grading/final-result-approval-queue/results-table";
 import { PrincipalsRemarkModal } from "@/components/dashboard-pages/admin/academic/assessment-grading/final-result-approval-queue/principals-remark-modal";
+import {
+  useGetAllExamResultsQuery,
+  useUpdateExamResultMutation,
+} from "@/services/results/results";
+import type { ExamResult, SubjectResult } from "@/services/results/result-types";
 
-interface SubjectResult {
+interface SubjectResultRow {
   subject: string;
   finalTermScore: number;
   teacherRemarks: string;
@@ -20,170 +25,119 @@ interface StudentData {
   id: string;
   name: string;
   email: string;
-  results: SubjectResult[];
+  examResult: ExamResult;
+  results: SubjectResultRow[];
 }
 
-// Mock data - in a real app, this would be fetched based on the class ID
-const mockStudents: StudentData[] = [
-  {
-    id: "1",
-    name: "Oluwole, Tunde",
-    email: "oluwole.m170842@penetraliahub.edu.ng",
-    results: [
-      {
-        subject: "Arts & Crafts",
-        finalTermScore: 98.5,
-        teacherRemarks:
-          "The teacher's original comment from the Grade Entry Portal.",
-      },
-      {
-        subject: "Computer Science",
-        finalTermScore: 98.5,
-        teacherRemarks:
-          "The teacher's original comment from the Grade Entry Portal.",
-      },
-      {
-        subject: "English Language",
-        finalTermScore: 72.1,
-        teacherRemarks:
-          "The teacher's original comment from the Grade Entry Portal.",
-      },
-      {
-        subject: "Information Technology",
-        finalTermScore: 72.1,
-        teacherRemarks:
-          "The teacher's original comment from the Grade Entry Portal.",
-      },
-      {
-        subject: "Integrated Science",
-        finalTermScore: 98.5,
-        teacherRemarks:
-          "The teacher's original comment from the Grade Entry Portal.",
-      },
-      {
-        subject: "Mathematics",
-        finalTermScore: 98.5,
-        teacherRemarks:
-          "The teacher's original comment from the Grade Entry Portal.",
-      },
-      {
-        subject: "Physical Education",
-        finalTermScore: 72.1,
-        teacherRemarks:
-          "The teacher's original comment from the Grade Entry Portal.",
-      },
-      {
-        subject: "Yoruba Language",
-        finalTermScore: 72.1,
-        teacherRemarks:
-          "The teacher's original comment from the Grade Entry Portal.",
-      },
-    ],
-  },
-  {
-    id: "2",
-    name: "Olatunji, Priscilia",
-    email: "olatunji.p170843@penetraliahub.edu.ng",
-    results: [
-      {
-        subject: "Arts & Crafts",
-        finalTermScore: 95.0,
-        teacherRemarks:
-          "The teacher's original comment from the Grade Entry Portal.",
-      },
-      {
-        subject: "Computer Science",
-        finalTermScore: 92.5,
-        teacherRemarks:
-          "The teacher's original comment from the Grade Entry Portal.",
-      },
-    ],
-  },
-  {
-    id: "3",
-    name: "Omaye, Babaremu",
-    email: "omaye.b170844@penetraliahub.edu.ng",
-    results: [
-      {
-        subject: "English Language",
-        finalTermScore: 88.0,
-        teacherRemarks:
-          "The teacher's original comment from the Grade Entry Portal.",
-      },
-      {
-        subject: "Mathematics",
-        finalTermScore: 90.5,
-        teacherRemarks:
-          "The teacher's original comment from the Grade Entry Portal.",
-      },
-    ],
-  },
-];
-
-// Mock function to get class details
-const getClassDetails = (classId: string) => {
-  // In a real app, this would fetch from an API
+function subjectResultToRow(sr: SubjectResult): SubjectResultRow {
+  const total = sr.total_score ?? (sr.class_score + sr.exam_score);
   return {
-    id: classId,
-    name: "JSS 2 First Term 2025/2026",
-    description: "This provides the necessary data for the final decision.",
+    subject: sr.subject,
+    finalTermScore: typeof total === "number" ? Math.round(total * 10) / 10 : 0,
+    teacherRemarks: sr.remarks ?? "—",
   };
-};
+}
 
-export default function ReviewResultsPage({
-  params,
-}: {
-  params: { class: string };
-}) {
-  const router = useRouter();
-  const classId = params.class;
-  const classDetails = getClassDetails(classId);
+function examResultToStudentData(er: ExamResult): StudentData {
+  const student = er.student as { user?: { first_name?: string; last_name?: string }; school_email?: string } | undefined;
+  const f = student?.user?.first_name ?? "";
+  const l = student?.user?.last_name ?? "";
+  const name = `${l}${l && f ? ", " : ""}${f}`.trim() || "—";
+  const email = student?.school_email ?? "";
+  const results = (er.subject_results ?? []).map(subjectResultToRow);
+  return {
+    id: er.id,
+    name,
+    email,
+    examResult: er,
+    results,
+  };
+}
 
-  // For demo purposes, start with the first student
+export default function ReviewResultsPage() {
+  const params = useParams();
+  const classParam = params?.class as string | undefined;
   const [currentStudentIndex, setCurrentStudentIndex] = useState(0);
-  const [displayedResults, setDisplayedResults] = useState(8); // Show first 8 results
-  const [hasMore, setHasMore] = useState(true);
+  const [displayedResults, setDisplayedResults] = useState(8);
   const [remarkModalOpen, setRemarkModalOpen] = useState(false);
 
-  const currentStudent = mockStudents[currentStudentIndex];
+  const { class_name, term, session } = useMemo(() => {
+    if (!classParam) return { class_name: "", term: "", session: "" };
+    try {
+      const decoded = decodeURIComponent(classParam);
+      const parts = decoded.split("||");
+      return {
+        class_name: parts[0] ?? "",
+        term: parts[1] ?? "",
+        session: parts[2] ?? "",
+      };
+    } catch {
+      return { class_name: "", term: "", session: "" };
+    }
+  }, [classParam]);
+
+  const queryParams = useMemo(
+    () =>
+      class_name && term && session
+        ? {
+            _all: true as const,
+            "class_name[eq]": class_name,
+            "term[eq]": term,
+            "session[eq]": session,
+          }
+        : undefined,
+    [class_name, term, session]
+  );
+
+  const { data, isLoading } = useGetAllExamResultsQuery(queryParams ?? undefined);
+  const [updateResult] = useUpdateExamResultMutation();
+
+  const raw = (data as { data?: ExamResult[] })?.data ?? [];
+  const students = useMemo(
+    () => raw.map(examResultToStudentData),
+    [raw]
+  );
+
+  const currentStudent = students[currentStudentIndex];
   const previousStudent =
     currentStudentIndex > 0
       ? {
-          id: mockStudents[currentStudentIndex - 1].id,
-          name: mockStudents[currentStudentIndex - 1].name,
+          id: students[currentStudentIndex - 1]!.id,
+          name: students[currentStudentIndex - 1]!.name,
         }
       : undefined;
   const nextStudent =
-    currentStudentIndex < mockStudents.length - 1
+    currentStudentIndex < students.length - 1
       ? {
-          id: mockStudents[currentStudentIndex + 1].id,
-          name: mockStudents[currentStudentIndex + 1].name,
+          id: students[currentStudentIndex + 1]!.id,
+          name: students[currentStudentIndex + 1]!.name,
         }
       : undefined;
 
   const handlePrevious = () => {
     if (currentStudentIndex > 0) {
       setCurrentStudentIndex(currentStudentIndex - 1);
-      setDisplayedResults(8); // Reset displayed results
-      setHasMore(mockStudents[currentStudentIndex - 1].results.length > 8);
+      setDisplayedResults(8);
     }
   };
 
   const handleNext = () => {
-    if (currentStudentIndex < mockStudents.length - 1) {
+    if (currentStudentIndex < students.length - 1) {
       setCurrentStudentIndex(currentStudentIndex + 1);
-      setDisplayedResults(8); // Reset displayed results
-      setHasMore(mockStudents[currentStudentIndex + 1].results.length > 8);
+      setDisplayedResults(8);
     }
   };
 
+  const hasMore = currentStudent
+    ? currentStudent.results.length > displayedResults
+  : false;
   const handleLoadMore = () => {
+    if (!currentStudent) return;
     const remaining = currentStudent.results.length - displayedResults;
     if (remaining > 0) {
       setDisplayedResults(
-        Math.min(displayedResults + 8, currentStudent.results.length),
+        Math.min(displayedResults + 8, currentStudent.results.length)
       );
-      setHasMore(displayedResults + 8 < currentStudent.results.length);
     }
   };
 
@@ -191,29 +145,61 @@ export default function ReviewResultsPage({
     setRemarkModalOpen(true);
   };
 
-  const handleSaveAndPublish = (remark: string) => {
-    console.log(
-      "Save and publish result for",
-      currentStudent.name,
-      "with remark:",
-      remark,
-    );
-    // Handle save and publish action with remark
-    // In a real app, this would make an API call to save the remark and publish the result
+  const handleSaveAndPublish = async (remark: string) => {
+    if (!currentStudent) return;
+    try {
+      await updateResult({
+        id: currentStudent.id,
+        data: { principal_remarks: remark },
+      }).unwrap();
+    } catch (e) {
+      console.error("Failed to save principal remark:", e);
+    }
   };
 
-  const visibleResults = currentStudent.results.slice(0, displayedResults);
-  const shouldShowLoadMore =
-    hasMore && currentStudent.results.length > displayedResults;
+  const classDetailsName = class_name && term && session
+    ? `${class_name} ${term} ${session}`
+    : "Results";
+  const classDetailsDescription =
+    "This provides the necessary data for the final decision.";
+
+  if (isLoading || !classParam) {
+    return (
+      <div className="space-y-4">
+        <div className="bg-background rounded-md p-6">
+          <h2 className="text-2xl font-bold text-gray-800">
+            Review {classDetailsName} Results
+          </h2>
+          <p className="text-gray-600 mt-1">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (students.length === 0) {
+    return (
+      <div className="space-y-4">
+        <div className="bg-background rounded-md p-6">
+          <h2 className="text-2xl font-bold text-gray-800">
+            Review {classDetailsName} Results
+          </h2>
+          <p className="text-gray-600 mt-1">No results found for this batch.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const visibleResults = currentStudent!.results.slice(0, displayedResults);
+  const shouldShowLoadMore = hasMore && currentStudent!.results.length > displayedResults;
 
   return (
     <div className="space-y-4">
       {/* Header */}
       <div className="bg-background rounded-md p-6">
         <h2 className="text-2xl font-bold text-gray-800">
-          Review {classDetails.name} Results
+          Review {classDetailsName} Results
         </h2>
-        <p className="text-gray-600 mt-1">{classDetails.description}</p>
+        <p className="text-gray-600 mt-1">{classDetailsDescription}</p>
       </div>
 
       {/* Button */}
@@ -232,9 +218,9 @@ export default function ReviewResultsPage({
           <StudentNavigation
             previousStudent={previousStudent}
             currentStudent={{
-              id: currentStudent.id,
-              name: currentStudent.name,
-              email: currentStudent.email,
+              id: currentStudent!.id,
+              name: currentStudent!.name,
+              email: currentStudent!.email,
             }}
             nextStudent={nextStudent}
             onPrevious={handlePrevious}
@@ -249,7 +235,7 @@ export default function ReviewResultsPage({
           <ResultsTable
             results={visibleResults}
             onLoadMore={shouldShowLoadMore ? handleLoadMore : undefined}
-            hasMore={shouldShowLoadMore}
+            hasMore={!!shouldShowLoadMore}
           />
         </CardContent>
       </Card>
@@ -259,7 +245,7 @@ export default function ReviewResultsPage({
         open={remarkModalOpen}
         onOpenChange={setRemarkModalOpen}
         onSaveAndPublish={handleSaveAndPublish}
-        studentName={currentStudent.name}
+        studentName={currentStudent!.name}
       />
     </div>
   );

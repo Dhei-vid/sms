@@ -2,6 +2,8 @@ import { baseApi } from "../baseApi";
 import type {
   CreateCBTQuestionPayload,
   UpdateCBTQuestionPayload,
+  CbtQuestion,
+  CbtQuestionsQueryParams,
 } from "./cbt-question-types";
 import type {
   ApiResponse,
@@ -14,18 +16,24 @@ const BASE = "/cbts/questions";
 export const cbtQuestionsApi = baseApi.injectEndpoints({
   overrideExisting: true,
   endpoints: (build) => ({
-    getCbtQuestions: build.query<ApiListResponse<unknown>, void>({
-      query: () => ({ url: BASE }),
+    getCbtQuestions: build.query<
+      ApiListResponse<CbtQuestion> | ApiResponse<CbtQuestion[]>,
+      CbtQuestionsQueryParams | void
+    >({
+      query: (params) => ({
+        url: BASE,
+        params: params?._all ? { _all: "true", ...params } : params ?? {},
+      }),
       providesTags: ["CbtQuestion"],
     }),
 
-    getCbtQuestionById: build.query<ApiResponse<unknown>, string>({
+    getCbtQuestionById: build.query<ApiResponse<CbtQuestion>, string>({
       query: (id) => ({ url: `${BASE}/${id}` }),
       providesTags: (_, __, id) => [{ type: "CbtQuestion", id }],
     }),
 
     createCbtQuestion: build.mutation<
-      ApiResponse<unknown>,
+      ApiResponse<CbtQuestion>,
       CreateCBTQuestionPayload
     >({
       query: (body) => ({ url: BASE, method: "POST", body }),
@@ -33,7 +41,7 @@ export const cbtQuestionsApi = baseApi.injectEndpoints({
     }),
 
     updateCbtQuestion: build.mutation<
-      ApiResponse<unknown>,
+      ApiResponse<CbtQuestion>,
       { id: string; data: UpdateCBTQuestionPayload }
     >({
       query: ({ id, data }) => ({

@@ -1,11 +1,39 @@
 "use client";
 
+import { useMemo } from "react";
+import { useAppSelector } from "@/store/hooks";
+import { selectUser } from "@/store/slices/authSlice";
 import { MetricCard } from "@/components/dashboard-pages/admin/admissions/components/metric-card";
 import { WalletBalanceCard } from "@/components/dashboard-pages/student/dashboard/wallet-balance-card";
 import { UpcomingEventsCard } from "@/components/dashboard-pages/parent/dashboard/upcoming-events-card";
 import { QuickActionsCard } from "@/components/dashboard-pages/parent/dashboard/quick-actions-card";
+import { StudentNoticeBoardCard } from "@/components/dashboard-pages/student/dashboard/notice-board-card";
+import { useGetNotificationsQuery } from "@/services/shared";
+import { format } from "date-fns";
 
 export default function ParentDashboard() {
+  const user = useAppSelector(selectUser);
+  const { data: notificationsData } = useGetNotificationsQuery(
+    { limit: 5 },
+    { skip: !user?.id },
+  );
+
+  const latestNotices = useMemo(() => {
+    const list = notificationsData?.data ?? [];
+    const forParent = list.filter(
+      (n) =>
+        n.target_audience === "general" ||
+        (Array.isArray(n.specifics) && n.specifics.includes("parent")),
+    );
+    return forParent.slice(0, 5).map((n) => ({
+      title: n.title ?? "",
+      description: n.content ?? "",
+      time: n.created_at
+        ? format(new Date(n.created_at), "MMM d, yyyy; h:mm a")
+        : "",
+    }));
+  }, [notificationsData?.data]);
+
   return (
     <div className="space-y-4">
       {/* Welcome Section */}
@@ -38,6 +66,9 @@ export default function ParentDashboard() {
 
       {/* Upcoming Event Section */}
       <UpcomingEventsCard />
+
+      {/* Notice Board */}
+      <StudentNoticeBoardCard notices={latestNotices} />
 
       {/* Quick Actions Section */}
       <QuickActionsCard />

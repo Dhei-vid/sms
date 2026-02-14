@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Icon } from "@/components/general/huge-icon";
@@ -8,142 +9,121 @@ import {
   ComputerTerminal01Icon,
   WorkoutRunIcon,
   Agreement02Icon,
+  InformationCircleIcon,
 } from "@hugeicons/core-free-icons";
+import { useGetNotificationsQuery } from "@/services/shared";
+import { format } from "date-fns";
 
-interface Notice {
-  id: number;
-  title: string;
-  description: string;
-  postedBy: string;
-  viewed: string;
-  posted: string;
-  postedLabel?: string; // Optional label override (e.g., "Date Posted:" vs "Posted:")
-  icon: any;
-  isUnread?: boolean;
-}
+const getIconForType = (type?: string) => {
+  switch (type) {
+    case "warning":
+      return ComputerTerminal01Icon;
+    case "error":
+      return WorkoutRunIcon;
+    case "success":
+      return Agreement02Icon;
+    case "notice":
+      return InformationCircleIcon;
+    default:
+      return LibrariesIcon;
+  }
+};
 
-const notices: Notice[] = [
-  {
-    id: 1,
-    title: "Election Manifestos",
-    description:
-      "Today is the D-Day for every of our aspirants. Time is 12:00 PM - 1:30 PM",
-    postedBy: "Admin Academics",
-    viewed: "2,934",
-    posted: "October 22, 10:32 AM",
-    icon: LibrariesIcon,
-    isUnread: true,
-  },
-  {
-    id: 2,
-    title: "Mid-Term Exams Begin",
-    description:
-      "Schedule for all grades is now finalized and posted in the Academic Management module.",
-    postedBy: "Principal",
-    viewed: "2,934",
-    posted: "October 22, 9:32 AM",
-    postedLabel: "Date Posted:",
-    icon: ComputerTerminal01Icon,
-    isUnread: true,
-  },
-  {
-    id: 3,
-    title: "Annual Inter-House Sports Day",
-    description:
-      "Next Friday, 9:00 AM - 3:00 PM. All staff attendance is mandatory.",
-    postedBy: "Principal",
-    viewed: "2,934",
-    posted: "October 22, 8:30 AM",
-    icon: WorkoutRunIcon,
-    isUnread: true,
-  },
-  {
-    id: 4,
-    title: "PTA General Meeting: Topic",
-    description:
-      "New Digital Learning Initiatives. Wednesday at 3:00 PM in the Assembly Hall.",
-    postedBy: "Principal",
-    viewed: "2,934",
-    posted: "October 17, 9:32 AM",
-    icon: Agreement02Icon,
-  },
-  {
-    id: 5,
-    title: "Election Manifestos",
-    description:
-      "We get the chance to hear from the aspirants of each position in the Student Union Government. Date of Manifesto 22 - Oct. - 2025",
-    postedBy: "Admin Academics",
-    viewed: "2,934",
-    posted: "October 17, 9:32 AM",
-    icon: LibrariesIcon,
-  },
-];
+export default function ParentNoticeBoardPage() {
+  const { data: notificationsData, isLoading } = useGetNotificationsQuery({
+    limit: 100,
+  });
 
-export default function NoticeBoardPage() {
+  const notices = useMemo(() => {
+    const list = notificationsData?.data ?? [];
+    return list.filter(
+      (n) =>
+        n.target_audience === "general" ||
+        (Array.isArray(n.specifics) && n.specifics.includes("parent")),
+    );
+  }, [notificationsData?.data]);
+
   return (
     <div className="space-y-4">
-      {/* Page Header */}
       <div className="bg-background rounded-md p-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">Notice Board</h1>
+        <h1 className="text-2xl font-bold text-gray-800 mb-2">
+          Notice Board
+        </h1>
         <p className="text-gray-600">
-          View all School-wide Notices, Events, and Key Dates.
+          View notices and announcements for parents.
         </p>
       </div>
 
-      {/* Notices List */}
       <Card className="bg-background py-0 overflow-hidden">
         <CardContent className="p-0">
-          {notices.map((notice, index) => (
-            <div key={notice.id} className="relative cursor-pointer">
-              {index > 0 && <Separator className="my-0" />}
-              <div className="p-6 hover:bg-main-blue/5 transition-colors">
-                <div className="flex gap-4">
-                  {/* Icon */}
-                  <div className="flex items-start text-main-blue">
-                    <Icon icon={notice.icon} size={24} />
-                  </div>
+          {isLoading ? (
+            <div className="p-8 text-center text-gray-500">
+              Loading notices...
+            </div>
+          ) : notices.length === 0 ? (
+            <div className="p-8 text-center text-gray-500">
+              No notices found
+            </div>
+          ) : (
+            notices.map((notice, index) => {
+              const icon = getIconForType(notice.type);
+              const isRecent = notice.created_at
+                ? new Date(notice.created_at).getTime() >
+                  Date.now() - 24 * 60 * 60 * 1000
+                : false;
+              const authorName =
+                notice.creator?.first_name && notice.creator?.last_name
+                  ? `${notice.creator.first_name} ${notice.creator.last_name}`
+                  : notice.creator?.username ?? "Admin";
 
-                  {/* Content */}
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between">
-                      <h3 className="font-semibold text-gray-800">
-                        {notice.title}
-                      </h3>
-                      {notice.isUnread && (
-                        <div className="h-3 w-3 rounded-full bg-main-blue" />
-                      )}
-                    </div>
-                    <p className="text-sm text-gray-600 mb-4">
-                      {notice.description}
-                    </p>
-
-                    {/* Footer - Meta Data */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2 bg-gray-100 rounded-full px-3 py-1">
-                          <span className="text-xs text-gray-500">
-                            Posted by:
-                          </span>
-                          <span className="text-xs font-medium text-gray-700">
-                            {notice.postedBy}
-                          </span>
+              return (
+                <div key={notice.id} className="relative cursor-pointer">
+                  {index > 0 && <Separator className="my-0" />}
+                  <div className="p-6 hover:bg-main-blue/5 transition-colors">
+                    <div className="flex gap-4">
+                      <div className="flex items-start text-main-blue">
+                        <Icon icon={icon} size={24} />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-start justify-between">
+                          <h3 className="font-semibold text-gray-800">
+                            {notice.title}
+                          </h3>
+                          {isRecent && (
+                            <div className="h-3 w-3 rounded-full bg-main-blue" />
+                          )}
                         </div>
-                        <div className="flex items-center gap-2 bg-gray-100 rounded-full px-3 py-1">
-                          <span className="text-xs text-gray-500">Viewed:</span>
-                          <span className="text-xs font-medium text-gray-700">
-                            {notice.viewed}
+                        <p className="text-sm text-gray-600 mb-4">
+                          {notice.content}
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2 bg-gray-100 rounded-full px-3 py-1">
+                              <span className="text-xs text-gray-500">
+                                Posted by:
+                              </span>
+                              <span className="text-xs font-medium text-gray-700">
+                                {authorName}
+                              </span>
+                            </div>
+                          </div>
+                          <span className="text-xs text-gray-500">
+                            Posted:{" "}
+                            {notice.created_at
+                              ? format(
+                                  new Date(notice.created_at),
+                                  "MMM d, yyyy; h:mm a",
+                                )
+                              : "N/A"}
                           </span>
                         </div>
                       </div>
-                      <span className="text-xs text-gray-500">
-                        {notice.postedLabel || "Posted:"} {notice.posted}
-                      </span>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              );
+            })
+          )}
         </CardContent>
       </Card>
     </div>

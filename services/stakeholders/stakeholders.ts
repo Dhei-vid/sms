@@ -18,7 +18,7 @@ import {
 } from "./stakeholders-reducer";
 import type { ApiResponse, ApiDeleteResponse } from "../shared-types";
 
-const BASE = "/stakeholders";
+const BASE = "/stakeholders/";
 
 export const stakeholdersApi = baseApi.injectEndpoints({
   overrideExisting: true,
@@ -104,17 +104,25 @@ export const stakeholdersApi = baseApi.injectEndpoints({
     }),
 
     getStudentMetrics: build.query<ApiResponse<StudentMetrics>, void>({
-      query: () => ({ url: `${BASE}/metrics` }),
+      query: () => ({ url: `${BASE}metrics` }),
       providesTags: ["Stakeholder", "Attendance", "Transaction"],
     }),
 
+    getStaffUtilization: build.query<
+      ApiResponse<{ breakdown: { label: string; value: number; color: string }[] }>,
+      void
+    >({
+      query: () => ({ url: `${BASE}staff-utilization` }),
+      providesTags: ["Stakeholder"],
+    }),
+
     getStakeholderById: build.query<ApiResponse<Stakeholders>, string>({
-      query: (id) => ({ url: `${BASE}/${id}` }),
+      query: (id) => ({ url: `${BASE}${id}` }),
       providesTags: (_, __, id) => [{ type: "Stakeholder", id }],
     }),
 
     getStudentById: build.query<ApiResponse<Stakeholders>, string>({
-      query: (id) => ({ url: `${BASE}/${id}` }),
+      query: (id) => ({ url: `${BASE}${id}` }),
       transformResponse: (
         response: ApiResponse<Stakeholders>,
       ): ApiResponse<Stakeholders> => {
@@ -152,7 +160,7 @@ export const stakeholdersApi = baseApi.injectEndpoints({
     }),
 
     assignDuty: build.mutation<ApiResponse<unknown>, AssignDutyStakeholder>({
-      query: (body) => ({ url: `${BASE}/assign/duty`, method: "POST", body }),
+      query: (body) => ({ url: `${BASE}assign/duty`, method: "POST", body }),
       invalidatesTags: ["Stakeholder"],
     }),
 
@@ -161,7 +169,7 @@ export const stakeholdersApi = baseApi.injectEndpoints({
       { id: string; data: UpdateStakeholdersRequest }
     >({
       query: ({ id, data }) => ({
-        url: `${BASE}/${id}`,
+        url: `${BASE}${id}`,
         method: "PUT",
         body: data,
       }),
@@ -172,7 +180,7 @@ export const stakeholdersApi = baseApi.injectEndpoints({
     }),
 
     deleteStakeholder: build.mutation<ApiDeleteResponse, string>({
-      query: (id) => ({ url: `${BASE}/${id}`, method: "DELETE" }),
+      query: (id) => ({ url: `${BASE}${id}`, method: "DELETE" }),
       invalidatesTags: (_, __, id) => [
         { type: "Stakeholder", id },
         "Stakeholder",
@@ -188,6 +196,7 @@ export const {
   useGetStudentStakeholderMetricsQuery,
   useGetStakeholderMetricsQuery,
   useGetStudentMetricsQuery,
+  useGetStaffUtilizationQuery,
   useGetStakeholderByIdQuery,
   useGetStudentByIdQuery,
   useCreateStakeholderMutation,
