@@ -1,12 +1,15 @@
 "use client";
 
-import { useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DataTable, TableColumn } from "@/components/ui/data-table";
 import { MetricCard } from "@/components/dashboard-pages/admin/admissions/components/metric-card";
 import { usePagination } from "@/hooks/use-pagination";
 import { useGetOrdersQuery, useGetProductsQuery } from "@/services/shared";
+import { PostCanteenItemModal } from "@/components/dashboard-pages/admin/finance/components/post-canteen-item-modal";
+import { Icon } from "@/components/general/huge-icon";
+import { Add01Icon } from "@hugeicons/core-free-icons";
 
 interface SalesItem {
   id: string;
@@ -17,6 +20,7 @@ interface SalesItem {
 }
 
 export default function InventoryManagementPage() {
+  const [addModalOpen, setAddModalOpen] = useState(false);
   const { data: ordersData } = useGetOrdersQuery({ _all: true });
   const { data: productsData } = useGetProductsQuery({ _all: true });
 
@@ -129,9 +133,18 @@ export default function InventoryManagementPage() {
       {/* Sales By Item Table */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-gray-800">
-            Sales By Item (Consumption Analysis)
-          </CardTitle>
+          <div className="flex flex-row items-center justify-between">
+            <CardTitle className="text-lg font-semibold text-gray-800">
+              Sales By Item (Consumption Analysis)
+            </CardTitle>
+            <Button
+              onClick={() => setAddModalOpen(true)}
+              className="gap-2"
+            >
+              <Icon icon={Add01Icon} size={18} />
+              Add Inventory
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="border rounded-lg overflow-hidden">
@@ -150,6 +163,11 @@ export default function InventoryManagementPage() {
           )}
         </CardContent>
       </Card>
+
+      <PostCanteenItemModal
+        open={addModalOpen}
+        onOpenChange={setAddModalOpen}
+      />
     </div>
   );
 }

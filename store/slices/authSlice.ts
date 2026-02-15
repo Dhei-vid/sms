@@ -7,35 +7,12 @@ interface AuthState {
   isAuthenticated: boolean;
 }
 
-const getInitialState = (): AuthState => {
-  if (typeof window !== "undefined") {
-    const token = localStorage.getItem("auth_token");
-    const userStr = localStorage.getItem("auth_user");
-
-    if (token && userStr) {
-      try {
-        const user = JSON.parse(userStr);
-        return {
-          token,
-          user,
-          isAuthenticated: true,
-        };
-      } catch (error) {
-        console.error("❌ Failed to parse stored user data:", error);
-        localStorage.removeItem("auth_token");
-        localStorage.removeItem("auth_user");
-      }
-    } else {
-      console.log("ℹ️ No stored auth data found");
-    }
-  }
-
-  return {
-    token: null,
-    user: null,
-    isAuthenticated: false,
-  };
-};
+// Start with empty state so server and client initial render match (avoids hydration error)
+const getInitialState = (): AuthState => ({
+  token: null,
+  user: null,
+  isAuthenticated: false,
+});
 
 export const authSlice = createSlice({
   name: "auth",
@@ -109,10 +86,28 @@ export const authSlice = createSlice({
         localStorage.setItem("auth_user", JSON.stringify(action.payload));
       }
     },
+
+    rehydrateAuth: (state) => {
+      if (typeof window === "undefined") return;
+      const token = localStorage.getItem("auth_token");
+      const userStr = localStorage.getItem("auth_user");
+      if (token && userStr) {
+        try {
+          const user = JSON.parse(userStr);
+          state.token = token;
+          state.user = user;
+          state.isAuthenticated = true;
+        } catch {
+          localStorage.removeItem("auth_token");
+          localStorage.removeItem("auth_user");
+        }
+      }
+    },
   },
 });
 
-export const { setCredentials, logout, updateUser } = authSlice.actions;
+export const { setCredentials, logout, updateUser, rehydrateAuth } =
+  authSlice.actions;
 export default authSlice.reducer;
 
 export const selectToken = (state: { auth: AuthState }) => state.auth.token;

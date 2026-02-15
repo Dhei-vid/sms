@@ -347,6 +347,7 @@ export const baseApi = createApi({
     "Hostel",
     "UserRequest",
     "LeavePolicy",
+    "PersonalTask",
   ],
   endpoints: () => ({}),
 });

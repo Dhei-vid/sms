@@ -389,6 +389,7 @@ export default function StudentMessagesPage() {
           onNewMessage={() => {}}
           teachers={contactsData?.data ?? []}
           onTeacherSelect={handleContactSelect}
+          showAddButton={false}
         />
 
         <div className="lg:col-span-2 flex flex-col">

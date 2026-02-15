@@ -130,7 +130,7 @@ export function buildStaffFormData(
   fd.append("last_name", personal.lastName);
   fd.append("gender", gender);
   fd.append("phone_number", personal.phoneNumber);
-  fd.append("password", Math.random().toString(36).slice(-12) + "A1!");
+  // Omit password - backend uses USER_PASSWORD from settings (e.g. password123)
   fd.append("role", contract.staffType === "teacher" ? "teacher" : "staff");
   if (dateOfBirth) fd.append("date_of_birth", dateOfBirth);
   if (personal.residentialAddress)

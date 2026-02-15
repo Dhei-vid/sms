@@ -57,8 +57,12 @@ export interface Product {
 export interface CreateProductRequest {
   name: string;
   description?: string;
+  price?: number;
   sale_price: number;
   category?: string;
+  stock?: number;
+  in_stock?: boolean;
+  image?: string;
 }
 
 /**

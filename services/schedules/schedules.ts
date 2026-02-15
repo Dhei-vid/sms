@@ -51,18 +51,17 @@ export const schedulesApi = baseApi.injectEndpoints({
 
     getUpcomingEvents: build.query<
       { data: ScheduleEvent[] },
-      { limit?: number } | void
+      { limit?: number; schoolId?: string } | void
     >({
       query: (params) => {
         const today = new Date().toISOString().split("T")[0];
-        return {
-          url: BASE,
-          params: {
-            _all: "true",
-            "type[eq]": "event",
-            "date[gte]": today,
-          },
+        const queryParams: Record<string, string> = {
+          _all: "true",
+          "type[eq]": "event",
+          "date[gte]": today,
         };
+        if (params?.schoolId) queryParams["school_id[eq]"] = params.schoolId;
+        return { url: BASE, params: queryParams };
       },
       transformResponse: (response: { data?: ScheduleEvent[] }, _meta, arg) => {
         const list = response?.data ?? [];

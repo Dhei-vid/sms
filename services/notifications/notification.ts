@@ -78,6 +78,17 @@ export const notificationsApi = baseApi.injectEndpoints({
       query: (id) => ({ url: `${BASE}/${id}`, method: "DELETE" }),
       invalidatesTags: ["Notification"],
     }),
+
+    markNotificationRead: build.mutation<ApiResponse<Notifications>, string>({
+      query: (id) => ({
+        url: `${BASE}/${id}/mark-read/`,
+        method: "PATCH",
+      }),
+      invalidatesTags: (_, __, id) => [
+        { type: "Notification", id },
+        "Notification",
+      ],
+    }),
   }),
 });
 
@@ -87,4 +98,5 @@ export const {
   useCreateNotificationMutation,
   useUpdateNotificationMutation,
   useDeleteNotificationMutation,
+  useMarkNotificationReadMutation,
 } = notificationsApi;

@@ -104,11 +104,13 @@ export type TransactionSingleResponse = ApiResponse<Transaction>;
 
 export interface TransactionsQueryParams extends BaseQueryParams {
   wallet_id?: string;
+  user_id?: string;
   status?: TransactionStatus;
   payment_type?: PaymentType;
   transaction_type?: TransactionType;
   start_date?: string;
   end_date?: string;
+  _all?: boolean | string;
 }
 
 export interface InitializePaymentData extends Transaction {

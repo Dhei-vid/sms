@@ -11,7 +11,10 @@ import {
   WorkoutRunIcon,
   InformationCircleIcon,
 } from "@hugeicons/core-free-icons";
-import { useGetNotificationsQuery } from "@/services/shared";
+import {
+  useGetNotificationsQuery,
+  useMarkNotificationReadMutation,
+} from "@/services/shared";
 import { format } from "date-fns";
 import { useAppSelector } from "@/store/hooks";
 import { selectUser } from "@/store/slices/authSlice";
@@ -60,6 +63,7 @@ const getTypeColor = (type: string): string => {
 
 const NoticePriorityBoard = () => {
   const user = useAppSelector(selectUser);
+  const [markRead] = useMarkNotificationReadMutation();
 
   // Fetch all notifications - we'll filter for priority types (warning, error)
   const {
@@ -184,7 +188,23 @@ const NoticePriorityBoard = () => {
     <Card className="bg-background py-0 overflow-hidden">
       <CardContent className="p-0">
         {priorityNotifications.map((notice, index) => (
-          <div key={notice.id} className="cursor-pointer relative">
+          <div
+            key={notice.id}
+            className="cursor-pointer relative"
+            role="button"
+            tabIndex={0}
+            onClick={() => {
+              if (notice.isUnread) {
+                markRead(notice.id);
+              }
+            }}
+            onKeyDown={(e) => {
+              if ((e.key === "Enter" || e.key === " ") && notice.isUnread) {
+                e.preventDefault();
+                markRead(notice.id);
+              }
+            }}
+          >
             {index > 0 && <Separator className="my-0" />}
             <div className="p-6 hover:bg-main-blue/5 transition-colors">
               <div className="flex gap-4">

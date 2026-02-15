@@ -174,6 +174,17 @@ export function ApplicantDetailsForm({
         />
 
         <InputField
+          id="parentEmail"
+          label="Parent Email"
+          type="email"
+          placeholder="E.g., parent@example.com"
+          value={formData.parentEmail}
+          onChange={(e) =>
+            setFormData({ ...formData, parentEmail: e.target.value })
+          }
+        />
+
+        <InputField
           id="phoneNumber"
           label="Primary Phone Number"
           placeholder="E.g., +23412347890"

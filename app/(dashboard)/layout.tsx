@@ -8,8 +8,13 @@ import { Header } from "@/components/dashboard/header";
 import { UserRole } from "@/lib/types";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { useAppSelector } from "@/store/hooks";
-import { selectIsAuthenticated, selectUser } from "@/store/slices/authSlice";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { store } from "@/store";
+import {
+  selectIsAuthenticated,
+  selectUser,
+  rehydrateAuth,
+} from "@/store/slices/authSlice";
 
 // Extract role from pathname
 function getRoleFromPath(pathname: string): UserRole {
@@ -24,9 +29,8 @@ function getRoleFromPath(pathname: string): UserRole {
 
 // Check if sidebar should be hidden based on URL
 function shouldHideSidebar(pathname: string): boolean {
-  // Hide sidebar for quiz pages (dynamic route: /student/assignments/[quiz])
-  // Pattern: /student/assignments/ followed by a number/ID
-  const quizPagePattern = /^\/student\/assignments\/[^/]+$/;
+  // Hide sidebar for quiz pages (CBT: /student/quiz/[id], assignments: /student/assignments/[id])
+  const quizPagePattern = /^\/student\/(quiz|assignments)\/[^/]+$/;
   if (quizPagePattern.test(pathname)) {
     return true;
   }
@@ -47,6 +51,17 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  const dispatch = useAppDispatch();
+
+  // Restore auth from localStorage after mount (avoids hydration mismatch)
+  // Redirect to signin if still not authenticated after rehydration (e.g. refresh on /student/dashboard)
+  useEffect(() => {
+    dispatch(rehydrateAuth());
+    const { isAuthenticated: auth } = store.getState().auth;
+    if (!auth && !pathname.includes("/signin")) {
+      router.push("/signin");
+    }
+  }, [dispatch, pathname, router]);
 
   // Get authentication state from Redux
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
@@ -62,34 +77,16 @@ export default function DashboardLayout({
 
   const path = matchMenuItemByPath(pathname, role);
 
-  // Debug: Log auth state
-  if (typeof window !== "undefined") {
-    // console.log("👤 Auth State in Layout:", {
-    //   isAuthenticated,
-    //   hasUser: !!authUser,
-    //   userId: authUser?.id,
-    //   userEmail: authUser?.email,
-    //   userRole: authUser?.role,
-    //   roleFromPath,
-    //   finalRole: role,
-    // });
-  }
-
-  // Redirect to login if user is not authenticated
+  // Redirect to login if user is not authenticated (read from store to avoid
+  // race on hard refresh: rehydrateAuth runs first, but isAuthenticated from
+  // closure would still be false from initial render)
   useEffect(() => {
-    if (!isAuthenticated && typeof window !== "undefined") {
-      // Only redirect if we're not already on the signin page
-      if (!pathname.includes("/signin")) {
-        console.log("🔒 Not authenticated, redirecting to signin");
-        router.push("/signin");
-      }
+    if (typeof window === "undefined" || pathname.includes("/signin")) return;
+    const { isAuthenticated: auth } = store.getState().auth;
+    if (!auth) {
+      router.push("/signin");
     }
   }, [isAuthenticated, router, pathname]);
-
-  // Close mobile menu when route changes
-  // useEffect(() => {
-  //   setMobileMenuOpen(false);
-  // }, [pathname]);
 
   // Handle window resize to manage sidebar state
   useEffect(() => {

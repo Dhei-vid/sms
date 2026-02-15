@@ -9,11 +9,15 @@ import { Card, CardContent } from "@/components/ui/card";
 interface QuizControlsProps {
   timeRemaining: string;
   onSubmit: () => void;
+  isLocked?: boolean;
+  isSubmitting?: boolean;
 }
 
 export function QuizControls({
   timeRemaining = "00:39:49",
   onSubmit,
+  isLocked = false,
+  isSubmitting = false,
 }: QuizControlsProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -28,8 +32,12 @@ export function QuizControls({
         </CardContent>
       </Card>
 
-      <Button onClick={onSubmit} className="h-full">
-        Submit Answers
+      <Button
+        onClick={onSubmit}
+        className="h-full"
+        disabled={isLocked || isSubmitting}
+      >
+        {isSubmitting ? "Submitting…" : "Submit Answers"}
       </Button>
     </div>
   );

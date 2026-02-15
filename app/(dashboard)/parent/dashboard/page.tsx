@@ -12,6 +12,7 @@ import { useGetNotificationsQuery } from "@/services/shared";
 import { useGetParentByUserIdQuery } from "@/services/stakeholders/stakeholders";
 import { useGetUpcomingEventsQuery } from "@/services/schedules/schedules";
 import { format } from "date-fns";
+import { filterEventsByRole } from "@/utils/calendar-utils";
 
 export default function ParentDashboard() {
   const user = useAppSelector(selectUser);
@@ -19,26 +20,34 @@ export default function ParentDashboard() {
     skip: !user?.id,
   });
   const parent = parentData?.data ?? null;
-  const childrenDetails = parent?.children_details ?? [];
-  const primaryChild = Array.isArray(childrenDetails) ? childrenDetails[0] : null;
-  const primaryChildName = primaryChild && typeof primaryChild === "object"
-    ? (primaryChild as { class_assigned?: string }).class_assigned
-      ? `Student (${(primaryChild as { class_assigned: string }).class_assigned})`
-      : "your child"
+  const childrenDetails = (parent?.children_details ?? []) as Array<{
+    id?: string;
+    user_id?: string;
+    user?: { first_name?: string; last_name?: string };
+    class_assigned?: string;
+  }>;
+  const primaryChild = childrenDetails[0] ?? null;
+  const primaryChildName = primaryChild
+    ? primaryChild.class_assigned
+      ? `Student (${primaryChild.class_assigned})`
+      : primaryChild.user
+        ? [primaryChild.user.first_name, primaryChild.user.last_name].filter(Boolean).join(" ") || "your child"
+        : "your child"
     : "your child";
+  const wardUserId = primaryChild?.user_id ?? null;
 
   const { data: notificationsData } = useGetNotificationsQuery(
     { per_page: 5 },
     { skip: !user?.id },
   );
   const { data: eventsData } = useGetUpcomingEventsQuery(
-    { limit: 2 },
+    { limit: 10, schoolId: user?.school_id ?? undefined },
     { skip: !user?.id },
   );
 
   const upcomingEvents = useMemo(() => {
-    const list = eventsData?.data ?? [];
-    return list.map((e) => ({
+    const list = filterEventsByRole(eventsData?.data ?? [], user);
+    return list.slice(0, 2).map((e) => ({
       title: e.title ?? "",
       description: e.description ?? "",
       date: e.date && e.start_time
@@ -47,7 +56,7 @@ export default function ParentDashboard() {
           ? format(new Date(e.date), "MMM d, yyyy")
           : "",
     }));
-  }, [eventsData?.data]);
+  }, [eventsData?.data, user]);
 
   const latestNotices = useMemo(() => {
     const list = notificationsData?.data ?? [];
@@ -103,7 +112,7 @@ export default function ParentDashboard() {
           subtitle="Academic performance update."
           trend="up"
         />
-        <WalletBalanceCard />
+        <WalletBalanceCard userId={wardUserId ?? undefined} />
       </div>
 
       {/* Upcoming Event Section */}

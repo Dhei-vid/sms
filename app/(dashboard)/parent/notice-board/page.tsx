@@ -11,7 +11,12 @@ import {
   Agreement02Icon,
   InformationCircleIcon,
 } from "@hugeicons/core-free-icons";
-import { useGetNotificationsQuery } from "@/services/shared";
+import {
+  useGetNotificationsQuery,
+  useMarkNotificationReadMutation,
+} from "@/services/shared";
+import { useAppSelector } from "@/store/hooks";
+import { selectUser } from "@/store/slices/authSlice";
 import { format } from "date-fns";
 
 const getIconForType = (type?: string) => {
@@ -30,6 +35,8 @@ const getIconForType = (type?: string) => {
 };
 
 export default function ParentNoticeBoardPage() {
+  const user = useAppSelector(selectUser);
+  const [markRead] = useMarkNotificationReadMutation();
   const { data: notificationsData, isLoading } = useGetNotificationsQuery({
     per_page: 100,
   });
@@ -67,17 +74,30 @@ export default function ParentNoticeBoardPage() {
           ) : (
             notices.map((notice, index) => {
               const icon = getIconForType(notice.type);
-              const isRecent = notice.created_at
-                ? new Date(notice.created_at).getTime() >
-                  Date.now() - 24 * 60 * 60 * 1000
-                : false;
+              const isUnread = user?.id
+                ? !notice.read_users?.includes(user.id)
+                : true;
               const authorName =
                 notice.creator?.first_name && notice.creator?.last_name
                   ? `${notice.creator.first_name} ${notice.creator.last_name}`
                   : notice.creator?.username ?? "Admin";
 
               return (
-                <div key={notice.id} className="relative cursor-pointer">
+                <div
+                  key={notice.id}
+                  className="relative cursor-pointer"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => {
+                    if (isUnread) markRead(notice.id);
+                  }}
+                  onKeyDown={(e) => {
+                    if ((e.key === "Enter" || e.key === " ") && isUnread) {
+                      e.preventDefault();
+                      markRead(notice.id);
+                    }
+                  }}
+                >
                   {index > 0 && <Separator className="my-0" />}
                   <div className="p-6 hover:bg-main-blue/5 transition-colors">
                     <div className="flex gap-4">
@@ -89,7 +109,7 @@ export default function ParentNoticeBoardPage() {
                           <h3 className="font-semibold text-gray-800">
                             {notice.title}
                           </h3>
-                          {isRecent && (
+                          {isUnread && (
                             <div className="h-3 w-3 rounded-full bg-main-blue" />
                           )}
                         </div>

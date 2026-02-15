@@ -47,7 +47,6 @@ export const menuItems: MenuItem[] = [
     icon: NotificationSquareIcon,
     href: "/notice-board",
     roles: ["admin", "teacher", "parent", "student"],
-    badge: 4,
   },
   {
     id: "calendar",
@@ -70,7 +69,7 @@ export const menuItems: MenuItem[] = [
     label: "Timetable",
     icon: Chat01Icon,
     href: "/timetable",
-    roles: ["student"],
+    roles: [],
     badge: 3,
   },
   {
@@ -351,6 +350,6 @@ export const menuItems: MenuItem[] = [
     label: "System Settings",
     icon: Settings01Icon,
     href: "/settings",
-    roles: ["admin", "teacher", "parent", "canteen"],
+    roles: ["admin", "teacher", "parent"],
   },
 ];

@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { MetricCard } from "@/components/dashboard-pages/admin/admissions/components/metric-card";
 import { DetailedGradeViewModal } from "@/components/dashboard-pages/student/my-grades/detailed-grade-view-modal";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable, TableColumn } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import { usePagination } from "@/hooks/use-pagination";
+import { useGetAllExamResultsQuery } from "@/services/results/results";
+import type { ExamResult, SubjectResult } from "@/services/results/result-types";
 
 interface SubjectPerformance {
   subject: string;
@@ -19,69 +21,78 @@ interface ReportCard {
   documentName: string;
   academicPeriod: string;
   status: string;
+  id?: string;
 }
-
-// Sample data - in production, this would come from an API
-const allSubjectPerformances: SubjectPerformance[] = [
-  {
-    subject: "English Language",
-    assignedTeacher: "Mr. Femi T.",
-    termAverageScore: "88%",
-    latestGrade: "92% (Quiz 4)",
-  },
-  {
-    subject: "Mathematics",
-    assignedTeacher: "Ms. Zara A.",
-    termAverageScore: "95%",
-    latestGrade: "92% (Quiz 4)",
-  },
-  {
-    subject: "Arts & Culture",
-    assignedTeacher: "Mr. D. Edeh",
-    termAverageScore: "78%",
-    latestGrade: "85% (CA 2)",
-  },
-  {
-    subject: "History",
-    assignedTeacher: "Ms. Sarah D.",
-    termAverageScore: "82%",
-    latestGrade: "92% (Quiz 4)",
-  },
-  {
-    subject: "Integrated Science",
-    assignedTeacher: "Mr. Femi T.",
-    termAverageScore: "55%",
-    latestGrade: "85% (CA 2)",
-  },
-];
-
-// Sample data - in production, this would come from an API
-const allReportCards: ReportCard[] = [
-  {
-    documentName: "Term 1 Report Card",
-    academicPeriod: "2025/2026 Term 1",
-    status: "Finalized",
-  },
-  {
-    documentName: "Term 3 Report Card",
-    academicPeriod: "2024/2025 Term 3",
-    status: "Finalized",
-  },
-  {
-    documentName: "Term 2 Report Card",
-    academicPeriod: "2024/2025 Term 2",
-    status: "Finalized",
-  },
-  {
-    documentName: "Term 1 Report Card",
-    academicPeriod: "2024/2025 Term 1",
-    status: "Finalized",
-  },
-];
 
 export default function GradesReportCardPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
+
+  const { data: resultsData } = useGetAllExamResultsQuery();
+  const examResults = (resultsData?.data ?? []) as ExamResult[];
+
+  const allSubjectPerformances = useMemo(() => {
+    const bySubject = new Map<string, { teacher: string; scores: number[]; grades: string[] }>();
+    const sorted = [...examResults].sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    );
+    for (const er of sorted) {
+      for (const sr of er.subject_results ?? []) {
+        const sub = (sr as SubjectResult).subject ?? "Unknown";
+        if (!bySubject.has(sub)) {
+          bySubject.set(sub, {
+            teacher: (sr as SubjectResult & { teacher?: { first_name?: string; last_name?: string } }).teacher
+              ? `${(sr as SubjectResult & { teacher?: { first_name?: string; last_name?: string } }).teacher?.first_name ?? ""} ${(sr as SubjectResult & { teacher?: { first_name?: string; last_name?: string } }).teacher?.last_name ?? ""}`.trim() || "—"
+              : "—",
+            scores: [],
+            grades: [],
+          });
+        }
+        const entry = bySubject.get(sub)!;
+        const total = (sr as SubjectResult).total_score;
+        if (typeof total === "number" && !isNaN(total)) entry.scores.push(total);
+        const grade = (sr as SubjectResult).grade;
+        if (grade) entry.grades.push(grade);
+      }
+    }
+    return Array.from(bySubject.entries()).map(([subject, { teacher, scores, grades }]) => {
+      const avg = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
+      const pct = Math.round(avg);
+      return {
+        subject,
+        assignedTeacher: teacher,
+        termAverageScore: `${pct}%`,
+        latestGrade: scores[0] != null ? `${scores[0]}%` : grades[0] ? `${grades[0]}` : "N/A",
+      };
+    });
+  }, [examResults]);
+
+  const allReportCards = useMemo(() => {
+    return examResults.map((er) => ({
+      id: er.id,
+      documentName: `Term ${er.term ?? "?"} Report Card`,
+      academicPeriod: `${er.session ?? ""} Term ${er.term ?? ""}`.trim(),
+      status: "Finalized",
+    }));
+  }, [examResults]);
+
+  const overallAverage = useMemo(() => {
+    if (allSubjectPerformances.length === 0) return 0;
+    const sum = allSubjectPerformances.reduce(
+      (acc, s) => acc + parseFloat(s.termAverageScore.replace("%", "")) || 0,
+      0,
+    );
+    return Math.round(sum / allSubjectPerformances.length);
+  }, [allSubjectPerformances]);
+
+  const lowestSubject = useMemo(() => {
+    if (allSubjectPerformances.length === 0) return null;
+    return allSubjectPerformances.reduce((lowest, current) => {
+      const curr = parseFloat(current.termAverageScore.replace("%", "")) || 0;
+      const low = parseFloat(lowest.termAverageScore.replace("%", "")) || 0;
+      return curr < low ? current : lowest;
+    });
+  }, [allSubjectPerformances]);
 
   // Pagination for subject performances
   const {
@@ -207,11 +218,15 @@ export default function GradesReportCardPage() {
 
       {/* Key Performance Indicators */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <MetricCard title="Current Term Performance" value="88.5%" trend="up" />
-        <MetricCard title="Attendance Rate (Term)" value="94%" trend="up" />
+        <MetricCard
+          title="Current Term Performance"
+          value={overallAverage > 0 ? `${overallAverage}%` : "—"}
+          trend="up"
+        />
+        <MetricCard title="Attendance Rate (Term)" value="—" trend="up" />
         <MetricCard
           title="Lowest Term Performance"
-          value="Int. Sci.: 55%"
+          value={lowestSubject ? `${lowestSubject.subject}: ${lowestSubject.termAverageScore}` : "—"}
           trend="up"
         />
       </div>

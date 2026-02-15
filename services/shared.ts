@@ -95,6 +95,7 @@ export {
   useCreateNotificationMutation,
   useUpdateNotificationMutation,
   useDeleteNotificationMutation,
+  useMarkNotificationReadMutation,
 } from "./notifications/notification";
 
 export type {

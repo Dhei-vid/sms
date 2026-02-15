@@ -14,8 +14,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Icon } from "@/components/general/huge-icon";
 import { Search01Icon, FilterIcon } from "@hugeicons/core-free-icons";
-import { useGetAssignmentsQuery } from "@/services/shared";
-import { useGetGradesQuery } from "@/services/shared";
+import { useGetAssignmentsQuery, useGetGradesQuery } from "@/services/shared";
+import { useGetCbtExamsQuery } from "@/services/cbt-exams/cbt-exams";
 import { format, isAfter, isPast, parseISO } from "date-fns";
 import type { Assignment } from "@/services/assignments/assignments-type";
 import type { Grade } from "@/services/grades/grades-type";
@@ -47,6 +47,11 @@ export default function AssignmentsPage() {
 
   const { data: gradesData } = useGetGradesQuery(
     user?.id ? { studentId: user.id } : undefined,
+    { skip: !user?.id },
+  );
+
+  const { data: cbtExamsData } = useGetCbtExamsQuery(
+    { _all: true },
     { skip: !user?.id },
   );
 
@@ -157,7 +162,34 @@ export default function AssignmentsPage() {
         )
       : 0;
 
-  const nextUpcomingQuiz = upcomingAssignments.find((a) =>  a.id);
+  const cbtExams = useMemo(() => {
+    const raw = cbtExamsData?.data;
+    return Array.isArray(raw)
+      ? raw
+      : (raw as { data?: unknown[] })?.data ?? [];
+  }, [cbtExamsData]);
+
+  const nextUpcomingCbtExam = useMemo(() => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const upcoming = cbtExams
+      .filter((exam: { schedule_date?: string | null; completed?: boolean }) => {
+        if (exam.completed) return false;
+        if (!exam.schedule_date) return true;
+        const d = parseISO(exam.schedule_date);
+        const examDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        return examDate.getTime() >= today.getTime();
+      })
+      .sort((a: { schedule_date?: string }, b: { schedule_date?: string }) => {
+        if (!a.schedule_date) return 1;
+        if (!b.schedule_date) return -1;
+        return (
+          parseISO(a.schedule_date).getTime() -
+          parseISO(b.schedule_date).getTime()
+        );
+      })[0];
+    return upcoming ?? null;
+  }, [cbtExams]);
 
   const latestGraded = [...gradedAssignments].sort((a, b) => {
     const aAt = a.grade?.createdAt;
@@ -281,12 +313,42 @@ export default function AssignmentsPage() {
 
       {/* Content Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {nextUpcomingQuiz && (
+        {(nextUpcomingCbtExam ||
+          (upcomingAssignments[0]?.type === "quiz" &&
+            upcomingAssignments[0]?.id)) && (
           <UpcomingQuizCard
-            onAction={() =>
-              nextUpcomingQuiz.id &&
-              router.push(`assignments/${nextUpcomingQuiz.id}`)
+            quiz={
+              nextUpcomingCbtExam
+                ? {
+                    id: nextUpcomingCbtExam.id,
+                    title: nextUpcomingCbtExam.title ?? "Quiz",
+                    subject: nextUpcomingCbtExam.subject ?? undefined,
+                    schedule_date: nextUpcomingCbtExam.schedule_date ?? undefined,
+                    schedule_time: nextUpcomingCbtExam.schedule_time ?? undefined,
+                    duration: nextUpcomingCbtExam.duration ?? undefined,
+                  }
+                : upcomingAssignments[0]?.type === "quiz" &&
+                    upcomingAssignments[0].id
+                  ? {
+                      id: upcomingAssignments[0].id,
+                      title: upcomingAssignments[0].title ?? "Quiz",
+                      subject: (upcomingAssignments[0] as AssignmentRow).subject,
+                      schedule_date: upcomingAssignments[0].dueDate ?? undefined,
+                      schedule_time: undefined,
+                      duration: undefined,
+                    }
+                  : null
             }
+            onAction={() => {
+              if (nextUpcomingCbtExam?.id) {
+                router.push(`/student/quiz/${nextUpcomingCbtExam.id}`);
+              } else if (
+                upcomingAssignments[0]?.type === "quiz" &&
+                upcomingAssignments[0].id
+              ) {
+                router.push(`/student/assignments/${upcomingAssignments[0].id}`);
+              }
+            }}
           />
         )}
         {latestGraded && (

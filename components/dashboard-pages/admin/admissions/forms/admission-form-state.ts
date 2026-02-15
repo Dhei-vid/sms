@@ -7,6 +7,7 @@ export interface ApplicantDetailsState {
   gender: { male: boolean; female: boolean };
   grade: string;
   parentName: string;
+  parentEmail: string;
   phoneNumber: string;
   email: string;
   schoolId: string;
@@ -34,6 +35,7 @@ export const getInitialAdmissionFormState = (): AdmissionFormState => ({
     gender: { male: false, female: false },
     grade: "",
     parentName: "",
+    parentEmail: "",
     phoneNumber: "",
     email: "",
     schoolId: "",
@@ -112,8 +114,8 @@ function toScalars(state: AdmissionFormState, schoolId: string | null) {
     gender,
     class_assigned: classAssigned,
     role: "student",
-    password: Math.random().toString(36).slice(-12) + "A1!",
     parent_name: details.parentName,
+    parent_email: details.parentEmail,
     phone_number: details.phoneNumber,
     stage: 2,
     initial_status: status.initialStatus || "Inititated",
@@ -140,8 +142,9 @@ export function buildAdmissionFormData(
   fd.append("gender", s.gender);
   if (s.class_assigned) fd.append("class_assigned", s.class_assigned);
   fd.append("role", s.role);
-  fd.append("password", s.password);
+  // Omit password - backend uses USER_PASSWORD from settings (e.g. password123)
   fd.append("parent_name", s.parent_name);
+  if (s.parent_email) fd.append("parent_email", s.parent_email);
   fd.append("phone_number", s.phone_number);
   fd.append("stage", String(s.stage));
   fd.append("initial_status", s.initial_status);

@@ -8,6 +8,7 @@ import { menuItems } from "@/common/menu-items";
 import { getRolePath } from "@/utils/menu-utils";
 import { UserRole } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { useUnreadNoticeCount } from "@/hooks/use-unread-notice-count";
 import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
 import { Icon } from "../general/huge-icon";
@@ -28,6 +29,7 @@ export function Sidebar({
 }: SidebarProps) {
   const pathname = usePathname();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
+  const unreadNoticeCount = useUnreadNoticeCount();
 
   // Filter navigation items by role - same pattern as the example
   const filteredNavItems = menuItems.filter((item) =>
@@ -195,7 +197,9 @@ export function Sidebar({
                     {!collapsed && (
                       <>
                         <span className="truncate">{item.label}</span>
-                        {item.badge && (
+                        {(item.id === "notice-board"
+                          ? unreadNoticeCount > 0
+                          : item.badge) && (
                           <span
                             className={cn(
                               "ml-auto px-2 py-0.5 text-xs font-medium rounded-full shrink-0",
@@ -204,7 +208,9 @@ export function Sidebar({
                                 : "bg-muted text-muted-foreground",
                             )}
                           >
-                            {item.badge}
+                            {item.id === "notice-board"
+                              ? unreadNoticeCount
+                              : item.badge}
                           </span>
                         )}
                       </>

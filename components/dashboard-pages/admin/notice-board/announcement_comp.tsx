@@ -11,7 +11,10 @@ import {
   Agreement02Icon,
   InformationCircleIcon,
 } from "@hugeicons/core-free-icons";
-import { useGetNotificationsQuery } from "@/services/shared";
+import {
+  useGetNotificationsQuery,
+  useMarkNotificationReadMutation,
+} from "@/services/shared";
 import { format } from "date-fns";
 import { useAppSelector } from "@/store/hooks";
 import { selectUser } from "@/store/slices/authSlice";
@@ -30,6 +33,7 @@ const getIconForType = (type: string) => {
 
 const NoticeGeneralAnnouncementBoard = () => {
   const user = useAppSelector(selectUser);
+  const [markRead] = useMarkNotificationReadMutation();
 
   // Fetch general announcements - filter by target_audience=general
   // Backend QueryFilter expects: target_audience[eq]=general
@@ -142,7 +146,26 @@ const NoticeGeneralAnnouncementBoard = () => {
     <Card className="bg-background py-0 overflow-hidden">
       <CardContent className="p-0">
         {generalAnnouncements.map((announcement, index) => (
-          <div key={announcement.id} className="relative cursor-pointer">
+          <div
+            key={announcement.id}
+            className="relative cursor-pointer"
+            role="button"
+            tabIndex={0}
+            onClick={() => {
+              if (announcement.isUnread) {
+                markRead(announcement.id);
+              }
+            }}
+            onKeyDown={(e) => {
+              if (
+                (e.key === "Enter" || e.key === " ") &&
+                announcement.isUnread
+              ) {
+                e.preventDefault();
+                markRead(announcement.id);
+              }
+            }}
+          >
             {index > 0 && <Separator className="my-0" />}
             <div className="p-6 hover:bg-main-blue/5 transition-colors">
               <div className="flex gap-4">

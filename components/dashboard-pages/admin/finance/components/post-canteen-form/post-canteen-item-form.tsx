@@ -8,6 +8,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { SelectItem } from "@/components/ui/select";
+import { useCreateProductMutation } from "@/services/products/products";
+import { toast } from "sonner";
 
 const initialData = {
   itemName: "",
@@ -33,16 +35,58 @@ interface PostCanteenItemForm {
   itemStatus: boolean;
 }
 
+const CATEGORY_MAP: Record<string, string> = {
+  food: "food",
+  beverage: "drinks",
+  snack: "snacks",
+  other: "other",
+};
+
 export function PostCanteenItemForm({ onClose }: { onClose: () => void }) {
   const [formData, setFormData] = useState<PostCanteenItemForm>(initialData);
+  const [createProduct, { isLoading }] = useCreateProductMutation();
 
-  const handleSubmit = () => {
-    // Handle form submission
-    console.log("Post canteen item submitted", {
-      ...formData,
-    });
-    // Reset form and close modal
-    setFormData(initialData);
+  const handleSubmit = async () => {
+    const name = formData.itemName.trim();
+    const priceNum = parseFloat(formData.unitPrice);
+    const stockNum = parseInt(formData.availableStock, 10);
+
+    if (!name) {
+      toast.error("Item name is required");
+      return;
+    }
+    if (isNaN(priceNum) || priceNum < 0) {
+      toast.error("Please enter a valid unit price");
+      return;
+    }
+    if (isNaN(stockNum) || stockNum < 0) {
+      toast.error("Please enter a valid stock quantity");
+      return;
+    }
+
+    const category =
+      CATEGORY_MAP[formData.itemCategory] || formData.itemCategory || "other";
+
+    try {
+      await createProduct({
+        name,
+        description: name,
+        price: priceNum,
+        sale_price: priceNum,
+        category,
+        stock: stockNum,
+        in_stock: formData.itemStatus,
+      }).unwrap();
+      toast.success("Item added to canteen menu");
+      setFormData(initialData);
+      onClose();
+    } catch (err: unknown) {
+      const msg =
+        err && typeof err === "object" && "data" in err
+          ? (err as { data?: { message?: string } }).data?.message
+          : "Failed to add item";
+      toast.error(String(msg));
+    }
   };
 
   return (
@@ -203,7 +247,9 @@ export function PostCanteenItemForm({ onClose }: { onClose: () => void }) {
         <Button variant="outline" onClick={onClose}>
           Cancel
         </Button>
-        <Button onClick={handleSubmit}>Save and Update Canteen Menu</Button>
+        <Button onClick={handleSubmit} disabled={isLoading}>
+          {isLoading ? "Saving…" : "Save and Update Canteen Menu"}
+        </Button>
       </div>
     </div>
   );

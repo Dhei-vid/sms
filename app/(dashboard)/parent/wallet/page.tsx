@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { DataTable, TableColumn } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/general/huge-icon";
@@ -8,6 +8,13 @@ import { Eye, EyeOff } from "lucide-react";
 import { WalletAdd02Icon, Download02Icon } from "@hugeicons/core-free-icons";
 import { TopUpWalletModal } from "@/components/dashboard-pages/parent/dashboard/top-up-wallet-modal";
 import { usePagination } from "@/hooks/use-pagination";
+import { useAppSelector } from "@/store/hooks";
+import { selectUser } from "@/store/slices/authSlice";
+import { useGetParentByUserIdQuery } from "@/services/stakeholders/stakeholders";
+import { useGetWalletBalanceQuery } from "@/services/wallet/wallet";
+import { useGetTransactionsQuery } from "@/services/transactions/transactions";
+import { format } from "date-fns";
+import type { Transaction as ApiTransaction } from "@/services/transactions/transaction-types";
 
 interface Transaction {
   id: string;
@@ -18,77 +25,62 @@ interface Transaction {
   runningBalance: string;
 }
 
-// Sample data - in production, this would come from an API
-const allTransactions: Transaction[] = [
-  {
-    id: "1",
-    dateTime: "Oct. 20, 2025; 12:30 PM",
-    transactionType: "Wallet Debit",
-    itemSource: "Meat Pie",
-    amount: "- ₦700",
-    runningBalance: "₦4,500",
-  },
-  {
-    id: "2",
-    dateTime: "Oct. 20, 2025; 12:30 PM",
-    transactionType: "Top - Up",
-    itemSource: "Deposit",
-    amount: "+ ₦5,000",
-    runningBalance: "₦7,200",
-  },
-  {
-    id: "3",
-    dateTime: "Oct. 20, 2025; 12:30 PM",
-    transactionType: "Wallet Debit",
-    itemSource: "Jollof Rice + Chicken",
-    amount: "- ₦1,500",
-    runningBalance: "₦2,200",
-  },
-  {
-    id: "4",
-    dateTime: "Oct. 20, 2025; 12:30 PM",
-    transactionType: "Top - Up",
-    itemSource: "Deposit",
-    amount: "+ ₦2,000",
-    runningBalance: "₦3,700",
-  },
-  {
-    id: "5",
-    dateTime: "Oct. 20, 2025; 12:30 PM",
-    transactionType: "Wallet Debit",
-    itemSource: "Meat Pie + Bottle Water",
-    amount: "₦1,050",
-    runningBalance: "₦1,700",
-  },
-  {
-    id: "6",
-    dateTime: "Oct. 19, 2025; 10:15 AM",
-    transactionType: "Top - Up",
-    itemSource: "Deposit",
-    amount: "+ ₦3,000",
-    runningBalance: "₦2,750",
-  },
-  {
-    id: "7",
-    dateTime: "Oct. 19, 2025; 09:00 AM",
-    transactionType: "Wallet Debit",
-    itemSource: "Breakfast Combo",
-    amount: "- ₦1,200",
-    runningBalance: "- ₦250",
-  },
-  {
-    id: "8",
-    dateTime: "Oct. 18, 2025; 02:45 PM",
-    transactionType: "Top - Up",
-    itemSource: "Deposit",
-    amount: "+ ₦5,000",
-    runningBalance: "₦950",
-  },
-];
+
+function formatTransactionRow(tx: ApiTransaction): Transaction {
+  const isCredit = tx.transaction_type === "income";
+  const amt = Math.abs(Number(tx.amount ?? 0));
+  const currency = tx.currency ?? "₦";
+  return {
+    id: tx.id,
+    dateTime: tx.created_at
+      ? format(new Date(tx.created_at), "MMM. d, yyyy; h:mm a")
+      : "—",
+    transactionType: isCredit ? "Top - Up" : "Wallet Debit",
+    itemSource: tx.description ?? tx.payment_type ?? "—",
+    amount: isCredit ? `+ ${currency}${amt.toLocaleString()}` : `- ${currency}${amt.toLocaleString()}`,
+    runningBalance: "—",
+  };
+}
 
 export default function WalletPage() {
+  const user = useAppSelector(selectUser);
   const [balanceVisible, setBalanceVisible] = useState(true);
   const [topUpModalOpen, setTopUpModalOpen] = useState(false);
+
+  const { data: parentData } = useGetParentByUserIdQuery(user?.id ?? "", {
+    skip: !user?.id,
+  });
+  const parent = parentData?.data ?? null;
+  const childrenDetails = (parent?.children_details ?? []) as Array<{
+    id?: string;
+    user_id?: string;
+    user?: { first_name?: string; last_name?: string };
+  }>;
+  const primaryWard = childrenDetails[0] ?? null;
+  const wardUserId = primaryWard?.user_id ?? null;
+  const wardName =
+    primaryWard?.user
+      ? [primaryWard.user.first_name, primaryWard.user.last_name].filter(Boolean).join(" ") || "Ward"
+      : "Ward";
+
+  const { data: walletData } = useGetWalletBalanceQuery(wardUserId ?? undefined, {
+    skip: !wardUserId,
+  });
+  const wallet = walletData?.data as { balance?: string; currency?: string } | undefined;
+  const balanceFormatted =
+    wallet?.balance != null && wallet?.currency
+      ? `${wallet.currency} ${Number(wallet.balance).toLocaleString("en-NG", { minimumFractionDigits: 2 })}`
+      : "₦0.00";
+
+  const { data: transactionsData } = useGetTransactionsQuery(
+    wardUserId ? { _all: "true", user_id: wardUserId } : { _all: "true" },
+    { skip: !wardUserId }
+  );
+  const apiTransactions = (transactionsData?.data ?? []) as ApiTransaction[];
+  const allTransactions = useMemo(
+    () => apiTransactions.map(formatTransactionRow),
+    [apiTransactions]
+  );
 
   // Pagination
   const {
@@ -150,7 +142,7 @@ export default function WalletPage() {
       {/* Page Header */}
       <div className="bg-background rounded-md p-6">
         <h1 className="text-2xl font-bold text-gray-800 mb-2">
-          Tunde&apos;s Wallet (Canteen/Payments)
+          {wardName}&apos;s Wallet (Canteen/Payments)
         </h1>
         <p className="text-gray-600">
           This screen allows parents monitor their children spending in school.
@@ -165,7 +157,7 @@ export default function WalletPage() {
               <p className="text-sm text-white/80 mb-1">Wallet Balance</p>
               <div className="flex items-center gap-2">
                 <p className="text-3xl font-bold text-white">
-                  {balanceVisible ? "₦4,500.00" : "••••••"}
+                  {balanceVisible ? balanceFormatted : "••••••"}
                 </p>
                 <button
                   onClick={() => setBalanceVisible(!balanceVisible)}
@@ -221,8 +213,8 @@ export default function WalletPage() {
       <TopUpWalletModal
         open={topUpModalOpen}
         onOpenChange={setTopUpModalOpen}
-        studentName="Tunde"
-        currentBalance="₦4,500.00"
+        studentName={wardName}
+        currentBalance={balanceFormatted}
       />
     </div>
   );

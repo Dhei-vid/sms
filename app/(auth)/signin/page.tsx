@@ -113,8 +113,9 @@ export default function SignInPage() {
       // Small delay to ensure state is updated before navigation
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      // Navigate to appropriate dashboard based on user role
-      const dashboardPath = getRolePath(result.data.user.role, "dashboard");
+      // Navigate to appropriate dashboard based on user role (canteen goes to store)
+      const defaultPath = result.data.user.role === "canteen" ? "store" : "dashboard";
+      const dashboardPath = getRolePath(result.data.user.role, defaultPath);
       console.log("🚀 Navigating to:", dashboardPath);
       router.push(dashboardPath);
     } catch (err: any) {

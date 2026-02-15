@@ -35,11 +35,21 @@ export interface CbtResultsQueryParams {
   exam_id?: string;
 }
 
+export interface CbtResultAnswer {
+  question_id: string;
+  selected_option: number;
+  is_correct: boolean;
+  time_spent?: number;
+}
+
 export interface CreateCBTResultsPayload {
   exam_id: string;
+  user_id?: string;
+  stakeholder_id?: string;
   percentage: number;
   score: number;
   total_time_spent: number;
+  answers?: CbtResultAnswer[] | null;
 }
 
 export interface UpdateCBTResultsPayload {

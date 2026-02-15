@@ -12,12 +12,14 @@ interface AnswerOptionsProps {
   options: AnswerOption[];
   selectedAnswer?: string;
   onSelect: (value: string) => void;
+  disabled?: boolean;
 }
 
 export function AnswerOptions({
   options,
   selectedAnswer,
   onSelect,
+  disabled = false,
 }: AnswerOptionsProps) {
   return (
     <div className="bg-white p-6">
@@ -25,9 +27,13 @@ export function AnswerOptions({
         {options.map((option, index) => (
           <button
             key={index}
-            onClick={() => onSelect(option.value)}
+            type="button"
+            onClick={() => !disabled && onSelect(option.value)}
+            disabled={disabled}
             className={cn(
-              "border-2 rounded-md p-4 text-left transition-all hover:border-main-blue hover:bg-main-blue/5",
+              "border-2 rounded-md p-4 text-left transition-all",
+              disabled && "opacity-60 cursor-not-allowed",
+              !disabled && "hover:border-main-blue hover:bg-main-blue/5",
               selectedAnswer === option.value
                 ? "border-main-blue bg-main-blue/10"
                 : "border-gray-200",

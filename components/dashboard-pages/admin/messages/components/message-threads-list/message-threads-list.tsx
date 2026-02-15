@@ -36,6 +36,8 @@ interface MessageThreadsListProps {
   onNewMessage?: () => void;
   teachers?: User[];
   onTeacherSelect?: (teacherId: string) => void;
+  /** Show the plus button to start new chats (e.g. with teachers). Hidden for students. */
+  showAddButton?: boolean;
 }
 
 export function MessageThreadsList({
@@ -45,6 +47,7 @@ export function MessageThreadsList({
   onNewMessage,
   teachers = [],
   onTeacherSelect,
+  showAddButton = true,
 }: MessageThreadsListProps) {
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -80,40 +83,42 @@ export function MessageThreadsList({
                 className="pl-10 h-11"
               />
             </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant={"outline"} className="h-11 w-11">
-                  <Icon icon={Add01Icon} size={23} />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="w-64 max-h-96 overflow-y-auto"
-              >
-                {teachers.length === 0 ? (
-                  <DropdownMenuItem disabled>
-                    No teachers found
-                  </DropdownMenuItem>
-                ) : (
-                  teachers.map((teacher) => (
-                    <DropdownMenuItem
-                      key={teacher.id}
-                      onClick={() => handleTeacherClick(teacher.id)}
-                      className="cursor-pointer"
-                    >
-                      <div className="flex flex-col">
-                        <span className="text-sm font-medium">
-                          {teacher.first_name} {teacher.last_name}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {teacher.email}
-                        </span>
-                      </div>
+            {showAddButton && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant={"outline"} className="h-11 w-11">
+                    <Icon icon={Add01Icon} size={23} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  className="w-64 max-h-96 overflow-y-auto"
+                >
+                  {teachers.length === 0 ? (
+                    <DropdownMenuItem disabled>
+                      No teachers found
                     </DropdownMenuItem>
-                  ))
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  ) : (
+                    teachers.map((teacher) => (
+                      <DropdownMenuItem
+                        key={teacher.id}
+                        onClick={() => handleTeacherClick(teacher.id)}
+                        className="cursor-pointer"
+                      >
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium">
+                            {teacher.first_name} {teacher.last_name}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {teacher.email}
+                          </span>
+                        </div>
+                      </DropdownMenuItem>
+                    ))
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
 
