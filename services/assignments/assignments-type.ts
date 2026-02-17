@@ -10,6 +10,12 @@ export interface Assignment {
   title?: string;
   dueDate?: string;
   studentId?: string;
+  /** Assignment type e.g. "quiz", "general", "test", "practice" */
+  type?: string;
+  /** Max score / total marks (from API) */
+  maxScore?: number | string;
+  /** Course/subject name (from API) */
+  courseName?: string;
   [key: string]: unknown;
 }
 

@@ -81,12 +81,12 @@ export interface UpdateTransactions {
 }
 
 export interface InitializePayment {
-  // "school_id": "01jyrdaafjsxp4neh45parbsq5",
-  // "receiver_id": "01jyrdaab3r7chxs74zgcrmryd",
-  // "sender_id": "01jyrdaafjsxp4neh45parbsq5",
-  // "payment_type": "payment",
-  payment_gateway: PaymentGateway;
+  payment_gateway?: PaymentGateway;
   amount: number;
+  school_id?: string;
+  receiver_id?: string;
+  sender_id?: string;
+  payment_type?: PaymentType;
 }
 
 export interface VerifyTransaction {

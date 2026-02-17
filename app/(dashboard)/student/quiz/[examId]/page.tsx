@@ -35,11 +35,13 @@ function mapCbtQuestionToDisplay(q: CbtQuestion): QuestionForDisplay {
     label: labels[i] ?? String(i + 1),
     value: text,
   }));
+  const instructionStr =
+    typeof q.instruction === "string" ? q.instruction : "";
   return {
     id: q.id,
     topic: q.subject ?? "General",
-    topicInfo: q.instruction ?? undefined,
-    instruction: q.instruction ?? "",
+    topicInfo: instructionStr || undefined,
+    instruction: instructionStr,
     question: q.question ?? "",
     options: opts,
   };
@@ -213,12 +215,15 @@ export default function QuizPage() {
     );
   }
 
-  const rawData = (resultsResponse as { data?: unknown[] })?.data;
-  const existingResults = Array.isArray(rawData)
-    ? rawData
-    : Array.isArray((rawData as { data?: unknown[] })?.data)
+  const rawData = (resultsResponse as { data?: unknown })?.data;
+  const nested =
+    rawData &&
+    typeof rawData === "object" &&
+    "data" in rawData &&
+    Array.isArray((rawData as { data: unknown[] }).data)
       ? (rawData as { data: unknown[] }).data
-      : [];
+      : null;
+  const existingResults = Array.isArray(rawData) ? rawData : nested ?? [];
   const userResult = existingResults.find(
     (r: { user_id?: string }) => r.user_id === user?.id
   );

@@ -70,7 +70,7 @@ export const walletApi = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["Wallet"],
+      invalidatesTags: ["Wallet", { type: "Transaction" as const, id: "LIST" }],
     }),
 
     makePayment: build.mutation<ApiResponse<Wallet>, MakePaymentsPayload>({
@@ -79,7 +79,7 @@ export const walletApi = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["Wallet"],
+      invalidatesTags: ["Wallet", { type: "Transaction" as const, id: "LIST" }],
     }),
   }),
 });

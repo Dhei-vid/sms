@@ -136,7 +136,8 @@ export interface AdmissionRegister {
   gender: string;
   class_assigned?: string | null;
   role: Roles;
-  password: string;
+  /** Optional; backend uses USER_PASSWORD from settings when omitted */
+  password?: string;
   parent_name: string;
   phone_number: string;
   stage: number;

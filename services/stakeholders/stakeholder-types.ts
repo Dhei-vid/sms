@@ -4,6 +4,15 @@ import { User } from "../users/users-type";
 import { Notes } from "../notes/note-types";
 import { ApiResponse } from "../shared-types";
 
+/** Child/ward details returned in parent's children_details */
+export interface StakeholderChildDetails {
+  id: string;
+  user_id: string;
+  school_id?: string;
+  user?: { first_name?: string; last_name?: string };
+  class_assigned?: string | null;
+}
+
 export interface Stakeholders {
   id: string;
   user_id: string;
@@ -40,8 +49,8 @@ export interface Stakeholders {
   teaching_duty_details?: TeachingDutyDetails | null;
   non_teaching_duty_details?: NonTeachingDutyDetails | null;
 
-  children?: Stakeholders[];
-  children_details?: string[];
+  children?: Stakeholders[] | string[];
+  children_details?: StakeholderChildDetails[];
   relationship_to_student: string | null;
 
   occupation: string | null;

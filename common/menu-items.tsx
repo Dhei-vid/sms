@@ -118,7 +118,7 @@ export const menuItems: MenuItem[] = [
     label: "Timetable",
     icon: Calendar02Icon,
     href: "/timetable",
-    roles: ["parent"],
+    roles: [],
   },
   {
     id: "admissions",
@@ -177,7 +177,7 @@ export const menuItems: MenuItem[] = [
   },
   {
     id: "parentmywallet",
-    label: "Tunde's Wallet",
+    label: "Ward's Wallet",
     icon: Wallet01Icon,
     href: "/wallet",
     roles: ["parent"],

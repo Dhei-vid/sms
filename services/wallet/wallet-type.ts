@@ -62,13 +62,15 @@ export interface TransferFundsPayload {
 }
 
 export interface MakePaymentsPayload {
-  school_id: string;
-  order_id: string;
-  payment_type: "order" | "subscription" | "order" | "fees";
+  payment_type: "order" | "subscription" | "fees";
   amount: number;
-  // "user_id": "01jyrdaace75k9mgxyykhm4pg0",
-  // "subscription_id": "01jz18t0m3haw9ys07n842zzxk",
-  // "duration": 4,
+  school_id: string;
+  user_id?: string;
+  receiver_id?: string;
+  order_id?: string;
+  fees_type?: string;
+  subscription_id?: string;
+  duration?: number;
 }
 
 /**

@@ -125,7 +125,7 @@ function toScalars(state: AdmissionFormState, schoolId: string | null) {
   };
 }
 
-export function buildAdmissionFormData(
+export function   buildAdmissionFormData(
   state: AdmissionFormState,
   schoolId: string | null,
 ): FormData {

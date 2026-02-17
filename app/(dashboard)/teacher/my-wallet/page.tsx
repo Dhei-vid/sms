@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/general/huge-icon";
 import { Eye, EyeOff } from "lucide-react";
 import { WalletAdd02Icon, Download02Icon } from "@hugeicons/core-free-icons";
-import { TopUpWalletModal } from "@/components/dashboard-pages/parent/dashboard/top-up-wallet-modal";
+import { TopUpWalletModal } from "@/components/dashboard-pages/parent/top-up-wallet-modal";
 
 interface Transaction {
   id: string;
@@ -179,7 +179,6 @@ export default function WalletPage() {
       <TopUpWalletModal
         open={topUpModalOpen}
         onOpenChange={setTopUpModalOpen}
-        studentName="Tunde"
         currentBalance="₦4,500.00"
       />
     </div>

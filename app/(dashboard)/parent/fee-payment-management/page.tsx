@@ -1,31 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useAppSelector } from "@/store/hooks";
+import { selectUser } from "@/store/slices/authSlice";
 import { MetricCard } from "@/components/dashboard-pages/admin/admissions/components/metric-card";
 import { usePagination } from "@/hooks/use-pagination";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataTable, TableColumn } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Icon } from "@/components/general/huge-icon";
-import { AddSquareIcon, FileDownloadIcon } from "@hugeicons/core-free-icons";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { AddSquareIcon } from "@hugeicons/core-free-icons";
+import { useGetParentByUserIdQuery } from "@/services/stakeholders/stakeholders";
+import { useGetTransactionsQuery } from "@/services/transactions/transactions";
+import { PayFeesModal } from "@/components/dashboard-pages/parent/pay-fees-modal";
+import { format } from "date-fns";
+import type { Transaction } from "@/services/transactions/transaction-types";
 
-interface Invoice {
+interface Ward {
   id: string;
-  name: string;
-  amount: string;
-  dateDue: string;
+  user_id: string;
+  school_id?: string;
+  user?: { first_name?: string; last_name?: string };
+  class_assigned?: string | null;
+  school_fees?: {
+    total_owed?: number;
+    total_paid?: number;
+    total?: number;
+    last_payment?: string | null;
+  };
 }
 
-interface Payment {
+interface PaymentRow {
   id: string;
   description: string;
   paymentDate: string;
@@ -33,245 +38,113 @@ interface Payment {
   status: string;
 }
 
-const invoices: Invoice[] = [
-  {
-    id: "1",
-    name: "Tuition Fee (Term 2)",
-    amount: "₦ 200,000.00",
-    dateDue: "Nov. 25, 2025",
-  },
-  {
-    id: "2",
-    name: "Extracurricular Activities",
-    amount: "₦ 50,000.00",
-    dateDue: "Dec. 12, 2025",
-  },
-];
+const CURRENCY = "₦";
+const formatAmount = (n: number | string) =>
+  `${CURRENCY}${Number(n).toLocaleString("en-NG", { minimumFractionDigits: 2 })}`;
 
-// Sample data - in production, this would come from an API
-const allPayments: Payment[] = [
-  {
-    id: "1",
-    description: "Tuition Fee (Term 1)",
-    paymentDate: "Sept., 01 2025",
-    amountPaid: "₦ 200,000.00",
-    status: "Completed",
-  },
-  {
-    id: "2",
-    description: "Uniform Purchase",
-    paymentDate: "Sept., 01 2025",
-    amountPaid: "₦ 15,000.00",
-    status: "Completed",
-  },
-  {
-    id: "3",
-    description: "Admission Deposit",
-    paymentDate: "Sept., 01 2025",
-    amountPaid: "₦ 50,000.00",
-    status: "Completed",
-  },
-  {
-    id: "4",
-    description: "Library Fee",
-    paymentDate: "Aug., 15 2025",
-    amountPaid: "₦ 5,000.00",
-    status: "Completed",
-  },
-  {
-    id: "5",
-    description: "Sports Equipment",
-    paymentDate: "Aug., 10 2025",
-    amountPaid: "₦ 10,000.00",
-    status: "Completed",
-  },
-];
+function txToPaymentRow(tx: Transaction): PaymentRow {
+  const amt = typeof tx.amount === "string" ? parseFloat(tx.amount) : Number(tx.amount);
+  return {
+    id: tx.id,
+    description: tx.description ?? tx.payment_type ?? "Payment",
+    paymentDate: tx.created_at ? format(new Date(tx.created_at), "MMM. d, yyyy") : "—",
+    amountPaid: formatAmount(Math.abs(amt)),
+    status: tx.status === "completed" ? "Completed" : tx.status ?? "—",
+  };
+}
 
 export default function FeePaymentManagementPage() {
-  const [selectedInvoices, setSelectedInvoices] = useState<Set<string>>(
-    new Set(),
-  );
+  const user = useAppSelector(selectUser);
+  const [payModalOpen, setPayModalOpen] = useState(false);
+  const [payPrefill, setPayPrefill] = useState<{ amount?: number; feesType?: string }>({});
 
-  /**
-   * Pagination hook for payment history table
-   * Manages displaying payments in batches with "Load More" functionality
-   * Initially shows 3 items, loads 3 more per click
-   */
-  const {
-    displayedData: displayedPayments,
-    hasMore,
-    loadMore,
-  } = usePagination({
-    data: allPayments,
-    initialItemsPerPage: 3,
-    itemsPerPage: 3,
+  const { data: parentData } = useGetParentByUserIdQuery(user?.id ?? "", { skip: !user?.id });
+  const parent = parentData?.data ?? null;
+  const wards = (parent?.children_details ?? []) as Ward[];
+  const schoolId = parent?.school_id ?? wards[0]?.school_id ?? user?.school_id ?? "";
+
+  const { data: txData, refetch: refetchTx } = useGetTransactionsQuery(
+    { _all: "true" },
+    { skip: !user?.id }
+  );
+  const apiTx = (txData?.data ?? []) as Transaction[];
+  const feePayments = useMemo(
+    () =>
+      apiTx
+        .filter((t) => (t.payment_type ?? "").toLowerCase() === "fees")
+        .sort((a, b) => {
+          const da = a.created_at ? new Date(a.created_at).getTime() : 0;
+          const db = b.created_at ? new Date(b.created_at).getTime() : 0;
+          return db - da;
+        }),
+    [apiTx]
+  );
+  const paymentRows = useMemo(() => feePayments.map(txToPaymentRow), [feePayments]);
+
+  const { displayedData, hasMore, loadMore } = usePagination({
+    data: paymentRows,
+    initialItemsPerPage: 5,
+    itemsPerPage: 5,
   });
 
-  const handleToggleInvoice = (invoiceId: string) => {
-    setSelectedInvoices((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(invoiceId)) {
-        newSet.delete(invoiceId);
-      } else {
-        newSet.add(invoiceId);
-      }
-      return newSet;
-    });
-  };
-
-  const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedInvoices(new Set(invoices.map((inv) => inv.id)));
-    } else {
-      setSelectedInvoices(new Set());
+  const totalOutstanding = useMemo(() => {
+    let sum = 0;
+    for (const w of wards) {
+      const fees = w.school_fees ?? {};
+      const owed = fees.total_owed ?? (Number(fees.total ?? 0) - Number(fees.total_paid ?? 0));
+      if (owed > 0) sum += owed;
     }
+    return sum;
+  }, [wards]);
+
+  const lastPaymentDate = useMemo(() => {
+    let latest: string | null = null;
+    for (const w of wards) {
+      const last = w.school_fees?.last_payment;
+      if (last && (!latest || last > latest)) latest = last;
+    }
+    return latest;
+  }, [wards]);
+
+  const handlePayNow = (amount?: number, feesType?: string) => {
+    setPayPrefill({ amount, feesType });
+    setPayModalOpen(true);
   };
 
-  const handlePayNow = (invoice: Invoice) => {
-    // Handle payment logic
-    console.log("Pay now for:", invoice.name);
-  };
-
-  const handleDownloadInvoice = (invoice: Invoice) => {
-    // Handle download logic
-    console.log("Download invoice:", invoice.name);
-  };
-
-  const handleViewReceipt = (payment: Payment) => {
-    // Handle view receipt logic
-    console.log("View receipt for:", payment.description);
-  };
-
-  const handleMakeQuickPayment = () => {
-    // Handle quick payment logic
-    console.log("Make quick payment");
-  };
-
-  const invoiceColumns: TableColumn<Invoice>[] = [
-    {
-      key: "checkbox",
-      title: "",
-      render: (value, row) => (
-        <Checkbox
-          checked={selectedInvoices.has(row.id)}
-          onCheckedChange={() => handleToggleInvoice(row.id)}
-        />
-      ),
-      className: "w-12",
-    },
-    {
-      key: "name",
-      title: "Invoice",
-      render: (value) => (
-        <span className="font-medium text-gray-800">{value as string}</span>
-      ),
-    },
-    {
-      key: "amount",
-      title: "Amount",
-    },
-    {
-      key: "dateDue",
-      title: "Date Due",
-    },
-    {
-      key: "action",
-      title: "Action",
-      render: (value, row) => {
-        return (
-          <div className="flex items-center gap-3">
-            <Button
-              variant="link"
-              className="h-auto p-0 text-main-blue"
-              onClick={() => handlePayNow(row)}
-            >
-              Pay Now
-            </Button>
-            <Button
-              variant="link"
-              className="h-auto p-0 text-main-blue"
-              onClick={() => handleDownloadInvoice(row)}
-            >
-              Download Invoice
-            </Button>
-          </div>
-        );
-      },
-    },
-  ];
-
-  const paymentColumns: TableColumn<Payment>[] = [
-    {
-      key: "description",
-      title: "Description",
-      render: (value) => (
-        <span className="font-medium text-gray-800">{value as string}</span>
-      ),
-    },
-    {
-      key: "paymentDate",
-      title: "Payment Date",
-    },
-    {
-      key: "amountPaid",
-      title: "Amount Paid",
-    },
-    {
-      key: "status",
-      title: "Status",
-      render: (value) => {
-        const status = value as string;
-        return (
-          <span className="text-sm font-medium text-green-600">{status}</span>
-        );
-      },
-    },
-    {
-      key: "action",
-      title: "Action",
-      render: (value, row) => {
-        return (
-          <Button
-            variant="link"
-            className="h-auto p-0 text-main-blue"
-            onClick={() => handleViewReceipt(row)}
-          >
-            View Receipt
-          </Button>
-        );
-      },
-    },
+  const paymentColumns: TableColumn<PaymentRow>[] = [
+    { key: "description", title: "Description", render: (v) => <span className="font-medium text-gray-800">{v as string}</span> },
+    { key: "paymentDate", title: "Date" },
+    { key: "amountPaid", title: "Amount" },
+    { key: "status", title: "Status", render: (v) => <span className="text-sm font-medium text-green-600">{v as string}</span> },
   ];
 
   return (
     <div className="space-y-4">
-      {/* Page Header */}
       <div className="bg-background rounded-md p-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">
-          Fees & Payments Management
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-800 mb-2">Fees & Payments Management</h1>
         <p className="text-gray-600">
-          This screen serves as the parent&apos;s primary financial hub,
-          detailing all invoices, payment history, and providing secure methods
-          for settling school fees.
+          Manage school fees for your wards. Make payments from your wallet and view history.
         </p>
       </div>
 
-      {/* Total Outstanding Balance Section */}
       <div className="space-y-4">
-        <div className={"grid grid-col-1 lg:grid-cols-2 2xl:grid-cols-2 gap-3"}>
+        <div className="grid grid-col-1 lg:grid-cols-2 2xl:grid-cols-2 gap-3">
           <MetricCard
             title="Total Outstanding Balance"
-            value="₦ 250,000.00"
-            trend="up"
+            value={formatAmount(totalOutstanding)}
+            trend={totalOutstanding > 0 ? "up" : undefined}
           />
-          <MetricCard title="Next Due Date" value="Nov. 25, 2025" trend="up" />
+          <MetricCard
+            title="Last Payment"
+            value={lastPaymentDate ? format(new Date(lastPaymentDate), "MMM. d, yyyy") : "—"}
+          />
         </div>
         <div className="flex items-end">
           <Button
-            variant={"outline"}
-            onClick={handleMakeQuickPayment}
+            variant="outline"
+            onClick={() => handlePayNow()}
             className="w-full h-11"
+            disabled={wards.length === 0 || !schoolId}
           >
             <Icon icon={AddSquareIcon} size={18} />
             Make Quick Payment
@@ -279,97 +152,79 @@ export default function FeePaymentManagementPage() {
         </div>
       </div>
 
-      {/* List of all active invoices */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold text-gray-800">
-            List of all active invoices:
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="border rounded-lg overflow-hidden">
-            <Table>
-              <TableHeader className="bg-main-blue/5">
-                <TableRow>
-                  <TableHead className="w-12">
-                    <Checkbox
-                      checked={
-                        selectedInvoices.size === invoices.length &&
-                        invoices.length > 0
-                      }
-                      onCheckedChange={handleSelectAll}
-                    />
-                  </TableHead>
-                  <TableHead className="font-semibold">Invoice</TableHead>
-                  <TableHead className="font-semibold">Amount</TableHead>
-                  <TableHead className="font-semibold">Date Due</TableHead>
-                  <TableHead className="font-semibold">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {invoices.map((invoice) => (
-                  <TableRow key={invoice.id}>
-                    <TableCell>
-                      <Checkbox
-                        checked={selectedInvoices.has(invoice.id)}
-                        onCheckedChange={() => handleToggleInvoice(invoice.id)}
-                      />
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      {invoice.name}
-                    </TableCell>
-                    <TableCell>{invoice.amount}</TableCell>
-                    <TableCell>{invoice.dateDue}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Button
-                          variant="link"
-                          className="h-auto p-0 text-main-blue"
-                          onClick={() => handlePayNow(invoice)}
-                        >
-                          Pay Now
-                        </Button>
-                        <Button
-                          variant="link"
-                          className="h-auto p-0 text-main-blue"
-                          onClick={() => handleDownloadInvoice(invoice)}
-                        >
-                          Download Invoice
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Payment History */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold text-gray-800">
-            Payment History
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="border rounded-lg overflow-hidden">
-            <DataTable
-              columns={paymentColumns}
-              data={displayedPayments}
-              showActionsColumn={false}
-            />
-          </div>
-          {hasMore && (
-            <div className="flex justify-center mt-4">
-              <Button variant="outline" onClick={loadMore}>
-                Load More
-              </Button>
+      {wards.length > 0 && totalOutstanding > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold text-gray-800">Outstanding Fees by Student</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {wards.map((w) => {
+                const fees = w.school_fees ?? {};
+                const owed = fees.total_owed ?? (Number(fees.total ?? 0) - Number(fees.total_paid ?? 0));
+                if (owed <= 0) return null;
+                const name = w.user
+                  ? [w.user.first_name, w.user.last_name].filter(Boolean).join(" ") || "Student"
+                  : "Student";
+                return (
+                  <div
+                    key={w.id}
+                    className="flex items-center justify-between rounded border p-3"
+                  >
+                    <span className="font-medium">
+                      {name}
+                      {w.class_assigned ? ` (${w.class_assigned})` : ""}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-600">{formatAmount(owed)}</span>
+                      <Button
+                        variant="link"
+                        className="h-auto p-0 text-main-blue"
+                        onClick={() => handlePayNow(owed)}
+                      >
+                        Pay Now
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-gray-800">Payment History</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {paymentRows.length === 0 ? (
+            <p className="text-gray-500 py-4">No fee payments yet.</p>
+          ) : (
+            <>
+              <div className="border rounded-lg overflow-hidden">
+                <DataTable columns={paymentColumns} data={displayedData} showActionsColumn={false} />
+              </div>
+              {hasMore && (
+                <div className="flex justify-center mt-4">
+                  <Button variant="outline" onClick={loadMore}>
+                    Load More
+                  </Button>
+                </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>
+
+      <PayFeesModal
+        open={payModalOpen}
+        onOpenChange={setPayModalOpen}
+        wards={wards}
+        schoolId={schoolId}
+        prefillAmount={payPrefill.amount}
+        feesType={payPrefill.feesType}
+      />
     </div>
   );
 }

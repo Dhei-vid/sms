@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useAppSelector } from "@/store/hooks";
+import { selectUser } from "@/store/slices/authSlice";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { QuickActionCard } from "@/components/dashboard-pages/admin/admissions/components/quick-action-card";
 import {
@@ -9,18 +11,35 @@ import {
   Payment02Icon,
   UserIcon,
 } from "@hugeicons/core-free-icons";
-import { TopUpWalletModal } from "./top-up-wallet-modal";
+import { TopUpWalletModal } from "@/components/dashboard-pages/parent/top-up-wallet-modal";
 import { OutstandingFeesModal } from "./outstanding-fees-modal";
 import { FinancialArrangementModal } from "./financial-arrangement-modal";
 import { LeaveRequestModal } from "./leave-request-modal";
+import { useGetParentByUserIdQuery } from "@/services/stakeholders/stakeholders";
+import { useGetWalletBalanceQuery } from "@/services/wallet/wallet";
 
 export function QuickActionsCard() {
+  const user = useAppSelector(selectUser);
   const [topUpModalOpen, setTopUpModalOpen] = useState(false);
   const [outstandingFeesModalOpen, setOutstandingFeesModalOpen] =
     useState(false);
   const [financialArrangementModalOpen, setFinancialArrangementModalOpen] =
     useState(false);
   const [leaveRequestModalOpen, setLeaveRequestModalOpen] = useState(false);
+
+  const { data: parentData } = useGetParentByUserIdQuery(user?.id ?? "", {
+    skip: !user?.id || !topUpModalOpen,
+  });
+  const wards = (parentData?.data as { children_details?: Array<{ id: string; user_id: string; user?: { first_name?: string; last_name?: string }; class_assigned?: string | null }> } | null)?.children_details ?? [];
+  const wardUserId = wards[0]?.user_id;
+  const { data: wardWalletData } = useGetWalletBalanceQuery(wardUserId ?? undefined, {
+    skip: !wardUserId || !topUpModalOpen,
+  });
+  const wardWallet = wardWalletData?.data as { balance?: string; currency?: string } | undefined;
+  const balanceFormatted =
+    wardWallet?.balance != null && wardWallet?.currency
+      ? `${wardWallet.currency} ${Number(wardWallet.balance).toLocaleString("en-NG", { minimumFractionDigits: 2 })}`
+      : "₦0.00";
 
   return (
     <>
@@ -65,7 +84,8 @@ export function QuickActionsCard() {
       <TopUpWalletModal
         open={topUpModalOpen}
         onOpenChange={setTopUpModalOpen}
-        studentName="Tunde"
+        wards={wards}
+        currentBalance={balanceFormatted}
       />
       <OutstandingFeesModal
         open={outstandingFeesModalOpen}

@@ -16,9 +16,25 @@ import { Icon } from "@/components/general/huge-icon";
 import { Search01Icon, FilterIcon } from "@hugeicons/core-free-icons";
 import { useGetAssignmentsQuery, useGetGradesQuery } from "@/services/shared";
 import { useGetCbtExamsQuery } from "@/services/cbt-exams/cbt-exams";
+import type { CbtExam } from "@/services/cbt-exams/cbt-exam-types";
 import { format, isAfter, isPast, parseISO } from "date-fns";
 import type { Assignment } from "@/services/assignments/assignments-type";
 import type { Grade } from "@/services/grades/grades-type";
+
+/** Extract CBT exams list from API response (handles both flat and nested data). */
+function getCbtExamsList(data: unknown): CbtExam[] {
+  if (!data || typeof data !== "object") return [];
+  const d = data as { data?: CbtExam[] | { data?: CbtExam[] }; pagination?: unknown };
+  if (Array.isArray(d.data)) return d.data;
+  if (
+    d.data &&
+    typeof d.data === "object" &&
+    Array.isArray((d.data as { data?: CbtExam[] }).data)
+  ) {
+    return (d.data as { data: CbtExam[] }).data;
+  }
+  return [];
+}
 
 /** Row type for the assignments table (assignment + computed fields, all string/number where needed). */
 type AssignmentRow = Assignment & {
@@ -162,25 +178,23 @@ export default function AssignmentsPage() {
         )
       : 0;
 
-  const cbtExams = useMemo(() => {
-    const raw = cbtExamsData?.data;
-    return Array.isArray(raw)
-      ? raw
-      : (raw as { data?: unknown[] })?.data ?? [];
-  }, [cbtExamsData]);
+  const cbtExams = useMemo(
+    () => getCbtExamsList(cbtExamsData),
+    [cbtExamsData]
+  );
 
   const nextUpcomingCbtExam = useMemo(() => {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const upcoming = cbtExams
-      .filter((exam: { schedule_date?: string | null; completed?: boolean }) => {
+      .filter((exam) => {
         if (exam.completed) return false;
         if (!exam.schedule_date) return true;
         const d = parseISO(exam.schedule_date);
         const examDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
         return examDate.getTime() >= today.getTime();
       })
-      .sort((a: { schedule_date?: string }, b: { schedule_date?: string }) => {
+      .sort((a, b) => {
         if (!a.schedule_date) return 1;
         if (!b.schedule_date) return -1;
         return (
@@ -267,9 +281,7 @@ export default function AssignmentsPage() {
             variant="link"
             className="h-auto p-0 text-main-blue"
             onClick={() =>
-              row.type === "quiz" && row.id
-                ? router.push(`/student/assignments/${row.id}`)
-                : undefined
+              row.id ? router.push(`/student/quiz/${row.id}`) : undefined
             }
           >
             {row.actionLabel}
@@ -313,9 +325,7 @@ export default function AssignmentsPage() {
 
       {/* Content Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {(nextUpcomingCbtExam ||
-          (upcomingAssignments[0]?.type === "quiz" &&
-            upcomingAssignments[0]?.id)) && (
+        {(nextUpcomingCbtExam || upcomingAssignments[0]?.id) && (
           <UpcomingQuizCard
             quiz={
               nextUpcomingCbtExam
@@ -327,12 +337,11 @@ export default function AssignmentsPage() {
                     schedule_time: nextUpcomingCbtExam.schedule_time ?? undefined,
                     duration: nextUpcomingCbtExam.duration ?? undefined,
                   }
-                : upcomingAssignments[0]?.type === "quiz" &&
-                    upcomingAssignments[0].id
+                : upcomingAssignments[0]?.id
                   ? {
                       id: upcomingAssignments[0].id,
                       title: upcomingAssignments[0].title ?? "Quiz",
-                      subject: (upcomingAssignments[0] as AssignmentRow).subject,
+                      subject: upcomingAssignments[0].subject,
                       schedule_date: upcomingAssignments[0].dueDate ?? undefined,
                       schedule_time: undefined,
                       duration: undefined,
@@ -342,11 +351,8 @@ export default function AssignmentsPage() {
             onAction={() => {
               if (nextUpcomingCbtExam?.id) {
                 router.push(`/student/quiz/${nextUpcomingCbtExam.id}`);
-              } else if (
-                upcomingAssignments[0]?.type === "quiz" &&
-                upcomingAssignments[0].id
-              ) {
-                router.push(`/student/assignments/${upcomingAssignments[0].id}`);
+              } else if (upcomingAssignments[0]?.id) {
+                router.push(`/student/quiz/${upcomingAssignments[0].id}`);
               }
             }}
           />
@@ -422,24 +428,30 @@ export default function AssignmentsPage() {
       </Card>
 
       {/* Teacher Feedback Modal */}
-      {selectedAssignment && (selectedAssignment as any).grade && (
+      {selectedAssignment && (selectedAssignment as AssignmentRow).grade && (
         <TeacherFeedbackModal
           open={feedbackModalOpen}
           onOpenChange={setFeedbackModalOpen}
           assignmentName={
-            (selectedAssignment as any).assignmentName ||
-            selectedAssignment.title
+            (selectedAssignment as AssignmentRow).assignmentName ||
+            selectedAssignment.title ||
+            "Assignment"
           }
           finalScore={
-            (selectedAssignment as any).grade &&
-            (selectedAssignment as any).maxScore != null &&
-            (selectedAssignment as any).grade?.score != null
-              ? `${(selectedAssignment as any).grade.score} / ${(selectedAssignment as any).maxScore} Marks`
+            (selectedAssignment as AssignmentRow).grade &&
+            (selectedAssignment as AssignmentRow).maxScore != null &&
+            (selectedAssignment as AssignmentRow).grade?.score != null
+              ? `${(selectedAssignment as AssignmentRow).grade!.score} / ${(selectedAssignment as AssignmentRow).maxScore} Marks`
               : "N/A"
           }
           teacherFeedback={
-            (selectedAssignment as any).grade?.remarks ||
-            "No feedback available"
+            (() => {
+              const remarks = (selectedAssignment as AssignmentRow).grade
+                ?.remarks;
+              return typeof remarks === "string"
+                ? remarks
+                : "No feedback available";
+            })()
           }
           onAcknowledge={handleAcknowledge}
         />

@@ -2,13 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { ChevronRight } from "lucide-react";
 import { menuItems } from "@/common/menu-items";
 import { getRolePath } from "@/utils/menu-utils";
 import { UserRole } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useUnreadNoticeCount } from "@/hooks/use-unread-notice-count";
+import { useAppSelector } from "@/store/hooks";
+import { selectUser } from "@/store/slices/authSlice";
+import { useGetParentByUserIdQuery } from "@/services/stakeholders/stakeholders";
 import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
 import { Icon } from "../general/huge-icon";
@@ -30,20 +33,33 @@ export function Sidebar({
   const pathname = usePathname();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const unreadNoticeCount = useUnreadNoticeCount();
+  const user = useAppSelector(selectUser);
+  const { data: parentData } = useGetParentByUserIdQuery(user?.id ?? "", {
+    skip: role !== "parent" || !user?.id,
+  });
 
-  // Filter navigation items by role - same pattern as the example
+  const parentWalletLabel = useMemo(() => {
+    if (role !== "parent") return null;
+    const children = (parentData?.data as { children_details?: Array<{ user?: { first_name?: string; last_name?: string } }> } | undefined)?.children_details ?? [];
+    if (children.length === 0) return "Ward's Wallet";
+    if (children.length === 1) {
+      const u = children[0]?.user;
+      const name = u ? [u.first_name].filter(Boolean).join(" ") : null;
+      return name ? `${name}'s Wallet` : "Ward's Wallet";
+    }
+    return "Ward's Wallet";
+  }, [role, parentData?.data]);
+
   const filteredNavItems = menuItems.filter((item) =>
     item.roles.includes(role),
   );
 
   // Helper function to check if a nav item is active
   const isActiveRoute = (itemHref: string) => {
-    // Exact match for dashboard
     if (itemHref === "/dashboard") {
       return pathname === itemHref || pathname === `${itemHref}/`;
     }
-    // For other routes, check if pathname starts with the item href
-    // This handles dynamic routes like /admin/students/[id]
+    
     return pathname.startsWith(itemHref);
   };
 
@@ -112,7 +128,7 @@ export function Sidebar({
                           : "text-muted-foreground",
                         collapsed && "justify-center",
                       )}
-                      title={collapsed ? item.label : undefined}
+                      title={collapsed ? (item.id === "parentmywallet" && parentWalletLabel ? parentWalletLabel : item.label) : undefined}
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         {item.icon && (
@@ -124,7 +140,7 @@ export function Sidebar({
                         )}
                         {!collapsed && (
                           <>
-                            <span className="truncate">{item.label}</span>
+                            <span className="truncate">{item.id === "parentmywallet" && parentWalletLabel ? parentWalletLabel : item.label}</span>
                             {item.badge && (
                               <span
                                 className={cn(
@@ -189,14 +205,14 @@ export function Sidebar({
                         : "text-muted-foreground",
                       collapsed && "justify-center",
                     )}
-                    title={collapsed ? item.label : undefined}
+                    title={collapsed ? (item.id === "parentmywallet" && parentWalletLabel ? parentWalletLabel : item.label) : undefined}
                   >
                     {item.icon && (
                       <Icon icon={item.icon} size={18} className="shrink-0" />
                     )}
                     {!collapsed && (
                       <>
-                        <span className="truncate">{item.label}</span>
+                        <span className="truncate">{item.id === "parentmywallet" && parentWalletLabel ? parentWalletLabel : item.label}</span>
                         {(item.id === "notice-board"
                           ? unreadNoticeCount > 0
                           : item.badge) && (
