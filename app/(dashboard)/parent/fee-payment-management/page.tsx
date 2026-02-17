@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { Suspense, useState, useMemo, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { useAppSelector } from "@/store/hooks";
+import { toast } from "sonner";
 import { selectUser } from "@/store/slices/authSlice";
 import { MetricCard } from "@/components/dashboard-pages/admin/admissions/components/metric-card";
 import { usePagination } from "@/hooks/use-pagination";
@@ -11,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/general/huge-icon";
 import { AddSquareIcon } from "@hugeicons/core-free-icons";
 import { useGetParentByUserIdQuery } from "@/services/stakeholders/stakeholders";
-import { useGetTransactionsQuery } from "@/services/transactions/transactions";
+import { useGetTransactionsQuery, useVerifyPaymentMutation } from "@/services/transactions/transactions";
 import { PayFeesModal } from "@/components/dashboard-pages/parent/pay-fees-modal";
 import { format } from "date-fns";
 import type { Transaction } from "@/services/transactions/transaction-types";
@@ -53,20 +55,70 @@ function txToPaymentRow(tx: Transaction): PaymentRow {
   };
 }
 
-export default function FeePaymentManagementPage() {
+function FeePaymentManagementContent() {
+  const searchParams = useSearchParams();
   const user = useAppSelector(selectUser);
   const [payModalOpen, setPayModalOpen] = useState(false);
   const [payPrefill, setPayPrefill] = useState<{ amount?: number; feesType?: string }>({});
+
+  const { data: txData, refetch: refetchTx } = useGetTransactionsQuery(
+    { _all: "true" },
+    { skip: !user?.id, refetchOnMountOrArgChange: 30 }
+  );
+  const [verifyPayment] = useVerifyPaymentMutation();
+  const verifiedRef = useRef(false);
+
+  useEffect(() => {
+    const payment = searchParams.get("payment");
+    const referenceFromUrl = searchParams.get("reference");
+    const reference = referenceFromUrl || (() => {
+      const stored = sessionStorage.getItem("paystack_pending_ref");
+      const storedTime = sessionStorage.getItem("paystack_pending_time");
+      if (stored && storedTime) {
+        const age = Date.now() - Number(storedTime);
+        if (age < 30 * 60 * 1000) return stored;
+        sessionStorage.removeItem("paystack_pending_ref");
+        sessionStorage.removeItem("paystack_pending_time");
+      }
+      return null;
+    })();
+
+    if (payment === "verified") {
+      toast.success("Payment verified successfully. Your wallet has been credited.");
+      refetchTx();
+      sessionStorage.removeItem("paystack_pending_ref");
+      sessionStorage.removeItem("paystack_pending_time");
+      window.history.replaceState({}, "", window.location.pathname);
+    } else if (payment === "failed") {
+      toast.error("Payment was not completed.");
+      window.history.replaceState({}, "", window.location.pathname);
+    } else if (payment === "error") {
+      toast.error("There was an error verifying your payment.");
+      window.history.replaceState({}, "", window.location.pathname);
+    } else if (reference && reference !== "null" && !verifiedRef.current) {
+      verifiedRef.current = true;
+      sessionStorage.removeItem("paystack_pending_ref");
+      sessionStorage.removeItem("paystack_pending_time");
+      verifyPayment({ reference })
+        .unwrap()
+        .then(() => {
+          toast.success("Payment verified successfully. Your wallet has been credited.");
+          refetchTx();
+        })
+        .catch(() => {
+          toast.error("Could not verify payment. It may still be pending.");
+        })
+        .finally(() => {
+          if (referenceFromUrl) window.history.replaceState({}, "", window.location.pathname);
+        });
+    }
+  }, [searchParams, refetchTx, verifyPayment]);
 
   const { data: parentData } = useGetParentByUserIdQuery(user?.id ?? "", { skip: !user?.id });
   const parent = parentData?.data ?? null;
   const wards = (parent?.children_details ?? []) as Ward[];
   const schoolId = parent?.school_id ?? wards[0]?.school_id ?? user?.school_id ?? "";
 
-  const { data: txData, refetch: refetchTx } = useGetTransactionsQuery(
-    { _all: "true" },
-    { skip: !user?.id }
-  );
   const apiTx = (txData?.data ?? []) as Transaction[];
   const feePayments = useMemo(
     () =>
@@ -97,14 +149,15 @@ export default function FeePaymentManagementPage() {
     return sum;
   }, [wards]);
 
-  const lastPaymentDate = useMemo(() => {
-    let latest: string | null = null;
-    for (const w of wards) {
-      const last = w.school_fees?.last_payment;
-      if (last && (!latest || last > latest)) latest = last;
-    }
-    return latest;
-  }, [wards]);
+  const lastPayment = useMemo(() => {
+    const lastCompleted = feePayments.find((t) => (t.status ?? "").toLowerCase() === "completed");
+    if (!lastCompleted) return null;
+    return {
+      amount: typeof lastCompleted.amount === "string" ? parseFloat(lastCompleted.amount) : Number(lastCompleted.amount),
+      created_at: lastCompleted.created_at,
+    };
+  }, [feePayments]);
+
 
   const handlePayNow = (amount?: number, feesType?: string) => {
     setPayPrefill({ amount, feesType });
@@ -135,8 +188,14 @@ export default function FeePaymentManagementPage() {
             trend={totalOutstanding > 0 ? "up" : undefined}
           />
           <MetricCard
+            key={lastPayment ? `${lastPayment.amount}-${lastPayment.created_at}` : "no-payment"}
             title="Last Payment"
-            value={lastPaymentDate ? format(new Date(lastPaymentDate), "MMM. d, yyyy") : "—"}
+            value={
+              lastPayment
+                ? `${formatAmount(lastPayment.amount)}`
+                : "—"
+            }
+            subtitle={lastPayment?.created_at ? format(new Date(lastPayment.created_at), "MMM. d, yyyy") : undefined}
           />
         </div>
         <div className="flex items-end">
@@ -226,5 +285,18 @@ export default function FeePaymentManagementPage() {
         feesType={payPrefill.feesType}
       />
     </div>
+  );
+}
+
+export default function FeePaymentManagementPage() {
+  return (
+    <Suspense fallback={
+      <div className="space-y-4 p-6">
+        <div className="h-8 w-48 animate-pulse rounded bg-gray-200" />
+        <div className="h-32 animate-pulse rounded bg-gray-100" />
+      </div>
+    }>
+      <FeePaymentManagementContent />
+    </Suspense>
   );
 }

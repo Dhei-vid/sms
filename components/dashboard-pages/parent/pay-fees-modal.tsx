@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ModalContainer } from "@/components/ui/modal-container";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,12 +41,20 @@ export function PayFeesModal({
 }: PayFeesModalProps) {
   const [wardUserId, setWardUserId] = useState<string>(wards[0]?.user_id ?? "");
   const [amount, setAmount] = useState(prefillAmount ? String(prefillAmount) : "");
+  const [description, setDescription] = useState("");
   const [initializePayment, { isLoading }] = useInitializePaymentMutation();
+
+  useEffect(() => {
+    if (open && wards.length > 0) {
+      setWardUserId(wards[0].user_id);
+    }
+  }, [open, wards]);
 
   const handleClose = (isOpen: boolean) => {
     if (!isOpen) {
       setAmount(prefillAmount ? String(prefillAmount) : "");
       setWardUserId(wards[0]?.user_id ?? "");
+      setDescription("");
     }
     onOpenChange(isOpen);
   };
@@ -72,9 +80,15 @@ export function PayFeesModal({
         receiver_id: wardUserId,
         payment_type: "fees",
         payment_gateway: "paystack",
+        ...(description.trim() && { description: description.trim() }),
       }).unwrap();
       const url = (res.data as { authorization_url?: string })?.authorization_url;
+      const ref = (res.data as { reference?: string })?.reference;
       if (url) {
+        if (ref) {
+          sessionStorage.setItem("paystack_pending_ref", ref);
+          sessionStorage.setItem("paystack_pending_time", String(Date.now()));
+        }
         handleClose(false);
         window.location.href = url;
       } else {
@@ -138,6 +152,20 @@ export function PayFeesModal({
             placeholder="e.g. 50000"
             value={amount}
             onChange={(e) => setAmount(e.target.value.replace(/[^0-9.,]/g, ""))}
+            className="mt-1 h-11"
+          />
+        </div>
+        <div>
+          <Label htmlFor="pay-description" className="text-sm font-medium text-gray-700">
+            Description (optional)
+          </Label>
+          <Input
+            id="pay-description"
+            type="text"
+            placeholder="e.g. Term 1 fees, JSS2"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            maxLength={225}
             className="mt-1 h-11"
           />
         </div>

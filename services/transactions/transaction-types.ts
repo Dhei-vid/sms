@@ -87,6 +87,8 @@ export interface InitializePayment {
   receiver_id?: string;
   sender_id?: string;
   payment_type?: PaymentType;
+  description?: string;
+  return_url?: string;
 }
 
 export interface VerifyTransaction {
