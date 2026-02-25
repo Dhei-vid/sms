@@ -3,7 +3,7 @@ name: Deploy sms frontend
 on:
   push:
     branches:
-      - SMS-Restructured
+      - main
 
 env:
   AWS_REGION: us-east-1
@@ -35,7 +35,7 @@ jobs:
           echo "NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}" >> .env
       - name: AWS authentication login
         run: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 779518747001.dkr.ecr.us-east-1.amazonaws.com
-        
+
       - name: Build Docker image
         run: docker build --pull -t ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY_FRONTEND }}:${{ env.IMAGE_TAG }} .
 
