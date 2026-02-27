@@ -52,6 +52,8 @@ export default function StaffDetailPage({
 
   const stakeholder = staffDataResponse?.data;
 
+  console.log(stakeholder)
+
   if (!hasChecked || !staffId) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
