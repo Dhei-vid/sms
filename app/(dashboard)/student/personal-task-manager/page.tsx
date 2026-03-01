@@ -22,14 +22,15 @@ export default function PersonalTaskManagerPage() {
   const [modalOpen, setModalOpen] = useState(false);
 
   const { data: tasksData } = useGetPersonalTasksQuery(undefined);
-  const [createTask, { isLoading: isCreating }] = useCreatePersonalTaskMutation();
+  const [createTask, { isLoading: isCreating }] =
+    useCreatePersonalTaskMutation();
 
   const tasks = tasksData?.data ?? [];
 
   const metrics = useMemo(() => {
     const today = new Date().toISOString().split("T")[0];
     const dueToday = tasks.filter(
-      (t) => t.deadline && t.deadline.split("T")[0] === today
+      (t) => t.deadline && t.deadline.split("T")[0] === today,
     ).length;
     const completed = tasks.filter((t) => t.status === "completed").length;
     const total = tasks.length;

@@ -15,7 +15,7 @@ import {
 import { ApplicationTable } from "@/components/dashboard-pages/admin/admissions/components/application-table";
 import type { AdmissionApplication } from "@/services/shared-types";
 import type { Stakeholders } from "@/services/stakeholders/stakeholder-types";
-import { getStakeholderStageLabel } from "@/services/stakeholders/stakeholders-reducer";
+import { getStakeholderStageLabel } from "@/services/stakeholders/stakeholders-selector";
 import { useGetStakeholderMetricsQuery } from "@/services/stakeholders/stakeholders";
 
 export default function AdmissionsPage() {

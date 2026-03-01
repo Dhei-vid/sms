@@ -84,7 +84,11 @@ const rawBaseQuery = fetchBaseQuery({
 
     // Skip ngrok free-tier interstitial page when using ngrok tunnel
     const baseUrl = getBaseUrl();
-    if (baseUrl.includes("ngrok-free.app") || baseUrl.includes("ngrok-free.dev") || baseUrl.includes("ngrok.io")) {
+    if (
+      baseUrl.includes("ngrok-free.app") ||
+      baseUrl.includes("ngrok-free.dev") ||
+      baseUrl.includes("ngrok.io")
+    ) {
       headers.set("ngrok-skip-browser-warning", "true");
     }
 

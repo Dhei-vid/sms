@@ -60,7 +60,7 @@ export function GeneralAssessmentDetailsForm({
         label="Applicable Grade(s)"
         value={formData.applicableGrades}
         onValueChange={(value) => onFormDataChange({ applicableGrades: value })}
-        placeholder="Choose grades (JSS1, SS2, Primary 5, etc.)"
+        placeholder="Choose grades (JSS1, SS2, etc.)"
       >
         {gradeOptions.map((option) => (
           <SelectItem key={option.value} value={option.value}>

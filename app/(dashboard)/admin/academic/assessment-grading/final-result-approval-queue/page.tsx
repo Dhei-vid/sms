@@ -20,7 +20,9 @@ interface ApprovalQueueItem {
   lastUpdate: Date;
 }
 
-function buildApprovalQueueFromResults(data: ExamResult[]): ApprovalQueueItem[] {
+function buildApprovalQueueFromResults(
+  data: ExamResult[],
+): ApprovalQueueItem[] {
   const byKey = new Map<string, ExamResult[]>();
   for (const r of data) {
     const key = `${r.class_name}||${r.term}||${r.session}`;
@@ -50,7 +52,7 @@ export default function FinalResultApprovalQueuePage() {
   const raw = (data as { data?: ExamResult[] })?.data ?? [];
   const approvalQueueData = useMemo(
     () => buildApprovalQueueFromResults(raw),
-    [raw]
+    [raw],
   );
 
   const columns: TableColumn<ApprovalQueueItem>[] = [
@@ -108,9 +110,7 @@ export default function FinalResultApprovalQueuePage() {
           <h2 className="text-2xl font-bold text-gray-800">
             Final Results Approval Queue
           </h2>
-          <p className="text-gray-600 mt-1">
-            Loading results batches...
-          </p>
+          <p className="text-gray-600 mt-1">Loading results batches...</p>
         </div>
       </div>
     );

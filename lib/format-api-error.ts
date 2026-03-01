@@ -11,7 +11,10 @@
 
 const DEFAULT_MESSAGE = "Something went wrong. Please try again.";
 
-export function getApiErrorMessage(data: unknown, fallback = DEFAULT_MESSAGE): string {
+export function getApiErrorMessage(
+  data: unknown,
+  fallback = DEFAULT_MESSAGE,
+): string {
   if (data == null) return fallback;
   if (typeof data === "string") {
     const trimmed = data.trim();
@@ -23,7 +26,8 @@ export function getApiErrorMessage(data: unknown, fallback = DEFAULT_MESSAGE): s
 
   // Single-message keys (common in APIs; backend may put descriptive text in message/error)
   if (typeof d.detail === "string" && d.detail.trim()) return d.detail.trim();
-  if (typeof d.message === "string" && d.message.trim()) return d.message.trim();
+  if (typeof d.message === "string" && d.message.trim())
+    return d.message.trim();
   if (typeof d.error === "string" && d.error.trim()) return d.error.trim();
 
   // Wrapped shape: { data: { field: ["msg"] } } (e.g. ApiResponse.error(http_data=serializer.errors))

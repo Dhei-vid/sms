@@ -62,9 +62,16 @@ function mapExamToRecentActivity(exam: CbtExam): RecentTestActivity {
 
 function getExamsList(data: unknown): CbtExam[] {
   if (!data || typeof data !== "object") return [];
-  const d = data as { data?: CbtExam[] | { data?: CbtExam[] }; pagination?: unknown };
+  const d = data as {
+    data?: CbtExam[] | { data?: CbtExam[] };
+    pagination?: unknown;
+  };
   if (Array.isArray(d.data)) return d.data;
-  if (d.data && typeof d.data === "object" && Array.isArray((d.data as { data?: CbtExam[] }).data)) {
+  if (
+    d.data &&
+    typeof d.data === "object" &&
+    Array.isArray((d.data as { data?: CbtExam[] }).data)
+  ) {
     return (d.data as { data: CbtExam[] }).data;
   }
   return [];
@@ -87,24 +94,34 @@ export default function CBTManagementDashboardPage() {
   const router = useRouter();
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
 
-  const { data: examsResponse, isLoading: isLoadingExams } = useGetCbtExamsQuery({ _all: true });
+  const { data: examsResponse, isLoading: isLoadingExams } =
+    useGetCbtExamsQuery({ _all: true });
   const { data: resultsResponse } = useGetCbtResultsQuery({ _all: true });
   const { data: questionsResponse } = useGetCbtQuestionsQuery({ _all: true });
-  const { data: staffResponse } = useGetAllStaffQuery(undefined, { skip: !scheduleModalOpen });
+  const { data: staffResponse } = useGetAllStaffQuery(undefined, {
+    skip: !scheduleModalOpen,
+  });
 
-  const examsList = useMemo(
-    () => getExamsList(examsResponse),
-    [examsResponse],
-  );
+  const examsList = useMemo(() => getExamsList(examsResponse), [examsResponse]);
   const recentTestActivity: RecentTestActivity[] = useMemo(
-    () => examsList.map(mapExamToRecentActivity).sort((a, b) => b.dateTime.getTime() - a.dateTime.getTime()),
+    () =>
+      examsList
+        .map(mapExamToRecentActivity)
+        .sort((a, b) => b.dateTime.getTime() - a.dateTime.getTime()),
     [examsList],
   );
 
   const questionsList = useMemo(() => {
     const raw = questionsResponse as { data?: unknown[] } | undefined;
     const arr = raw?.data;
-    return Array.isArray(arr) ? arr : (arr && typeof arr === "object" && "data" in arr && Array.isArray((arr as { data: unknown[] }).data)) ? (arr as { data: unknown[] }).data : [];
+    return Array.isArray(arr)
+      ? arr
+      : arr &&
+          typeof arr === "object" &&
+          "data" in arr &&
+          Array.isArray((arr as { data: unknown[] }).data)
+        ? (arr as { data: unknown[] }).data
+        : [];
   }, [questionsResponse]);
 
   const scheduledCount = useMemo(
@@ -114,9 +131,12 @@ export default function CBTManagementDashboardPage() {
 
   const invigilatorOptions = useMemo(() => {
     const staff = staffResponse?.data ?? [];
-    const teachers = staff.filter((s) => (s as { type?: string }).type === "teacher");
+    const teachers = staff.filter(
+      (s) => (s as { type?: string }).type === "teacher",
+    );
     return teachers.map((s) => {
-      const u = (s as { user?: { first_name?: string; last_name?: string } }).user;
+      const u = (s as { user?: { first_name?: string; last_name?: string } })
+        .user;
       const label =
         u && typeof u === "object"
           ? [u.first_name, u.last_name].filter(Boolean).join(" ").trim() || s.id
@@ -168,7 +188,9 @@ export default function CBTManagementDashboardPage() {
         label: "Monitor Session",
         onClick: (row) => {
           if (row.status === "in-progress") {
-            router.push(`/admin/cbt-management/monitor-test-sessions?exam_id=${encodeURIComponent(row.id)}`);
+            router.push(
+              `/admin/cbt-management/monitor-test-sessions?exam_id=${encodeURIComponent(row.id)}`,
+            );
           }
         },
         variant: "outline",
@@ -194,14 +216,21 @@ export default function CBTManagementDashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <MetricCard
           title="Active Exams Scheduled"
-          value={isLoadingExams ? "—" : `${scheduledCount} Test${scheduledCount !== 1 ? "s" : ""}`}
+          value={
+            isLoadingExams
+              ? "—"
+              : `${scheduledCount} Test${scheduledCount !== 1 ? "s" : ""}`
+          }
           subtitle="Scheduled and in-progress exams (not yet completed)"
           trend="up"
         />
         <MetricCard
           title="Completed Results"
           value={
-            resultsResponse && typeof resultsResponse === "object" && "data" in resultsResponse && Array.isArray((resultsResponse as { data: unknown[] }).data)
+            resultsResponse &&
+            typeof resultsResponse === "object" &&
+            "data" in resultsResponse &&
+            Array.isArray((resultsResponse as { data: unknown[] }).data)
               ? `${(resultsResponse as { data: unknown[] }).data.length}`
               : "—"
           }
@@ -210,7 +239,13 @@ export default function CBTManagementDashboardPage() {
         />
         <MetricCard
           title="Questions in Database"
-          value={questionsList.length > 0 ? `${questionsList.length.toLocaleString()} Questions` : (isLoadingExams ? "—" : "0 Questions")}
+          value={
+            questionsList.length > 0
+              ? `${questionsList.length.toLocaleString()} Questions`
+              : isLoadingExams
+                ? "—"
+                : "0 Questions"
+          }
           subtitle="Measures the availability of the question bank"
           trend="up"
         />

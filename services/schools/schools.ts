@@ -146,10 +146,7 @@ export const schoolsApi = baseApi.injectEndpoints({
       ],
     }),
 
-    getSchoolRoleTemplates: build.query<
-      RoleTemplatesListResponse,
-      string
-    >({
+    getSchoolRoleTemplates: build.query<RoleTemplatesListResponse, string>({
       query: (schoolId) => ({
         url: `${BASE}/${schoolId}/role-templates`,
       }),
@@ -165,7 +162,9 @@ export const schoolsApi = baseApi.injectEndpoints({
         const raw = response?.data ?? response;
         const list = Array.isArray(raw?.roleTemplates)
           ? raw.roleTemplates
-          : Array.isArray((raw as { role_templates?: unknown[] })?.role_templates)
+          : Array.isArray(
+                (raw as { role_templates?: unknown[] })?.role_templates,
+              )
             ? (raw as { role_templates: unknown[] }).role_templates
             : [];
         const mods = Array.isArray(raw?.modules) ? raw.modules : [];

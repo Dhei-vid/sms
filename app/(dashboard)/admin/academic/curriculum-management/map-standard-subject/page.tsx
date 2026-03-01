@@ -61,52 +61,31 @@ interface MappingRow {
   externalStandard: string;
 }
 
-const mappingData: MappingRow[] = [
-  {
-    id: "1",
-    internalUnit: "Unit 3: Plant Life",
-    internalTopic: "Topic 3.1: Photosynthesis",
-    externalStandard:
-      "WAEC Objective 4.2: Describe the process of photosynthesis.",
-  },
-  {
-    id: "2",
-    internalUnit: "Unit 3: Plant Life",
-    internalTopic: "Topic 3.1: Photosynthesis",
-    externalStandard:
-      "WAEC Objective 4.2: Describe the process of photosynthesis.",
-  },
-  {
-    id: "3",
-    internalUnit: "Unit 3: Plant Life",
-    internalTopic: "Topic 3.1: Photosynthesis",
-    externalStandard:
-      "WAEC Objective 4.2: Describe the process of photosynthesis.",
-  },
-  {
-    id: "4",
-    internalUnit: "Unit 3: Plant Life",
-    internalTopic: "Topic 3.1: Photosynthesis",
-    externalStandard:
-      "WAEC Objective 4.2: Describe the process of photosynthesis.",
-  },
-  {
-    id: "5",
-    internalUnit: "Unit 3: Plant Life",
-    internalTopic: "Topic 3.1: Photosynthesis",
-    externalStandard:
-      "WAEC Objective 4.2: Describe the process of photosynthesis.",
-  },
-];
-
 const standardOptions = [
   { value: "waec-2026", label: "WAEC 2026 Syllabus" },
   { value: "national-curriculum", label: "National Curriculum" },
   { value: "q4", label: "Q4" },
 ];
 
+function contentOutlineToMappingRows(
+  subject: Subject | undefined,
+  standardLabel: string,
+): MappingRow[] {
+  if (!subject?.content_outline_table?.length) return [];
+  const outline = subject.content_outline_table;
+  const externalLabel =
+    standardLabel ||
+    subject.curriculum_standard ||
+    "Not yet mapped to external standard";
+  return outline.map((item, index) => ({
+    id: `${subject.id}-${index}`,
+    internalUnit: item.unit_definition ?? "—",
+    internalTopic: item.topic_definition ?? "—",
+    externalStandard: externalLabel,
+  }));
+}
+
 export default function MapStandardSubjectPage() {
-  const [comingSoon, setComingSoon] = useState(true);
   const [activeStep, setActiveStep] = useState<StepId>("standards-mapping");
   const [selectedSubject, setSelectedSubject] = useState<string>("");
   const [selectedStandard, setSelectedStandard] = useState<string>("");
@@ -117,9 +96,24 @@ export default function MapStandardSubjectPage() {
     return Array.isArray(d) ? d : [];
   }, [subjectsResponse]);
 
+  const selectedSubjectData = useMemo(
+    () => subjectsList.find((s) => s.id === selectedSubject),
+    [subjectsList, selectedSubject],
+  );
+
+  const standardLabel = useMemo(() => {
+    const opt = standardOptions.find((o) => o.value === selectedStandard);
+    return opt?.label ?? "";
+  }, [selectedStandard]);
+
+  const mappingData: MappingRow[] = useMemo(
+    () => contentOutlineToMappingRows(selectedSubjectData, standardLabel),
+    [selectedSubjectData, standardLabel],
+  );
+
   const draftOutlinesData: DraftOutline[] = useMemo(
     () => subjectsList.map(subjectToDraftOutline),
-    [subjectsList]
+    [subjectsList],
   );
 
   const subjectOptions = useMemo(
@@ -128,7 +122,7 @@ export default function MapStandardSubjectPage() {
         value: s.id,
         label: `${s.name}${s.applicable_grade ? ` (${s.applicable_grade})` : ""}`,
       })),
-    [subjectsList]
+    [subjectsList],
   );
 
   const handleStepChange = (stepId: string) => {
@@ -179,7 +173,7 @@ export default function MapStandardSubjectPage() {
   const mappingColumns: TableColumn<MappingRow>[] = [
     {
       key: "internal",
-      title: "Subject: SS2 Biology - Internal Curriculum",
+      title: `Subject: ${selectedSubjectData ? `${selectedSubjectData.name}${selectedSubjectData.applicable_grade ? ` (${selectedSubjectData.applicable_grade})` : ""}` : "Internal Curriculum"} - Internal Curriculum`,
       render: (value, row) => (
         <div className="space-y-1">
           <p className="text-sm font-medium">{row.internalUnit}</p>
@@ -189,7 +183,7 @@ export default function MapStandardSubjectPage() {
     },
     {
       key: "externalStandard",
-      title: "External Standard - WAEC 2026 Syllabus",
+      title: `External Standard${standardLabel ? ` - ${standardLabel}` : ""}`,
       render: (value) => <p className="text-sm">{value}</p>,
     },
   ];
@@ -228,61 +222,55 @@ export default function MapStandardSubjectPage() {
           <Card className="p-0 bg-background">
             <CardContent className="p-6">
               {activeStep === "standards-mapping" ? (
-                comingSoon ? (
-                  <div className="flex min-h-[300px] items-center justify-center">
-                    <div className="text-sm text-gray-600">Coming soon</div>
-                  </div>
-                ) : (
-                  <div className="space-y-6">
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                        Standards Mapping Interface
-                      </h3>
-
-                      <div className="space-y-4">
-                        <SelectField
-                          label="Select Subject"
-                          value={selectedSubject}
-                          onValueChange={setSelectedSubject}
-                          placeholder="Choose Subject (e.g., SS2 Biology)"
-                        >
-                          {subjectOptions.map((option) => (
-                            <SelectItem key={option.value} value={option.value}>
-                              {option.label}
-                            </SelectItem>
-                          ))}
-                        </SelectField>
-
-                        <SelectField
-                          label="Select Standard"
-                          value={selectedStandard}
-                          onValueChange={setSelectedStandard}
-                          placeholder="Choose Standard (e.g., WAEC 2026 Syllabus, National Curriculum, Q4)"
-                        >
-                          {standardOptions.map((option) => (
-                            <SelectItem key={option.value} value={option.value}>
-                              {option.label}
-                            </SelectItem>
-                          ))}
-                        </SelectField>
-                      </div>
-                    </div>
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                      Standards Mapping Interface
+                    </h3>
 
                     <div className="space-y-4">
-                      <h4 className="text-sm font-semibold text-gray-800">
-                        Mapping Table
-                      </h4>
-                      <div className="border rounded-lg overflow-hidden">
-                        <DataTable
-                          columns={mappingColumns}
-                          data={mappingData}
-                          emptyMessage="No mappings available. Select a subject and standard to begin."
-                          tableClassName="border-collapse"
-                        />
-                      </div>
+                      <SelectField
+                        label="Select Subject"
+                        value={selectedSubject}
+                        onValueChange={setSelectedSubject}
+                        placeholder="Choose Subject (e.g., SS2 Biology)"
+                      >
+                        {subjectOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectField>
+
+                      <SelectField
+                        label="Select Standard"
+                        value={selectedStandard}
+                        onValueChange={setSelectedStandard}
+                        placeholder="Choose Standard (e.g., WAEC 2026 Syllabus, National Curriculum, Q4)"
+                      >
+                        {standardOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectField>
                     </div>
                   </div>
-                )
+
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-semibold text-gray-800">
+                      Mapping Table
+                    </h4>
+                    <div className="border rounded-lg overflow-hidden">
+                      <DataTable
+                        columns={mappingColumns}
+                        data={mappingData}
+                        emptyMessage="No mappings available. Select a subject and standard to begin."
+                        tableClassName="border-collapse"
+                      />
+                    </div>
+                  </div>
+                </div>
               ) : (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">

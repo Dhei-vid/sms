@@ -22,7 +22,10 @@ import {
   useGetContentSubmissionsQuery,
   useGetTeacherActivityQuery,
 } from "@/services/courses/courses";
-import type { Course, ContentSubmission as ApiContentSubmission } from "@/services/courses/courses-type";
+import type {
+  Course,
+  ContentSubmission as ApiContentSubmission,
+} from "@/services/courses/courses-type";
 
 interface ContentSubmissionRow {
   id: string;
@@ -66,29 +69,50 @@ function mapApiStatus(status: string): ContentSubmissionRow["status"] {
 
 export default function LearningManagementDashboardPage() {
   const router = useRouter();
-  const { data: coursesResponse, isLoading: isLoadingCourses } = useGetCoursesQuery({ _all: true });
-  const { data: submissionsResponse, isLoading: isLoadingSubmissions } = useGetContentSubmissionsQuery({ _all: true });
+  const { data: coursesResponse, isLoading: isLoadingCourses } =
+    useGetCoursesQuery({ _all: true });
+  const { data: submissionsResponse, isLoading: isLoadingSubmissions } =
+    useGetContentSubmissionsQuery({ _all: true });
   const { data: teacherActivityResponse } = useGetTeacherActivityQuery();
 
   const coursesList = useMemo(() => {
-    const d = coursesResponse as { data?: Course[] | { data?: Course[] } } | undefined;
+    const d = coursesResponse as
+      | { data?: Course[] | { data?: Course[] } }
+      | undefined;
     if (!d?.data) return [];
-    return Array.isArray(d.data) ? d.data : (d.data as { data?: Course[] }).data ?? [];
+    return Array.isArray(d.data)
+      ? d.data
+      : ((d.data as { data?: Course[] }).data ?? []);
   }, [coursesResponse]);
 
   const submissionsList = useMemo(() => {
-    const d = submissionsResponse as { data?: ApiContentSubmission[] | { data?: ApiContentSubmission[] } } | undefined;
+    const d = submissionsResponse as
+      | { data?: ApiContentSubmission[] | { data?: ApiContentSubmission[] } }
+      | undefined;
     if (!d?.data) return [];
-    return Array.isArray(d.data) ? d.data : (d.data as { data?: ApiContentSubmission[] }).data ?? [];
+    return Array.isArray(d.data)
+      ? d.data
+      : ((d.data as { data?: ApiContentSubmission[] }).data ?? []);
   }, [submissionsResponse]);
 
   const teacherActivityList = useMemo(() => {
-    const d = teacherActivityResponse as { data?: Array<{ id: string; fullName: string; contentSubmissionsCount: number }> } | undefined;
+    const d = teacherActivityResponse as
+      | {
+          data?: Array<{
+            id: string;
+            fullName: string;
+            contentSubmissionsCount: number;
+          }>;
+        }
+      | undefined;
     return d?.data ?? [];
   }, [teacherActivityResponse]);
 
   const activeCoursesCount = useMemo(
-    () => coursesList.filter((c) => (c as { is_active?: boolean }).is_active !== false).length,
+    () =>
+      coursesList.filter(
+        (c) => (c as { is_active?: boolean }).is_active !== false,
+      ).length,
     [coursesList],
   );
 
@@ -100,7 +124,9 @@ export default function LearningManagementDashboardPage() {
   const teacherContributionPct = useMemo(() => {
     const total = teacherActivityList.length;
     if (total === 0) return "0%";
-    const contributing = teacherActivityList.filter((t) => t.contentSubmissionsCount > 0).length;
+    const contributing = teacherActivityList.filter(
+      (t) => t.contentSubmissionsCount > 0,
+    ).length;
     return `${Math.round((100 * contributing) / total)}%`;
   }, [teacherActivityList]);
 
@@ -109,9 +135,13 @@ export default function LearningManagementDashboardPage() {
       submissionsList.slice(0, 20).map((s) => ({
         id: s.id,
         resourceName: s.resource_name,
-        subjectClass: s.course_location ?? (s.course as { title?: string } | undefined)?.title ?? "—",
+        subjectClass:
+          s.course_location ??
+          (s.course as { title?: string } | undefined)?.title ??
+          "—",
         submittedBy:
-          (s.submitted_by as { display_name?: string } | undefined)?.display_name ?? "—",
+          (s.submitted_by as { display_name?: string } | undefined)
+            ?.display_name ?? "—",
         status: mapApiStatus(s.status),
       })),
     [submissionsList],
@@ -119,8 +149,16 @@ export default function LearningManagementDashboardPage() {
 
   const columns: TableColumn<ContentSubmissionRow>[] = [
     { key: "resourceName", title: "Resource Name", className: "font-medium" },
-    { key: "subjectClass", title: "Subject/Class", render: (v) => <span className="text-sm">{v}</span> },
-    { key: "submittedBy", title: "Submitted By", render: (v) => <span className="text-sm">{v}</span> },
+    {
+      key: "subjectClass",
+      title: "Subject/Class",
+      render: (v) => <span className="text-sm">{v}</span>,
+    },
+    {
+      key: "submittedBy",
+      title: "Submitted By",
+      render: (v) => <span className="text-sm">{v}</span>,
+    },
     {
       key: "status",
       title: "Status",
@@ -140,7 +178,9 @@ export default function LearningManagementDashboardPage() {
         variant: "link",
         className: "text-main-blue underline underline-offset-3 h-auto",
         onClick: (row) => {
-          router.push(`/admin/learning-management/content-library?submission=${row.id}`);
+          router.push(
+            `/admin/learning-management/content-library?submission=${row.id}`,
+          );
         },
       },
     },
@@ -161,7 +201,11 @@ export default function LearningManagementDashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
           title="Total Courses Active"
-          value={isLoadingCourses ? "—" : `${activeCoursesCount} Course${activeCoursesCount !== 1 ? "s" : ""}`}
+          value={
+            isLoadingCourses
+              ? "—"
+              : `${activeCoursesCount} Course${activeCoursesCount !== 1 ? "s" : ""}`
+          }
           subtitle="Number of active digital courses"
           trend="up"
         />
@@ -179,7 +223,11 @@ export default function LearningManagementDashboardPage() {
         />
         <MetricCard
           title="Content Pending Review"
-          value={isLoadingSubmissions ? "—" : `${pendingReviewCount} Item${pendingReviewCount !== 1 ? "s" : ""}`}
+          value={
+            isLoadingSubmissions
+              ? "—"
+              : `${pendingReviewCount} Item${pendingReviewCount !== 1 ? "s" : ""}`
+          }
           subtitle="Items awaiting administrative review"
           trend="up"
         />
@@ -196,21 +244,27 @@ export default function LearningManagementDashboardPage() {
             title="Create New Course Shell"
             description="Initiates the process to set up a new subject/class for digital content"
             icon={PayByCheckIcon}
-            onClick={() => router.push("/admin/learning-management/course-structure")}
+            onClick={() =>
+              router.push("/admin/learning-management/course-structure")
+            }
             className="border-b"
           />
           <QuickActionCard
             title="Content Library & Repository"
             description="Direct access to manage all uploaded resources: PDFs, videos, presentations"
             icon={LibrariesIcon}
-            onClick={() => router.push("/admin/learning-management/content-library")}
+            onClick={() =>
+              router.push("/admin/learning-management/content-library")
+            }
             className="border-b"
           />
           <QuickActionCard
             title="Teacher Activity Audit"
             description="Links to a log tracking teacher lesson plan submissions and content uploads"
             icon={TransactionHistoryIcon}
-            onClick={() => router.push("/admin/learning-management/teacher-activity")}
+            onClick={() =>
+              router.push("/admin/learning-management/teacher-activity")
+            }
           />
         </CardContent>
       </Card>

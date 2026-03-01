@@ -6,7 +6,10 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { StepNavigation, Step } from "@/components/ui/step-navigation";
 import { Calendar03Icon, GraduateMaleIcon } from "@hugeicons/core-free-icons";
-import { AcademicCalendarForm, type AcademicCalendarFormRef } from "@/components/dashboard-pages/admin/settings/application-config/academic-calendar-form";
+import {
+  AcademicCalendarForm,
+  type AcademicCalendarFormRef,
+} from "@/components/dashboard-pages/admin/settings/application-config/academic-calendar-form";
 import { GradingScalesForm } from "@/components/dashboard-pages/admin/settings/application-config/grading-scales-form";
 import { useAppSelector } from "@/store/hooks";
 import { selectUser } from "@/store/slices/authSlice";
@@ -43,7 +46,9 @@ export default function ApplicationConfigPage() {
     useUpdateSchoolApplicationConfigMutation();
   const academicFormRef = useRef<AcademicCalendarFormRef>(null);
 
-  const config = (configResponse as ApiResponse<SchoolApplicationConfig> | undefined)?.data;
+  const config = (
+    configResponse as ApiResponse<SchoolApplicationConfig> | undefined
+  )?.data;
 
   const handleBack = () => {
     router.push("/admin/settings");

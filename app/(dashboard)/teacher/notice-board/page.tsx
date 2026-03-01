@@ -53,9 +53,7 @@ export default function TeacherNoticeBoardPage() {
   return (
     <div className="space-y-4">
       <div className="bg-background rounded-md p-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">
-          Notice Board
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-800 mb-2">Notice Board</h1>
         <p className="text-gray-600">
           View notices and announcements for teachers.
         </p>
@@ -80,7 +78,7 @@ export default function TeacherNoticeBoardPage() {
               const authorName =
                 notice.creator?.first_name && notice.creator?.last_name
                   ? `${notice.creator.first_name} ${notice.creator.last_name}`
-                  : notice.creator?.username ?? "Admin";
+                  : (notice.creator?.username ?? "Admin");
 
               return (
                 <div

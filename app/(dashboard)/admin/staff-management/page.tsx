@@ -20,6 +20,7 @@ import {
 // API
 import { useGetAllStaffQuery } from "@/services/stakeholders/stakeholders";
 import { useGetUserRequestsQuery } from "@/services/user-requests/user-requests";
+import { useGetNotificationsQuery } from "@/services/shared";
 
 export default function StaffDashboardPage() {
   const router = useRouter();
@@ -28,8 +29,12 @@ export default function StaffDashboardPage() {
   const { data: userRequestData, isLoading: isUserRequestLoading } =
     useGetUserRequestsQuery();
 
-  console.log("User request ", userRequestData);
-  console.log("Stakeholders Data:", staffData);
+  const recentActivitiess = staffData?.data[0];
+
+  console.log(recentActivitiess);
+
+  // console.log("User request ", userRequestData);
+  // console.log("Stakeholders Data:", staffData);
 
   // Quick Actions Configuration
   interface QuickAction {
@@ -78,45 +83,6 @@ export default function StaffDashboardPage() {
     icon: any;
   }
 
-  const recentActivities: StaffActivity[] = [
-    {
-      type: "hired",
-      title: "New Teacher Hired",
-      description: "Mr. Chinadu Okafor (JSS Science) - Start Date: 2025-11-01",
-      timestamp: "10:00 AM",
-      icon: UserAdd01Icon,
-    },
-    {
-      type: "absent",
-      title: "Absent Staff",
-      description: "Ms. Sola Adeniyi (SS3 History) - Reason: Annual Leave",
-      timestamp: "8:15 AM",
-      icon: Alert01Icon,
-    },
-    {
-      type: "resignation",
-      title: "Resignation",
-      description: "Mrs. Helen Davies (SS2 English) - Last Day: 2025-12-15",
-      timestamp: "Oct. 22, 8:15 AM",
-      icon: UserMinus01Icon,
-    },
-    {
-      type: "leave",
-      title: "Leave Approved",
-      description:
-        "Ms. Tolu Adebayo (Admin) - Annual Leave: 2025-10-28 to 2025-11-04",
-      timestamp: "Oct. 21, 9:32 AM",
-      icon: TeamviewerIcon,
-    },
-    {
-      type: "appraisal",
-      title: "Appraisal Due",
-      description: "Mr. Biodun Blue (P4 Teacher) - Due: 2025-11-10",
-      timestamp: "Oct. 21, 9:32 AM",
-      icon: TeamviewerIcon,
-    },
-  ];
-
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -151,14 +117,14 @@ export default function StaffDashboardPage() {
           />
           <MetricCard
             title="Staff On Leave"
-            value="4 Employees"
+            value={`${0} Employees`}
             subtitle=""
             trend="up"
             trendColor="text-main-blue"
           />
           <MetricCard
             title="Staff-to-Student Ratio"
-            value="1:8.6"
+            value={`${0}:${1}`}
             subtitle=""
             trend="up"
             trendColor="text-main-blue"
@@ -181,21 +147,20 @@ export default function StaffDashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <MetricCard
             title="Leave Requests Pending"
-            value="7 Requests"
-            subtitle=""
+            value={`${0} Requests`}
             trend="up"
             trendColor="text-main-blue"
           />
           <MetricCard
             title="Contract Expiring (Next 90 Days)"
-            value="12 Employees"
+            value={`${0} Employees`}
             subtitle=""
             trend="up"
             trendColor="text-main-blue"
           />
           <MetricCard
             title="Current Vacancies"
-            value="3 Open Positions"
+            value={`${0} Open Positions`}
             subtitle=""
             trend="up"
             trendColor="text-main-blue"
@@ -214,14 +179,13 @@ export default function StaffDashboardPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {recentActivities.map((activity, index) => (
+              {staffData?.data[0]?.notifications.map((activity, index) => (
                 <StaffActivityItem
                   key={index}
                   type={activity.type}
-                  title={activity.title}
-                  description={activity.description}
-                  timestamp={activity.timestamp}
-                  icon={activity.icon}
+                  title={activity?.content}
+                  description={activity?.specifics ?? "N/A"}
+                  timestamp={activity?.created_at ?? "unknown"}
                 />
               ))}
               <div className="flex justify-center pt-4">

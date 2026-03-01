@@ -37,7 +37,11 @@ export default function CalendarPage() {
     return d.toISOString().split("T")[0];
   }, [currentDate]);
   const dateTo = useMemo(() => {
-    const d = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+    const d = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth() + 1,
+      0,
+    );
     return d.toISOString().split("T")[0];
   }, [currentDate]);
 
@@ -46,7 +50,8 @@ export default function CalendarPage() {
     dateFrom,
     dateTo,
   });
-  const [createSchedule, { isLoading: isCreating }] = useCreateScheduleMutation();
+  const [createSchedule, { isLoading: isCreating }] =
+    useCreateScheduleMutation();
 
   const rawEvents = data?.data ?? [];
   const filtered = filterEventsByRole(rawEvents, user);

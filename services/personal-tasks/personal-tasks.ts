@@ -20,7 +20,9 @@ export const personalTasksApi = baseApi.injectEndpoints({
         url: BASE,
         params: { _all: "true", ...(params ?? {}) },
       }),
-      transformResponse: (response: { data?: PersonalTask[] }): { data: PersonalTask[] } => ({
+      transformResponse: (response: {
+        data?: PersonalTask[];
+      }): { data: PersonalTask[] } => ({
         data: Array.isArray(response?.data) ? response.data : [],
       }),
       providesTags: ["PersonalTask"],
@@ -31,7 +33,10 @@ export const personalTasksApi = baseApi.injectEndpoints({
       providesTags: (_, __, id) => [{ type: "PersonalTask", id }],
     }),
 
-    createPersonalTask: build.mutation<ApiResponse<PersonalTask>, CreatePersonalTaskRequest>({
+    createPersonalTask: build.mutation<
+      ApiResponse<PersonalTask>,
+      CreatePersonalTaskRequest
+    >({
       query: (body) => ({ url: BASE, method: "POST", body }),
       invalidatesTags: ["PersonalTask"],
     }),
@@ -45,12 +50,18 @@ export const personalTasksApi = baseApi.injectEndpoints({
         method: "PUT",
         body: data,
       }),
-      invalidatesTags: (_, __, { id }) => [{ type: "PersonalTask", id }, "PersonalTask"],
+      invalidatesTags: (_, __, { id }) => [
+        { type: "PersonalTask", id },
+        "PersonalTask",
+      ],
     }),
 
     deletePersonalTask: build.mutation<{ message: string }, string>({
       query: (id) => ({ url: `${BASE}/${id}`, method: "DELETE" }),
-      invalidatesTags: (_, __, id) => [{ type: "PersonalTask", id }, "PersonalTask"],
+      invalidatesTags: (_, __, id) => [
+        { type: "PersonalTask", id },
+        "PersonalTask",
+      ],
     }),
   }),
 });

@@ -16,7 +16,9 @@ import {
   TransactionHistoryIcon,
 } from "@hugeicons/core-free-icons";
 import { cn } from "@/lib/utils";
-import { useGetAcademicAnalyticsQuery } from "@/services/results/results";
+
+// API
+import { useGetResultMetricsQuery } from "@/services/results/results";
 import {
   useGetStudentMetricsQuery,
   useGetStaffUtilizationQuery,
@@ -40,21 +42,6 @@ const GRADE_COLORS: Record<string, string> = {
   "E-Grade": "bg-red-500",
   "F-Grade": "bg-gray-400",
 };
-
-function scoreToLetter(score: number): string {
-  if (score >= 70) return "A";
-  if (score >= 60) return "B";
-  if (score >= 50) return "C";
-  if (score >= 45) return "D";
-  if (score >= 40) return "E";
-  return "F";
-}
-
-const DEFAULT_STAFF_UTILIZATION = [
-  { label: "Teaching Time", value: 70, color: "bg-blue-600" },
-  { label: "Admin/Duty", value: 18, color: "bg-blue-300" },
-  { label: "Free Periods", value: 12, color: "bg-orange-500" },
-];
 
 const quickActions = [
   {
@@ -81,7 +68,6 @@ const quickActions = [
 
 const classOptions = [
   { value: "all", label: "All Classes" },
-  { value: "primary", label: "Primary" },
   { value: "jss", label: "JSS" },
   { value: "sss", label: "SSS" },
 ];
@@ -94,45 +80,37 @@ const yearOptions = [
 
 export default function AcademicManagementPage() {
   const router = useRouter();
+  const today = format(new Date(), "yyyy-MM-dd");
+  const thirtyDaysLater = format(
+    new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    "yyyy-MM-dd",
+  );
+
   const [selectedClass, setSelectedClass] = useState("all");
   const [selectedYear, setSelectedYear] = useState("2025-2026");
   const [assignDutyModalOpen, setAssignDutyModalOpen] = useState(false);
 
-  const currentYear = new Date().getFullYear();
-  const sessionParam = selectedYear === "all" ? undefined : selectedYear;
-
-  const { data: analyticsData } = useGetAcademicAnalyticsQuery({
-    session: sessionParam,
-    class_name: selectedClass === "all" ? undefined : selectedClass,
-  });
-
+  const { data: resultMetricsResponse } = useGetResultMetricsQuery();
+  const resultMetrics = resultMetricsResponse?.data;
   const { data: studentMetricsResponse } = useGetStudentMetricsQuery();
   const { data: staffUtilizationResponse } = useGetStaffUtilizationQuery();
-
-  const staffUtilization =
-    staffUtilizationResponse?.data?.breakdown ?? DEFAULT_STAFF_UTILIZATION;
-
-  const today = format(new Date(), "yyyy-MM-dd");
-  const thirtyDaysLater = format(
-    new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-    "yyyy-MM-dd"
-  );
   const { data: examSchedulesResponse } = useGetExamSchedulesQuery({
     dateFrom: today,
     dateTo: thirtyDaysLater,
   });
 
-  const analytics = analyticsData;
+  const staffUtilization = staffUtilizationResponse?.data?.breakdown ?? [];
+
   const studentMetrics = studentMetricsResponse?.data;
 
   const gradeDistribution = useMemo(() => {
-    const dist = analytics?.grade_distribution ?? [
-      { label: "A-Grade", grade: "A+", value: 0 },
-      { label: "B-Grade", grade: "B", value: 0 },
-      { label: "C-Grade", grade: "C", value: 0 },
-      { label: "D-Grade", grade: "D", value: 0 },
-      { label: "E-Grade", grade: "E", value: 0 },
-      { label: "F-Grade", grade: "F", value: 0 },
+    const dist = resultMetrics?.grade_distribution ?? [
+      { label: "A-Grade", grade: "A", value: 0, percentage: 0 },
+      { label: "B-Grade", grade: "B", value: 0, percentage: 0 },
+      { label: "C-Grade", grade: "C", value: 0, percentage: 0 },
+      { label: "D-Grade", grade: "D", value: 0, percentage: 0 },
+      { label: "E-Grade", grade: "E", value: 0, percentage: 0 },
+      { label: "F-Grade", grade: "F", value: 0, percentage: 0 },
     ];
     const maxVal = Math.max(1, ...dist.map((d) => d.value));
     return dist.map((d) => ({
@@ -140,13 +118,18 @@ export default function AcademicManagementPage() {
       color: GRADE_COLORS[d.label] ?? "bg-gray-400",
       barHeight: Math.round((d.value / maxVal) * 100),
     }));
-  }, [analytics?.grade_distribution]);
+  }, [resultMetrics?.grade_distribution]);
 
   const upcomingTasks: AcademicTask[] = useMemo(() => {
     const schedules = examSchedulesResponse?.data ?? [];
     return schedules.slice(0, 5).map((s, i) => {
-      const inv = s.invigilator as { user?: { first_name?: string; last_name?: string } } | null | undefined;
-      const name = inv?.user ? `${inv.user.first_name ?? ""} ${inv.user.last_name ?? ""}`.trim() : "Unassigned";
+      const inv = s.invigilator as
+        | { user?: { first_name?: string; last_name?: string } }
+        | null
+        | undefined;
+      const name = inv?.user
+        ? `${inv.user.first_name ?? ""} ${inv.user.last_name ?? ""}`.trim()
+        : "Unassigned";
       return {
         id: s.id || String(i),
         type: "Exam",
@@ -162,15 +145,17 @@ export default function AcademicManagementPage() {
     });
   }, [examSchedulesResponse?.data]);
 
-  const averageScore = analytics?.average_score ?? 0;
-  const averageGradeDisplay = `${averageScore.toFixed(1)}% (${scoreToLetter(averageScore)})`;
+  const averageScore = resultMetrics?.average_score ?? 0;
+  const averageGradeLetter = resultMetrics?.average_grade_letter ?? "—";
+  const averageGradeDisplay = `${averageScore.toFixed(1)}% (${averageGradeLetter})`;
 
   // Calculate donut chart segments
   const total = staffUtilization.reduce((sum, item) => sum + item.value, 0);
+  const totalOrOne = total || 1;
   let currentAngle = 0;
   const segments = staffUtilization.map((item) => {
-    const percentage = (item.value / total) * 100;
-    const angle = (item.value / total) * 360;
+    const percentage = (item.value / totalOrOne) * 100;
+    const angle = (item.value / totalOrOne) * 360;
     const startAngle = currentAngle;
     currentAngle += angle;
     return {
@@ -348,10 +333,12 @@ export default function AcademicManagementPage() {
                     const offset = segments
                       .slice(0, index)
                       .reduce(
-                        (sum, s) => sum + (s.value / total) * circumference,
+                        (sum, s) =>
+                          sum + (s.value / totalOrOne) * circumference,
                         0,
                       );
-                    const dashArray = (segment.value / total) * circumference;
+                    const dashArray =
+                      (segment.value / totalOrOne) * circumference;
                     const colorMap: Record<string, string> = {
                       "bg-blue-600": "#2563eb",
                       "bg-blue-300": "#93c5fd",

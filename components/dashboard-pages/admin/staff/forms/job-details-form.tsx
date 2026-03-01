@@ -48,7 +48,7 @@ export function JobDetailsForm({
 
         <InputField
           label="Department/Grade"
-          placeholder="E.g., Secondary Math, Finance, Primary 5."
+          placeholder="E.g., Secondary Math, Finance"
           value={formData.department}
           onChange={(e) => onFormDataChange({ department: e.target.value })}
           required

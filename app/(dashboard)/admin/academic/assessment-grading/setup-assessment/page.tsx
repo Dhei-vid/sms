@@ -80,12 +80,6 @@ const assessmentTypeOptions = [
 ];
 
 const gradeOptions = [
-  { value: "primary-1", label: "Primary 1" },
-  { value: "primary-2", label: "Primary 2" },
-  { value: "primary-3", label: "Primary 3" },
-  { value: "primary-4", label: "Primary 4" },
-  { value: "primary-5", label: "Primary 5" },
-  { value: "primary-6", label: "Primary 6" },
   { value: "jss-1", label: "JSS 1" },
   { value: "jss-2", label: "JSS 2" },
   { value: "jss-3", label: "JSS 3" },

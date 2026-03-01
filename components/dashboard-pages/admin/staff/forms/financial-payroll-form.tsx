@@ -1,23 +1,41 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { InputField, SelectField } from "@/components/ui/input-field";
 import { Button } from "@/components/ui/button";
 import { SelectItem } from "@/components/ui/select";
+import type { Stakeholders } from "@/services/stakeholders/stakeholder-types";
+import type { StaffEditSavePayload } from "./staff-edit-types";
 
 export function FinancialPayrollForm({
+  initialData,
   onCancel,
   onSave,
+  isSaving = false,
 }: {
+  initialData: Stakeholders;
   onCancel: () => void;
-  onSave: () => void;
+  onSave: (payload: StaffEditSavePayload) => void;
+  isSaving?: boolean;
 }) {
   const [formData, setFormData] = useState({
-    monthlySalary: "150000",
-    bankName: "Zenith",
-    accountNumber: "0012345678",
-    taxId: "1234567890",
+    monthlySalary: "",
+    bankName: "",
+    accountNumber: "",
+    taxId: "",
   });
+
+  useEffect(() => {
+    if (initialData) {
+      const bank = initialData.bank ?? {};
+      setFormData({
+        monthlySalary: initialData.salary ?? "",
+        bankName: bank.bank_name ?? "",
+        accountNumber: bank.account_number ?? "",
+        taxId: bank.tax_id ?? "",
+      });
+    }
+  }, [initialData]);
 
   const banks = [
     "Zenith",
@@ -31,11 +49,18 @@ export function FinancialPayrollForm({
   ];
 
   const handleSubmit = () => {
-    // Handle form submission
-    console.log("Financial & Payroll:", formData);
-    if (onSave) {
-      onSave();
-    }
+    const payload: StaffEditSavePayload = {
+      stakeholder: {
+        salary: formData.monthlySalary || null,
+        bank: {
+          ...(initialData.bank ?? {}),
+          bank_name: formData.bankName || undefined,
+          account_number: formData.accountNumber || undefined,
+          tax_id: formData.taxId || undefined,
+        },
+      },
+    };
+    onSave(payload);
   };
 
   return (
@@ -95,9 +120,10 @@ export function FinancialPayrollForm({
         </Button>
         <Button
           onClick={handleSubmit}
+          disabled={isSaving}
           className="w-60 bg-main-blue hover:bg-main-blue/90"
         >
-          Save Changes
+          {isSaving ? "Saving..." : "Save Changes"}
         </Button>
       </div>
     </div>

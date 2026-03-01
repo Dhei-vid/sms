@@ -11,7 +11,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useGetNoteByIdQuery, useUpdateNoteMutation } from "@/services/notes/notes";
+import {
+  useGetNoteByIdQuery,
+  useUpdateNoteMutation,
+} from "@/services/notes/notes";
 import type { Notes } from "@/services/notes/note-types";
 import { toast } from "sonner";
 
@@ -32,7 +35,9 @@ interface LessonPlanDetail {
 }
 
 function noteToLessonPlanDetail(n: Notes): LessonPlanDetail {
-  const creator = n.creator as { first_name?: string; last_name?: string } | undefined;
+  const creator = n.creator as
+    | { first_name?: string; last_name?: string }
+    | undefined;
   const submittedBy = creator
     ? `${creator.first_name ?? ""} ${creator.last_name ?? ""}`.trim() || "—"
     : "—";
@@ -103,9 +108,7 @@ export default function LessonPlanReviewDetailPage() {
   };
 
   if (!id) {
-    return (
-      <div className="p-6 text-gray-600">Invalid plan ID.</div>
-    );
+    return <div className="p-6 text-gray-600">Invalid plan ID.</div>;
   }
 
   if (isLoading || !lessonPlan) {

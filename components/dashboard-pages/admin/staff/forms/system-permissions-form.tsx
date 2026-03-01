@@ -1,23 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SelectField } from "@/components/ui/input-field";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { SelectItem } from "@/components/ui/select";
+import type { Stakeholders } from "@/services/stakeholders/stakeholder-types";
+import type { StaffEditSavePayload } from "./staff-edit-types";
 
 export function SystemPermissionsForm({
+  initialData,
   onCancel,
   onSave,
+  isSaving = false,
 }: {
+  initialData: Stakeholders;
   onCancel: () => void;
-  onSave: () => void;
+  onSave: (payload: StaffEditSavePayload) => void;
+  isSaving?: boolean;
 }) {
   const [formData, setFormData] = useState({
-    systemRole: "JS 2 Science Teacher",
+    systemRole: "",
     accountStatus: true,
   });
+
+  useEffect(() => {
+    if (initialData?.user) {
+      setFormData({
+        systemRole: initialData.user.role ?? "",
+        accountStatus: initialData.user.is_active ?? true,
+      });
+    }
+  }, [initialData]);
 
   const systemRoles = [
     "Admin",
@@ -31,11 +46,13 @@ export function SystemPermissionsForm({
   ];
 
   const handleSubmit = () => {
-    // Handle form submission
-    console.log("System Permissions:", formData);
-    if (onSave) {
-      onSave();
-    }
+    const payload: StaffEditSavePayload = {
+      user: {
+        role: formData.systemRole,
+        is_active: formData.accountStatus,
+      },
+    };
+    onSave(payload);
   };
 
   return (
@@ -88,9 +105,10 @@ export function SystemPermissionsForm({
         </Button>
         <Button
           onClick={handleSubmit}
+          disabled={isSaving}
           className="w-60 bg-main-blue hover:bg-main-blue/90"
         >
-          Save Changes
+          {isSaving ? "Saving..." : "Save Changes"}
         </Button>
       </div>
     </div>

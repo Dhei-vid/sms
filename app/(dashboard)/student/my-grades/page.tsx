@@ -54,7 +54,9 @@ export default function MyGradesPage() {
         const d = new Date(x as string | number);
         return isNaN(d.getTime()) ? 0 : d.getTime();
       };
-      const sortedGrades = grades.sort((a, b) => toTime(b.createdAt) - toTime(a.createdAt));
+      const sortedGrades = grades.sort(
+        (a, b) => toTime(b.createdAt) - toTime(a.createdAt),
+      );
       const latestGrade = sortedGrades[0];
 
       const averageScore =
@@ -69,16 +71,19 @@ export default function MyGradesPage() {
 
       const latestScore = Number(latestGrade?.score);
       const latestMax = Number(latestGrade?.maxScore);
-      const latestGradeText = latestMax > 0 && !isNaN(latestScore)
-        ? `${Math.round((latestScore / latestMax) * 100)}% ${latestGrade?.assignmentName ? `(${latestGrade.assignmentName})` : ""}`
-        : latestGrade?.percentage != null
-          ? `${latestGrade.percentage}%`
-          : "N/A";
+      const latestGradeText =
+        latestMax > 0 && !isNaN(latestScore)
+          ? `${Math.round((latestScore / latestMax) * 100)}% ${latestGrade?.assignmentName ? `(${latestGrade.assignmentName})` : ""}`
+          : latestGrade?.percentage != null
+            ? `${latestGrade.percentage}%`
+            : "N/A";
 
       return {
         subject: course?.name || "Unknown Course",
         courseId,
-        assignedTeacher: String(latestGrade?.teacherName ?? course?.teacherName ?? "N/A"),
+        assignedTeacher: String(
+          latestGrade?.teacherName ?? course?.teacherName ?? "N/A",
+        ),
         termAverageScore: `${Math.round(averageScore)}%`,
         latestGrade: latestGradeText,
       };
@@ -236,7 +241,9 @@ export default function MyGradesPage() {
                         : "Assignment",
                   totalMarks: Number(grade.maxScore) || 0,
                   studentScore: Number(grade.score) || 0,
-                  teacherFeedback: String(grade.remarks ?? "No feedback available"),
+                  teacherFeedback: String(
+                    grade.remarks ?? "No feedback available",
+                  ),
                 };
               }) ?? []
           }

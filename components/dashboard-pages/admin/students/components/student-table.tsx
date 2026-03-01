@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Search } from "lucide-react";
 import { Icon } from "@/components/general/huge-icon";
 import { cn } from "@/lib/utils";
@@ -37,81 +36,6 @@ interface Student {
   latestActivity: string;
 }
 
-const students: Student[] = [
-  {
-    id: "1",
-    first_name: "Chinedu",
-    last_name: "Nwokodi",
-    schoolId: "nwokodi.m178023",
-    grade: "JS 2",
-    attendance: "92%",
-    academicAvg: "B+",
-    outstandingFees: "₦45,000",
-    status: "active",
-    latestActivity: "Appointed class captain",
-  },
-  {
-    id: "2",
-    first_name: "Adebisi",
-    last_name: "Deborah",
-    schoolId: "adebisi.m178024",
-    grade: "JS 1",
-    attendance: "100%",
-    academicAvg: "B-",
-    outstandingFees: "Nil",
-    status: "active",
-    latestActivity: "Became a member of the debate team",
-  },
-  {
-    id: "3",
-    first_name: "Dauda",
-    last_name: "Ahfiz",
-    schoolId: "ahfiz.m178025",
-    grade: "SS 1",
-    attendance: "98%",
-    academicAvg: "A+",
-    outstandingFees: "Nil",
-    status: "on-leave",
-    latestActivity: "Editor-in-Chief of the Yearbook",
-  },
-  {
-    id: "4",
-    first_name: "Sarah",
-    last_name: "Collins",
-    schoolId: "collins.m178026",
-    grade: "SS 1",
-    attendance: "100%",
-    academicAvg: "A",
-    outstandingFees: "Nil",
-    status: "suspended",
-    latestActivity: "A member of the Basketball team",
-  },
-  {
-    id: "5",
-    first_name: "John",
-    last_name: "Terjiri",
-    schoolId: "terjiri.m178027",
-    grade: "JS 3",
-    attendance: "100%",
-    academicAvg: "C+",
-    outstandingFees: "₦12,500",
-    status: "graduated",
-    latestActivity: "Lead role in the school play",
-  },
-  {
-    id: "6",
-    first_name: "Chinedu",
-    last_name: "Nwokodi",
-    schoolId: "nwokodi.m178023",
-    grade: "SS 2",
-    attendance: "92%",
-    academicAvg: "B+",
-    outstandingFees: "Nil",
-    status: "withdrawn",
-    latestActivity: "Appointed class captain",
-  },
-];
-
 interface StudentTableProps {
   studentsData?: { data: any[]; total?: number };
   isLoading?: boolean;
@@ -137,20 +61,29 @@ export function StudentTable({
   };
 
   const apiStudents =
-    studentsData?.data?.map((student: { id?: string; user?: { first_name?: string; last_name?: string }; studentId?: string; className?: string; class?: { name?: string }; status?: string }) => ({
-      id: student?.id ?? "",
-      first_name: student?.user?.first_name ?? "",
-      last_name: student?.user?.last_name ?? "",
-      schoolId: student?.studentId || student?.id || "",
-      grade: student?.className || student?.class?.name || "N/A",
-      attendance: "N/A",
-      academicAvg: "N/A",
-      outstandingFees: "N/A",
-      status: (student?.status || "active") as Student["status"],
-      latestActivity: "N/A",
-    })) ?? [];
+    studentsData?.data?.map(
+      (student: {
+        id?: string;
+        user?: { first_name?: string; last_name?: string };
+        studentId?: string;
+        className?: string;
+        class?: { name?: string };
+        status?: string;
+      }) => ({
+        id: student?.id ?? "",
+        first_name: student?.user?.first_name ?? "",
+        last_name: student?.user?.last_name ?? "",
+        schoolId: student?.studentId || student?.id || "",
+        grade: student?.className || student?.class?.name || "N/A",
+        attendance: "N/A",
+        academicAvg: "N/A",
+        outstandingFees: "N/A",
+        status: (student?.status || "active") as Student["status"],
+        latestActivity: "N/A",
+      }),
+    ) ?? [];
 
-  const allStudents = apiStudents.length > 0 ? apiStudents : students;
+  const allStudents = apiStudents.length > 0 ? apiStudents : [];
 
   const filteredStudents = allStudents.filter(
     (student) =>
@@ -165,7 +98,6 @@ export function StudentTable({
     statusLabel: string,
   ) => {
     // Status changes would typically trigger an API mutation
-    // For now, this is handled locally or will be integrated with updateStudent mutation
     const updatedStudents = allStudents.map((app) =>
       app.id === applicationId ? { ...app, status: newStatus } : app,
     );

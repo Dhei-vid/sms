@@ -1,25 +1,44 @@
 "use client";
 
-import { useState, Dispatch, SetStateAction } from "react";
+import { useState, useEffect } from "react";
 import { InputField, SelectField } from "@/components/ui/input-field";
 import { Button } from "@/components/ui/button";
 import DatePickerIcon from "@/components/ui/date-picker";
 import { SelectItem } from "@/components/ui/select";
+import type { Stakeholders } from "@/services/stakeholders/stakeholder-types";
+import type { StaffEditSavePayload } from "./staff-edit-types";
 
 export function EmploymentRoleForm({
+  initialData,
   onCancel,
   onSave,
+  isSaving = false,
 }: {
+  initialData: Stakeholders;
   onCancel: () => void;
-  onSave: () => void;
+  onSave: (payload: StaffEditSavePayload) => void;
+  isSaving?: boolean;
 }) {
   const [openContractDate, setOpenContractDate] = useState(false);
   const [formData, setFormData] = useState({
-    jobTitle: "JS 2 Science Teacher",
-    department: "JSS Science",
-    annualLeaveEntitlement: "20",
+    jobTitle: "",
+    department: "",
+    annualLeaveEntitlement: "",
     contractEndDate: undefined as Date | undefined,
   });
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        jobTitle: initialData.position ?? "",
+        department: initialData.class_assigned ?? "",
+        annualLeaveEntitlement: initialData.annual_leave_entitlement ?? "",
+        contractEndDate: initialData.contract_end_date
+          ? new Date(initialData.contract_end_date)
+          : undefined,
+      });
+    }
+  }, [initialData]);
 
   const jobTitles = [
     "JS 2 Science Teacher",
@@ -32,7 +51,6 @@ export function EmploymentRoleForm({
   ];
 
   const departments = [
-    "Primary",
     "JSS Science",
     "JSS Art",
     "SS Science",
@@ -42,11 +60,16 @@ export function EmploymentRoleForm({
   ];
 
   const handleSubmit = () => {
-    // Handle form submission
-    console.log("Employment & Role:", formData);
-    if (onSave) {
-      onSave();
-    }
+    const payload: StaffEditSavePayload = {
+      stakeholder: {
+        position: formData.jobTitle || null,
+        annual_leave_entitlement: formData.annualLeaveEntitlement || null,
+        contract_end_date: formData.contractEndDate
+          ? formData.contractEndDate.toISOString().split("T")[0]
+          : null,
+      },
+    };
+    onSave(payload);
   };
 
   return (
@@ -117,9 +140,10 @@ export function EmploymentRoleForm({
         </Button>
         <Button
           onClick={handleSubmit}
+          disabled={isSaving}
           className="w-60 bg-main-blue hover:bg-main-blue/90"
         >
-          Save Changes
+          {isSaving ? "Saving..." : "Save Changes"}
         </Button>
       </div>
     </div>

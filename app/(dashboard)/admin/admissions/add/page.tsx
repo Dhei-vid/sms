@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { StepNavigation } from "@/components/dashboard-pages/admin/admissions/components/step-navigation";
 import { ApplicantDetailsForm } from "@/components/dashboard-pages/admin/admissions/forms/applicant-details-form";
+import { AcademicDetailsForm } from "@/components/dashboard-pages/admin/admissions/forms/academic-details-form";
 import { DocumentUploadForm } from "@/components/dashboard-pages/admin/admissions/forms/document-upload-form";
 import { ApplicationStatusForm } from "@/components/dashboard-pages/admin/admissions/forms/application-status-form";
 import {
@@ -18,7 +19,7 @@ import { generateSchoolID } from "@/common/helper";
 
 // API
 
-const STEPS = ["details", "documents", "status"] as const;
+const STEPS = ["details", "academic", "documents", "status"] as const;
 type StepId = (typeof STEPS)[number];
 
 export default function AddApplicantPage() {
@@ -86,6 +87,14 @@ export default function AddApplicantPage() {
                 <ApplicantDetailsForm
                   value={formState.details}
                   onChange={(v) => update("details", v)}
+                  onNext={() => go(1)}
+                  onCancel={() => router.back()}
+                />
+              )}
+              {step === "academic" && (
+                <AcademicDetailsForm
+                  value={formState.academic}
+                  onChange={(v) => update("academic", v)}
                   onNext={() => go(1)}
                   onCancel={() => router.back()}
                 />

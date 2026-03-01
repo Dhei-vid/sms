@@ -21,7 +21,10 @@ import { useAppSelector } from "@/store/hooks";
 import { selectUser } from "@/store/slices/authSlice";
 import { useGetSchoolSettingsDashboardQuery } from "@/services/schools/schools";
 import type { ApiResponse } from "@/services/shared-types";
-import type { SchoolSettingsDashboard, SettingsDashboardAdminRole } from "@/services/schools/schools-type";
+import type {
+  SchoolSettingsDashboard,
+  SettingsDashboardAdminRole,
+} from "@/services/schools/schools-type";
 
 export default function UserManagementPage() {
   const router = useRouter();
@@ -32,11 +35,16 @@ export default function UserManagementPage() {
     useGetSchoolSettingsDashboardQuery(schoolId, { skip: !schoolId });
 
   const dashboard = useMemo(() => {
-    const res = dashboardResponse as ApiResponse<SchoolSettingsDashboard> | undefined;
+    const res = dashboardResponse as
+      | ApiResponse<SchoolSettingsDashboard>
+      | undefined;
     return res?.data;
   }, [dashboardResponse]);
 
-  type AdminRosterRow = Omit<SettingsDashboardAdminRole, "lastPermissionUpdate"> & {
+  type AdminRosterRow = Omit<
+    SettingsDashboardAdminRole,
+    "lastPermissionUpdate"
+  > & {
     lastPermissionUpdate: Date | null;
   };
   const adminRoster: AdminRosterRow[] = useMemo(() => {

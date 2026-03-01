@@ -28,8 +28,7 @@ const documentFields: DocumentField[] = [
   },
   {
     id: "degreeCertificate",
-    label:
-      "Degree Certificate (Junior Secondary W.A.E.C, Primary Common Entrance)",
+    label: "Degree Certificate (Junior Secondary W.A.E.C, Common Entrance)",
     format: "First Name_Surname_Doc. Type.pdf",
     fileType: "pdf",
   },

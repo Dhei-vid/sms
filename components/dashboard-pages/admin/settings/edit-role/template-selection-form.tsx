@@ -44,7 +44,9 @@ export function TemplateSelectionForm({
           label="Select Template to Edit"
           value={selectedTemplate}
           onValueChange={onTemplateChange}
-          placeholder={templateOptions.length === 0 ? "No templates" : "Select a template"}
+          placeholder={
+            templateOptions.length === 0 ? "No templates" : "Select a template"
+          }
         >
           {templateOptions.map((option) => (
             <SelectItem key={option.value} value={option.value}>

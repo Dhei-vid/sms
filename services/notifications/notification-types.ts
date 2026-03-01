@@ -9,7 +9,7 @@ import type {
 
 export type NotificationsListResponse = ApiListResponse<Notifications>;
 
-type NotificationsType = "info" | string;
+export type NotificationsType = "info" | "log" | "success" | string;
 type NotificationsStatus = "inactive" | "active";
 type TargetAudience = "general" | "private" | string;
 

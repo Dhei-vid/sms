@@ -40,7 +40,16 @@ export function Sidebar({
 
   const parentWalletLabel = useMemo(() => {
     if (role !== "parent") return null;
-    const children = (parentData?.data as { children_details?: Array<{ user?: { first_name?: string; last_name?: string } }> } | undefined)?.children_details ?? [];
+    const children =
+      (
+        parentData?.data as
+          | {
+              children_details?: Array<{
+                user?: { first_name?: string; last_name?: string };
+              }>;
+            }
+          | undefined
+      )?.children_details ?? [];
     if (children.length === 0) return "Ward's Wallet";
     if (children.length === 1) {
       const u = children[0]?.user;
@@ -59,7 +68,7 @@ export function Sidebar({
     if (itemHref === "/dashboard") {
       return pathname === itemHref || pathname === `${itemHref}/`;
     }
-    
+
     return pathname.startsWith(itemHref);
   };
 
@@ -128,7 +137,13 @@ export function Sidebar({
                           : "text-muted-foreground",
                         collapsed && "justify-center",
                       )}
-                      title={collapsed ? (item.id === "parentmywallet" && parentWalletLabel ? parentWalletLabel : item.label) : undefined}
+                      title={
+                        collapsed
+                          ? item.id === "parentmywallet" && parentWalletLabel
+                            ? parentWalletLabel
+                            : item.label
+                          : undefined
+                      }
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         {item.icon && (
@@ -140,7 +155,11 @@ export function Sidebar({
                         )}
                         {!collapsed && (
                           <>
-                            <span className="truncate">{item.id === "parentmywallet" && parentWalletLabel ? parentWalletLabel : item.label}</span>
+                            <span className="truncate">
+                              {item.id === "parentmywallet" && parentWalletLabel
+                                ? parentWalletLabel
+                                : item.label}
+                            </span>
                             {item.badge && (
                               <span
                                 className={cn(
@@ -205,14 +224,24 @@ export function Sidebar({
                         : "text-muted-foreground",
                       collapsed && "justify-center",
                     )}
-                    title={collapsed ? (item.id === "parentmywallet" && parentWalletLabel ? parentWalletLabel : item.label) : undefined}
+                    title={
+                      collapsed
+                        ? item.id === "parentmywallet" && parentWalletLabel
+                          ? parentWalletLabel
+                          : item.label
+                        : undefined
+                    }
                   >
                     {item.icon && (
                       <Icon icon={item.icon} size={18} className="shrink-0" />
                     )}
                     {!collapsed && (
                       <>
-                        <span className="truncate">{item.id === "parentmywallet" && parentWalletLabel ? parentWalletLabel : item.label}</span>
+                        <span className="truncate">
+                          {item.id === "parentmywallet" && parentWalletLabel
+                            ? parentWalletLabel
+                            : item.label}
+                        </span>
                         {(item.id === "notice-board"
                           ? unreadNoticeCount > 0
                           : item.badge) && (

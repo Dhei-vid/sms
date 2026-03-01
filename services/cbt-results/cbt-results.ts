@@ -22,7 +22,9 @@ export const cbtResultsApi = baseApi.injectEndpoints({
     >({
       query: (params) => {
         const p = params ?? {};
-        const queryParams: Record<string, string> = p._all ? { _all: "true" } : {};
+        const queryParams: Record<string, string> = p._all
+          ? { _all: "true" }
+          : {};
         if (p.exam_id) queryParams["exam_id[eq]"] = p.exam_id;
         if (p.page != null) queryParams.page = String(p.page);
         if (p.limit != null) queryParams.limit = String(p.limit);

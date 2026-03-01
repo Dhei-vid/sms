@@ -13,14 +13,33 @@ export interface CbtResult {
   total_time_spent: number;
   completed_at: string | null;
   created_at: string;
-  answers?: Array<{ question_id?: string; selected_option?: number; is_correct?: boolean; time_spent?: number }> | null;
-  user?: { id: string; first_name?: string; last_name?: string; email?: string } | null;
-  stakeholder?: { id: string; student_id?: string; user?: { first_name?: string; last_name?: string; email?: string } } | null;
+  answers?: Array<{
+    question_id?: string;
+    selected_option?: number;
+    is_correct?: boolean;
+    time_spent?: number;
+  }> | null;
+  user?: {
+    id: string;
+    first_name?: string;
+    last_name?: string;
+    email?: string;
+  } | null;
+  stakeholder?: {
+    id: string;
+    student_id?: string;
+    user?: { first_name?: string; last_name?: string; email?: string };
+  } | null;
   exam?: {
     id: string;
     title: string;
     total_questions?: number | null;
-    questions?: Array<{ id: string; question?: string; answer_options?: string[]; correct_answer?: number }> | null;
+    questions?: Array<{
+      id: string;
+      question?: string;
+      answer_options?: string[];
+      correct_answer?: number;
+    }> | null;
     question_ids?: string[] | null;
     [key: string]: unknown;
   } | null;

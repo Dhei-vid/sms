@@ -54,10 +54,9 @@ function aggregateFromResults(data: ExamResult[]): {
   const sections: Record<string, { label: string; color: string }> = {
     ss: { label: "Senior School (SS)", color: "bg-orange-500" },
     jss: { label: "Junior School (JSS)", color: "bg-green-500" },
-    primary: { label: "Primary School", color: "bg-blue-500" },
   };
   const gradeSubmissionProgress: GradeSubmissionProgress[] = Object.entries(
-    sections
+    sections,
   ).map(([key, { label, color }]) => {
     const list = bySection.get(key) ?? [];
     const count = list.length;
@@ -72,7 +71,9 @@ function aggregateFromResults(data: ExamResult[]): {
   });
 
   const gradeSubmissionComplete =
-    totalStudents > 0 ? Math.min(100, Math.round((totalStudents / totalStudents) * 100)) : 0;
+    totalStudents > 0
+      ? Math.min(100, Math.round((totalStudents / totalStudents) * 100))
+      : 0;
 
   return {
     gradeSubmissionComplete: totalStudents > 0 ? 100 : 0,
@@ -86,7 +87,7 @@ function inferSection(class_name: string): string {
   const c = (class_name || "").toLowerCase();
   if (c.startsWith("ss") || c.includes("senior")) return "ss";
   if (c.startsWith("jss") || c.includes("junior")) return "jss";
-  return "primary";
+  return "other";
 }
 
 export default function AssessmentGradingDashboardPage() {

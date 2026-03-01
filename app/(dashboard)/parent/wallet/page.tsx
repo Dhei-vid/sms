@@ -33,26 +33,29 @@ export default function WalletPage() {
   const primaryWard = wards[0] ?? null;
   const wardUserId = primaryWard?.user_id ?? null;
   const wardName = primaryWard?.user
-    ? [primaryWard.user.first_name, primaryWard.user.last_name].filter(Boolean).join(" ") || "Ward"
+    ? [primaryWard.user.first_name, primaryWard.user.last_name]
+        .filter(Boolean)
+        .join(" ") || "Ward"
     : "Ward";
 
-  const { data: wardWalletData, refetch: refetchWardWallet } = useGetWalletBalanceQuery(
-    wardUserId ?? undefined,
-    { skip: !wardUserId }
-  );
-  const wardWallet = wardWalletData?.data as { balance?: string; currency?: string } | undefined;
+  const { data: wardWalletData, refetch: refetchWardWallet } =
+    useGetWalletBalanceQuery(wardUserId ?? undefined, { skip: !wardUserId });
+  const wardWallet = wardWalletData?.data as
+    | { balance?: string; currency?: string }
+    | undefined;
   const balanceFormatted =
     wardWallet?.balance != null && wardWallet?.currency
       ? `${wardWallet.currency} ${Number(wardWallet.balance).toLocaleString("en-NG", { minimumFractionDigits: 2 })}`
       : "₦0.00";
-  const { data: transactionsData, refetch: refetchTx } = useGetTransactionsQuery(
-    wardUserId ? { _all: "true", user_id: wardUserId } : { _all: "true" },
-    { skip: !wardUserId }
-  );
+  const { data: transactionsData, refetch: refetchTx } =
+    useGetTransactionsQuery(
+      wardUserId ? { _all: "true", user_id: wardUserId } : { _all: "true" },
+      { skip: !wardUserId },
+    );
   const apiTransactions = (transactionsData?.data ?? []) as ApiTransaction[];
   const allTransactions = useMemo(
     () => mapTransactionsToRows(apiTransactions, wardWallet?.balance ?? "0"),
-    [apiTransactions, wardWallet?.balance]
+    [apiTransactions, wardWallet?.balance],
   );
 
   const {
@@ -76,7 +79,9 @@ export default function WalletPage() {
       key: "amount",
       title: "Amount",
       render: (_, row) => (
-        <span className={`text-sm font-medium ${getAmountColor(row)}`}>{row.amount}</span>
+        <span className={`text-sm font-medium ${getAmountColor(row)}`}>
+          {row.amount}
+        </span>
       ),
     },
     { key: "runningBalance", title: "Running Balance" },
@@ -125,14 +130,20 @@ export default function WalletPage() {
 
       <div className="bg-background rounded-md p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-800">Transaction History</h2>
+          <h2 className="text-lg font-semibold text-gray-800">
+            Transaction History
+          </h2>
           <Button variant="outline" className="flex items-center gap-2">
             <Icon icon={Download02Icon} size={18} />
             Print Statement
           </Button>
         </div>
         <div className="border rounded-lg overflow-hidden">
-          <DataTable columns={columns} data={transactions} showActionsColumn={false} />
+          <DataTable
+            columns={columns}
+            data={transactions}
+            showActionsColumn={false}
+          />
         </div>
         {hasMore && (
           <div className="flex justify-center mt-4">
@@ -153,7 +164,6 @@ export default function WalletPage() {
           refetchTx();
         }}
       />
-
     </div>
   );
 }

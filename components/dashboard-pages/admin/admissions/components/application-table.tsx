@@ -19,7 +19,7 @@ import {
   PrinterIcon,
 } from "@hugeicons/core-free-icons";
 import type { AdmissionApplication } from "@/services/shared-types";
-import { getStakeholderStageLabel } from "@/services/stakeholders/stakeholders-reducer";
+import { getStakeholderStageLabel } from "@/services/stakeholders/stakeholders-selector";
 import { useUpdateStakeholderMutation } from "@/services/stakeholders/stakeholders";
 
 interface ApplicationTableProps {
@@ -70,7 +70,9 @@ export function ApplicationTable({
         // but we can also trigger a manual refresh if needed
         router.refresh();
       } else {
-        throw new Error((result as { error?: string }).error || "Failed to update status");
+        throw new Error(
+          (result as { error?: string }).error || "Failed to update status",
+        );
       }
     } catch (error: any) {
       console.error("Error updating status:", error);

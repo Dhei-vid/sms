@@ -66,7 +66,9 @@ export default function InventoryManagementPage() {
       items.push({
         id: pid,
         productName: p?.name ?? "Unknown",
-        category: (p?.category ?? "Other").charAt(0).toUpperCase() + (p?.category ?? "").slice(1),
+        category:
+          (p?.category ?? "Other").charAt(0).toUpperCase() +
+          (p?.category ?? "").slice(1),
         quantitySoldToday: `${stats.today} Units`,
         avgDailySale: `${Math.round(stats.last7Days / 7)} Units`,
       });
@@ -137,10 +139,7 @@ export default function InventoryManagementPage() {
             <CardTitle className="text-lg font-semibold text-gray-800">
               Sales By Item (Consumption Analysis)
             </CardTitle>
-            <Button
-              onClick={() => setAddModalOpen(true)}
-              className="gap-2"
-            >
+            <Button onClick={() => setAddModalOpen(true)} className="gap-2">
               <Icon icon={Add01Icon} size={18} />
               Add Inventory
             </Button>

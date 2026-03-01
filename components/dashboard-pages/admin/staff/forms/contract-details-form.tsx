@@ -49,13 +49,16 @@ export function ContractDetailsForm({
   };
 
   const departments = [
-    "Primary",
-    "JSS Science",
-    "JSS Art",
-    "SS Science",
-    "SS Art",
-    "Admin",
-    "NAS",
+    "Finance",
+    "Administrative",
+    "Security",
+    "Information Technology",
+    "Media",
+    "Human Resources",
+    "Admissions",
+    "Guidance and Counseling",
+    "Health",
+    "Food Services",
   ];
 
   const employmentTypes = [
@@ -73,7 +76,7 @@ export function ContractDetailsForm({
       </h2>
 
       <div className="space-y-6">
-        <InputField
+        {/* <InputField
           id="staffId"
           label="Staff ID"
           value={formData.staffId}
@@ -81,7 +84,7 @@ export function ContractDetailsForm({
             setFormData({ ...formData, staffId: e.target.value })
           }
           readOnly
-        />
+        /> */}
 
         <SelectField
           label="Staff Type"
@@ -94,6 +97,7 @@ export function ContractDetailsForm({
         >
           <SelectItem value="teacher">Teacher</SelectItem>
           <SelectItem value="staff">Staff</SelectItem>
+          <SelectItem value="vendor">Vendor</SelectItem>
         </SelectField>
 
         <InputField
@@ -107,8 +111,8 @@ export function ContractDetailsForm({
         />
 
         <SelectField
-          label="Department/Grade"
-          placeholder="Select department/grade applied for"
+          label="Department"
+          placeholder="Select department"
           value={formData.department}
           onValueChange={(value) =>
             setFormData({ ...formData, department: value })
@@ -171,9 +175,6 @@ export function ContractDetailsForm({
       <div className="flex justify-end gap-3 pt-4">
         <Button variant="outline" onClick={onCancel}>
           Cancel
-        </Button>
-        <Button variant="outline" onClick={onBack}>
-          Back
         </Button>
         <Button
           onClick={onNext}

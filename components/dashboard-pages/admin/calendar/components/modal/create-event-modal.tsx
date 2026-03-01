@@ -3,7 +3,11 @@
 import { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { ModalContainer } from "@/components/ui/modal-container";
 import { Button } from "@/components/ui/button";
-import { InputField, SelectField, TextareaField } from "@/components/ui/input-field";
+import {
+  InputField,
+  SelectField,
+  TextareaField,
+} from "@/components/ui/input-field";
 import { SelectItem } from "@/components/ui/select";
 import { CheckboxField } from "@/components/ui/checkbox-field";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -37,18 +41,19 @@ export interface EventFormData {
   sendNotification: boolean;
 }
 
-const initialFormData: Omit<EventFormData, "schoolId"> & { schoolId: string } = {
-  schoolId: "",
-  title: "",
-  description: "",
-  date: undefined,
-  startTime: "",
-  endTime: "",
-  location: "",
-  audienceVisibility: "general",
-  specifics: { teacher: false, student: false, parent: false, staff: false },
-  sendNotification: false,
-};
+const initialFormData: Omit<EventFormData, "schoolId"> & { schoolId: string } =
+  {
+    schoolId: "",
+    title: "",
+    description: "",
+    date: undefined,
+    startTime: "",
+    endTime: "",
+    location: "",
+    audienceVisibility: "general",
+    specifics: { teacher: false, student: false, parent: false, staff: false },
+    sendNotification: false,
+  };
 
 export function CreateEventModal({
   open,
@@ -62,13 +67,14 @@ export function CreateEventModal({
     schoolId: defaultSchoolId ?? "",
   });
 
-  const { data: schoolsData, isLoading: isLoadingSchools } = useGetSchoolsQuery();
+  const { data: schoolsData, isLoading: isLoadingSchools } =
+    useGetSchoolsQuery();
   const schools = schoolsData?.data ?? [];
 
   useEffect(() => {
     if (open && defaultSchoolId) {
       setFormData((prev) =>
-        prev.schoolId ? prev : { ...prev, schoolId: defaultSchoolId }
+        prev.schoolId ? prev : { ...prev, schoolId: defaultSchoolId },
       );
     }
   }, [open, defaultSchoolId]);
@@ -102,7 +108,9 @@ export function CreateEventModal({
     }));
   };
 
-  const handleSpecificsChange = (key: "teacher" | "student" | "parent" | "staff") => {
+  const handleSpecificsChange = (
+    key: "teacher" | "student" | "parent" | "staff",
+  ) => {
     setFormData((prev) => ({
       ...prev,
       specifics: {

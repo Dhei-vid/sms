@@ -189,7 +189,7 @@ export default function CreateDiscountRulePage() {
 
             <InputField
               label="Applicable To"
-              placeholder="E.g., All Grades, JSS Only, Primary Track Only"
+              placeholder="E.g., All Grades, JSS Only"
               value={formData.applicableTo}
               onChange={(e) =>
                 setFormData((prev) => ({

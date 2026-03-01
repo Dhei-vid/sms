@@ -36,9 +36,12 @@ export default function MyWalletPage() {
     useGetTransactionsQuery({ _all: "true" }, { skip: !user?.id });
 
   const balance = walletData?.data?.balance ?? "0";
-  const formattedBalance = `₦${parseFloat(String(balance)).toLocaleString("en-NG", {
-    minimumFractionDigits: 2,
-  })}`;
+  const formattedBalance = `₦${parseFloat(String(balance)).toLocaleString(
+    "en-NG",
+    {
+      minimumFractionDigits: 2,
+    },
+  )}`;
 
   const transactions = Array.isArray(transactionsData?.data)
     ? transactionsData.data

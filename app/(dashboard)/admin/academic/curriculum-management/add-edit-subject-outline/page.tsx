@@ -23,7 +23,10 @@ import {
 } from "@/services/subjects/subjects";
 import { useGetAllStaffQuery } from "@/services/stakeholders/stakeholders";
 import { useGetSchoolsQuery } from "@/services/schools/schools";
-import type { Subject, ContentOutlineItem } from "@/services/subjects/subject-types";
+import type {
+  Subject,
+  ContentOutlineItem,
+} from "@/services/subjects/subject-types";
 import type { School } from "@/services/schools/schools-type";
 import { selectUser } from "@/store/slices/authSlice";
 
@@ -107,24 +110,29 @@ function subjectToForm(subject: Subject): Partial<SubjectOutlineForm> {
     subjectCode: subject.code ?? "",
     applicableGrade: subject.applicable_grade ?? "",
     headOfDepartment: subject.head_of_department_id ?? "",
-    creditUnits: subject.credit_units != null ? String(subject.credit_units) : "",
-    continuousAssessment: subject.continuous_assessment != null ? String(subject.continuous_assessment) : "",
+    creditUnits:
+      subject.credit_units != null ? String(subject.credit_units) : "",
+    continuousAssessment:
+      subject.continuous_assessment != null
+        ? String(subject.continuous_assessment)
+        : "",
     finalExam: subject.final_exam != null ? String(subject.final_exam) : "",
     curriculumStandard: subject.curriculum_standard ?? "",
-    contentOutline: outline.length > 0
-      ? outline.map((o) => ({
-          unit: o.unit_definition ?? "",
-          topic: o.topic_definition ?? "",
-          plannedPeriods: o.planned_pacing ?? "",
-        }))
-      : [{ unit: "", topic: "", plannedPeriods: "" }],
+    contentOutline:
+      outline.length > 0
+        ? outline.map((o) => ({
+            unit: o.unit_definition ?? "",
+            topic: o.topic_definition ?? "",
+            plannedPeriods: o.planned_pacing ?? "",
+          }))
+        : [{ unit: "", topic: "", plannedPeriods: "" }],
     plannedPacing: outline[0]?.planned_pacing ?? "",
   };
 }
 
 function formToContentOutline(
   outline: SubjectOutlineForm["contentOutline"],
-  plannedPacing: string
+  plannedPacing: string,
 ): ContentOutlineItem[] {
   return outline
     .filter((o) => o.unit || o.topic)
@@ -196,7 +204,7 @@ function AddEditSubjectOutlineContent() {
         value: s.id,
         label: s.name,
       })),
-    [subjectsList]
+    [subjectsList],
   );
 
   const hodOptions = useMemo(
@@ -205,10 +213,11 @@ function AddEditSubjectOutlineContent() {
         value: s.id,
         label:
           s.user && typeof s.user === "object" && "first_name" in s.user
-            ? `${(s.user as { first_name?: string }).first_name ?? ""} ${(s.user as { last_name?: string }).last_name ?? ""}`.trim() || s.id
+            ? `${(s.user as { first_name?: string }).first_name ?? ""} ${(s.user as { last_name?: string }).last_name ?? ""}`.trim() ||
+              s.id
             : s.id,
       })),
-    [staffList]
+    [staffList],
   );
 
   useEffect(() => {
@@ -250,7 +259,12 @@ function AddEditSubjectOutlineContent() {
         }));
       }
     }
-  }, [formData.mode, formData.selectedSubject, formData.subjectId, subjectsList]);
+  }, [
+    formData.mode,
+    formData.selectedSubject,
+    formData.subjectId,
+    subjectsList,
+  ]);
 
   const handleStepChange = (stepId: string) => {
     setActiveStep(stepId as StepId);
@@ -268,7 +282,7 @@ function AddEditSubjectOutlineContent() {
     const fe = parseInt(formData.finalExam, 10);
     const contentOutline = formToContentOutline(
       formData.contentOutline,
-      formData.plannedPacing
+      formData.plannedPacing,
     );
     return {
       school_id: formData.subjectId ? undefined : schoolId,
@@ -280,7 +294,8 @@ function AddEditSubjectOutlineContent() {
       continuous_assessment: isNaN(ca) ? undefined : ca,
       final_exam: isNaN(fe) ? undefined : fe,
       curriculum_standard: formData.curriculumStandard || undefined,
-      content_outline_table: contentOutline.length > 0 ? contentOutline : undefined,
+      content_outline_table:
+        contentOutline.length > 0 ? contentOutline : undefined,
       status,
     };
   };
@@ -450,7 +465,11 @@ function AddEditSubjectOutlineContent() {
 
 export default function AddEditSubjectOutlinePage() {
   return (
-    <Suspense fallback={<div className="p-6 text-center text-muted-foreground">Loading…</div>}>
+    <Suspense
+      fallback={
+        <div className="p-6 text-center text-muted-foreground">Loading…</div>
+      }
+    >
       <AddEditSubjectOutlineContent />
     </Suspense>
   );

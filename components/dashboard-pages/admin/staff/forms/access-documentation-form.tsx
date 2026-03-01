@@ -54,15 +54,7 @@ export function AccessDocumentationForm({
   const setFormData = onChange;
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
-  const systemRoles = [
-    "Admin",
-    "Teacher",
-    "HOD",
-    "Bursar",
-    "HR Admin",
-    "Academic Admin",
-    "Security Guard",
-  ];
+  const systemRoles = ["admin", "write"];
 
   const handleFileChange = (id: string, file: File | null) => {
     onDocumentsChange({ ...documents, [id]: file });
@@ -148,9 +140,6 @@ export function AccessDocumentationForm({
       <div className="flex justify-end gap-3 pt-4">
         <Button variant="outline" onClick={onCancel}>
           Cancel
-        </Button>
-        <Button variant="outline" onClick={onBack}>
-          Back
         </Button>
         <Button
           onClick={onSubmit}

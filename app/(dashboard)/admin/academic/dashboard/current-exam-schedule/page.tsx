@@ -27,7 +27,6 @@ const dateFilterOptions = [
 
 const sectionFilterOptions = [
   { value: "all", label: "All sections" },
-  { value: "primary", label: "Primary" },
   { value: "jss", label: "JSS" },
   { value: "sss", label: "SSS" },
 ];
@@ -55,7 +54,8 @@ export default function CurrentExamSchedulePage() {
   const [dateFilter, setDateFilter] = useState("today");
   const [sectionFilter, setSectionFilter] = useState("all");
   const [assignModalOpen, setAssignModalOpen] = useState(false);
-  const [selectedSchedule, setSelectedSchedule] = useState<ScheduleEvent | null>(null);
+  const [selectedSchedule, setSelectedSchedule] =
+    useState<ScheduleEvent | null>(null);
 
   const { dateFrom, dateTo } = getDateRange(dateFilter);
   const { data: schedulesResponse, isLoading } = useGetExamSchedulesQuery({
@@ -70,25 +70,32 @@ export default function CurrentExamSchedulePage() {
       .filter((s: ScheduleEvent) => {
         if (sectionFilter === "all") return true;
         const title = (s.title || "").toLowerCase();
-        if (sectionFilter === "primary") return title.includes("primary") || /p[1-6]/i.test(title);
         if (sectionFilter === "jss") return /js[s]?|jss/i.test(title);
         if (sectionFilter === "sss") return /ss[s]?|sss/i.test(title);
         return true;
       })
       .map((s: ScheduleEvent) => {
-        const inv = s.invigilator as { user?: { first_name?: string; last_name?: string } } | null | undefined;
-        const invName = inv?.user ? `${inv.user.first_name ?? ""} ${inv.user.last_name ?? ""}`.trim() || "Unassigned" : "Unassigned";
+        const inv = s.invigilator as
+          | { user?: { first_name?: string; last_name?: string } }
+          | null
+          | undefined;
+        const invName = inv?.user
+          ? `${inv.user.first_name ?? ""} ${inv.user.last_name ?? ""}`.trim() ||
+            "Unassigned"
+          : "Unassigned";
         return {
           id: s.id,
           dateTime: s.date
             ? format(new Date(s.date), "MMM dd, yyyy") +
-              (s.start_time ? ` (${String(s.start_time).slice(0, 5)} - ${s.end_time ? String(s.end_time).slice(0, 5) : "—"})` : "")
+              (s.start_time
+                ? ` (${String(s.start_time).slice(0, 5)} - ${s.end_time ? String(s.end_time).slice(0, 5) : "—"})`
+                : "")
             : "—",
           examName: s.title || s.description || "Exam",
           location: s.location || "—",
           invigilatorsAssigned: invName,
-        schedule: s,
-      };
+          schedule: s,
+        };
       });
   }, [rawSchedules, sectionFilter]);
 
@@ -166,7 +173,10 @@ export default function CurrentExamSchedulePage() {
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="h-32 text-center text-gray-500">
+                    <TableCell
+                      colSpan={5}
+                      className="h-32 text-center text-gray-500"
+                    >
                       Loading...
                     </TableCell>
                   </TableRow>

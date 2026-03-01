@@ -13,9 +13,11 @@ import type {
 import {
   calculateStakeholderMetrics,
   calculateStudentStakeholderMetrics,
+  calculateStudentMetrics,
+  calculateStaffUtilization,
   getStakeholderStageLabel,
   getAllStudents,
-} from "./stakeholders-reducer";
+} from "./stakeholders-selector";
 import type { ApiResponse, ApiDeleteResponse } from "../shared-types";
 
 const BASE = "/stakeholders";
@@ -37,33 +39,37 @@ export const stakeholdersApi = baseApi.injectEndpoints({
       providesTags: ["Stakeholder"],
     }),
 
-    getParentByUserId: build.query<
-      ApiResponse<Stakeholders>,
-      string
-    >({
+    getParentByUserId: build.query<ApiResponse<Stakeholders>, string>({
       query: (userId) => ({
         url: BASE,
         params: { _all: "true", "type[eq]": "parent", "user_id[eq]": userId },
       }),
       transformResponse: (response: StakeholdersListResponse) => {
         const parent = (response.data ?? []).find((s) => s.type === "parent");
-        return { ...response, data: parent ?? null } as ApiResponse<Stakeholders>;
+        return {
+          ...response,
+          data: parent ?? null,
+        } as ApiResponse<Stakeholders>;
       },
       providesTags: ["Stakeholder"],
     }),
-    getTeacherByUserId: build.query<
-      ApiResponse<Stakeholders>,
-      string
-    >({
+    getTeacherByUserId: build.query<ApiResponse<Stakeholders>, string>({
       query: (userId) => ({
         url: BASE,
-        params: { _all: "true", "type[in]": "teacher,staff", "user_id[eq]": userId },
+        params: {
+          _all: "true",
+          "type[in]": "teacher,staff",
+          "user_id[eq]": userId,
+        },
       }),
       transformResponse: (response: StakeholdersListResponse) => {
         const teacher = (response.data ?? []).find(
           (s) => s.type === "teacher" || s.type === "staff",
         );
-        return { ...response, data: teacher ?? null } as ApiResponse<Stakeholders>;
+        return {
+          ...response,
+          data: teacher ?? null,
+        } as ApiResponse<Stakeholders>;
       },
       providesTags: ["Stakeholder"],
     }),
@@ -143,15 +149,33 @@ export const stakeholdersApi = baseApi.injectEndpoints({
     }),
 
     getStudentMetrics: build.query<ApiResponse<StudentMetrics>, void>({
-      query: () => ({ url: `${BASE}/metrics` }),
-      providesTags: ["Stakeholder", "Attendance", "Transaction"],
+      query: () => ({ url: BASE }),
+      transformResponse: (
+        response: StakeholdersListResponse,
+      ): ApiResponse<StudentMetrics> => ({
+        ...response,
+        data: calculateStudentMetrics(response.data),
+      }),
+      providesTags: ["Stakeholder"],
     }),
 
     getStaffUtilization: build.query<
-      ApiResponse<{ breakdown: { label: string; value: number; color: string }[] }>,
+      ApiResponse<{
+        breakdown: { label: string; value: number; color: string }[];
+      }>,
       void
     >({
-      query: () => ({ url: `${BASE}/staff-utilization` }),
+      query: () => ({ url: BASE, params: { _all: "true" } }),
+      transformResponse: (
+        response: StakeholdersListResponse,
+      ): ApiResponse<{
+        breakdown: { label: string; value: number; color: string }[];
+      }> => ({
+        status: response.status ?? true,
+        status_code: response.status_code ?? 200,
+        message: response.message ?? "Success",
+        data: { breakdown: calculateStaffUtilization(response.data ?? []) },
+      }),
       providesTags: ["Stakeholder"],
     }),
 

@@ -11,7 +11,7 @@ import { AcademicHistoryView } from "@/components/dashboard-pages/admin/admissio
 import { DocumentsView } from "@/components/dashboard-pages/admin/admissions/views/documents-view";
 import { ReviewersNotesView } from "@/components/dashboard-pages/admin/admissions/views/reviewers-notes-view";
 import { useGetStakeholderByIdQuery } from "@/services/stakeholders/stakeholders";
-import { getStakeholderStageLabel } from "@/services/stakeholders/stakeholders-reducer";
+import { getStakeholderStageLabel } from "@/services/stakeholders/stakeholders-selector";
 
 type TabId = "personal" | "academic" | "documents" | "notes";
 

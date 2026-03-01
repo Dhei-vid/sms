@@ -20,8 +20,10 @@ export const ordersApi = baseApi.injectEndpoints({
         if (p.per_page != null) queryParams.per_page = p.per_page;
         if (p.page != null) queryParams.page = p.page;
         if (p.status) queryParams.status = p.status;
-        if (p["created_at[gte]"]) queryParams["created_at[gte]"] = p["created_at[gte]"];
-        if (p["created_at[lte]"]) queryParams["created_at[lte]"] = p["created_at[lte]"];
+        if (p["created_at[gte]"])
+          queryParams["created_at[gte]"] = p["created_at[gte]"];
+        if (p["created_at[lte]"])
+          queryParams["created_at[lte]"] = p["created_at[lte]"];
         if (p.search) queryParams.search = p.search;
         return { url: BASE, params: queryParams };
       },

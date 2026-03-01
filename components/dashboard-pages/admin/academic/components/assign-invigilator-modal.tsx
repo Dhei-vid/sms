@@ -25,15 +25,21 @@ export function AssignInvigilatorModal({
 }: AssignInvigilatorModalProps) {
   const [invigilatorId, setInvigilatorId] = useState<string>("");
 
-  const { data: staffResponse } = useGetAllStaffQuery(undefined, { skip: !open });
+  const { data: staffResponse } = useGetAllStaffQuery(undefined, {
+    skip: !open,
+  });
   const [updateSchedule, { isLoading }] = useUpdateScheduleMutation();
 
   const staffList = staffResponse?.data ?? [];
   const staffOptions = staffList.map((s) => ({
     value: s.id,
     label:
-      s.user && typeof s.user === "object" && "first_name" in s.user && "last_name" in s.user
-        ? `${(s.user as { first_name?: string }).first_name ?? ""} ${(s.user as { last_name?: string }).last_name ?? ""}`.trim() || s.id
+      s.user &&
+      typeof s.user === "object" &&
+      "first_name" in s.user &&
+      "last_name" in s.user
+        ? `${(s.user as { first_name?: string }).first_name ?? ""} ${(s.user as { last_name?: string }).last_name ?? ""}`.trim() ||
+          s.id
         : s.id,
   }));
 
@@ -87,7 +93,10 @@ export function AssignInvigilatorModal({
     >
       <div className="space-y-6 py-4">
         <p className="text-sm text-gray-600">
-          Assign an invigilator for <strong>{schedule.title || schedule.description || "this exam"}</strong>
+          Assign an invigilator for{" "}
+          <strong>
+            {schedule.title || schedule.description || "this exam"}
+          </strong>
         </p>
 
         <SelectField
@@ -105,7 +114,11 @@ export function AssignInvigilatorModal({
         </SelectField>
 
         <div className="flex justify-end gap-3 pt-2">
-          <Button variant="outline" onClick={() => handleClose(false)} disabled={isLoading}>
+          <Button
+            variant="outline"
+            onClick={() => handleClose(false)}
+            disabled={isLoading}
+          >
             Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={isLoading}>

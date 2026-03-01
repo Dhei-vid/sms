@@ -13,7 +13,10 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/general/huge-icon";
 import { AddSquareIcon } from "@hugeicons/core-free-icons";
 import { useGetParentByUserIdQuery } from "@/services/stakeholders/stakeholders";
-import { useGetTransactionsQuery, useVerifyPaymentMutation } from "@/services/transactions/transactions";
+import {
+  useGetTransactionsQuery,
+  useVerifyPaymentMutation,
+} from "@/services/transactions/transactions";
 import { PayFeesModal } from "@/components/dashboard-pages/parent/pay-fees-modal";
 import { format } from "date-fns";
 import type { Transaction } from "@/services/transactions/transaction-types";
@@ -45,13 +48,16 @@ const formatAmount = (n: number | string) =>
   `${CURRENCY}${Number(n).toLocaleString("en-NG", { minimumFractionDigits: 2 })}`;
 
 function txToPaymentRow(tx: Transaction): PaymentRow {
-  const amt = typeof tx.amount === "string" ? parseFloat(tx.amount) : Number(tx.amount);
+  const amt =
+    typeof tx.amount === "string" ? parseFloat(tx.amount) : Number(tx.amount);
   return {
     id: tx.id,
     description: tx.description ?? tx.payment_type ?? "Payment",
-    paymentDate: tx.created_at ? format(new Date(tx.created_at), "MMM. d, yyyy") : "—",
+    paymentDate: tx.created_at
+      ? format(new Date(tx.created_at), "MMM. d, yyyy")
+      : "—",
     amountPaid: formatAmount(Math.abs(amt)),
-    status: tx.status === "completed" ? "Completed" : tx.status ?? "—",
+    status: tx.status === "completed" ? "Completed" : (tx.status ?? "—"),
   };
 }
 
@@ -59,11 +65,14 @@ function FeePaymentManagementContent() {
   const searchParams = useSearchParams();
   const user = useAppSelector(selectUser);
   const [payModalOpen, setPayModalOpen] = useState(false);
-  const [payPrefill, setPayPrefill] = useState<{ amount?: number; feesType?: string }>({});
+  const [payPrefill, setPayPrefill] = useState<{
+    amount?: number;
+    feesType?: string;
+  }>({});
 
   const { data: txData, refetch: refetchTx } = useGetTransactionsQuery(
     { _all: "true" },
-    { skip: !user?.id, refetchOnMountOrArgChange: 30 }
+    { skip: !user?.id, refetchOnMountOrArgChange: 30 },
   );
   const [verifyPayment] = useVerifyPaymentMutation();
   const verifiedRef = useRef(false);
@@ -71,20 +80,24 @@ function FeePaymentManagementContent() {
   useEffect(() => {
     const payment = searchParams.get("payment");
     const referenceFromUrl = searchParams.get("reference");
-    const reference = referenceFromUrl || (() => {
-      const stored = sessionStorage.getItem("paystack_pending_ref");
-      const storedTime = sessionStorage.getItem("paystack_pending_time");
-      if (stored && storedTime) {
-        const age = Date.now() - Number(storedTime);
-        if (age < 30 * 60 * 1000) return stored;
-        sessionStorage.removeItem("paystack_pending_ref");
-        sessionStorage.removeItem("paystack_pending_time");
-      }
-      return null;
-    })();
+    const reference =
+      referenceFromUrl ||
+      (() => {
+        const stored = sessionStorage.getItem("paystack_pending_ref");
+        const storedTime = sessionStorage.getItem("paystack_pending_time");
+        if (stored && storedTime) {
+          const age = Date.now() - Number(storedTime);
+          if (age < 30 * 60 * 1000) return stored;
+          sessionStorage.removeItem("paystack_pending_ref");
+          sessionStorage.removeItem("paystack_pending_time");
+        }
+        return null;
+      })();
 
     if (payment === "verified") {
-      toast.success("Payment verified successfully. Your wallet has been credited.");
+      toast.success(
+        "Payment verified successfully. Your wallet has been credited.",
+      );
       refetchTx();
       sessionStorage.removeItem("paystack_pending_ref");
       sessionStorage.removeItem("paystack_pending_time");
@@ -102,22 +115,28 @@ function FeePaymentManagementContent() {
       verifyPayment({ reference })
         .unwrap()
         .then(() => {
-          toast.success("Payment verified successfully. Your wallet has been credited.");
+          toast.success(
+            "Payment verified successfully. Your wallet has been credited.",
+          );
           refetchTx();
         })
         .catch(() => {
           toast.error("Could not verify payment. It may still be pending.");
         })
         .finally(() => {
-          if (referenceFromUrl) window.history.replaceState({}, "", window.location.pathname);
+          if (referenceFromUrl)
+            window.history.replaceState({}, "", window.location.pathname);
         });
     }
   }, [searchParams, refetchTx, verifyPayment]);
 
-  const { data: parentData } = useGetParentByUserIdQuery(user?.id ?? "", { skip: !user?.id });
+  const { data: parentData } = useGetParentByUserIdQuery(user?.id ?? "", {
+    skip: !user?.id,
+  });
   const parent = parentData?.data ?? null;
   const wards = (parent?.children_details ?? []) as Ward[];
-  const schoolId = parent?.school_id ?? wards[0]?.school_id ?? user?.school_id ?? "";
+  const schoolId =
+    parent?.school_id ?? wards[0]?.school_id ?? user?.school_id ?? "";
 
   const apiTx = (txData?.data ?? []) as Transaction[];
   const feePayments = useMemo(
@@ -129,9 +148,12 @@ function FeePaymentManagementContent() {
           const db = b.created_at ? new Date(b.created_at).getTime() : 0;
           return db - da;
         }),
-    [apiTx]
+    [apiTx],
   );
-  const paymentRows = useMemo(() => feePayments.map(txToPaymentRow), [feePayments]);
+  const paymentRows = useMemo(
+    () => feePayments.map(txToPaymentRow),
+    [feePayments],
+  );
 
   const { displayedData, hasMore, loadMore } = usePagination({
     data: paymentRows,
@@ -143,21 +165,27 @@ function FeePaymentManagementContent() {
     let sum = 0;
     for (const w of wards) {
       const fees = w.school_fees ?? {};
-      const owed = fees.total_owed ?? (Number(fees.total ?? 0) - Number(fees.total_paid ?? 0));
+      const owed =
+        fees.total_owed ??
+        Number(fees.total ?? 0) - Number(fees.total_paid ?? 0);
       if (owed > 0) sum += owed;
     }
     return sum;
   }, [wards]);
 
   const lastPayment = useMemo(() => {
-    const lastCompleted = feePayments.find((t) => (t.status ?? "").toLowerCase() === "completed");
+    const lastCompleted = feePayments.find(
+      (t) => (t.status ?? "").toLowerCase() === "completed",
+    );
     if (!lastCompleted) return null;
     return {
-      amount: typeof lastCompleted.amount === "string" ? parseFloat(lastCompleted.amount) : Number(lastCompleted.amount),
+      amount:
+        typeof lastCompleted.amount === "string"
+          ? parseFloat(lastCompleted.amount)
+          : Number(lastCompleted.amount),
       created_at: lastCompleted.created_at,
     };
   }, [feePayments]);
-
 
   const handlePayNow = (amount?: number, feesType?: string) => {
     setPayPrefill({ amount, feesType });
@@ -165,18 +193,35 @@ function FeePaymentManagementContent() {
   };
 
   const paymentColumns: TableColumn<PaymentRow>[] = [
-    { key: "description", title: "Description", render: (v) => <span className="font-medium text-gray-800">{v as string}</span> },
+    {
+      key: "description",
+      title: "Description",
+      render: (v) => (
+        <span className="font-medium text-gray-800">{v as string}</span>
+      ),
+    },
     { key: "paymentDate", title: "Date" },
     { key: "amountPaid", title: "Amount" },
-    { key: "status", title: "Status", render: (v) => <span className="text-sm font-medium text-green-600">{v as string}</span> },
+    {
+      key: "status",
+      title: "Status",
+      render: (v) => (
+        <span className="text-sm font-medium text-green-600">
+          {v as string}
+        </span>
+      ),
+    },
   ];
 
   return (
     <div className="space-y-4">
       <div className="bg-background rounded-md p-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">Fees & Payments Management</h1>
+        <h1 className="text-2xl font-bold text-gray-800 mb-2">
+          Fees & Payments Management
+        </h1>
         <p className="text-gray-600">
-          Manage school fees for your wards. Make payments from your wallet and view history.
+          Manage school fees for your wards. Make payments from your wallet and
+          view history.
         </p>
       </div>
 
@@ -188,14 +233,18 @@ function FeePaymentManagementContent() {
             trend={totalOutstanding > 0 ? "up" : undefined}
           />
           <MetricCard
-            key={lastPayment ? `${lastPayment.amount}-${lastPayment.created_at}` : "no-payment"}
-            title="Last Payment"
-            value={
+            key={
               lastPayment
-                ? `${formatAmount(lastPayment.amount)}`
-                : "—"
+                ? `${lastPayment.amount}-${lastPayment.created_at}`
+                : "no-payment"
             }
-            subtitle={lastPayment?.created_at ? format(new Date(lastPayment.created_at), "MMM. d, yyyy") : undefined}
+            title="Last Payment"
+            value={lastPayment ? `${formatAmount(lastPayment.amount)}` : "—"}
+            subtitle={
+              lastPayment?.created_at
+                ? format(new Date(lastPayment.created_at), "MMM. d, yyyy")
+                : undefined
+            }
           />
         </div>
         <div className="flex items-end">
@@ -214,16 +263,22 @@ function FeePaymentManagementContent() {
       {wards.length > 0 && totalOutstanding > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-semibold text-gray-800">Outstanding Fees by Student</CardTitle>
+            <CardTitle className="text-lg font-semibold text-gray-800">
+              Outstanding Fees by Student
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
               {wards.map((w) => {
                 const fees = w.school_fees ?? {};
-                const owed = fees.total_owed ?? (Number(fees.total ?? 0) - Number(fees.total_paid ?? 0));
+                const owed =
+                  fees.total_owed ??
+                  Number(fees.total ?? 0) - Number(fees.total_paid ?? 0);
                 if (owed <= 0) return null;
                 const name = w.user
-                  ? [w.user.first_name, w.user.last_name].filter(Boolean).join(" ") || "Student"
+                  ? [w.user.first_name, w.user.last_name]
+                      .filter(Boolean)
+                      .join(" ") || "Student"
                   : "Student";
                 return (
                   <div
@@ -235,7 +290,9 @@ function FeePaymentManagementContent() {
                       {w.class_assigned ? ` (${w.class_assigned})` : ""}
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className="text-gray-600">{formatAmount(owed)}</span>
+                      <span className="text-gray-600">
+                        {formatAmount(owed)}
+                      </span>
                       <Button
                         variant="link"
                         className="h-auto p-0 text-main-blue"
@@ -254,7 +311,9 @@ function FeePaymentManagementContent() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-gray-800">Payment History</CardTitle>
+          <CardTitle className="text-lg font-semibold text-gray-800">
+            Payment History
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {paymentRows.length === 0 ? (
@@ -262,7 +321,11 @@ function FeePaymentManagementContent() {
           ) : (
             <>
               <div className="border rounded-lg overflow-hidden">
-                <DataTable columns={paymentColumns} data={displayedData} showActionsColumn={false} />
+                <DataTable
+                  columns={paymentColumns}
+                  data={displayedData}
+                  showActionsColumn={false}
+                />
               </div>
               {hasMore && (
                 <div className="flex justify-center mt-4">
@@ -290,12 +353,14 @@ function FeePaymentManagementContent() {
 
 export default function FeePaymentManagementPage() {
   return (
-    <Suspense fallback={
-      <div className="space-y-4 p-6">
-        <div className="h-8 w-48 animate-pulse rounded bg-gray-200" />
-        <div className="h-32 animate-pulse rounded bg-gray-100" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="space-y-4 p-6">
+          <div className="h-8 w-48 animate-pulse rounded bg-gray-200" />
+          <div className="h-32 animate-pulse rounded bg-gray-100" />
+        </div>
+      }
+    >
       <FeePaymentManagementContent />
     </Suspense>
   );

@@ -215,32 +215,32 @@ export default function FinancePage() {
                 </div>
               ) : (
                 transactions.slice(0, 5).map((tx, index) => (
-                <div key={tx.id ?? index}>
-                  <ActivityItem
-                    icon={
-                      tx.transaction_type === "income"
-                        ? ArrowUpRight01Icon
-                        : ArrowDownLeft01Icon
-                    }
-                    iconColor={
-                      tx.transaction_type === "income"
-                        ? "text-green-600"
-                        : "text-red-600"
-                    }
-                    title={tx.description || "No description"}
-                    description={
-                      tx.amount
-                        ? `₦${Number(tx.amount).toLocaleString()}`
-                        : "No amount"
-                    }
-                    time={tx.created_at ?? null}
-                    iconBg
-                  />
-                  {index < Math.min(5, transactions.length) - 1 && (
-                    <Separator />
-                  )}
-                </div>
-              ))
+                  <div key={tx.id ?? index}>
+                    <ActivityItem
+                      icon={
+                        tx.transaction_type === "income"
+                          ? ArrowUpRight01Icon
+                          : ArrowDownLeft01Icon
+                      }
+                      iconColor={
+                        tx.transaction_type === "income"
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }
+                      title={tx.description || "No description"}
+                      description={
+                        tx.amount
+                          ? `₦${Number(tx.amount).toLocaleString()}`
+                          : "No amount"
+                      }
+                      time={tx.created_at ?? null}
+                      iconBg
+                    />
+                    {index < Math.min(5, transactions.length) - 1 && (
+                      <Separator />
+                    )}
+                  </div>
+                ))
               )}
             </div>
             {transactions.length > 5 && (

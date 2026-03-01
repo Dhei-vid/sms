@@ -12,9 +12,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
           {/* Title and Subtitle */}
           <div className="text-center space-y-2">
             <h1 className="text-4xl font-bold text-gray-800">DaraEd</h1>
-            <p className="text-lg text-gray-500">
-              School Management System
-            </p>
+            <p className="text-lg text-gray-500">School Management System</p>
           </div>
 
           {/* Form content passed as children */}

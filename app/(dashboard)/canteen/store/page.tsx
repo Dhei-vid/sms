@@ -10,10 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/general/huge-icon";
 import { ShoppingCart01Icon } from "@hugeicons/core-free-icons";
 import { OrderSummarySheet } from "@/components/dashboard-pages/canteen/order-summary-sheet";
-import {
-  useGetProductsQuery,
-  useCreateOrderMutation,
-} from "@/services/shared";
+import { useGetProductsQuery, useCreateOrderMutation } from "@/services/shared";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/store";
 import type { Product } from "@/services/products/products-type";
@@ -30,7 +27,11 @@ const categories: Category[] = [
   { id: "food", label: "Food", icon: "/icons/rice_bowl.png" },
   { id: "drinks", label: "Drinks", icon: "/icons/drinks.png" },
   { id: "snacks", label: "Snacks", icon: "/icons/snacks.png" },
-  { id: "daily specials", label: "Daily Specials", icon: "/icons/daily_specials.png" },
+  {
+    id: "daily specials",
+    label: "Daily Specials",
+    icon: "/icons/daily_specials.png",
+  },
 ];
 
 /** Format product for store display */
@@ -56,17 +57,19 @@ export default function CanteenTerminalPage() {
   const [cart, setCart] = useState<Cart>({});
   const [orderSummaryOpen, setOrderSummaryOpen] = useState(false);
 
-  const { data: productsData, isLoading: productsLoading } = useGetProductsQuery({
-    _all: true,
-  });
-  const [createOrder, { isLoading: isCreatingOrder }] = useCreateOrderMutation();
+  const { data: productsData, isLoading: productsLoading } =
+    useGetProductsQuery({
+      _all: true,
+    });
+  const [createOrder, { isLoading: isCreatingOrder }] =
+    useCreateOrderMutation();
   const user = useSelector((s: RootState) => s.auth.user);
   const schoolId = user?.school_id ?? "";
 
   const products = useMemo(() => {
     const list = Array.isArray(productsData?.data)
       ? productsData.data
-      : (productsData as { data?: Product[] })?.data ?? [];
+      : ((productsData as { data?: Product[] })?.data ?? []);
     return list.filter((p) => !p.is_deleted).map(toStoreProduct);
   }, [productsData]);
 
@@ -150,7 +153,10 @@ export default function CanteenTerminalPage() {
       const price = p ? parseFloat(p.price.replace(/[₦,]/g, "")) : 0;
       return { product_id: productId, quantity: item.quantity, price };
     });
-    const total_amount = items.reduce((sum, i) => sum + i.quantity * i.price, 0);
+    const total_amount = items.reduce(
+      (sum, i) => sum + i.quantity * i.price,
+      0,
+    );
     try {
       await createOrder({
         school_id: schoolId,

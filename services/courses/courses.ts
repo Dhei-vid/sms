@@ -22,7 +22,7 @@ export const coursesApi = baseApi.injectEndpoints({
     >({
       query: (params) => ({
         url: BASE,
-        params: params?._all ? { _all: "true", ...params } : params ?? {},
+        params: params?._all ? { _all: "true", ...params } : (params ?? {}),
       }),
       providesTags: ["Course"],
     }),
@@ -68,16 +68,34 @@ export const coursesApi = baseApi.injectEndpoints({
     }),
     updateContentSubmission: build.mutation<
       ContentSubmission,
-      { id: string; data: Partial<Pick<ContentSubmission, "status" | "course_location" | "resource_name" | "file_type" | "file_url">> }
+      {
+        id: string;
+        data: Partial<
+          Pick<
+            ContentSubmission,
+            | "status"
+            | "course_location"
+            | "resource_name"
+            | "file_type"
+            | "file_url"
+          >
+        >;
+      }
     >({
       query: ({ id, data }) => ({
         url: `${BASE}/content/submissions/${id}`,
         method: "PATCH",
         body: data,
       }),
-      invalidatesTags: (_, __, { id }) => [{ type: "ContentSubmission", id }, "ContentSubmission"],
+      invalidatesTags: (_, __, { id }) => [
+        { type: "ContentSubmission", id },
+        "ContentSubmission",
+      ],
     }),
-    createContentSubmission: build.mutation<ContentSubmission, CreateContentSubmissionRequest>({
+    createContentSubmission: build.mutation<
+      ContentSubmission,
+      CreateContentSubmissionRequest
+    >({
       query: (body) => ({
         url: `${BASE}/content/submissions`,
         method: "POST",

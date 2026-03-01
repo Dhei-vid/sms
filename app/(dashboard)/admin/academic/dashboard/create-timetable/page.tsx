@@ -81,7 +81,11 @@ function timeRangeTo24h(timeRange: {
     return `${hour.toString().padStart(2, "0")}:${m.padStart(2, "0")}:00`;
   };
   return {
-    start_time: to24(timeRange.startHour, timeRange.startMinute, timeRange.startPeriod),
+    start_time: to24(
+      timeRange.startHour,
+      timeRange.startMinute,
+      timeRange.startPeriod,
+    ),
     end_time: to24(timeRange.endHour, timeRange.endMinute, timeRange.endPeriod),
   };
 }
@@ -116,8 +120,10 @@ export default function CreateTimetablePage() {
   const [breakModalOpen, setBreakModalOpen] = useState(false);
 
   const { data: schoolsResponse } = useGetSchoolsQuery({ _all: true });
-  const schoolsList: School[] = Array.isArray((schoolsResponse as { data?: unknown })?.data)
-    ? ((schoolsResponse as { data: School[] }).data)
+  const schoolsList: School[] = Array.isArray(
+    (schoolsResponse as { data?: unknown })?.data,
+  )
+    ? (schoolsResponse as { data: School[] }).data
     : [];
 
   const school = schoolsList.find((s) => s.id === formData.schoolId) ?? null;
@@ -211,7 +217,9 @@ export default function CreateTimetablePage() {
           no_of_periods_per_day: noOfPeriods,
           default_period_duration: defaultDuration,
           break_periods:
-            formData.breakPeriods.length > 0 ? formData.breakPeriods : undefined,
+            formData.breakPeriods.length > 0
+              ? formData.breakPeriods
+              : undefined,
         },
       }).unwrap();
       toast.success("Timetable saved successfully.");
@@ -260,7 +268,7 @@ export default function CreateTimetablePage() {
 
             <InputField
               label="Timetable Name"
-              placeholder='E.g., "2026/2027 Primary School Schedule"'
+              placeholder='E.g., "2026/2027 School Schedule"'
               value={formData.timetableName}
               onChange={(e) =>
                 setFormData((prev) => ({
@@ -403,10 +411,15 @@ export default function CreateTimetablePage() {
 
             {formData.breakPeriods.length > 0 && (
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Added Breaks/Periods</Label>
+                <Label className="text-sm font-medium">
+                  Added Breaks/Periods
+                </Label>
                 <ul className="space-y-1 text-sm text-gray-600">
                   {formData.breakPeriods.map((bp, idx) => (
-                    <li key={idx} className="flex items-center justify-between gap-2">
+                    <li
+                      key={idx}
+                      className="flex items-center justify-between gap-2"
+                    >
                       <span>
                         {bp.title} ({bp.start_time} - {bp.end_time})
                       </span>
@@ -418,7 +431,9 @@ export default function CreateTimetablePage() {
                         onClick={() =>
                           setFormData((prev) => ({
                             ...prev,
-                            breakPeriods: prev.breakPeriods.filter((_, i) => i !== idx),
+                            breakPeriods: prev.breakPeriods.filter(
+                              (_, i) => i !== idx,
+                            ),
                           }))
                         }
                       >
@@ -434,10 +449,7 @@ export default function CreateTimetablePage() {
               <Button variant="outline" onClick={handleBack}>
                 Back
               </Button>
-              <Button
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-              >
+              <Button onClick={handleSubmit} disabled={isSubmitting}>
                 {isSubmitting ? "Saving…" : "Review & Save Template"}
               </Button>
             </div>
