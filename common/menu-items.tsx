@@ -30,7 +30,7 @@ import {
   MailSend01Icon,
 } from "@hugeicons/core-free-icons";
 
-import { MenuItem, UserRole } from "../lib/types";
+import { MenuItem } from "../lib/types";
 
 // Menu items configuration with role-based access
 export const menuItems: MenuItem[] = [
@@ -352,4 +352,10 @@ export const menuItems: MenuItem[] = [
     href: "/settings",
     roles: ["admin", "teacher", "parent"],
   },
+
+  // SUPERADMIN
+{  id: "superadmin",
+  label: "Super Admin",
+  href: "/superadmin",
+  roles: ["admin"],}
 ];
