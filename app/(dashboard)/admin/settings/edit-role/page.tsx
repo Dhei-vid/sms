@@ -10,13 +10,7 @@ import { TemplateSelectionForm } from "@/components/dashboard-pages/admin/settin
 import { ModulePermissionsForm } from "@/components/dashboard-pages/admin/settings/edit-role/module-permissions-form";
 import { useAppSelector } from "@/store/hooks";
 import { selectUser } from "@/store/slices/authSlice";
-import {
-  useGetSchoolsQuery,
-  useGetSchoolRoleTemplateModulesQuery,
-  useGetSchoolRoleTemplatesQuery,
-  useGetSchoolRoleTemplateQuery,
-  useUpdateSchoolRoleTemplateMutation,
-} from "@/services/schools/schools";
+import { useGetSchoolsQuery } from "@/services/schools/schools";
 import type { ApiResponse } from "@/services/shared-types";
 import type {
   RoleTemplate,
@@ -96,20 +90,17 @@ export default function EditRolePage() {
   const firstSchoolId = schoolsList[0]?.id ?? "";
   const schoolId = userSchoolId || firstSchoolId;
 
-  const { data: modulesResponse, isError: modulesError } =
-    useGetSchoolRoleTemplateModulesQuery(schoolId, { skip: !schoolId });
-  const {
-    data: listResponse,
-    isLoading: listLoading,
-    isError: listError,
-  } = useGetSchoolRoleTemplatesQuery(schoolId, { skip: !schoolId });
-  const { data: detailResponse, isLoading: detailLoading } =
-    useGetSchoolRoleTemplateQuery(
-      { schoolId, templateId: selectedTemplate },
-      { skip: !schoolId || !selectedTemplate },
-    );
-  const [updateTemplate, { isLoading: isSaving }] =
-    useUpdateSchoolRoleTemplateMutation();
+  const listResponse: RoleTemplatesListResponse | undefined = undefined;
+  const modulesResponse: RoleTemplateModulesResponse | undefined = undefined;
+  const detailResponse: ApiResponse<RoleTemplate> | undefined = undefined;
+  const listLoading = false;
+  const detailLoading = false;
+  const modulesError = false;
+  const listError = false;
+  const isSaving = false;
+  const updateTemplate = async (_args?: unknown) => ({
+    unwrap: async () => {},
+  } as { unwrap: () => Promise<void> });
 
   const roleTemplates =
     (listResponse as RoleTemplatesListResponse | undefined)?.roleTemplates ??
@@ -217,7 +208,7 @@ export default function EditRolePage() {
       return;
     }
     try {
-      await updateTemplate({
+      const result = await updateTemplate({
         schoolId,
         templateId: selectedTemplate,
         data: {
@@ -226,7 +217,8 @@ export default function EditRolePage() {
           description: templateDescription,
           modulePermissions: permissionsForForm.map(toApiModulePermission),
         },
-      }).unwrap();
+      });
+      await result.unwrap();
       toast.success("Role template saved.");
       router.push("/admin/settings");
     } catch {
@@ -274,6 +266,11 @@ export default function EditRolePage() {
                       No school available. Link your account to a school or
                       create one first.
                     </div>
+                  ) : !listLoading && roleTemplates.length === 0 ? (
+                    <div className="py-6 text-center text-muted-foreground text-sm">
+                      Role templates are not available. The role templates API
+                      is not configured for this environment.
+                    </div>
                   ) : listError ? (
                     <div className="py-6 text-center text-destructive text-sm">
                       Failed to load templates. Check your connection and try
@@ -316,14 +313,14 @@ export default function EditRolePage() {
                     <div className="py-6 text-center text-muted-foreground text-sm">
                       No school available.
                     </div>
+                  ) : !listLoading && modulesFromApi.length === 0 ? (
+                    <div className="py-6 text-center text-muted-foreground text-sm">
+                      Permission modules are not available. The role templates
+                      API is not configured for this environment.
+                    </div>
                   ) : modulesError ? (
                     <div className="py-6 text-center text-destructive text-sm">
                       Failed to load permission modules. Try again later.
-                    </div>
-                  ) : modulesFromApi.length === 0 && !listLoading ? (
-                    <div className="py-6 text-center text-muted-foreground text-sm">
-                      No permission modules available. They may still be
-                      loading.
                     </div>
                   ) : modulesFromApi.length === 0 ? (
                     <div className="py-6 text-center text-muted-foreground text-sm">

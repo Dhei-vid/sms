@@ -24,26 +24,18 @@ function getRoleFromPath(pathname: string): UserRole {
   if (pathname.startsWith("/parent")) return "parent";
   if (pathname.startsWith("/student")) return "student";
   if (pathname.startsWith("/canteen")) return "canteen";
-  return "admin"; // default
+  return "admin";
 }
 
 // Check if sidebar should be hidden based on URL
 function shouldHideSidebar(pathname: string): boolean {
-  // Hide sidebar for quiz pages (CBT: /student/quiz/[id], assignments: /student/assignments/[id])
   const quizPagePattern = /^\/student\/(quiz|assignments)\/[^/]+$/;
   if (quizPagePattern.test(pathname)) {
     return true;
   }
-  // Add more conditions here for other pages that need sidebar hidden
-  // Example: if (pathname.includes("/fullscreen")) return true;
   return false;
 }
 
-/**
- * Dashboard Layout Component
- * Main layout wrapper for all dashboard pages
- * Handles authentication, sidebar, and responsive navigation
- */
 export default function DashboardLayout({
   children,
 }: {
@@ -53,8 +45,6 @@ export default function DashboardLayout({
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  // Restore auth from localStorage after mount (avoids hydration mismatch)
-  // Redirect to signin if still not authenticated after rehydration (e.g. refresh on /student/dashboard)
   useEffect(() => {
     dispatch(rehydrateAuth());
     const { isAuthenticated: auth } = store.getState().auth;
@@ -77,9 +67,6 @@ export default function DashboardLayout({
 
   const path = matchMenuItemByPath(pathname, role);
 
-  // Redirect to login if user is not authenticated (read from store to avoid
-  // race on hard refresh: rehydrateAuth runs first, but isAuthenticated from
-  // closure would still be false from initial render)
   useEffect(() => {
     if (typeof window === "undefined" || pathname.includes("/signin")) return;
     const { isAuthenticated: auth } = store.getState().auth;

@@ -31,8 +31,8 @@ export default function GradesReportCardPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
 
-  const { data: resultsData } = useGetAllExamResultsQuery();
-  const examResults = (resultsData?.data ?? []) as ExamResult[];
+  const { data: resultsData } = useGetAllExamResultsQuery({ _all: true });
+  const examResults = resultsData?.data ?? [];
 
   const allSubjectPerformances = useMemo(() => {
     const bySubject = new Map<
@@ -41,7 +41,7 @@ export default function GradesReportCardPage() {
     >();
     const sorted = [...examResults].sort(
       (a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+        new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime(),
     );
     for (const er of sorted) {
       for (const sr of er.subject_results ?? []) {

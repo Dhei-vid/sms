@@ -169,19 +169,14 @@ export default function TeacherActivityPage() {
         </CardHeader>
         <CardContent>
           <div className="border rounded-lg overflow-hidden">
-            {isLoading ? (
-              <div className="py-8 text-center text-muted-foreground text-sm">
-                Loading teacher activity…
-              </div>
-            ) : (
-              <DataTable
-                columns={columns}
-                data={staffActivities}
-                actions={actions}
-                emptyMessage="No staff activity data found."
-                tableClassName="border-collapse"
-              />
-            )}
+            <DataTable
+              columns={columns}
+              data={staffActivities}
+              actions={actions}
+              isLoading={isLoading}
+              emptyMessage="No staff activity data found."
+              tableClassName="border-collapse"
+            />
           </div>
         </CardContent>
       </Card>

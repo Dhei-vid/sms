@@ -1,21 +1,4 @@
 /** Re-exports shared API hooks (same baseApi cache across dashboards). */
-
-export {
-  useGetStudentsQuery,
-  useGetStudentByIdQuery,
-  useCreateStudentMutation,
-  useUpdateStudentMutation,
-  useDeleteStudentMutation,
-} from "./students/students";
-
-export type {
-  Student,
-  StudentsListResponse,
-  StudentsQueryParams,
-  CreateStudentRequest,
-  UpdateStudentRequest,
-} from "./students/students-type";
-
 export {
   useGetCoursesQuery,
   useGetCourseByIdQuery,

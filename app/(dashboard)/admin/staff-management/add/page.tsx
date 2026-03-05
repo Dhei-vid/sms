@@ -81,7 +81,6 @@ export default function AddStaffPage() {
       const formData = buildStaffFormData(formState, schoolId);
 
       // Use createStakeholder mutation with FormData
-      // Note: Backend will need to handle user creation from the FormData fields
       await createStakeholder(formData as any).unwrap();
 
       toast.success("Staff member created successfully");

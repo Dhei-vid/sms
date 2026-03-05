@@ -277,19 +277,14 @@ export default function LearningManagementDashboardPage() {
         </CardHeader>
         <CardContent>
           <div className="border rounded-lg overflow-hidden">
-            {isLoadingSubmissions ? (
-              <div className="py-8 text-center text-muted-foreground text-sm">
-                Loading content submissions…
-              </div>
-            ) : (
-              <DataTable
-                columns={columns}
-                data={tableData}
-                actions={actions}
-                emptyMessage="No content submissions found."
-                tableClassName="border-collapse"
-              />
-            )}
+            <DataTable
+              columns={columns}
+              data={tableData}
+              actions={actions}
+              isLoading={isLoadingSubmissions}
+              emptyMessage="No content submissions found."
+              tableClassName="border-collapse"
+            />
           </div>
         </CardContent>
       </Card>

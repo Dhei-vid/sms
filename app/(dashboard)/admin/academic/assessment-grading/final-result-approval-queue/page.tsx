@@ -48,8 +48,10 @@ function buildApprovalQueueFromResults(
 }
 
 export default function FinalResultApprovalQueuePage() {
-  const { data, isLoading, isError } = useGetAllExamResultsQuery(undefined);
-  const raw = (data as { data?: ExamResult[] })?.data ?? [];
+  const { data, isLoading, isError } = useGetAllExamResultsQuery({
+    _all: true,
+  });
+  const raw = data?.data ?? [];
   const approvalQueueData = useMemo(
     () => buildApprovalQueueFromResults(raw),
     [raw],
@@ -103,19 +105,6 @@ export default function FinalResultApprovalQueuePage() {
     },
   ];
 
-  if (isLoading) {
-    return (
-      <div className="space-y-4">
-        <div className="bg-background rounded-md p-6">
-          <h2 className="text-2xl font-bold text-gray-800">
-            Final Results Approval Queue
-          </h2>
-          <p className="text-gray-600 mt-1">Loading results batches...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -141,6 +130,7 @@ export default function FinalResultApprovalQueuePage() {
               columns={columns}
               data={approvalQueueData}
               actions={actions}
+              isLoading={isLoading}
               emptyMessage="No results pending approval."
               tableClassName="border-collapse"
             />

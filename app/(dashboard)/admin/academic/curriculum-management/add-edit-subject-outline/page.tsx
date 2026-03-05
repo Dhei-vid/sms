@@ -15,6 +15,7 @@ import { SubjectIdentityScopeForm } from "../../../../../../components/dashboard
 import { GradingWeightingForm } from "../../../../../../components/dashboard-pages/admin/academic/curriculum-management/components/grading-weighting-form";
 import { CurriculumStructurePacingForm } from "../../../../../../components/dashboard-pages/admin/academic/curriculum-management/components/curriculum-structure-pacing-form";
 import { FinalizationApprovalForm } from "../../../../../../components/dashboard-pages/admin/academic/curriculum-management/components/finalization-approval-form";
+import { useGetSchoolsQuery } from "@/services/schools/schools";
 import {
   useGetSubjectsQuery,
   useGetSubjectByIdQuery,
@@ -22,7 +23,6 @@ import {
   useUpdateSubjectMutation,
 } from "@/services/subjects/subjects";
 import { useGetAllStaffQuery } from "@/services/stakeholders/stakeholders";
-import { useGetSchoolsQuery } from "@/services/schools/schools";
 import type {
   Subject,
   ContentOutlineItem,

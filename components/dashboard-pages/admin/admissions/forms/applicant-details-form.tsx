@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { format } from "date-fns";
+import { useGetSchoolsQuery } from "@/services/schools/schools";
 import { InputField, SelectField } from "@/components/ui/input-field";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -15,7 +16,6 @@ import {
 } from "@/components/ui/select";
 import type { ApplicantDetailsState } from "./admission-form-state";
 import DatePickerIcon from "@/components/ui/date-picker";
-import { useGetSchoolsQuery } from "@/services/schools/schools";
 
 export function ApplicantDetailsForm({
   value,

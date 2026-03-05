@@ -102,7 +102,7 @@ export default function ReviewResultsPage() {
   );
   const [updateResult] = useUpdateExamResultMutation();
 
-  const raw = (data as { data?: ExamResult[] })?.data ?? [];
+  const raw = data?.data ?? [];
   const students = useMemo(() => raw.map(examResultToStudentData), [raw]);
 
   const currentStudent = students[currentStudentIndex];

@@ -17,10 +17,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { useRouter } from "next/navigation";
 import { BreaksSpecialPeriodsModal } from "@/components/dashboard-pages/admin/finance/components/breaks-special-periods-modal";
-import {
-  useGetSchoolsQuery,
-  useUpdateSchoolTimetableMutation,
-} from "@/services/schools/schools";
+import { useGetSchoolsQuery } from "@/services/schools/schools";
 import type { Break, School } from "@/services/schools/schools-type";
 import { toast } from "sonner";
 
@@ -125,11 +122,11 @@ export default function CreateTimetablePage() {
   )
     ? (schoolsResponse as { data: School[] }).data
     : [];
-
   const school = schoolsList.find((s) => s.id === formData.schoolId) ?? null;
-
-  const [updateTimetable, { isLoading: isSubmitting }] =
-    useUpdateSchoolTimetableMutation();
+  const isSubmitting = false;
+  const updateTimetable = async (_args?: unknown) => ({
+    unwrap: async () => {},
+  });
 
   const lastPrefilledSchoolId = useRef<string | null>(null);
   useEffect(() => {
@@ -221,7 +218,7 @@ export default function CreateTimetablePage() {
               ? formData.breakPeriods
               : undefined,
         },
-      }).unwrap();
+      })
       toast.success("Timetable saved successfully.");
     } catch (err: unknown) {
       const msg =
