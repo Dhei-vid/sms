@@ -1,7 +1,3 @@
-/**
- * Authentication Type Definitions
- */
-
 export interface AuthUser {
   id: string;
   creator_id: string | null;
@@ -18,7 +14,7 @@ export interface AuthUser {
   is_active: boolean;
   is_staff: boolean;
   is_superuser: boolean;
-  role: "teacher" | "student" | "parent" | "admin" | "canteen";
+  role: "teacher" | "student" | "parent" | "admin" | "canteen" | "staff";
   phone_number: string | null;
   residential_address: string | null;
   profile_image_url: string | null;
@@ -76,9 +72,6 @@ export interface ForgetPasswordResponse {
   success: boolean;
 }
 
-/**
- * Change Password Types
- */
 export interface ChangePasswordPayload {
   old_password: string;
   confirm_password: string;

@@ -11,33 +11,19 @@ import { cn } from "@/lib/utils";
 import { useLoginMutation } from "@/services/auth/auth";
 import { useAppDispatch } from "@/store/hooks";
 import { setCredentials } from "@/store/slices/authSlice";
-import { getRolePath } from "@/utils/menu-utils";
 
-/**
- * Sign In Page Component
- * Handles user authentication and login flow
- * Connects to Redux store for state management and API for authentication
- */
 export default function SignInPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  // Local state for form inputs
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // RTK Query mutation hook for login API call
   const [login, { isLoading: isLoginLoading }] = useLoginMutation();
 
-  /**
-   * Handle form submission
-   * Validates inputs, calls login API, and manages authentication state
-   *
-   * @param e - Form submission event
-   */
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
@@ -66,15 +52,8 @@ export default function SignInPage() {
     }
 
     try {
-      // Log login attempt
-      console.log("🔑 Attempting login:", {
-        email,
-        passwordLength: password.length,
-        timestamp: new Date().toISOString(),
-      });
-
-      // Call login API endpoint
       const result = await login({ email, password }).unwrap();
+      const loginResponse = result.data;
 
       // Validate response structure
       if (!result?.data) {
@@ -89,17 +68,6 @@ export default function SignInPage() {
         throw new Error("No user data received");
       }
 
-      // Log the response for debugging
-      console.log("🔐 Login Response:", {
-        hasToken: !!result.data.access_token,
-        hasUser: !!result.data.user,
-        userId: result.data.user?.id,
-        userEmail: result.data.user?.email,
-        userRole: result.data.user?.role,
-        tokenLength: result.data.access_token?.length,
-      });
-
-      // Dispatch credentials to Redux store
       dispatch(
         setCredentials({
           token: result.data.access_token,
@@ -107,22 +75,33 @@ export default function SignInPage() {
         }),
       );
 
-      // Verify Redux state was updated
-      console.log("✅ Credentials dispatched to Redux");
-
       // Small delay to ensure state is updated before navigation
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      // Navigate to appropriate dashboard based on user role (canteen goes to store)
-      const defaultPath =
-        result.data.user.role === "canteen" ? "store" : "dashboard";
-      const dashboardPath = getRolePath(result.data.user.role, defaultPath);
-      console.log("🚀 Navigating to:", dashboardPath);
-      router.push(dashboardPath);
-    } catch (err: any) {
-      // Enhanced error handling
-      console.error("❌ Login Error:", err);
+      // Check if user is Super Admin
+      if (loginResponse.user.role === 'admin' && loginResponse.user.permissions.length > 0) {
+        const isSuperAdmin = loginResponse.user.permissions.includes("admin");
+        if (isSuperAdmin) router.push("/superadmin/main")
+      }
 
+      // Check if user is canteen staff and redirect to store
+      if (loginResponse.user.role === 'canteen') {
+        router.push("/admin/store");
+      }
+
+      if (loginResponse.user.role === 'staff') {
+        const isTeacher = loginResponse.user.permissions.includes("write");
+        if (isTeacher) router.push("/admin/teacher");
+      }
+
+      if (loginResponse.user.role === 'student') {
+        router.push("/admin/student");
+      }
+
+      if (loginResponse.user.role === 'parent') {
+        router.push("/admin/parent");
+      }
+    } catch (err: any) {
       let errorMessage = "Invalid email or password. Please try again.";
 
       if (err?.data) {

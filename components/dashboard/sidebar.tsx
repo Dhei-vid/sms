@@ -105,7 +105,7 @@ export function Sidebar({
             height={40}
           />
           {!collapsed && (
-            <span className="font-bold text-lg whitespace-nowrap">DaraEd</span>
+            <span className="font-bold text-lg whitespace-nowrap">DaraEd </span>
           )}
         </Link>
       </div>
