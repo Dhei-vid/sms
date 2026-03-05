@@ -5,7 +5,7 @@ export interface MenuItem {
   label: string;
   icon?: any;
   href: string;
-  roles: UserRole[]; // Roles that can access this menu item
-  badge?: number | string; // Optional badge count
-  children?: MenuItem[]; // Submenu items
+  roles: UserRole[];
+  badge?: number | string;
+  children?: MenuItem[];
 }

@@ -12,8 +12,8 @@ import { BasicExamDefinitionForm } from "@/components/dashboard-pages/admin/cbt-
 import { QuestionSelectionForm } from "@/components/dashboard-pages/admin/cbt-management/forms/question-selection-form";
 import { AccessRulesForm } from "@/components/dashboard-pages/admin/cbt-management/forms/access-rules-form";
 import { useCreateCbtExamMutation } from "@/services/cbt-exams/cbt-exams";
-import { useGetSubjectsQuery } from "@/services/subjects/subjects";
 import { useGetSchoolsQuery } from "@/services/schools/schools";
+import { useGetSubjectsQuery } from "@/services/subjects/subjects";
 import type { Subject } from "@/services/subjects/subject-types";
 import type { School } from "@/services/schools/schools-type";
 import { format } from "date-fns";

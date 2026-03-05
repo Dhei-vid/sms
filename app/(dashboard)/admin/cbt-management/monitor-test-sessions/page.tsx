@@ -501,19 +501,14 @@ export default function MonitorTestSessionsPage() {
         </CardHeader>
         <CardContent>
           <div className="border rounded-lg overflow-hidden">
-            {isLoading ? (
-              <div className="py-8 text-center text-muted-foreground text-sm">
-                Loading sessions…
-              </div>
-            ) : (
-              <DataTable
-                columns={columns}
-                data={filteredSessions}
-                actions={actions}
-                emptyMessage="No live test sessions found."
-                tableClassName="border-collapse"
-              />
-            )}
+            <DataTable
+              columns={columns}
+              data={filteredSessions}
+              actions={actions}
+              isLoading={isLoading}
+              emptyMessage="No live test sessions found."
+              tableClassName="border-collapse"
+            />
           </div>
         </CardContent>
       </Card>

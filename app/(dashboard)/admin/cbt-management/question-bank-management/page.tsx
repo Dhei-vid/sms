@@ -300,19 +300,14 @@ export default function QuestionBankManagementPage() {
         </CardHeader>
         <CardContent>
           <div className="border rounded-lg overflow-hidden">
-            {isLoadingQuestions ? (
-              <div className="py-8 text-center text-muted-foreground text-sm">
-                Loading questions…
-              </div>
-            ) : (
-              <DataTable
-                columns={columns}
-                data={filteredListing}
-                actions={actions}
-                emptyMessage="No questions found."
-                tableClassName="border-collapse"
-              />
-            )}
+            <DataTable
+              columns={columns}
+              data={filteredListing}
+              actions={actions}
+              isLoading={isLoadingQuestions}
+              emptyMessage="No questions found."
+              tableClassName="border-collapse"
+            />
           </div>
         </CardContent>
       </Card>

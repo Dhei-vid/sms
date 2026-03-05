@@ -43,13 +43,8 @@ interface StudentTableProps {
 
 export function StudentTable({
   studentsData,
-  isLoading,
+  isLoading = false,
 }: StudentTableProps = {}) {
-  if (isLoading) {
-    return (
-      <div className="p-8 text-center text-gray-500">Loading students...</div>
-    );
-  }
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
@@ -289,8 +284,10 @@ export function StudentTable({
           columns={columns}
           data={filteredStudents}
           actions={actions}
+          isLoading={isLoading}
           headerClassName="bg-main-blue/5"
           onRowClick={(row) => router.push(`/admin/students/${row.id}`)}
+          emptyMessage="No students found."
         />
       </div>
 

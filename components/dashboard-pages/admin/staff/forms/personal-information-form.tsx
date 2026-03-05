@@ -6,10 +6,10 @@ import { InputField, SelectField } from "@/components/ui/input-field";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { CheckboxField } from "@/components/ui/checkbox-field";
+import { useGetSchoolsQuery } from "@/services/schools/schools";
 import DatePickerIcon from "@/components/ui/date-picker";
 import { SelectItem } from "@/components/ui/select";
 import type { PersonalInformationState } from "./staff-form-state";
-import { useGetSchoolsQuery } from "@/services/schools/schools";
 
 // Helper function to generate school email
 function generateSchoolEmail(

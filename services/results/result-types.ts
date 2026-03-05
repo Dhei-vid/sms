@@ -1,6 +1,22 @@
 import type { ApiResponse, ApiListResponse } from "../shared-types";
 import { Stakeholders } from "../stakeholders/stakeholder-types";
 
+/** Subject result (per-subject scores) from the API */
+export interface SubjectResult {
+  id: string;
+  subject: string;
+  class_score: number;
+  exam_score: number;
+  first_ca?: number;
+  second_ca?: number;
+  total_score: number;
+  grade: string;
+  remarks: string;
+  teacher: Stakeholders;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface Result {
   id: string;
   creator_id: string;
@@ -10,18 +26,22 @@ export interface Result {
   session: string;
   class_name: string;
   grade: string;
-  subject_results: Array<SubjectResult>;
+  subject_results: SubjectResult[];
 }
 
-interface SubjectResult {
-  id: string;
-  subject: string;
-  class_score: number;
-  exam_score: number;
+/** Exam result as returned by GET /results (matches backend ExamResultSerializer) */
+export interface ExamResult extends Result {
+  student_id?: string;
+  student?: Record<string, unknown>;
+  school_id?: string;
+  school?: Record<string, unknown>;
   total_score: number;
-  grade: string;
-  remarks: string;
-  teacher: Stakeholders;
+  average_score: number;
+  position: number;
+  teacher_remarks: string | null;
+  principal_remarks: string | null;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface CreateResultParams {
@@ -40,9 +60,27 @@ export interface CreateResultParams {
 }
 
 export interface UpdateResultParams {
-  student_id: string;
-  principal_remarks: string;
+  student_id?: string;
+  principal_remarks?: string;
 }
+
+/** Params for PUT /results/:id (partial update). Call as { id, principal_remarks } or { id, data: { principal_remarks } }. */
+export interface UpdateExamResultParams {
+  id: string;
+  principal_remarks?: string;
+  student_id?: string;
+  /** Alternative: pass update fields under data (e.g. { id, data: { principal_remarks } }) */
+  data?: Partial<UpdateResultParams>;
+}
+
+/** Query params for GET /results (supports _all and filter keys like class_name[eq], term[eq], session[eq]) */
+export interface ExamResultsQueryParams {
+  _all?: boolean;
+  [key: string]: string | boolean | number | undefined;
+}
+
+/** List response: backend may return data as array or { data: array } */
+export type ExamResultsListResponse = ApiResponse<ExamResult[]>;
 
 // WHY??
 export interface DeleteResultParams {

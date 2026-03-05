@@ -92,8 +92,8 @@ function inferSection(class_name: string): string {
 
 export default function AssessmentGradingDashboardPage() {
   const router = useRouter();
-  const { data, isLoading } = useGetAllExamResultsQuery(undefined);
-  const raw = (data as { data?: ExamResult[] })?.data ?? [];
+  const { data, isLoading } = useGetAllExamResultsQuery({ _all: true });
+  const raw = data?.data ?? [];
 
   const {
     gradeSubmissionComplete,

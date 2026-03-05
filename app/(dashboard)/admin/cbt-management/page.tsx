@@ -302,19 +302,14 @@ export default function CBTManagementDashboardPage() {
         </CardHeader>
         <CardContent>
           <div className="border rounded-lg overflow-hidden">
-            {isLoadingExams ? (
-              <div className="py-8 text-center text-muted-foreground text-sm">
-                Loading test activity…
-              </div>
-            ) : (
-              <DataTable
-                columns={columns}
-                data={recentTestActivity}
-                actions={actions}
-                emptyMessage="No recent test activity."
-                tableClassName="border-collapse"
-              />
-            )}
+            <DataTable
+              columns={columns}
+              data={recentTestActivity}
+              actions={actions}
+              isLoading={isLoadingExams}
+              emptyMessage="No recent test activity."
+              tableClassName="border-collapse"
+            />
           </div>
         </CardContent>
       </Card>
