@@ -11,20 +11,17 @@ import { cn } from "@/lib/utils";
 import { useLoginMutation } from "@/services/auth/auth";
 import { useAppDispatch } from "@/store/hooks";
 import { setCredentials } from "@/store/slices/authSlice";
-import { getRolePath } from "@/utils/menu-utils";
 
 export default function SignInPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  // Local state for form inputs
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // RTK Query mutation hook for login API call
   const [login, { isLoading: isLoginLoading }] = useLoginMutation();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -55,8 +52,8 @@ export default function SignInPage() {
     }
 
     try {
-      // Call login API endpoint
       const result = await login({ email, password }).unwrap();
+      const loginResponse = result.data;
 
       // Validate response structure
       if (!result?.data) {
@@ -78,19 +75,33 @@ export default function SignInPage() {
         }),
       );
 
-
       // Small delay to ensure state is updated before navigation
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      // Navigate to appropriate dashboard based on user role (canteen goes to store)
-      const defaultPath =
-        result.data.user.role === "canteen" ? "store" : "dashboard";
-      const dashboardPath = getRolePath(result.data.user.role, defaultPath);
-      router.push(dashboardPath);
-    } catch (err: any) {
-      // Enhanced error handling
-      console.error("❌ Login Error:", err);
+      // Check if user is Super Admin
+      if (loginResponse.user.role === 'admin' && loginResponse.user.permissions.length > 0) {
+        const isSuperAdmin = loginResponse.user.permissions.includes("admin");
+        if (isSuperAdmin) router.push("/superadmin/main")
+      }
 
+      // Check if user is canteen staff and redirect to store
+      if (loginResponse.user.role === 'canteen') {
+        router.push("/admin/store");
+      }
+
+      if (loginResponse.user.role === 'staff') {
+        const isTeacher = loginResponse.user.permissions.includes("write");
+        if (isTeacher) router.push("/admin/teacher");
+      }
+
+      if (loginResponse.user.role === 'student') {
+        router.push("/admin/student");
+      }
+
+      if (loginResponse.user.role === 'parent') {
+        router.push("/admin/parent");
+      }
+    } catch (err: any) {
       let errorMessage = "Invalid email or password. Please try again.";
 
       if (err?.data) {
