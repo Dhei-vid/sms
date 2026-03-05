@@ -31,7 +31,9 @@ export default function ParentDashboard() {
     ? primaryChild.class_assigned
       ? `Student (${primaryChild.class_assigned})`
       : primaryChild.user
-        ? [primaryChild.user.first_name, primaryChild.user.last_name].filter(Boolean).join(" ") || "your child"
+        ? [primaryChild.user.first_name, primaryChild.user.last_name]
+            .filter(Boolean)
+            .join(" ") || "your child"
         : "your child"
     : "your child";
   const wardUserId = primaryChild?.user_id ?? null;
@@ -50,11 +52,12 @@ export default function ParentDashboard() {
     return list.slice(0, 2).map((e) => ({
       title: e.title ?? "",
       description: e.description ?? "",
-      date: e.date && e.start_time
-        ? format(new Date(`${e.date}T${e.start_time}`), "MMM d, yyyy; h:mm a")
-        : e.date
-          ? format(new Date(e.date), "MMM d, yyyy")
-          : "",
+      date:
+        e.date && e.start_time
+          ? format(new Date(`${e.date}T${e.start_time}`), "MMM d, yyyy; h:mm a")
+          : e.date
+            ? format(new Date(e.date), "MMM d, yyyy")
+            : "",
     }));
   }, [eventsData?.data, user]);
 
@@ -76,7 +79,9 @@ export default function ParentDashboard() {
 
   const displayName = (() => {
     if (parent?.user?.first_name || parent?.user?.last_name) {
-      return [parent?.user?.first_name, parent?.user?.last_name].filter(Boolean).join(" ");
+      return [parent?.user?.first_name, parent?.user?.last_name]
+        .filter(Boolean)
+        .join(" ");
     }
     if (parent?.parent_name) return parent.parent_name;
     if (user?.first_name || user?.last_name) {

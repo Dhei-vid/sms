@@ -24,7 +24,10 @@ import type { Grade } from "@/services/grades/grades-type";
 /** Extract CBT exams list from API response (handles both flat and nested data). */
 function getCbtExamsList(data: unknown): CbtExam[] {
   if (!data || typeof data !== "object") return [];
-  const d = data as { data?: CbtExam[] | { data?: CbtExam[] }; pagination?: unknown };
+  const d = data as {
+    data?: CbtExam[] | { data?: CbtExam[] };
+    pagination?: unknown;
+  };
   if (Array.isArray(d.data)) return d.data;
   if (
     d.data &&
@@ -102,8 +105,7 @@ export default function AssignmentsPage() {
           status = "Overdue";
         }
 
-        const courseName =
-          (assignment as Record<string, unknown>).courseName;
+        const courseName = (assignment as Record<string, unknown>).courseName;
         const subjectStr: string =
           typeof courseName === "string" ? courseName : "N/A";
 
@@ -111,8 +113,7 @@ export default function AssignmentsPage() {
           ...assignment,
           assignmentName: assignment.title ?? "Untitled",
           subject: subjectStr,
-          totalMarks:
-            maxScoreNum > 0 ? `${maxScoreNum} Marks` : "N/A",
+          totalMarks: maxScoreNum > 0 ? `${maxScoreNum} Marks` : "N/A",
           dueDateTime: assignment.dueDate
             ? format(parseISO(assignment.dueDate), "MMM d, yyyy; h:mm a")
             : "N/A",
@@ -178,10 +179,7 @@ export default function AssignmentsPage() {
         )
       : 0;
 
-  const cbtExams = useMemo(
-    () => getCbtExamsList(cbtExamsData),
-    [cbtExamsData]
-  );
+  const cbtExams = useMemo(() => getCbtExamsList(cbtExamsData), [cbtExamsData]);
 
   const nextUpcomingCbtExam = useMemo(() => {
     const now = new Date();
@@ -333,8 +331,10 @@ export default function AssignmentsPage() {
                     id: nextUpcomingCbtExam.id,
                     title: nextUpcomingCbtExam.title ?? "Quiz",
                     subject: nextUpcomingCbtExam.subject ?? undefined,
-                    schedule_date: nextUpcomingCbtExam.schedule_date ?? undefined,
-                    schedule_time: nextUpcomingCbtExam.schedule_time ?? undefined,
+                    schedule_date:
+                      nextUpcomingCbtExam.schedule_date ?? undefined,
+                    schedule_time:
+                      nextUpcomingCbtExam.schedule_time ?? undefined,
                     duration: nextUpcomingCbtExam.duration ?? undefined,
                   }
                 : upcomingAssignments[0]?.id
@@ -342,7 +342,8 @@ export default function AssignmentsPage() {
                       id: upcomingAssignments[0].id,
                       title: upcomingAssignments[0].title ?? "Quiz",
                       subject: upcomingAssignments[0].subject,
-                      schedule_date: upcomingAssignments[0].dueDate ?? undefined,
+                      schedule_date:
+                        upcomingAssignments[0].dueDate ?? undefined,
                       schedule_time: undefined,
                       duration: undefined,
                     }
@@ -444,19 +445,16 @@ export default function AssignmentsPage() {
               ? `${(selectedAssignment as AssignmentRow).grade!.score} / ${(selectedAssignment as AssignmentRow).maxScore} Marks`
               : "N/A"
           }
-          teacherFeedback={
-            (() => {
-              const remarks = (selectedAssignment as AssignmentRow).grade
-                ?.remarks;
-              return typeof remarks === "string"
-                ? remarks
-                : "No feedback available";
-            })()
-          }
+          teacherFeedback={(() => {
+            const remarks = (selectedAssignment as AssignmentRow).grade
+              ?.remarks;
+            return typeof remarks === "string"
+              ? remarks
+              : "No feedback available";
+          })()}
           onAcknowledge={handleAcknowledge}
         />
       )}
     </div>
   );
 }
-

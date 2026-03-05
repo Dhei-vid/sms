@@ -8,13 +8,21 @@ import {
   TableColumn,
   TableAction,
 } from "@/components/ui/data-table";
-import { useGetTeacherActivityQuery, useGetTeacherActivityLogQuery, useCreateTeacherAdministrativeNoteMutation } from "@/services/courses/courses";
-import type { TeacherActivityItem, TeacherActivityLogEntry } from "@/services/courses/courses-type";
+import {
+  useGetTeacherActivityQuery,
+  useGetTeacherActivityLogQuery,
+  useCreateTeacherAdministrativeNoteMutation,
+} from "@/services/courses/courses";
+import type {
+  TeacherActivityItem,
+  TeacherActivityLogEntry,
+} from "@/services/courses/courses-type";
 import { ActivityLogModal } from "@/components/dashboard-pages/admin/learning-management/component/activity-log-modal";
 
 export default function TeacherActivityPage() {
   const [activityLogModalOpen, setActivityLogModalOpen] = useState(false);
-  const [selectedStaff, setSelectedStaff] = useState<TeacherActivityItem | null>(null);
+  const [selectedStaff, setSelectedStaff] =
+    useState<TeacherActivityItem | null>(null);
 
   const { data: response, isLoading } = useGetTeacherActivityQuery();
   const staffId = selectedStaff?.id ?? "";
@@ -25,14 +33,16 @@ export default function TeacherActivityPage() {
   const [createNote, { isLoading: isAddingNote }] =
     useCreateTeacherAdministrativeNoteMutation();
   const activityLogEntries = useMemo(() => {
-    const d = activityLogResponse as { data?: TeacherActivityLogEntry[] } | undefined;
+    const d = activityLogResponse as
+      | { data?: TeacherActivityLogEntry[] }
+      | undefined;
     const list = d?.data ?? [];
     return list.map((e) => ({
       id: e.id,
-      loggedAction: e.loggedAction ?? 'Content Upload',
+      loggedAction: e.loggedAction ?? "Content Upload",
       dateTime: e.dateTime ? new Date(e.dateTime) : new Date(0),
-      associatedCourseResource: e.associatedCourseResource ?? 'N/A',
-      status: e.status ?? 'N/A',
+      associatedCourseResource: e.associatedCourseResource ?? "N/A",
+      status: e.status ?? "N/A",
     }));
   }, [activityLogResponse]);
   const staffActivities = useMemo(() => {
@@ -42,13 +52,20 @@ export default function TeacherActivityPage() {
 
   const submissionRatePct = useMemo(() => {
     if (staffActivities.length === 0) return "0%";
-    const onTime = staffActivities.filter((s) => s.complianceStatus === "On Time" || s.approvedCount === s.contentSubmissionsCount).length;
+    const onTime = staffActivities.filter(
+      (s) =>
+        s.complianceStatus === "On Time" ||
+        s.approvedCount === s.contentSubmissionsCount,
+    ).length;
     return `${Math.round((100 * onTime) / staffActivities.length)}%`;
   }, [staffActivities]);
 
   const avgUploads = useMemo(() => {
     if (staffActivities.length === 0) return "0";
-    const total = staffActivities.reduce((acc, s) => acc + (s.contentSubmissionsCount ?? 0), 0);
+    const total = staffActivities.reduce(
+      (acc, s) => acc + (s.contentSubmissionsCount ?? 0),
+      0,
+    );
     return (total / staffActivities.length).toFixed(1);
   }, [staffActivities]);
 
@@ -130,7 +147,11 @@ export default function TeacherActivityPage() {
         />
         <MetricCard
           title="Teachers Tracked"
-          value={isLoading ? "—" : `${staffActivities.length} Teacher${staffActivities.length !== 1 ? "s" : ""}`}
+          value={
+            isLoading
+              ? "—"
+              : `${staffActivities.length} Teacher${staffActivities.length !== 1 ? "s" : ""}`
+          }
           subtitle="Teaching staff in this school"
           trend="up"
         />
@@ -148,19 +169,14 @@ export default function TeacherActivityPage() {
         </CardHeader>
         <CardContent>
           <div className="border rounded-lg overflow-hidden">
-            {isLoading ? (
-              <div className="py-8 text-center text-muted-foreground text-sm">
-                Loading teacher activity…
-              </div>
-            ) : (
-              <DataTable
-                columns={columns}
-                data={staffActivities}
-                actions={actions}
-                emptyMessage="No staff activity data found."
-                tableClassName="border-collapse"
-              />
-            )}
+            <DataTable
+              columns={columns}
+              data={staffActivities}
+              actions={actions}
+              isLoading={isLoading}
+              emptyMessage="No staff activity data found."
+              tableClassName="border-collapse"
+            />
           </div>
         </CardContent>
       </Card>

@@ -82,7 +82,7 @@ export default function DiscountRequestsPage() {
     {
       id: "2",
       name: "Helen Davies",
-      grade: "Primary 4",
+      grade: "JSS 1",
       requestType: "Manual Sibling",
       dateSubmitted: "Oct. 20, 2025",
       requestedValue: "15%",

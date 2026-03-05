@@ -14,8 +14,8 @@ import { SelectItem } from "@/components/ui/select";
 import { toast } from "sonner";
 
 // API
-import { useCreateNotificationMutation } from "@/services/shared";
 import { useGetSchoolsQuery } from "@/services/schools/schools";
+import { useCreateNotificationMutation } from "@/services/shared";
 import type { CreateNotifications } from "@/services/shared";
 
 // Role mapping for specifics
@@ -50,12 +50,11 @@ const NewNoticeBoard = () => {
     specifics?: string;
   }>({});
 
-  // Fetch schools
   const { data: schoolsData, isLoading: isLoadingSchools } =
     useGetSchoolsQuery();
+  const schools = schoolsData?.data || [];
   const [createNotification, { isLoading: isSubmitting }] =
     useCreateNotificationMutation();
-  const schools = schoolsData?.data || [];
 
   const handleTargetAudienceChange = (key: "general" | "private") => {
     setTargetAudience((prev) => {

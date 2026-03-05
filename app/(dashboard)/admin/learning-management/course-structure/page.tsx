@@ -16,8 +16,8 @@ import {
   Csv02Icon,
 } from "@hugeicons/core-free-icons";
 import { Icon } from "@/components/general/huge-icon";
-import { useGetSubjectsQuery } from "@/services/subjects/subjects";
 import { useGetSchoolsQuery } from "@/services/schools/schools";
+import { useGetSubjectsQuery } from "@/services/subjects/subjects";
 import { useGetAllStaffQuery } from "@/services/stakeholders/stakeholders";
 import { useCreateCourseMutation } from "@/services/courses/courses";
 import { useAppSelector } from "@/store/hooks";
@@ -28,7 +28,11 @@ type StepId = "core-identity" | "digital-structure";
 
 const steps: Step[] = [
   { id: "core-identity", label: "Core Course Identity", icon: AssignmentsIcon },
-  { id: "digital-structure", label: "Digital Structure Definition", icon: ResourcesAddIcon },
+  {
+    id: "digital-structure",
+    label: "Digital Structure Definition",
+    icon: ResourcesAddIcon,
+  },
 ];
 
 const gradeOptions = [
@@ -71,39 +75,57 @@ export default function CourseStructurePage() {
   const router = useRouter();
   const user = useAppSelector(selectUser);
   const [currentStep, setCurrentStep] = useState<StepId>("core-identity");
-  const [formData, setFormData] = useState<CourseStructureFormData>(initialData);
+  const [formData, setFormData] =
+    useState<CourseStructureFormData>(initialData);
 
   const { data: subjectsResponse } = useGetSubjectsQuery({ _all: true });
-  const { data: schoolsResponse, isLoading: isLoadingSchools } = useGetSchoolsQuery({ _all: true });
+  const { data: schoolsResponse, isLoading: isLoadingSchools } =
+    useGetSchoolsQuery({ _all: true });
   const { data: staffResponse } = useGetAllStaffQuery();
   const [createCourse, { isLoading: isCreating }] = useCreateCourseMutation();
 
   const subjectOptions = useMemo(() => {
-    const d = (subjectsResponse as { data?: { id: string; name: string }[] })?.data;
+    const d = (subjectsResponse as { data?: { id: string; name: string }[] })
+      ?.data;
     const arr = Array.isArray(d) ? d : [];
     return arr.map((s) => ({ value: s.id, label: s.name || s.id }));
   }, [subjectsResponse]);
 
   const schoolOptions = useMemo(() => {
-    const d = (schoolsResponse as { data?: { id: string; name: string }[] })?.data;
+    const d = (schoolsResponse as { data?: { id: string; name: string }[] })
+      ?.data;
     const arr = Array.isArray(d) ? d : [];
     return arr.map((s) => ({ value: s.id, label: s.name || s.id }));
   }, [schoolsResponse]);
 
   const instructorOptions = useMemo(() => {
-    const staff = (staffResponse as { data?: { id: string; type?: string; user?: { first_name?: string; last_name?: string } }[] })?.data ?? [];
+    const staff =
+      (
+        staffResponse as {
+          data?: {
+            id: string;
+            type?: string;
+            user?: { first_name?: string; last_name?: string };
+          }[];
+        }
+      )?.data ?? [];
     const teachers = staff.filter((s) => s.type === "teacher");
     return teachers.map((s) => {
       const u = s.user;
-      const label = u && typeof u === "object"
-        ? [u.first_name, u.last_name].filter(Boolean).join(" ").trim() || s.id
-        : s.id;
+      const label =
+        u && typeof u === "object"
+          ? [u.first_name, u.last_name].filter(Boolean).join(" ").trim() || s.id
+          : s.id;
       return { value: s.id, label };
     });
   }, [staffResponse]);
 
   useEffect(() => {
-    if (user?.school_id && !formData.schoolId && schoolOptions.some((o) => o.value === user.school_id)) {
+    if (
+      user?.school_id &&
+      !formData.schoolId &&
+      schoolOptions.some((o) => o.value === user.school_id)
+    ) {
       setFormData((prev) => ({ ...prev, schoolId: user.school_id ?? "" }));
     }
   }, [user?.school_id, formData.schoolId, schoolOptions]);
@@ -129,7 +151,10 @@ export default function CourseStructurePage() {
   };
 
   const handleCreateCourseShell = async () => {
-    const schoolId = (formData.schoolId && formData.schoolId.trim()) || user?.school_id || null;
+    const schoolId =
+      (formData.schoolId && formData.schoolId.trim()) ||
+      user?.school_id ||
+      null;
     if (!schoolId) {
       toast.error("Please select a school.");
       return;
@@ -154,7 +179,10 @@ export default function CourseStructurePage() {
       toast.success("Course created successfully.");
       router.push("/admin/learning-management");
     } catch (err) {
-      const data = err && typeof err === "object" && "data" in err ? (err as { data?: unknown }).data : undefined;
+      const data =
+        err && typeof err === "object" && "data" in err
+          ? (err as { data?: unknown }).data
+          : undefined;
       toast.error(getApiErrorMessage(data, "Failed to create course."));
     }
   };
@@ -215,21 +243,25 @@ export default function CourseStructurePage() {
               <SelectField
                 label="School"
                 value={formData.schoolId}
-                onValueChange={(v) => setFormData((prev) => ({ ...prev, schoolId: v }))}
-                placeholder={isLoadingSchools ? "Loading schools…" : "Select school"}
+                onValueChange={(v) =>
+                  setFormData((prev) => ({ ...prev, schoolId: v }))
+                }
+                placeholder={
+                  isLoadingSchools ? "Loading schools…" : "Select school"
+                }
                 disabled={isLoadingSchools}
               >
-                {schoolOptions.length > 0
-                  ? schoolOptions.map((o) => (
-                      <SelectItem key={o.value} value={o.value}>
-                        {o.label}
-                      </SelectItem>
-                    ))
-                  : (
-                      <SelectItem value="__none__" disabled>
-                        {isLoadingSchools ? "Loading…" : "No schools found"}
-                      </SelectItem>
-                    )}
+                {schoolOptions.length > 0 ? (
+                  schoolOptions.map((o) => (
+                    <SelectItem key={o.value} value={o.value}>
+                      {o.label}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="__none__" disabled>
+                    {isLoadingSchools ? "Loading…" : "No schools found"}
+                  </SelectItem>
+                )}
               </SelectField>
 
               <InputField
@@ -237,7 +269,10 @@ export default function CourseStructurePage() {
                 placeholder="e.g., JSS3 Integrated Science"
                 value={formData.courseTitle}
                 onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, courseTitle: e.target.value }))
+                  setFormData((prev) => ({
+                    ...prev,
+                    courseTitle: e.target.value,
+                  }))
                 }
               />
 
@@ -247,19 +282,21 @@ export default function CourseStructurePage() {
                 onValueChange={(value) =>
                   setFormData((prev) => ({ ...prev, applicableSubject: value }))
                 }
-                placeholder={subjectOptions.length ? "Select subject" : "No subjects found"}
+                placeholder={
+                  subjectOptions.length ? "Select subject" : "No subjects found"
+                }
               >
-                {subjectOptions.length > 0
-                  ? subjectOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))
-                  : (
-                      <SelectItem value="__none__" disabled>
-                        No subjects found
-                      </SelectItem>
-                    )}
+                {subjectOptions.length > 0 ? (
+                  subjectOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="__none__" disabled>
+                    No subjects found
+                  </SelectItem>
+                )}
               </SelectField>
 
               <SelectField
@@ -283,19 +320,23 @@ export default function CourseStructurePage() {
                 onValueChange={(value) =>
                   setFormData((prev) => ({ ...prev, leadInstructor: value }))
                 }
-                placeholder={instructorOptions.length ? "Select teacher" : "No teachers found"}
+                placeholder={
+                  instructorOptions.length
+                    ? "Select teacher"
+                    : "No teachers found"
+                }
               >
-                {instructorOptions.length > 0
-                  ? instructorOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))
-                  : (
-                      <SelectItem value="__none__" disabled>
-                        No teachers found
-                      </SelectItem>
-                    )}
+                {instructorOptions.length > 0 ? (
+                  instructorOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="__none__" disabled>
+                    No teachers found
+                  </SelectItem>
+                )}
               </SelectField>
             </div>
 

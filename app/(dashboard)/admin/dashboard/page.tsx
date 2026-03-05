@@ -20,7 +20,6 @@ import {
 export default function AdminDashboard() {
   const user = useAppSelector(selectUser);
 
-  // Always fetch students and staff data (don't skip)
   const {
     data: studentsData,
     error: studentsError,
@@ -33,6 +32,8 @@ export default function AdminDashboard() {
   } = useGetAllStaffQuery();
   const { data: notificationsData, error: notificationsError } =
     useGetNotificationsQuery({ limit: 5 });
+
+  console.log("studentsData ", studentsData);
 
   // Extract data from API responses
   const totalStudents = studentsData?.data?.length ?? 0;

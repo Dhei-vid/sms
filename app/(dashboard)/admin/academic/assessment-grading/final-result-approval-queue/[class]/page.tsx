@@ -13,7 +13,10 @@ import {
   useGetAllExamResultsQuery,
   useUpdateExamResultMutation,
 } from "@/services/results/results";
-import type { ExamResult, SubjectResult } from "@/services/results/result-types";
+import type {
+  ExamResult,
+  SubjectResult,
+} from "@/services/results/result-types";
 
 interface SubjectResultRow {
   subject: string;
@@ -30,7 +33,7 @@ interface StudentData {
 }
 
 function subjectResultToRow(sr: SubjectResult): SubjectResultRow {
-  const total = sr.total_score ?? (sr.class_score + sr.exam_score);
+  const total = sr.total_score ?? sr.class_score + sr.exam_score;
   return {
     subject: sr.subject,
     finalTermScore: typeof total === "number" ? Math.round(total * 10) / 10 : 0,
@@ -39,7 +42,12 @@ function subjectResultToRow(sr: SubjectResult): SubjectResultRow {
 }
 
 function examResultToStudentData(er: ExamResult): StudentData {
-  const student = er.student as { user?: { first_name?: string; last_name?: string }; school_email?: string } | undefined;
+  const student = er.student as
+    | {
+        user?: { first_name?: string; last_name?: string };
+        school_email?: string;
+      }
+    | undefined;
   const f = student?.user?.first_name ?? "";
   const l = student?.user?.last_name ?? "";
   const name = `${l}${l && f ? ", " : ""}${f}`.trim() || "—";
@@ -86,17 +94,16 @@ export default function ReviewResultsPage() {
             "session[eq]": session,
           }
         : undefined,
-    [class_name, term, session]
+    [class_name, term, session],
   );
 
-  const { data, isLoading } = useGetAllExamResultsQuery(queryParams ?? undefined);
+  const { data, isLoading } = useGetAllExamResultsQuery(
+    queryParams ?? undefined,
+  );
   const [updateResult] = useUpdateExamResultMutation();
 
-  const raw = (data as { data?: ExamResult[] })?.data ?? [];
-  const students = useMemo(
-    () => raw.map(examResultToStudentData),
-    [raw]
-  );
+  const raw = data?.data ?? [];
+  const students = useMemo(() => raw.map(examResultToStudentData), [raw]);
 
   const currentStudent = students[currentStudentIndex];
   const previousStudent =
@@ -130,13 +137,13 @@ export default function ReviewResultsPage() {
 
   const hasMore = currentStudent
     ? currentStudent.results.length > displayedResults
-  : false;
+    : false;
   const handleLoadMore = () => {
     if (!currentStudent) return;
     const remaining = currentStudent.results.length - displayedResults;
     if (remaining > 0) {
       setDisplayedResults(
-        Math.min(displayedResults + 8, currentStudent.results.length)
+        Math.min(displayedResults + 8, currentStudent.results.length),
       );
     }
   };
@@ -157,9 +164,10 @@ export default function ReviewResultsPage() {
     }
   };
 
-  const classDetailsName = class_name && term && session
-    ? `${class_name} ${term} ${session}`
-    : "Results";
+  const classDetailsName =
+    class_name && term && session
+      ? `${class_name} ${term} ${session}`
+      : "Results";
   const classDetailsDescription =
     "This provides the necessary data for the final decision.";
 
@@ -190,7 +198,8 @@ export default function ReviewResultsPage() {
   }
 
   const visibleResults = currentStudent!.results.slice(0, displayedResults);
-  const shouldShowLoadMore = hasMore && currentStudent!.results.length > displayedResults;
+  const shouldShowLoadMore =
+    hasMore && currentStudent!.results.length > displayedResults;
 
   return (
     <div className="space-y-4">

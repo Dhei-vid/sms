@@ -17,44 +17,59 @@ import {
   PayByCheckIcon,
 } from "@hugeicons/core-free-icons";
 import { AddNewAdminModal } from "@/components/dashboard-pages/admin/settings/add-new-admin-modal";
-import { useAppSelector } from "@/store/hooks";
-import { selectUser } from "@/store/slices/authSlice";
-import { useGetSchoolSettingsDashboardQuery } from "@/services/schools/schools";
-import type { ApiResponse } from "@/services/shared-types";
-import type { SchoolSettingsDashboard, SettingsDashboardAdminRole } from "@/services/schools/schools-type";
+import type {
+  SchoolSettingsDashboard,
+  SettingsDashboardAdminRole,
+} from "@/services/schools/schools-type";
+
+const STATIC_DASHBOARD: SchoolSettingsDashboard = {
+  activeAdminsCount: 2,
+  lastSecurityAudit: "2025-01-15T00:00:00Z",
+  systemUptime: "99.9%",
+  adminRoster: [
+    {
+      id: "1",
+      primaryRole: "Super Admin",
+      assignedTo: "Admin User",
+      coreModulesAccessible: "All",
+      lastPermissionUpdate: "2025-01-10T14:30:00Z",
+    },
+    {
+      id: "2",
+      primaryRole: "HOD",
+      assignedTo: "Department Head",
+      coreModulesAccessible: "Academic, Reports",
+      lastPermissionUpdate: "2025-01-08T09:00:00Z",
+    },
+  ],
+};
+
+type AdminRosterRow = Omit<
+  SettingsDashboardAdminRole,
+  "lastPermissionUpdate"
+> & {
+  lastPermissionUpdate: Date | null;
+};
+
+function toRosterRows(dashboard: SchoolSettingsDashboard): AdminRosterRow[] {
+  return dashboard.adminRoster.map((row) => ({
+    ...row,
+    lastPermissionUpdate: row.lastPermissionUpdate
+      ? new Date(row.lastPermissionUpdate)
+      : null,
+  }));
+}
 
 export default function UserManagementPage() {
   const router = useRouter();
   const [addAdminModalOpen, setAddAdminModalOpen] = useState(false);
-  const user = useAppSelector(selectUser);
-  const schoolId = user?.school_id ?? "";
-  const { data: dashboardResponse, isLoading: dashboardLoading } =
-    useGetSchoolSettingsDashboardQuery(schoolId, { skip: !schoolId });
-
-  const dashboard = useMemo(() => {
-    const res = dashboardResponse as ApiResponse<SchoolSettingsDashboard> | undefined;
-    return res?.data;
-  }, [dashboardResponse]);
-
-  type AdminRosterRow = Omit<SettingsDashboardAdminRole, "lastPermissionUpdate"> & {
-    lastPermissionUpdate: Date | null;
-  };
-  const adminRoster: AdminRosterRow[] = useMemo(() => {
-    const list = dashboard?.adminRoster ?? [];
-    return list.map((row) => ({
-      ...row,
-      lastPermissionUpdate: row.lastPermissionUpdate
-        ? new Date(row.lastPermissionUpdate)
-        : null,
-    }));
-  }, [dashboard?.adminRoster]);
+  const adminRoster = useMemo(
+    () => toRosterRows(STATIC_DASHBOARD),
+    [],
+  );
 
   const columns: TableColumn<AdminRosterRow>[] = [
-    {
-      key: "primaryRole",
-      title: "Primary Role",
-      className: "font-medium",
-    },
+    { key: "primaryRole", title: "Primary Role", className: "font-medium" },
     {
       key: "assignedTo",
       title: "Assigned to",
@@ -81,18 +96,20 @@ export default function UserManagementPage() {
       type: "button",
       config: {
         label: "Edit Role & Permissions",
-        onClick: (row) => {
-          router.push(`/admin/settings/edit-role?userId=${row.id}`);
-        },
+        onClick: (row) =>
+          router.push(`/admin/settings/edit-role?userId=${row.id}`),
         variant: "link",
         className: "text-main-blue underline underline-offset-3 h-auto",
       },
     },
   ];
 
+  const dashboard = STATIC_DASHBOARD;
+  const activeCount = dashboard.activeAdminsCount;
+  const lastAudit = dashboard.lastSecurityAudit;
+
   return (
     <div className="space-y-4">
-      {/* Header */}
       <div className="bg-background rounded-md p-6">
         <h2 className="text-2xl font-bold text-gray-800">
           System Settings & User Management Dashboard
@@ -103,39 +120,29 @@ export default function UserManagementPage() {
         </p>
       </div>
 
-      {/* Key Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <MetricCard
           title="Active Admins"
-          value={
-            dashboardLoading
-              ? "—"
-              : `${dashboard?.activeAdminsCount ?? 0} Staff Member${(dashboard?.activeAdminsCount ?? 0) !== 1 ? "s" : ""}`
-          }
+          value={`${activeCount} Staff Member${activeCount !== 1 ? "s" : ""}`}
           subtitle="Number of active administrative staff"
           trend="up"
         />
         <MetricCard
           title="System Uptime"
-          value={dashboardLoading ? "—" : (dashboard?.systemUptime ?? "—")}
+          value={dashboard.systemUptime ?? "—"}
           subtitle="System availability and reliability"
           trend="up"
         />
         <MetricCard
           title="Last Security Audit"
           value={
-            dashboardLoading
-              ? "—"
-              : dashboard?.lastSecurityAudit
-                ? format(new Date(dashboard.lastSecurityAudit), "MMM. d, yyyy")
-                : "—"
+            lastAudit ? format(new Date(lastAudit), "MMM. d, yyyy") : "—"
           }
           subtitle="Date of last security audit"
           trend="up"
         />
       </div>
 
-      {/* System Settings */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-gray-800">
@@ -166,7 +173,6 @@ export default function UserManagementPage() {
         </CardContent>
       </Card>
 
-      {/* Current Admin Roster & Permissions Table */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-gray-800">
@@ -175,30 +181,21 @@ export default function UserManagementPage() {
         </CardHeader>
         <CardContent>
           <div className="border rounded-lg overflow-hidden">
-            {dashboardLoading ? (
-              <div className="py-8 text-center text-muted-foreground text-sm">
-                Loading admin roster…
-              </div>
-            ) : (
-              <DataTable
-                columns={columns}
-                data={adminRoster}
-                actions={actions}
-                emptyMessage="No admin roles found."
-                tableClassName="border-collapse"
-              />
-            )}
+            <DataTable
+              columns={columns}
+              data={adminRoster}
+              actions={actions}
+              emptyMessage="No admin roles found."
+              tableClassName="border-collapse"
+            />
           </div>
         </CardContent>
       </Card>
 
-      {/* Add New Admin Modal */}
       <AddNewAdminModal
         open={addAdminModalOpen}
         onOpenChange={setAddAdminModalOpen}
-        onConfirm={(data) => {
-          // TODO: wire to create user / assign admin role API when available
-        }}
+        onConfirm={() => {}}
       />
     </div>
   );

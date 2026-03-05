@@ -82,9 +82,14 @@ const classroomOptions = [
   { value: "lab-1", label: "Lab 1" },
 ];
 
-
 function getNextWeekday(dayName: string): Date {
-  const days: Record<string, number> = { monday: 1, tuesday: 2, wednesday: 3, thursday: 4, friday: 5 };
+  const days: Record<string, number> = {
+    monday: 1,
+    tuesday: 2,
+    wednesday: 3,
+    thursday: 4,
+    friday: 5,
+  };
   const target = days[dayName.toLowerCase()] ?? 1;
   const d = new Date();
   const diff = (target - d.getDay() + 7) % 7 || 7;
@@ -98,18 +103,28 @@ export function AssignStaffDutyModal({
   onConfirm,
 }: AssignStaffDutyModalProps) {
   const [assignDuty, { isLoading }] = useAssignDutyMutation();
-  const { data: staffResponse } = useGetAllStaffQuery(undefined, { skip: !open });
+  const { data: staffResponse } = useGetAllStaffQuery(undefined, {
+    skip: !open,
+  });
 
   const staffList = staffResponse?.data ?? [];
   const teachers = staffList.filter((s) => s.type === "teacher");
-  const staffMembers = staffList.filter((s) => s.type === "staff" || s.type === "teacher");
+  const staffMembers = staffList.filter(
+    (s) => s.type === "staff" || s.type === "teacher",
+  );
   const teacherOptions = teachers.map((t) => ({
     value: t.id,
-    label: t.user ? `${(t.user as { first_name?: string }).first_name ?? ""} ${(t.user as { last_name?: string }).last_name ?? ""}`.trim() || t.id : t.id,
+    label: t.user
+      ? `${(t.user as { first_name?: string }).first_name ?? ""} ${(t.user as { last_name?: string }).last_name ?? ""}`.trim() ||
+        t.id
+      : t.id,
   }));
   const staffOptions = staffMembers.map((t) => ({
     value: t.id,
-    label: t.user ? `${(t.user as { first_name?: string }).first_name ?? ""} ${(t.user as { last_name?: string }).last_name ?? ""}`.trim() || t.id : t.id,
+    label: t.user
+      ? `${(t.user as { first_name?: string }).first_name ?? ""} ${(t.user as { last_name?: string }).last_name ?? ""}`.trim() ||
+        t.id
+      : t.id,
   }));
 
   const [dutyType, setDutyType] = useState<DutyType>("teaching");
@@ -141,7 +156,8 @@ export function AssignStaffDutyModal({
   };
 
   const handleSubmit = async () => {
-    const stakeholderId = dutyType === "teaching" ? formData.teacher : formData.staffMember;
+    const stakeholderId =
+      dutyType === "teaching" ? formData.teacher : formData.staffMember;
     if (!stakeholderId) {
       toast.error("Please select a staff member");
       return;
@@ -154,7 +170,9 @@ export function AssignStaffDutyModal({
     };
 
     if (isTeaching) {
-      const dateForDay = formData.day ? getNextWeekday(formData.day) : new Date();
+      const dateForDay = formData.day
+        ? getNextWeekday(formData.day)
+        : new Date();
       payload = {
         ...payload,
         class_grade: formData.class ?? "",
@@ -164,7 +182,9 @@ export function AssignStaffDutyModal({
         classroom: formData.classroom ?? "",
       };
     } else {
-      const dateStr = formData.date ? formatDate(formData.date) : formatDate(new Date());
+      const dateStr = formData.date
+        ? formatDate(formData.date)
+        : formatDate(new Date());
       const st = `${startTime.hour.padStart(2, "0")}:${startTime.minute}:00`;
       const et = `${endTime.hour.padStart(2, "0")}:${endTime.minute}:00`;
       payload = {
@@ -177,7 +197,9 @@ export function AssignStaffDutyModal({
     }
 
     try {
-      await assignDuty(payload as unknown as Parameters<typeof assignDuty>[0]).unwrap();
+      await assignDuty(
+        payload as unknown as Parameters<typeof assignDuty>[0],
+      ).unwrap();
       toast.success("Duty assigned successfully");
       onConfirm?.({
         ...formData,
@@ -397,7 +419,11 @@ export function AssignStaffDutyModal({
 
         {/* Action Buttons */}
         <div className="grid grid-cols-2 gap-3 pt-4">
-          <Button variant="outline" onClick={() => handleClose(false)} disabled={isLoading}>
+          <Button
+            variant="outline"
+            onClick={() => handleClose(false)}
+            disabled={isLoading}
+          >
             Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={isLoading}>

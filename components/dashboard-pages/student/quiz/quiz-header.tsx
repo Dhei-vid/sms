@@ -27,7 +27,7 @@ export function QuizHeader({
             width={40}
             height={40}
           />
-          <span className="font-bold text-lg">PH-SMS</span>
+          <span className="font-bold text-lg">DaraEd</span>
         </Link>
       </div>
       <div className="flex-1 text-center">

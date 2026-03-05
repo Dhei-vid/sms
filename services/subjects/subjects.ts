@@ -5,10 +5,7 @@ import type {
   UpdateSubjectPayload,
   SubjectListResponse,
 } from "./subject-types";
-import type {
-  ApiResponse,
-  ApiDeleteResponse,
-} from "../shared-types";
+import type { ApiResponse, ApiDeleteResponse } from "../shared-types";
 
 const BASE = "/subjects";
 

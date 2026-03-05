@@ -1,14 +1,16 @@
 "use client";
 
 import { Icon } from "@/components/general/huge-icon";
+import { NotificationsType } from "@/services/notifications/notification-types";
 import { cn } from "@/lib/utils";
+import { formatDate, isValidDate } from "@/common/helper";
 
 interface StaffActivityItemProps {
-  type: "hired" | "absent" | "resignation" | "leave" | "appraisal";
+  type: NotificationsType;
   title: string;
-  description: string;
-  timestamp: string;
-  icon: any;
+  description?: string | string[];
+  timestamp?: string;
+  icon?: any;
 }
 
 export function StaffActivityItem({
@@ -37,16 +39,23 @@ export function StaffActivityItem({
 
   return (
     <div className="flex gap-3 pb-4 border-b border-gray-200 last:border-0 last:pb-0">
-      <div className={cn("shrink-0", getTypeColor())}>
-        <Icon icon={icon} size={20} />
-      </div>
+      {icon && (
+        <div className={cn("shrink-0", getTypeColor())}>
+          <Icon icon={icon} size={20} />
+        </div>
+      )}
+
       <div className="flex-1">
         <p className="text-sm font-medium text-gray-800 mb-1">{title}</p>
         <p className="text-xs text-gray-600 mb-2">{description}</p>
       </div>
-      <div>
-        <p className="text-xs text-gray-500">{timestamp}</p>
-      </div>
+      {timestamp && isValidDate(new Date(timestamp)) && (
+        <div>
+          <p className="text-xs text-gray-500 shrink-0">
+            {formatDate(new Date(timestamp))}
+          </p>
+        </div>
+      )}
     </div>
   );
 }

@@ -29,7 +29,11 @@ function getQuestionsList(data: unknown): CbtQuestion[] {
   if (!data || typeof data !== "object") return [];
   const d = data as { data?: CbtQuestion[] | { data?: CbtQuestion[] } };
   if (Array.isArray(d.data)) return d.data;
-  if (d.data && typeof d.data === "object" && Array.isArray((d.data as { data?: CbtQuestion[] }).data)) {
+  if (
+    d.data &&
+    typeof d.data === "object" &&
+    Array.isArray((d.data as { data?: CbtQuestion[] }).data)
+  ) {
     return (d.data as { data: CbtQuestion[] }).data;
   }
   return [];
@@ -48,7 +52,7 @@ function mapApiQuestionToListing(q: CbtQuestion): QuestionListing {
   const submittedBy =
     q.creator?.first_name || q.creator?.last_name
       ? [q.creator.first_name, q.creator.last_name].filter(Boolean).join(" ")
-      : q.creator?.email ?? "—";
+      : (q.creator?.email ?? "—");
   return {
     id: q.id,
     subject: q.subject ?? "—",
@@ -137,8 +141,12 @@ export default function QuestionBankManagementPage() {
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [selectedQuestionIndex, setSelectedQuestionIndex] = useState(0);
 
-  const { data: questionsResponse, isLoading: isLoadingQuestions } = useGetCbtQuestionsQuery({ _all: true });
-  const questionsList = useMemo(() => getQuestionsList(questionsResponse), [questionsResponse]);
+  const { data: questionsResponse, isLoading: isLoadingQuestions } =
+    useGetCbtQuestionsQuery({ _all: true });
+  const questionsList = useMemo(
+    () => getQuestionsList(questionsResponse),
+    [questionsResponse],
+  );
   const questionListingData: QuestionListing[] = useMemo(
     () => questionsList.map(mapApiQuestionToListing),
     [questionsList],
@@ -152,7 +160,8 @@ export default function QuestionBankManagementPage() {
     [questionsList],
   );
   const pendingCount = useMemo(
-    () => questionListingData.filter((q) => q.status === "pending-approval").length,
+    () =>
+      questionListingData.filter((q) => q.status === "pending-approval").length,
     [questionListingData],
   );
 
@@ -242,7 +251,11 @@ export default function QuestionBankManagementPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <MetricCard
           title="Questions in Database"
-          value={isLoadingQuestions ? "—" : `${questionsList.length.toLocaleString()} Questions`}
+          value={
+            isLoadingQuestions
+              ? "—"
+              : `${questionsList.length.toLocaleString()} Questions`
+          }
           subtitle="Measures the availability of the question bank"
           trend="up"
         />
@@ -287,19 +300,14 @@ export default function QuestionBankManagementPage() {
         </CardHeader>
         <CardContent>
           <div className="border rounded-lg overflow-hidden">
-            {isLoadingQuestions ? (
-              <div className="py-8 text-center text-muted-foreground text-sm">
-                Loading questions…
-              </div>
-            ) : (
-              <DataTable
-                columns={columns}
-                data={filteredListing}
-                actions={actions}
-                emptyMessage="No questions found."
-                tableClassName="border-collapse"
-              />
-            )}
+            <DataTable
+              columns={columns}
+              data={filteredListing}
+              actions={actions}
+              isLoading={isLoadingQuestions}
+              emptyMessage="No questions found."
+              tableClassName="border-collapse"
+            />
           </div>
         </CardContent>
       </Card>

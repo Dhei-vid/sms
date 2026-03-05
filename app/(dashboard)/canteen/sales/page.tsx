@@ -19,7 +19,9 @@ interface Transaction {
 }
 
 /** Format order items for display */
-function formatItemCount(items: { quantity?: number; product?: { name?: string } }[] | undefined): string {
+function formatItemCount(
+  items: { quantity?: number; product?: { name?: string } }[] | undefined,
+): string {
   if (!items?.length) return "—";
   return items
     .map((i) => `${i.quantity ?? 1}x ${i.product?.name ?? "Item"}`)
@@ -41,7 +43,22 @@ export default function SalesReportPage() {
   const allTransactions: Transaction[] = useMemo(() => {
     const list = Array.isArray(ordersData?.data)
       ? ordersData.data
-      : (ordersData as { data?: Array<{ id: string; code?: string; total_amount?: string | number; status?: string; created_at?: string; items_details?: { quantity?: number; product?: { name?: string } }[]; items?: { quantity?: number; product?: { name?: string } }[] }> })?.data ?? [];
+      : ((
+          ordersData as {
+            data?: Array<{
+              id: string;
+              code?: string;
+              total_amount?: string | number;
+              status?: string;
+              created_at?: string;
+              items_details?: {
+                quantity?: number;
+                product?: { name?: string };
+              }[];
+              items?: { quantity?: number; product?: { name?: string } }[];
+            }>;
+          }
+        )?.data ?? []);
     const todayOrders = list.filter((o) => {
       if (!o.created_at) return true;
       return new Date(o.created_at) >= new Date(startOfDay);
@@ -51,10 +68,15 @@ export default function SalesReportPage() {
       dateTime: o.created_at ? new Date(o.created_at) : new Date(),
       transactionId: o.code ?? o.id,
       itemCount: formatItemCount(o.items_details ?? o.items),
-      runningBalance: typeof o.total_amount === "number"
-        ? `₦${o.total_amount.toLocaleString("en-NG", { minimumFractionDigits: 2 })}`
-        : `₦${parseFloat(String(o.total_amount ?? 0)).toLocaleString("en-NG", { minimumFractionDigits: 2 })}`,
-      status: (o.status === "completed" ? "Completed" : o.status === "cancelled" ? "Cancelled" : "Pending") as Transaction["status"],
+      runningBalance:
+        typeof o.total_amount === "number"
+          ? `₦${o.total_amount.toLocaleString("en-NG", { minimumFractionDigits: 2 })}`
+          : `₦${parseFloat(String(o.total_amount ?? 0)).toLocaleString("en-NG", { minimumFractionDigits: 2 })}`,
+      status: (o.status === "completed"
+        ? "Completed"
+        : o.status === "cancelled"
+          ? "Cancelled"
+          : "Pending") as Transaction["status"],
     }));
   }, [ordersData, startOfDay]);
 
@@ -67,7 +89,10 @@ export default function SalesReportPage() {
     let total = 0;
     let cash = 0;
     for (const o of todayList) {
-      const amt = typeof o.total_amount === "number" ? o.total_amount : parseFloat(String(o.total_amount ?? 0));
+      const amt =
+        typeof o.total_amount === "number"
+          ? o.total_amount
+          : parseFloat(String(o.total_amount ?? 0));
       total += amt;
       const pm = (o.transaction as { payment_method?: string })?.payment_method;
       if (pm === "cash" || pm === "manual") cash += amt;

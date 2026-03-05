@@ -18,7 +18,7 @@ interface PersonalTaskListProps {
 
 export function PersonalTaskList({ studentId }: PersonalTaskListProps) {
   const { data, isLoading, isError } = useGetPersonalTasksQuery(
-    studentId ? { user_id: studentId } : undefined
+    studentId ? { user_id: studentId } : undefined,
   );
 
   const [updateTask] = useUpdatePersonalTaskMutation();
@@ -47,7 +47,14 @@ export function PersonalTaskList({ studentId }: PersonalTaskListProps) {
     }
   };
 
-  const columns: TableColumn<{ id: string; taskName: string; taskType: string; deadline: string; status: string; _raw: PersonalTask }>[] = [
+  const columns: TableColumn<{
+    id: string;
+    taskName: string;
+    taskType: string;
+    deadline: string;
+    status: string;
+    _raw: PersonalTask;
+  }>[] = [
     {
       key: "taskName",
       title: "Task Name",

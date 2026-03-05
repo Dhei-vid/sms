@@ -1,30 +1,55 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { InputField } from "@/components/ui/input-field";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import type { Stakeholders } from "@/services/stakeholders/stakeholder-types";
+import type { StaffEditSavePayload } from "./staff-edit-types";
 
 export function ContactInformationForm({
+  initialData,
   onCancel,
   onSave,
+  isSaving = false,
 }: {
+  initialData: Stakeholders;
   onCancel: () => void;
-  onSave: () => void;
+  onSave: (payload: StaffEditSavePayload) => void;
+  isSaving?: boolean;
 }) {
   const [formData, setFormData] = useState({
-    primaryPhone: "+234 803 123 4567",
-    emergencyContact: "Mrs. Ada Okafor (Wife) - +234 809 987 6543",
-    residentialAddress: "45 Unity Crescent, Garki, Abuja",
+    primaryPhone: "",
+    emergencyContact: "",
+    residentialAddress: "",
     password: "",
   });
 
-  const handleSubmit = () => {
-    // Handle form submission
-    console.log("Contact Information:", formData);
-    if (onSave) {
-      onSave();
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        primaryPhone: initialData.user?.phone_number ?? "",
+        emergencyContact: initialData.emergency_contact_and_phone ?? "",
+        residentialAddress: initialData.user?.residential_address ?? "",
+        password: "",
+      });
     }
+  }, [initialData]);
+
+  const handleSubmit = () => {
+    const payload: StaffEditSavePayload = {
+      user: {
+        phone_number: formData.primaryPhone || null,
+        residential_address: formData.residentialAddress || null,
+      },
+      stakeholder: {
+        emergency_contact_and_phone: formData.emergencyContact || null,
+      },
+    };
+    if (formData.password.trim()) {
+      (payload.user as Record<string, unknown>).password = formData.password;
+    }
+    onSave(payload);
   };
 
   return (
@@ -85,9 +110,10 @@ export function ContactInformationForm({
         </Button>
         <Button
           onClick={handleSubmit}
+          disabled={isSaving}
           className="w-60 bg-main-blue hover:bg-main-blue/90"
         >
-          Save Changes
+          {isSaving ? "Saving..." : "Save Changes"}
         </Button>
       </div>
     </div>

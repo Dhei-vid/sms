@@ -54,12 +54,18 @@ function getStatusLabel(status: ResourceRow["status"]) {
 }
 
 export default function ContentLibraryPage() {
-  const { data: response, isLoading } = useGetContentSubmissionsQuery({ _all: true });
+  const { data: response, isLoading } = useGetContentSubmissionsQuery({
+    _all: true,
+  });
 
   const list = useMemo(() => {
-    const d = response as { data?: ContentSubmission[] | { data?: ContentSubmission[] } } | undefined;
+    const d = response as
+      | { data?: ContentSubmission[] | { data?: ContentSubmission[] } }
+      | undefined;
     if (!d?.data) return [];
-    return Array.isArray(d.data) ? d.data : (d.data as { data?: ContentSubmission[] }).data ?? [];
+    return Array.isArray(d.data)
+      ? d.data
+      : ((d.data as { data?: ContentSubmission[] }).data ?? []);
   }, [response]);
 
   const tableData: ResourceRow[] = useMemo(
@@ -68,20 +74,37 @@ export default function ContentLibraryPage() {
         id: s.id,
         resourceName: s.resource_name,
         fileType: (s.file_type || "other").toUpperCase(),
-        courseLocation: s.course_location ?? (s.course as { title?: string })?.title ?? "—",
-        submittedBy: (s.submitted_by as { display_name?: string })?.display_name ?? "—",
+        courseLocation:
+          s.course_location ?? (s.course as { title?: string })?.title ?? "—",
+        submittedBy:
+          (s.submitted_by as { display_name?: string })?.display_name ?? "—",
         status: mapStatus(s.status),
       })),
     [list],
   );
 
-  const pendingCount = useMemo(() => list.filter((s) => s.status === "pending_review").length, [list]);
+  const pendingCount = useMemo(
+    () => list.filter((s) => s.status === "pending_review").length,
+    [list],
+  );
 
   const columns: TableColumn<ResourceRow>[] = [
     { key: "resourceName", title: "Resource Name", className: "font-medium" },
-    { key: "fileType", title: "File Type", render: (v) => <span className="text-sm">{v}</span> },
-    { key: "courseLocation", title: "Course Location", render: (v) => <span className="text-sm">{v}</span> },
-    { key: "submittedBy", title: "Submitted By", render: (v) => <span className="text-sm">{v}</span> },
+    {
+      key: "fileType",
+      title: "File Type",
+      render: (v) => <span className="text-sm">{v}</span>,
+    },
+    {
+      key: "courseLocation",
+      title: "Course Location",
+      render: (v) => <span className="text-sm">{v}</span>,
+    },
+    {
+      key: "submittedBy",
+      title: "Submitted By",
+      render: (v) => <span className="text-sm">{v}</span>,
+    },
     {
       key: "status",
       title: "Status",
@@ -120,7 +143,11 @@ export default function ContentLibraryPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <MetricCard
           title="Total Files Stored"
-          value={isLoading ? "—" : `${list.length} Resource${list.length !== 1 ? "s" : ""}`}
+          value={
+            isLoading
+              ? "—"
+              : `${list.length} Resource${list.length !== 1 ? "s" : ""}`
+          }
           subtitle="Total digital resources in the library"
           trend="up"
         />
@@ -132,7 +159,11 @@ export default function ContentLibraryPage() {
         />
         <MetricCard
           title="Files Pending Review"
-          value={isLoading ? "—" : `${pendingCount} Resource${pendingCount !== 1 ? "s" : ""}`}
+          value={
+            isLoading
+              ? "—"
+              : `${pendingCount} Resource${pendingCount !== 1 ? "s" : ""}`
+          }
           subtitle="Resources awaiting administrative review"
           trend="up"
         />
@@ -146,19 +177,14 @@ export default function ContentLibraryPage() {
         </CardHeader>
         <CardContent>
           <div className="border rounded-lg overflow-hidden">
-            {isLoading ? (
-              <div className="py-8 text-center text-muted-foreground text-sm">
-                Loading resources…
-              </div>
-            ) : (
-              <DataTable
-                columns={columns}
-                data={tableData}
-                actions={actions}
-                emptyMessage="No resources found."
-                tableClassName="border-collapse"
-              />
-            )}
+            <DataTable
+              columns={columns}
+              data={tableData}
+              actions={actions}
+              isLoading={isLoading}
+              emptyMessage="No resources found."
+              tableClassName="border-collapse"
+            />
           </div>
         </CardContent>
       </Card>

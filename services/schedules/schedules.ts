@@ -43,7 +43,9 @@ export const schedulesApi = baseApi.injectEndpoints({
         if (params?.dateTo) queryParams["date[lte]"] = params.dateTo;
         return { url: BASE, params: queryParams };
       },
-      transformResponse: (response: { data?: ScheduleEvent[] }): { data: ScheduleEvent[] } => ({
+      transformResponse: (response: {
+        data?: ScheduleEvent[];
+      }): { data: ScheduleEvent[] } => ({
         data: response?.data ?? [],
       }),
       providesTags: ["Schedule"],
@@ -75,13 +77,18 @@ export const schedulesApi = baseApi.injectEndpoints({
       { dateFrom?: string; dateTo?: string; schoolId?: string } | void
     >({
       query: (params) => {
-        const queryParams: Record<string, string> = { _all: "true", "type[eq]": "exam" };
+        const queryParams: Record<string, string> = {
+          _all: "true",
+          "type[eq]": "exam",
+        };
         if (params?.dateFrom) queryParams["date[gte]"] = params.dateFrom;
         if (params?.dateTo) queryParams["date[lte]"] = params.dateTo;
         if (params?.schoolId) queryParams["school_id[eq]"] = params.schoolId;
         return { url: BASE, params: queryParams };
       },
-      transformResponse: (response: { data?: ScheduleEvent[] }): { data: ScheduleEvent[] } => ({
+      transformResponse: (response: {
+        data?: ScheduleEvent[];
+      }): { data: ScheduleEvent[] } => ({
         data: response?.data ?? [],
       }),
       providesTags: ["Schedule"],

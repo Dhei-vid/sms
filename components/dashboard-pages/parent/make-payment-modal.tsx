@@ -43,9 +43,13 @@ export function MakePaymentModal({
   const [makePayment, { isLoading }] = useMakePaymentMutation();
   const { data: ordersData } = useGetOrdersQuery(
     { _all: true, status: "pending" },
-    { skip: !open }
+    { skip: !open },
   );
-  const orders = (ordersData?.data ?? []) as Array<{ id: string; code?: string; total_amount?: string | number }>;
+  const orders = (ordersData?.data ?? []) as Array<{
+    id: string;
+    code?: string;
+    total_amount?: string | number;
+  }>;
   const [selectedOrderId, setSelectedOrderId] = useState("");
 
   const handleClose = (isOpen: boolean) => {
@@ -88,7 +92,9 @@ export function MakePaymentModal({
   };
 
   const wardLabel = (w: Ward) => {
-    const name = w.user ? [w.user.first_name, w.user.last_name].filter(Boolean).join(" ") : "Student";
+    const name = w.user
+      ? [w.user.first_name, w.user.last_name].filter(Boolean).join(" ")
+      : "Student";
     return w.class_assigned ? `${name} (${w.class_assigned})` : name;
   };
 
@@ -100,10 +106,18 @@ export function MakePaymentModal({
       size="lg"
       footer={
         <div className="grid grid-cols-2 gap-2 w-full">
-          <Button variant="outline" onClick={() => handleClose(false)} className="flex-1">
+          <Button
+            variant="outline"
+            onClick={() => handleClose(false)}
+            className="flex-1"
+          >
             Cancel
           </Button>
-          <Button onClick={handleSubmit} className="flex-1" disabled={isLoading || !selectedOrderId}>
+          <Button
+            onClick={handleSubmit}
+            className="flex-1"
+            disabled={isLoading || !selectedOrderId}
+          >
             {isLoading ? "Processing…" : "Pay from Wallet"}
           </Button>
         </div>
@@ -115,7 +129,9 @@ export function MakePaymentModal({
         </p>
         {wards.length > 1 && (
           <div>
-            <Label className="text-sm font-medium text-gray-700">Select student</Label>
+            <Label className="text-sm font-medium text-gray-700">
+              Select student
+            </Label>
             <Select value={wardUserId} onValueChange={setWardUserId}>
               <SelectTrigger className="mt-1 w-full">
                 <SelectValue placeholder="Choose student" />
@@ -131,18 +147,25 @@ export function MakePaymentModal({
           </div>
         )}
         <div>
-          <Label className="text-sm font-medium text-gray-700">Select order</Label>
+          <Label className="text-sm font-medium text-gray-700">
+            Select order
+          </Label>
           <Select value={selectedOrderId} onValueChange={setSelectedOrderId}>
             <SelectTrigger className="mt-1 w-full">
               <SelectValue placeholder="Choose pending order" />
             </SelectTrigger>
             <SelectContent>
               {orders.length === 0 ? (
-                <div className="py-4 px-2 text-sm text-gray-500">No pending orders</div>
+                <div className="py-4 px-2 text-sm text-gray-500">
+                  No pending orders
+                </div>
               ) : (
                 orders.map((o) => (
                   <SelectItem key={o.id} value={o.id}>
-                    {o.code ?? o.id} — ₦{Number(o.total_amount ?? 0).toLocaleString("en-NG", { minimumFractionDigits: 2 })}
+                    {o.code ?? o.id} — ₦
+                    {Number(o.total_amount ?? 0).toLocaleString("en-NG", {
+                      minimumFractionDigits: 2,
+                    })}
                   </SelectItem>
                 ))
               )}
@@ -151,7 +174,12 @@ export function MakePaymentModal({
         </div>
         {selectedOrder && (
           <div className="rounded border p-3 bg-gray-50">
-            <p className="text-sm font-medium">Amount: ₦{orderAmount.toLocaleString("en-NG", { minimumFractionDigits: 2 })}</p>
+            <p className="text-sm font-medium">
+              Amount: ₦
+              {orderAmount.toLocaleString("en-NG", {
+                minimumFractionDigits: 2,
+              })}
+            </p>
           </div>
         )}
       </div>

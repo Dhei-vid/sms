@@ -84,15 +84,9 @@ export function ScopeSelectionForm({
           label="Grade/Class"
           value={formData.gradeClass}
           onValueChange={(value) => onFormDataChange({ gradeClass: value })}
-          placeholder="E.g., JSS2, Primary 5-A"
+          placeholder="E.g., JSS2"
           required
         >
-          <SelectItem value="primary-1">Primary 1</SelectItem>
-          <SelectItem value="primary-2">Primary 2</SelectItem>
-          <SelectItem value="primary-3">Primary 3</SelectItem>
-          <SelectItem value="primary-4">Primary 4</SelectItem>
-          <SelectItem value="primary-5">Primary 5</SelectItem>
-          <SelectItem value="primary-6">Primary 6</SelectItem>
           <SelectItem value="jss-1">JSS 1</SelectItem>
           <SelectItem value="jss-2">JSS 2</SelectItem>
           <SelectItem value="jss-3">JSS 3</SelectItem>

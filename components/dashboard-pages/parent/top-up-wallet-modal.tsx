@@ -43,7 +43,7 @@ export function TopUpWalletModal({
   const selfReceiverId = receiverId ?? user?.id ?? "";
 
   const [wardUserId, setWardUserId] = useState<string>(
-    wards[0]?.user_id ?? selfReceiverId
+    wards[0]?.user_id ?? selfReceiverId,
   );
   const [amount, setAmount] = useState("");
   const [fundWallet, { isLoading }] = useFundWalletMutation();
@@ -69,7 +69,9 @@ export function TopUpWalletModal({
     const amt = parseFloat(amount?.replace(/,/g, "") || "0");
     if (!effectiveReceiverId) {
       toast.error(
-        isSelfTopUp ? "Unable to identify your account" : "Please select a student"
+        isSelfTopUp
+          ? "Unable to identify your account"
+          : "Please select a student",
       );
       return;
     }
@@ -92,7 +94,9 @@ export function TopUpWalletModal({
   };
 
   const wardLabel = (w: StakeholderChildDetails) => {
-    const name = w.user ? [w.user.first_name, w.user.last_name].filter(Boolean).join(" ") : "Student";
+    const name = w.user
+      ? [w.user.first_name, w.user.last_name].filter(Boolean).join(" ")
+      : "Student";
     return w.class_assigned ? `${name} (${w.class_assigned})` : name;
   };
 
@@ -104,10 +108,18 @@ export function TopUpWalletModal({
       size="lg"
       footer={
         <div className="grid grid-cols-2 gap-2 w-full">
-          <Button variant="outline" onClick={() => handleClose(false)} className="flex-1">
+          <Button
+            variant="outline"
+            onClick={() => handleClose(false)}
+            className="flex-1"
+          >
             Cancel
           </Button>
-          <Button onClick={handleSubmit} className="flex-1" disabled={isLoading}>
+          <Button
+            onClick={handleSubmit}
+            className="flex-1"
+            disabled={isLoading}
+          >
             {isLoading ? "Processing…" : "Top Up"}
           </Button>
         </div>
@@ -120,12 +132,20 @@ export function TopUpWalletModal({
             : "Enter the amount to add to your ward's wallet. The amount will be credited immediately."}
         </p>
         <div>
-          <Label className="text-sm font-medium text-gray-700">Current balance</Label>
-          <Input value={currentBalance} readOnly className="bg-gray-50 mt-1 w-fit" />
+          <Label className="text-sm font-medium text-gray-700">
+            Current balance
+          </Label>
+          <Input
+            value={currentBalance}
+            readOnly
+            className="bg-gray-50 mt-1 w-fit"
+          />
         </div>
         {wards.length > 1 && (
           <div>
-            <Label className="text-sm font-medium text-gray-700">Select student</Label>
+            <Label className="text-sm font-medium text-gray-700">
+              Select student
+            </Label>
             <Select value={wardUserId} onValueChange={setWardUserId}>
               <SelectTrigger className="mt-1 w-full">
                 <SelectValue placeholder="Choose student" />
@@ -141,7 +161,10 @@ export function TopUpWalletModal({
           </div>
         )}
         <div>
-          <Label htmlFor="topup-amount" className="text-sm font-medium text-gray-700">
+          <Label
+            htmlFor="topup-amount"
+            className="text-sm font-medium text-gray-700"
+          >
             Amount (₦)
           </Label>
           <Input

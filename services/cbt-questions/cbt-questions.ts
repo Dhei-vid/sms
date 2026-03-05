@@ -22,7 +22,7 @@ export const cbtQuestionsApi = baseApi.injectEndpoints({
     >({
       query: (params) => ({
         url: BASE,
-        params: params?._all ? { _all: "true", ...params } : params ?? {},
+        params: params?._all ? { _all: "true", ...params } : (params ?? {}),
       }),
       providesTags: ["CbtQuestion"],
     }),

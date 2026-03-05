@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MetricCard } from "@/components/dashboard-pages/admin/admissions/components/metric-card";
 import { QuickActionCard } from "@/components/dashboard-pages/admin/admissions/components/quick-action-card";
 import { ActivityItem } from "@/components/dashboard-pages/admin/students/components/activity-item";
-import { ReportGenerationModal } from "@/components/dashboard-pages/admin/students/modals/report-generation-modal";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,7 +31,6 @@ import { useAppSelector } from "@/store/hooks";
 export default function StudentsPage() {
   const router = useRouter();
   const authUser = useAppSelector(selectUser);
-  const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
 
   const { data: studentStakeholderMetrics, isLoading } =
     useGetStudentStakeholderMetricsQuery();
@@ -108,7 +106,7 @@ export default function StudentsPage() {
       title: "Generate Report Card",
       description: "Key academic function for term-end work.",
       icon: SchoolReportCardIcon,
-      onClick: () => setIsReportModalOpen(true),
+      onClick: () => router.push("/admin/students/report-generation"),
     },
   ];
 
@@ -334,14 +332,6 @@ export default function StudentsPage() {
           </Card>
         </div>
       </div>
-
-      {/* Generate report Modal */}
-      {isReportModalOpen && (
-        <ReportGenerationModal
-          isOpen={isReportModalOpen}
-          onOpenChange={setIsReportModalOpen}
-        />
-      )}
     </div>
   );
 }

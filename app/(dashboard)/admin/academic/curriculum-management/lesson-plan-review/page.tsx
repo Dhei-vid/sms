@@ -26,7 +26,9 @@ interface LessonPlan {
 }
 
 function noteToLessonPlan(n: Notes): LessonPlan {
-  const creator = n.creator as { first_name?: string; last_name?: string; username?: string } | undefined;
+  const creator = n.creator as
+    | { first_name?: string; last_name?: string; username?: string }
+    | undefined;
   const submittedBy = creator
     ? `${creator.first_name ?? ""} ${creator.last_name ?? ""}`.trim() || "—"
     : "—";
@@ -49,7 +51,6 @@ function noteToLessonPlan(n: Notes): LessonPlan {
 const schoolLevelOptions = [
   { value: "junior-secondary", label: "Junior Secondary School" },
   { value: "senior-secondary", label: "Senior Secondary School" },
-  { value: "primary", label: "Primary School" },
 ];
 
 const gradeOptions = [
@@ -253,11 +254,8 @@ export default function LessonPlanReviewPage() {
               columns={columns}
               data={lessonPlansData}
               actions={tableActions}
-              emptyMessage={
-                isLoading
-                  ? "Loading..."
-                  : "No lesson plans submitted yet."
-              }
+              isLoading={isLoading}
+              emptyMessage="No lesson plans submitted yet."
               tableClassName="border-collapse"
             />
           </div>

@@ -15,6 +15,15 @@ export interface ApplicantDetailsState {
 
 export type DocumentUploadState = Record<string, File | null>;
 
+/** Academic history fields (optional) - matches Academic history in admissions record view */
+export interface AcademicDetailsState {
+  currentPreviousSchool: string;
+  lastGradeCompleted: string;
+  commonExamScore: string;
+  performanceHighlights: string;
+  transferReason: string;
+}
+
 export interface ApplicationStatusState {
   initialStatus: string;
   adminNotes: string;
@@ -23,6 +32,7 @@ export interface ApplicationStatusState {
 
 export interface AdmissionFormState {
   details: ApplicantDetailsState;
+  academic: AcademicDetailsState;
   documents: DocumentUploadState;
   status: ApplicationStatusState;
 }
@@ -39,6 +49,13 @@ export const getInitialAdmissionFormState = (): AdmissionFormState => ({
     phoneNumber: "",
     email: "",
     schoolId: "",
+  },
+  academic: {
+    currentPreviousSchool: "",
+    lastGradeCompleted: "",
+    commonExamScore: "",
+    performanceHighlights: "",
+    transferReason: "",
   },
   documents: {},
   status: {
@@ -73,22 +90,8 @@ const DOCUMENT_TYPE_MAP: Record<string, string> = {
   passportPhoto: "passport photo",
 };
 
-// function parseFullName(
-//   fullName: string
-// ): { first_name: string; last_name: string; middle_name: string | null } {
-//   const parts = fullName.trim().split(/\s+/).filter(Boolean);
-//   if (parts.length === 0) return { first_name: "", last_name: "", middle_name: null };
-//   if (parts.length === 1) return { first_name: parts[0], last_name: "", middle_name: null };
-//   if (parts.length === 2) return { first_name: parts[1], last_name: parts[0], middle_name: null };
-//   return {
-//     last_name: parts[0],
-//     first_name: parts[1],
-//     middle_name: parts.slice(2).join(" ") || null,
-//   };
-// }
-
 function toScalars(state: AdmissionFormState, schoolId: string | null) {
-  const { details, documents: docState, status } = state;
+  const { details, academic, documents: docState, status } = state;
   const gender = details.gender.female
     ? "female"
     : details.gender.male
@@ -121,11 +124,20 @@ function toScalars(state: AdmissionFormState, schoolId: string | null) {
     initial_status: status.initialStatus || "Inititated",
     admin_notes: status.adminNotes,
     date_joined: status.dateSubmitted || "",
+    // Academic details (optional)
+    current_previous_school: academic.currentPreviousSchool.trim() || null,
+    last_grade_completed:
+      academic.lastGradeCompleted && academic.lastGradeCompleted !== "none"
+        ? academic.lastGradeCompleted.trim()
+        : null,
+    common_exam_score: academic.commonExamScore.trim() || null,
+    performance_highlights: academic.performanceHighlights.trim() || null,
+    transfer_reason: academic.transferReason.trim() || null,
     docState,
   };
 }
 
-export function   buildAdmissionFormData(
+export function buildAdmissionFormData(
   state: AdmissionFormState,
   schoolId: string | null,
 ): FormData {
@@ -142,7 +154,6 @@ export function   buildAdmissionFormData(
   fd.append("gender", s.gender);
   if (s.class_assigned) fd.append("class_assigned", s.class_assigned);
   fd.append("role", s.role);
-  // Omit password - backend uses USER_PASSWORD from settings (e.g. password123)
   fd.append("parent_name", s.parent_name);
   if (s.parent_email) fd.append("parent_email", s.parent_email);
   fd.append("phone_number", s.phone_number);
@@ -150,8 +161,17 @@ export function   buildAdmissionFormData(
   fd.append("initial_status", s.initial_status);
   fd.append("admin_notes", s.admin_notes);
   if (s.date_joined) fd.append("date_joined", s.date_joined);
-  // Don't send permissions field - backend will default to empty list []
-  // Sending "[]" as a string can cause parsing issues with FormData
+  // Academic details (optional)
+  if (s.current_previous_school)
+    fd.append("current_previous_school", s.current_previous_school);
+  if (s.last_grade_completed)
+    fd.append("last_grade_completed", s.last_grade_completed);
+  if (s.common_exam_score) fd.append("common_exam_score", s.common_exam_score);
+  if (s.performance_highlights)
+    fd.append("performance_highlights", s.performance_highlights);
+  if (s.transfer_reason) fd.append("transfer_reason", s.transfer_reason);
+
+  fd.append("permissions", "write");
 
   let docIndex = 0;
   for (const id of DOCUMENT_IDS) {

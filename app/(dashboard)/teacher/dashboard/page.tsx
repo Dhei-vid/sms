@@ -40,10 +40,8 @@ export default function TeacherDashboardPage() {
   const { data: teacherActivityData } = useGetTeacherActivityQuery(undefined, {
     skip: !user?.id,
   });
-  const { data: activityLogData } = useGetTeacherActivityLogQuery(
-    teacherId ?? "",
-    { skip: !teacherId },
-  );
+  const { data: activityLogData, isLoading: isLoadingActivityLog } =
+    useGetTeacherActivityLogQuery(teacherId ?? "", { skip: !teacherId });
   const { data: coursesData } = useGetCoursesQuery(
     { _all: true } as { _all?: boolean },
     { skip: !user?.id },
@@ -51,17 +49,20 @@ export default function TeacherDashboardPage() {
 
   const myActivity = useMemo(() => {
     const list = teacherActivityData?.data ?? [];
-    return list.find(
-      (a) => a.id === teacherId || a.staffId === teacherId,
-    ) ?? null;
+    return (
+      list.find((a) => a.id === teacherId || a.staffId === teacherId) ?? null
+    );
   }, [teacherActivityData?.data, teacherId]);
 
   const coursesTaught = useMemo(() => {
     const list = Array.isArray(coursesData?.data)
       ? coursesData.data
-      : (coursesData as { data?: unknown[] })?.data ?? [];
+      : ((coursesData as { data?: unknown[] })?.data ?? []);
     return list.filter((c) => {
-      const course = c as { lead_instructor_id?: string; leadInstructor?: { id?: string } };
+      const course = c as {
+        lead_instructor_id?: string;
+        leadInstructor?: { id?: string };
+      };
       return (
         course.lead_instructor_id === teacherId ||
         course.leadInstructor?.id === teacherId
@@ -101,7 +102,9 @@ export default function TeacherDashboardPage() {
 
   const displayName =
     teacher?.user?.first_name || teacher?.user?.last_name
-      ? [teacher.user.first_name, teacher.user.last_name].filter(Boolean).join(" ")
+      ? [teacher.user.first_name, teacher.user.last_name]
+          .filter(Boolean)
+          .join(" ")
       : user?.first_name || user?.last_name
         ? [user.first_name, user.last_name].filter(Boolean).join(" ")
         : "Teacher";
@@ -110,7 +113,8 @@ export default function TeacherDashboardPage() {
     myActivity?.contentSubmissionsCount ?? coursesTaught.length * 30;
   const totalClasses = coursesTaught.length || (myActivity ? 1 : 0);
   const avgScore = myActivity?.complianceRate ?? "—";
-  const attendanceRate = myActivity?.complianceStatus === "On Time" ? "94%" : "—";
+  const attendanceRate =
+    myActivity?.complianceStatus === "On Time" ? "94%" : "—";
 
   const taskColumns: TableColumn<TaskItem>[] = [
     {
@@ -233,7 +237,9 @@ export default function TeacherDashboardPage() {
             <DataTable
               columns={taskColumns}
               data={tasks}
+              isLoading={isLoadingActivityLog}
               showActionsColumn={false}
+              emptyMessage="No tasks yet."
             />
           </div>
         </CardContent>

@@ -35,10 +35,10 @@ export default function AllStaffPage() {
       </div>
 
       {/* Active Staff Count Card */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         <div className="lg:col-span-3 bg-background rounded-md px-6 py-2 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="h-9 w-1 bg-orange-500 rounded"></div>
+            <div className="h-9 w-1 bg-main-blue rounded"></div>
             <div>
               <h3 className="text-xl font-semibold text-gray-800">
                 Active Staff Count: {activeStaffCount} Active Employees

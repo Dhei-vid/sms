@@ -30,12 +30,27 @@ export function QuickActionsCard() {
   const { data: parentData } = useGetParentByUserIdQuery(user?.id ?? "", {
     skip: !user?.id || !topUpModalOpen,
   });
-  const wards = (parentData?.data as { children_details?: Array<{ id: string; user_id: string; user?: { first_name?: string; last_name?: string }; class_assigned?: string | null }> } | null)?.children_details ?? [];
+  const wards =
+    (
+      parentData?.data as {
+        children_details?: Array<{
+          id: string;
+          user_id: string;
+          user?: { first_name?: string; last_name?: string };
+          class_assigned?: string | null;
+        }>;
+      } | null
+    )?.children_details ?? [];
   const wardUserId = wards[0]?.user_id;
-  const { data: wardWalletData } = useGetWalletBalanceQuery(wardUserId ?? undefined, {
-    skip: !wardUserId || !topUpModalOpen,
-  });
-  const wardWallet = wardWalletData?.data as { balance?: string; currency?: string } | undefined;
+  const { data: wardWalletData } = useGetWalletBalanceQuery(
+    wardUserId ?? undefined,
+    {
+      skip: !wardUserId || !topUpModalOpen,
+    },
+  );
+  const wardWallet = wardWalletData?.data as
+    | { balance?: string; currency?: string }
+    | undefined;
   const balanceFormatted =
     wardWallet?.balance != null && wardWallet?.currency
       ? `${wardWallet.currency} ${Number(wardWallet.balance).toLocaleString("en-NG", { minimumFractionDigits: 2 })}`

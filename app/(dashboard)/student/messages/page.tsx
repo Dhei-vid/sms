@@ -56,7 +56,9 @@ interface Message {
 export default function StudentMessagesPage() {
   const user = useAppSelector(selectUser);
   const [selectedThreadId, setSelectedThreadId] = useState<string>("general");
-  const [individualThreads, setIndividualThreads] = useState<MessageThread[]>([]);
+  const [individualThreads, setIndividualThreads] = useState<MessageThread[]>(
+    [],
+  );
   const [staticThreadMessages, setStaticThreadMessages] = useState<
     Record<"general", ChatMessages[]>
   >({ general: [] });
@@ -179,7 +181,10 @@ export default function StudentMessagesPage() {
 
     const newThread: MessageThread = {
       id: contact.id,
-      name: `${contact.first_name ?? ""} ${contact.last_name ?? ""}`.trim() || contact.email || "Unknown",
+      name:
+        `${contact.first_name ?? ""} ${contact.last_name ?? ""}`.trim() ||
+        contact.email ||
+        "Unknown",
       description: contact.email || "",
       type: "individual",
     };
@@ -249,7 +254,9 @@ export default function StudentMessagesPage() {
       return {
         id: msg.id,
         senderName: msg.sender
-          ? `${msg.sender.first_name ?? ""} ${msg.sender.last_name ?? ""}`.trim() || msg.sender.username || "Unknown"
+          ? `${msg.sender.first_name ?? ""} ${msg.sender.last_name ?? ""}`.trim() ||
+            msg.sender.username ||
+            "Unknown"
           : "Unknown",
         senderEmail: msg.sender?.username || "",
         message: msg.content,

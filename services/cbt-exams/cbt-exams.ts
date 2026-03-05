@@ -1,5 +1,9 @@
 import { baseApi } from "../baseApi";
-import type { CreateCBTExamsPayload, CbtExam, CbtExamsQueryParams } from "./cbt-exam-types";
+import type {
+  CreateCBTExamsPayload,
+  CbtExam,
+  CbtExamsQueryParams,
+} from "./cbt-exam-types";
 import type {
   ApiResponse,
   ApiListResponse,
@@ -17,7 +21,7 @@ export const cbtExamsApi = baseApi.injectEndpoints({
     >({
       query: (params) => ({
         url: BASE,
-        params: params?._all ? { _all: "true", ...params } : params ?? {},
+        params: params?._all ? { _all: "true", ...params } : (params ?? {}),
       }),
       providesTags: ["CbtExam"],
     }),

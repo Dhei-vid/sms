@@ -63,7 +63,10 @@ export default function StudentDashboard() {
         description: event.description ?? "",
         date:
           event.date && event.start_time
-            ? format(new Date(`${event.date}T${event.start_time}`), "MMM d, yyyy; h:mm a")
+            ? format(
+                new Date(`${event.date}T${event.start_time}`),
+                "MMM d, yyyy; h:mm a",
+              )
             : event.date
               ? format(new Date(event.date), "MMM d, yyyy")
               : "",
@@ -88,7 +91,9 @@ export default function StudentDashboard() {
       student.user.first_name ||
       "Student"
     : user
-      ? `${user.first_name ?? ""} ${user.last_name ?? ""}`.trim() || user.first_name || "Student"
+      ? `${user.first_name ?? ""} ${user.last_name ?? ""}`.trim() ||
+        user.first_name ||
+        "Student"
       : "Student";
   const displayEmail =
     student?.user?.email ?? student?.school_email ?? user?.email ?? "";

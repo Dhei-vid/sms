@@ -6,9 +6,10 @@ import {
   UserIcon,
   TransactionHistoryIcon,
   DocumentValidationIcon,
+  GraduateMaleIcon,
 } from "@hugeicons/core-free-icons";
 
-type StepId = "details" | "documents" | "status";
+type StepId = "details" | "academic" | "documents" | "status";
 
 interface Step {
   id: StepId;
@@ -18,6 +19,7 @@ interface Step {
 
 const steps: Step[] = [
   { id: "details", label: "Applicant & Parent Details", icon: UserIcon },
+  { id: "academic", label: "Academic Details", icon: GraduateMaleIcon },
   { id: "documents", label: "Document Upload", icon: TransactionHistoryIcon },
   { id: "status", label: "Application Status", icon: DocumentValidationIcon },
 ];

@@ -18,7 +18,12 @@ export const notificationsApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     getNotifications: build.query<
       ApiListResponse<Notifications>,
-      { page?: number; per_page?: number; limit?: number; search?: string } | void
+      {
+        page?: number;
+        per_page?: number;
+        limit?: number;
+        search?: string;
+      } | void
     >({
       query: (params) => {
         const p = params ?? {};

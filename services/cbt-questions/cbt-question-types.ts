@@ -16,7 +16,12 @@ export interface CbtQuestion {
   tag?: string | null;
   status?: string | null;
   creator_id?: string | null;
-  creator?: { id: string; email?: string; first_name?: string; last_name?: string } | null;
+  creator?: {
+    id: string;
+    email?: string;
+    first_name?: string;
+    last_name?: string;
+  } | null;
   created_at?: string;
   [key: string]: unknown;
 }

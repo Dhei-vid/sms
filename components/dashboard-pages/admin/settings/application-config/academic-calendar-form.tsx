@@ -18,22 +18,31 @@ export interface AcademicCalendarFormRef {
 }
 
 interface AcademicCalendarFormProps {
-  initialValues?: Omit<Partial<AcademicCalendarValues>, "startDate" | "endDate"> & {
+  initialValues?: Omit<
+    Partial<AcademicCalendarValues>,
+    "startDate" | "endDate"
+  > & {
     startDate?: string;
     endDate?: string;
   };
 }
 
-export const AcademicCalendarForm = forwardRef<AcademicCalendarFormRef, AcademicCalendarFormProps>(
-  function AcademicCalendarForm({ initialValues }, ref) {
-  const [academicYearName, setAcademicYearName] = useState(initialValues?.academicYearName ?? "");
+export const AcademicCalendarForm = forwardRef<
+  AcademicCalendarFormRef,
+  AcademicCalendarFormProps
+>(function AcademicCalendarForm({ initialValues }, ref) {
+  const [academicYearName, setAcademicYearName] = useState(
+    initialValues?.academicYearName ?? "",
+  );
   const [startDate, setStartDate] = useState<Date | undefined>(() =>
-    initialValues?.startDate ? new Date(initialValues.startDate) : undefined
+    initialValues?.startDate ? new Date(initialValues.startDate) : undefined,
   );
   const [endDate, setEndDate] = useState<Date | undefined>(() =>
-    initialValues?.endDate ? new Date(initialValues.endDate) : undefined
+    initialValues?.endDate ? new Date(initialValues.endDate) : undefined,
   );
-  const [numberOfTerms, setNumberOfTerms] = useState(initialValues?.numberOfTerms ?? "");
+  const [numberOfTerms, setNumberOfTerms] = useState(
+    initialValues?.numberOfTerms ?? "",
+  );
   const [holidayDate, setHolidayDate] = useState<Date | undefined>(undefined);
   const [startDateOpen, setStartDateOpen] = useState(false);
   const [endDateOpen, setEndDateOpen] = useState(false);
@@ -41,12 +50,27 @@ export const AcademicCalendarForm = forwardRef<AcademicCalendarFormRef, Academic
 
   useEffect(() => {
     if (initialValues) {
-      if (initialValues.academicYearName !== undefined) setAcademicYearName(initialValues.academicYearName);
-      if (initialValues.numberOfTerms !== undefined) setNumberOfTerms(initialValues.numberOfTerms);
-      if (initialValues.startDate !== undefined) setStartDate(initialValues.startDate ? new Date(initialValues.startDate) : undefined);
-      if (initialValues.endDate !== undefined) setEndDate(initialValues.endDate ? new Date(initialValues.endDate) : undefined);
+      if (initialValues.academicYearName !== undefined)
+        setAcademicYearName(initialValues.academicYearName);
+      if (initialValues.numberOfTerms !== undefined)
+        setNumberOfTerms(initialValues.numberOfTerms);
+      if (initialValues.startDate !== undefined)
+        setStartDate(
+          initialValues.startDate
+            ? new Date(initialValues.startDate)
+            : undefined,
+        );
+      if (initialValues.endDate !== undefined)
+        setEndDate(
+          initialValues.endDate ? new Date(initialValues.endDate) : undefined,
+        );
     }
-  }, [initialValues?.academicYearName, initialValues?.numberOfTerms, initialValues?.startDate, initialValues?.endDate]);
+  }, [
+    initialValues?.academicYearName,
+    initialValues?.numberOfTerms,
+    initialValues?.startDate,
+    initialValues?.endDate,
+  ]);
 
   useImperativeHandle(
     ref,
@@ -59,7 +83,7 @@ export const AcademicCalendarForm = forwardRef<AcademicCalendarFormRef, Academic
         holidayDate,
       }),
     }),
-    [academicYearName, startDate, endDate, numberOfTerms, holidayDate]
+    [academicYearName, startDate, endDate, numberOfTerms, holidayDate],
   );
 
   return (

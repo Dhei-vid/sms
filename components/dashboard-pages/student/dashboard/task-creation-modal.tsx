@@ -25,7 +25,11 @@ const TASK_TYPES: { value: PersonalTaskType; label: string }[] = [
 interface TaskCreationModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: { task_name: string; task_type: PersonalTaskType; deadline: string | null }) => void;
+  onSubmit: (data: {
+    task_name: string;
+    task_type: PersonalTaskType;
+    deadline: string | null;
+  }) => void;
   isLoading?: boolean;
 }
 

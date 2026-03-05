@@ -47,9 +47,7 @@ export default function AdminStudentAssignmentsPage() {
       .filter((assignment) => {
         if (!searchQuery) return true;
         const q = searchQuery.toLowerCase();
-        return (
-          (assignment.title ?? "").toLowerCase().includes(q)
-        );
+        return (assignment.title ?? "").toLowerCase().includes(q);
       });
   }, [assignmentsData, searchQuery]);
 
@@ -194,8 +192,7 @@ export default function AdminStudentAssignmentsPage() {
             ) : (
               <DataTable
                 columns={columns}
-                data={[]
-                }
+                data={[]}
                 showActionsColumn={false}
               />
             )}

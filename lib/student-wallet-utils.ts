@@ -12,9 +12,13 @@ export interface WalletTransactionRow {
 
 const CURRENCY_SYMBOL = "₦";
 
-function formatAmount(amount: string | number, currency?: string | null): string {
+function formatAmount(
+  amount: string | number,
+  currency?: string | null,
+): string {
   const num = typeof amount === "string" ? parseFloat(amount) : amount;
-  const sym = currency === "NGN" || !currency ? CURRENCY_SYMBOL : String(currency);
+  const sym =
+    currency === "NGN" || !currency ? CURRENCY_SYMBOL : String(currency);
   return `${sym}${Number.isNaN(num) ? "0" : num.toLocaleString("en-NG", { minimumFractionDigits: 2 })}`;
 }
 
@@ -24,7 +28,8 @@ function getTransactionTypeLabel(tx: Transaction): string {
   if (tt === "income" || pt === "deposit") return "Top-Up";
   if (pt === "order") return "Wallet Debit";
   if (pt === "fees") return "Fee Payment";
-  if (pt === "payment" || pt === "transfer") return tt === "income" ? "Transfer In" : "Transfer Out";
+  if (pt === "payment" || pt === "transfer")
+    return tt === "income" ? "Transfer In" : "Transfer Out";
   return tt === "expense" ? "Wallet Debit" : "Credit";
 }
 
@@ -45,7 +50,7 @@ function getItemSource(tx: Transaction): string {
  */
 export function mapTransactionsToRows(
   transactions: Transaction[],
-  currentBalance: string | number
+  currentBalance: string | number,
 ): WalletTransactionRow[] {
   const sorted = [...transactions].sort((a, b) => {
     const da = a.created_at ? new Date(a.created_at).getTime() : 0;
@@ -53,11 +58,15 @@ export function mapTransactionsToRows(
     return db - da;
   });
 
-  let runningBalance = typeof currentBalance === "string" ? parseFloat(currentBalance) : currentBalance;
+  let runningBalance =
+    typeof currentBalance === "string"
+      ? parseFloat(currentBalance)
+      : currentBalance;
   const rows: WalletTransactionRow[] = [];
 
   for (const tx of sorted) {
-    const amount = typeof tx.amount === "string" ? parseFloat(tx.amount) : Number(tx.amount);
+    const amount =
+      typeof tx.amount === "string" ? parseFloat(tx.amount) : Number(tx.amount);
     const isDebit = (tx.transaction_type?.toLowerCase() ?? "") === "expense";
     const signedAmount = isDebit ? -amount : amount;
 

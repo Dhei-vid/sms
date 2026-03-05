@@ -25,6 +25,7 @@ import {
   DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
 import { EllipsisVertical, Minus } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 
 // Types
 export interface TableColumn<T = any> {
@@ -105,6 +106,7 @@ export interface DataTableProps<T = any> {
   selectedRows?: string[];
   onSelectionChange?: (selectedIds: string[]) => void;
   getRowId?: (row: T, index: number) => string;
+  isLoading?: boolean;
 }
 
 // Utility function to format dates
@@ -185,8 +187,13 @@ export function DataTable<T extends Record<string, any> = Record<string, any>>({
   selectedRows = [],
   onSelectionChange,
   getRowId = (row: T, index: number) => row.id?.toString() ?? index.toString(),
+  isLoading = false,
 }: DataTableProps<T>) {
   const displayData = itemsPerPage ? data.slice(0, itemsPerPage) : data;
+  const colSpan =
+    (enableRowSelection ? 1 : 0) +
+    columns.length +
+    (showActionsColumn && actions.length > 0 ? 1 : 0);
 
   const handleSelectAll = (checked: boolean) => {
     if (!onSelectionChange) return;
@@ -442,14 +449,22 @@ export function DataTable<T extends Record<string, any> = Record<string, any>>({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {displayData.length === 0 ? (
+          {isLoading ? (
             <TableRow>
               <TableCell
-                colSpan={
-                  (enableRowSelection ? 1 : 0) +
-                  columns.length +
-                  (showActionsColumn && actions.length > 0 ? 1 : 0)
-                }
+                colSpan={colSpan}
+                className="text-center py-12 text-muted-foreground"
+              >
+                <div className="flex flex-col items-center justify-center gap-2">
+                  <Spinner className="size-8" />
+                  <span className="text-sm">Loading…</span>
+                </div>
+              </TableCell>
+            </TableRow>
+          ) : displayData.length === 0 ? (
+            <TableRow>
+              <TableCell
+                colSpan={colSpan}
                 className={cn(
                   "text-center py-8 text-muted-foreground",
                   emptyMessageClassName,

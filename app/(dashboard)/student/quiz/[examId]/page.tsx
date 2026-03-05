@@ -35,8 +35,7 @@ function mapCbtQuestionToDisplay(q: CbtQuestion): QuestionForDisplay {
     label: labels[i] ?? String(i + 1),
     value: text,
   }));
-  const instructionStr =
-    typeof q.instruction === "string" ? q.instruction : "";
+  const instructionStr = typeof q.instruction === "string" ? q.instruction : "";
   return {
     id: q.id,
     topic: q.subject ?? "General",
@@ -65,7 +64,9 @@ export default function QuizPage() {
   const examId = params.examId as string;
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedAnswers, setSelectedAnswers] = useState<Record<string, number>>({});
+  const [selectedAnswers, setSelectedAnswers] = useState<
+    Record<string, number>
+  >({});
   const [isModalOpen, setIsModalOpen] = useState(true);
   const [countdownStarted, setCountdownStarted] = useState(false);
   const [secondsRemaining, setSecondsRemaining] = useState(0);
@@ -75,19 +76,20 @@ export default function QuizPage() {
 
   const { data: examResponse, isLoading: examLoading } = useGetCbtExamByIdQuery(
     examId ?? "",
-    { skip: !examId }
+    { skip: !examId },
   );
   const { data: resultsResponse } = useGetCbtResultsQuery(
     examId ? { exam_id: examId, _all: true } : undefined,
-    { skip: !examId }
+    { skip: !examId },
   );
   const [createResult] = useCreateCbtResultMutation();
 
   const exam = examResponse?.data;
-  const questionsDetails = (exam as { questions_details?: CbtQuestion[] })?.questions_details ?? [];
+  const questionsDetails =
+    (exam as { questions_details?: CbtQuestion[] })?.questions_details ?? [];
   const questions = useMemo(
     () => questionsDetails.map(mapCbtQuestionToDisplay),
-    [questionsDetails]
+    [questionsDetails],
   );
   const durationMinutes = (exam?.duration ?? 40) as number;
   const totalSeconds = durationMinutes * 60;
@@ -119,7 +121,12 @@ export default function QuizPage() {
 
   const computeScore = useCallback(() => {
     let correct = 0;
-    const answersForApi: { question_id: string; selected_option: number; is_correct: boolean; time_spent: number }[] = [];
+    const answersForApi: {
+      question_id: string;
+      selected_option: number;
+      is_correct: boolean;
+      time_spent: number;
+    }[] = [];
     questions.forEach((q) => {
       const selected = selectedAnswers[q.id];
       if (selected == null) return;
@@ -204,15 +211,11 @@ export default function QuizPage() {
   }
 
   if (examLoading) {
-    return (
-      <div className="p-8 text-center text-gray-600">Loading exam…</div>
-    );
+    return <div className="p-8 text-center text-gray-600">Loading exam…</div>;
   }
 
   if (!exam) {
-    return (
-      <div className="p-8 text-center text-gray-600">Exam not found.</div>
-    );
+    return <div className="p-8 text-center text-gray-600">Exam not found.</div>;
   }
 
   const rawData = (resultsResponse as { data?: unknown })?.data;
@@ -223,9 +226,9 @@ export default function QuizPage() {
     Array.isArray((rawData as { data: unknown[] }).data)
       ? (rawData as { data: unknown[] }).data
       : null;
-  const existingResults = Array.isArray(rawData) ? rawData : nested ?? [];
+  const existingResults = Array.isArray(rawData) ? rawData : (nested ?? []);
   const userResult = existingResults.find(
-    (r: { user_id?: string }) => r.user_id === user?.id
+    (r: { user_id?: string }) => r.user_id === user?.id,
   );
 
   if (userResult) {
@@ -278,10 +281,9 @@ export default function QuizPage() {
               selectedAnswer={selectedValue}
               onSelect={(val) => {
                 const idx = currentQuestion?.options.findIndex(
-                  (o) => o.value === val
+                  (o) => o.value === val,
                 );
-                if (idx !== undefined && idx >= 0)
-                  handleAnswerSelect(idx);
+                if (idx !== undefined && idx >= 0) handleAnswerSelect(idx);
               }}
               disabled={isLocked}
             />

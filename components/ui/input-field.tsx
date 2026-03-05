@@ -105,7 +105,10 @@ export const SelectField: React.FC<SelectFieldProps> = ({
   return (
     <FormField label={label} required={required} Icon={Icon}>
       <Select value={value} onValueChange={onValueChange} disabled={disabled}>
-        <SelectTrigger className="w-full dark:text-main-900/50" disabled={disabled}>
+        <SelectTrigger
+          className="w-full dark:text-main-900/50"
+          disabled={disabled}
+        >
           <SelectValue className="text-main-100/50" placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>{children}</SelectContent>

@@ -288,112 +288,112 @@ export default function DailyOperationsTreasuryPage() {
                   No cash flow data
                 </div>
               ) : (
-              <ChartContainer config={chartConfig} className="h-64 w-full">
-                <BarChart
-                  data={cashFlowData}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis
-                    dataKey="period"
-                    tick={{ fontSize: 12 }}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    tick={{ fontSize: 12 }}
-                    tickLine={false}
-                    tickFormatter={(value) => {
-                      if (value >= 1000000) {
-                        return `₦${(value / 1000000).toFixed(1)}M`;
-                      } else if (value >= 1000) {
-                        return `₦${(value / 1000).toFixed(0)}K`;
-                      }
-                      return `₦${value}`;
-                    }}
-                  />
-                  <Tooltip
-                    content={({ active, payload }) => {
-                      if (!active || !payload?.length) return null;
-                      return (
-                        <div className="border-border/50 bg-background rounded-lg border px-3 py-2 text-xs shadow-lg">
-                          <div className="font-medium mb-2">
-                            {payload[0]?.payload?.period}
-                          </div>
-                          <div className="space-y-1">
-                            {payload.map((item, index) => (
-                              <div
-                                key={index}
-                                className="flex items-center justify-between gap-4"
-                              >
-                                <div className="flex items-center gap-2">
-                                  <div
-                                    className="h-2 w-2 rounded-full"
-                                    style={{
-                                      backgroundColor: item.color,
-                                    }}
-                                  />
-                                  <span className="text-muted-foreground">
-                                    {item.name === "income"
-                                      ? "Income"
-                                      : "Expenses"}
+                <ChartContainer config={chartConfig} className="h-64 w-full">
+                  <BarChart
+                    data={cashFlowData}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                    <XAxis
+                      dataKey="period"
+                      tick={{ fontSize: 12 }}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      tick={{ fontSize: 12 }}
+                      tickLine={false}
+                      tickFormatter={(value) => {
+                        if (value >= 1000000) {
+                          return `₦${(value / 1000000).toFixed(1)}M`;
+                        } else if (value >= 1000) {
+                          return `₦${(value / 1000).toFixed(0)}K`;
+                        }
+                        return `₦${value}`;
+                      }}
+                    />
+                    <Tooltip
+                      content={({ active, payload }) => {
+                        if (!active || !payload?.length) return null;
+                        return (
+                          <div className="border-border/50 bg-background rounded-lg border px-3 py-2 text-xs shadow-lg">
+                            <div className="font-medium mb-2">
+                              {payload[0]?.payload?.period}
+                            </div>
+                            <div className="space-y-1">
+                              {payload.map((item, index) => (
+                                <div
+                                  key={index}
+                                  className="flex items-center justify-between gap-4"
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <div
+                                      className="h-2 w-2 rounded-full"
+                                      style={{
+                                        backgroundColor: item.color,
+                                      }}
+                                    />
+                                    <span className="text-muted-foreground">
+                                      {item.name === "income"
+                                        ? "Income"
+                                        : "Expenses"}
+                                    </span>
+                                  </div>
+                                  <span className="font-semibold">
+                                    {formattedAmount(item.value as number)}
                                   </span>
                                 </div>
-                                <span className="font-semibold">
-                                  {formattedAmount(item.value as number)}
-                                </span>
-                              </div>
-                            ))}
-                            <div className="pt-1 mt-1 border-t border-border/50">
-                              <div className="flex items-center justify-between gap-4">
-                                <span className="text-muted-foreground">
-                                  Net
-                                </span>
-                                <span
-                                  className={`font-semibold ${
-                                    (payload[0]?.payload as CashFlowData)
+                              ))}
+                              <div className="pt-1 mt-1 border-t border-border/50">
+                                <div className="flex items-center justify-between gap-4">
+                                  <span className="text-muted-foreground">
+                                    Net
+                                  </span>
+                                  <span
+                                    className={`font-semibold ${
+                                      (payload[0]?.payload as CashFlowData)
+                                        .income -
+                                        (payload[0]?.payload as CashFlowData)
+                                          .expenses >=
+                                      0
+                                        ? "text-green-600"
+                                        : "text-red-600"
+                                    }`}
+                                  >
+                                    {(payload[0]?.payload as CashFlowData)
                                       .income -
                                       (payload[0]?.payload as CashFlowData)
                                         .expenses >=
                                     0
-                                      ? "text-green-600"
-                                      : "text-red-600"
-                                  }`}
-                                >
-                                  {(payload[0]?.payload as CashFlowData)
-                                    .income -
-                                    (payload[0]?.payload as CashFlowData)
-                                      .expenses >=
-                                  0
-                                    ? "+"
-                                    : ""}
-                                  {formattedAmount(
-                                    (payload[0]?.payload as CashFlowData)
-                                      .income -
+                                      ? "+"
+                                      : ""}
+                                    {formattedAmount(
                                       (payload[0]?.payload as CashFlowData)
-                                        .expenses,
-                                  )}
-                                </span>
+                                        .income -
+                                        (payload[0]?.payload as CashFlowData)
+                                          .expenses,
+                                    )}
+                                  </span>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      );
-                    }}
-                  />
-                  <Bar
-                    dataKey="income"
-                    fill="#22c55e"
-                    radius={[4, 4, 0, 0]}
-                    barSize={24}
-                  />
-                  <Bar
-                    dataKey="expenses"
-                    fill="#f97316"
-                    radius={[4, 4, 0, 0]}
-                    barSize={24}
-                  />
-                </BarChart>
-              </ChartContainer>
+                        );
+                      }}
+                    />
+                    <Bar
+                      dataKey="income"
+                      fill="#22c55e"
+                      radius={[4, 4, 0, 0]}
+                      barSize={24}
+                    />
+                    <Bar
+                      dataKey="expenses"
+                      fill="#f97316"
+                      radius={[4, 4, 0, 0]}
+                      barSize={24}
+                    />
+                  </BarChart>
+                </ChartContainer>
               )}
 
               {cashFlowData.length > 0 && (
@@ -439,32 +439,32 @@ export default function DailyOperationsTreasuryPage() {
                 </div>
               ) : (
                 transactions.slice(0, 5).map((tx, index) => (
-                <div key={tx.id ?? index}>
-                  <ActivityItem
-                    icon={
-                      tx.transaction_type === "income"
-                        ? ArrowUpRight01Icon
-                        : ArrowDownLeft01Icon
-                    }
-                    iconColor={
-                      tx.transaction_type === "income"
-                        ? "text-green-600"
-                        : "text-red-600"
-                    }
-                    title={tx.description || "No description"}
-                    description={
-                      tx.amount
-                        ? `₦${Number(tx.amount).toLocaleString()}`
-                        : "No amount"
-                    }
-                    time={tx.created_at ?? null}
-                    iconBg
-                  />
-                  {index < Math.min(5, transactions.length) - 1 && (
-                    <Separator />
-                  )}
-                </div>
-              ))
+                  <div key={tx.id ?? index}>
+                    <ActivityItem
+                      icon={
+                        tx.transaction_type === "income"
+                          ? ArrowUpRight01Icon
+                          : ArrowDownLeft01Icon
+                      }
+                      iconColor={
+                        tx.transaction_type === "income"
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }
+                      title={tx.description || "No description"}
+                      description={
+                        tx.amount
+                          ? `₦${Number(tx.amount).toLocaleString()}`
+                          : "No amount"
+                      }
+                      time={tx.created_at ?? null}
+                      iconBg
+                    />
+                    {index < Math.min(5, transactions.length) - 1 && (
+                      <Separator />
+                    )}
+                  </div>
+                ))
               )}
             </div>
             {transactions.length > 5 && (

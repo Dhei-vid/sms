@@ -40,7 +40,9 @@ export function PayFeesModal({
   prefillAmount,
 }: PayFeesModalProps) {
   const [wardUserId, setWardUserId] = useState<string>(wards[0]?.user_id ?? "");
-  const [amount, setAmount] = useState(prefillAmount ? String(prefillAmount) : "");
+  const [amount, setAmount] = useState(
+    prefillAmount ? String(prefillAmount) : "",
+  );
   const [description, setDescription] = useState("");
   const [initializePayment, { isLoading }] = useInitializePaymentMutation();
 
@@ -82,7 +84,8 @@ export function PayFeesModal({
         payment_gateway: "paystack",
         ...(description.trim() && { description: description.trim() }),
       }).unwrap();
-      const url = (res.data as { authorization_url?: string })?.authorization_url;
+      const url = (res.data as { authorization_url?: string })
+        ?.authorization_url;
       const ref = (res.data as { reference?: string })?.reference;
       if (url) {
         if (ref) {
@@ -100,7 +103,9 @@ export function PayFeesModal({
   };
 
   const wardLabel = (w: Ward) => {
-    const name = w.user ? [w.user.first_name, w.user.last_name].filter(Boolean).join(" ") : "Student";
+    const name = w.user
+      ? [w.user.first_name, w.user.last_name].filter(Boolean).join(" ")
+      : "Student";
     return w.class_assigned ? `${name} (${w.class_assigned})` : name;
   };
 
@@ -112,10 +117,18 @@ export function PayFeesModal({
       size="lg"
       footer={
         <div className="grid grid-cols-2 gap-2 w-full">
-          <Button variant="outline" onClick={() => handleClose(false)} className="flex-1">
+          <Button
+            variant="outline"
+            onClick={() => handleClose(false)}
+            className="flex-1"
+          >
             Cancel
           </Button>
-          <Button onClick={handleSubmit} className="flex-1" disabled={isLoading}>
+          <Button
+            onClick={handleSubmit}
+            className="flex-1"
+            disabled={isLoading}
+          >
             {isLoading ? "Processing…" : "Proceed to Paystack"}
           </Button>
         </div>
@@ -127,7 +140,9 @@ export function PayFeesModal({
         </p>
         {wards.length > 1 && (
           <div>
-            <Label className="text-sm font-medium text-gray-700">Select student</Label>
+            <Label className="text-sm font-medium text-gray-700">
+              Select student
+            </Label>
             <Select value={wardUserId} onValueChange={setWardUserId}>
               <SelectTrigger className="mt-1 w-full">
                 <SelectValue placeholder="Choose student" />
@@ -143,7 +158,10 @@ export function PayFeesModal({
           </div>
         )}
         <div>
-          <Label htmlFor="pay-amount" className="text-sm font-medium text-gray-700">
+          <Label
+            htmlFor="pay-amount"
+            className="text-sm font-medium text-gray-700"
+          >
             Amount (₦)
           </Label>
           <Input
@@ -156,7 +174,10 @@ export function PayFeesModal({
           />
         </div>
         <div>
-          <Label htmlFor="pay-description" className="text-sm font-medium text-gray-700">
+          <Label
+            htmlFor="pay-description"
+            className="text-sm font-medium text-gray-700"
+          >
             Description (optional)
           </Label>
           <Input

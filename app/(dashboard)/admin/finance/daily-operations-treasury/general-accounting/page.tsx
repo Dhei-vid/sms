@@ -77,9 +77,7 @@ export default function GeneralAccountingPage() {
   const filteredActivities =
     sortBy === "all"
       ? activities
-      : activities.filter(
-          (a) => a.type.toLowerCase() === sortBy.toLowerCase(),
-        );
+      : activities.filter((a) => a.type.toLowerCase() === sortBy.toLowerCase());
 
   const getTypeColor = (type: string) => {
     if (type.toLowerCase() === "expense") {

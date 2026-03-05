@@ -9,17 +9,17 @@ import type { UserRole } from "@/lib/types";
 
 function filterByRole(
   notifications: Notifications[],
-  role: UserRole
+  role: UserRole,
 ): Notifications[] {
   const active = notifications.filter(
-    (n) => n.status === "active" && !n.is_deleted
+    (n) => n.status === "active" && !n.is_deleted,
   );
   if (role === "admin") return active;
   return active.filter(
     (n) =>
       n.target_audience === "general" ||
       (Array.isArray(n.specifics) &&
-        n.specifics.some((s) => String(s).toLowerCase() === role))
+        n.specifics.some((s) => String(s).toLowerCase() === role)),
   );
 }
 
@@ -37,7 +37,7 @@ export function useUnreadNoticeCount(): number {
     const visible = filterByRole(list, role);
     if (!user?.id) return visible.length;
     return visible.filter(
-      (n) => !Array.isArray(n.read_users) || !n.read_users.includes(user.id)
+      (n) => !Array.isArray(n.read_users) || !n.read_users.includes(user.id),
     ).length;
   }, [data?.data, user?.id, role]);
 }

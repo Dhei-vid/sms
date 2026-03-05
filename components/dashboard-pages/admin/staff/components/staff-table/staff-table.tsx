@@ -111,108 +111,8 @@ export function StaffTable({
     });
   }, [staffData]);
 
-  // Fallback to hardcoded data if no API data (for development)
-  const fallbackStaff: Staff[] = [
-    {
-      id: "1",
-      name: "Mr. Chinedu Okafor",
-      staffId: "okafox.T178023",
-      role: "HOD Science",
-      department: "JSS Science",
-      contractStatus: "Active",
-      contractExpiry: "12/2026",
-      status: "active",
-      statusLabel: "Active",
-      leaveDaysLeft: 8,
-    },
-    {
-      id: "2",
-      name: "Mrs. Helen Davies",
-      staffId: "Davies.T178024",
-      role: "P5 Teacher",
-      department: "Primary",
-      contractStatus: "Active",
-      contractExpiry: "12/2026",
-      status: "active",
-      statusLabel: "Active",
-      leaveDaysLeft: 8,
-    },
-    {
-      id: "3",
-      name: "Ms. Tolu Adebayo",
-      staffId: "adebayo.T178025",
-      role: "Bursar",
-      department: "Admin",
-      contractStatus: "Active",
-      contractExpiry: "12/2026",
-      status: "on-leave",
-      statusLabel: "On Leave",
-      leaveDaysLeft: 8,
-    },
-    {
-      id: "4",
-      name: "Mr. Biodun Eke",
-      staffId: "eke.T178026",
-      role: "Security Guard",
-      department: "NAS",
-      contractStatus: "Active",
-      contractExpiry: "12/2026",
-      status: "active",
-      statusLabel: "Active",
-      leaveDaysLeft: 8,
-    },
-    {
-      id: "5",
-      name: "Mrs. Uche Nwachukwu",
-      staffId: "nwachukwu.T178027",
-      role: "JS 3 Teacher",
-      department: "JSS Art",
-      contractStatus: "Active",
-      contractExpiry: "12/2026",
-      status: "active",
-      statusLabel: "Active",
-      leaveDaysLeft: 8,
-    },
-    {
-      id: "6",
-      name: "Mr. Sola Adeniyi",
-      staffId: "adeniyi.m.T178023",
-      role: "HR Admin",
-      department: "Admin",
-      contractStatus: "Active",
-      contractExpiry: "1/2026",
-      status: "active",
-      statusLabel: "Active",
-      leaveDaysLeft: 8,
-    },
-    {
-      id: "7",
-      name: "Mrs. Rukky Yakubu",
-      staffId: "yakubu.T178024",
-      role: "Academic Admin",
-      department: "Admin",
-      contractStatus: "Active",
-      contractExpiry: "12/2026",
-      status: "active",
-      statusLabel: "Active",
-      leaveDaysLeft: 8,
-    },
-    {
-      id: "8",
-      name: "Ms. Funmilayo Bola",
-      staffId: "bola.T178025",
-      role: "SS 3 History Teacher",
-      department: "SS Art Class",
-      contractStatus: "Active",
-      contractExpiry: "12/2026",
-      status: "active",
-      statusLabel: "Active",
-      leaveDaysLeft: 8,
-    },
-  ];
-
   // Use API data if available, otherwise use fallback
-  const displayStaff = staff.length > 0 ? staff : fallbackStaff;
+  const displayStaff = staff.length > 0 ? staff : [];
 
   const toggleRowSelection = (id: string) => {
     setSelectedRows((prev) =>
@@ -345,25 +245,15 @@ export function StaffTable({
 
       {/* Table */}
       <div className="border rounded-lg overflow-hidden">
-        {isLoading ? (
-          <div className="p-8 text-center text-gray-500">
-            Loading staff data...
-          </div>
-        ) : filteredStaff.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
-            No staff members found.
-          </div>
-        ) : (
-          <DataTable
-            columns={columns}
-            data={filteredStaff}
-            actions={actions}
-            headerClassName="bg-main-blue/5"
-            onRowClick={(row) =>
-              router.push(`/admin/staff-management/${row.id}`)
-            }
-          />
-        )}
+        <DataTable
+          columns={columns}
+          data={filteredStaff}
+          actions={actions}
+          isLoading={isLoading}
+          headerClassName="bg-main-blue/5"
+          onRowClick={(row) => router.push(`/admin/staff-management/${row.id}`)}
+          emptyMessage="No staff members found."
+        />
       </div>
 
       {/* Load More */}

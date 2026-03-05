@@ -21,7 +21,9 @@ export interface Subject {
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
-  head_of_department?: { user?: { first_name?: string; last_name?: string } } | null;
+  head_of_department?: {
+    user?: { first_name?: string; last_name?: string };
+  } | null;
   updated_by?: { first_name?: string; last_name?: string } | null;
 }
 

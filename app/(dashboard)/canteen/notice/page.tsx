@@ -80,7 +80,7 @@ export default function CanteenNoticeBoardPage() {
               const authorName =
                 notice.creator?.first_name && notice.creator?.last_name
                   ? `${notice.creator.first_name} ${notice.creator.last_name}`
-                  : notice.creator?.username ?? "Admin";
+                  : (notice.creator?.username ?? "Admin");
 
               return (
                 <div

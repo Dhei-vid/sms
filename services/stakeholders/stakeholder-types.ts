@@ -3,6 +3,7 @@ import { School } from "../schools/schools-type";
 import { User } from "../users/users-type";
 import { Notes } from "../notes/note-types";
 import { ApiResponse } from "../shared-types";
+import { Notifications } from "../shared";
 
 /** Child/ward details returned in parent's children_details */
 export interface StakeholderChildDetails {
@@ -56,7 +57,7 @@ export interface Stakeholders {
   occupation: string | null;
   stage: number;
   stage_text: string;
-  notifications: any[];
+  notifications: Notifications[];
   performance_highlights: any | null;
   common_exam_score: any | null;
   last_grade_completed: any | null;

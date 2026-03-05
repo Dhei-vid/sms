@@ -1,72 +1,144 @@
 import type { ApiResponse, ApiListResponse } from "../shared-types";
+import { Stakeholders } from "../stakeholders/stakeholder-types";
 
+/** Subject result (per-subject scores) from the API */
 export interface SubjectResult {
   id: string;
   subject: string;
-  teacher_id: string;
   class_score: number;
   exam_score: number;
-  first_ca: number;
-  second_ca: number;
+  first_ca?: number;
+  second_ca?: number;
   total_score: number;
   grade: string;
-  remarks: string | null;
-  teacher?: unknown;
-  created_at: string;
-  updated_at: string;
+  remarks: string;
+  teacher: Stakeholders;
+  created_at?: string;
+  updated_at?: string;
 }
 
-export interface ExamResult {
+export interface Result {
   id: string;
-  creator_id: string | null;
-  updated_by_id: string | null;
-  school_id: string | null;
-  student_id: string;
-  exam_id: string | null;
+  creator_id: string;
+  updated_by_id?: null | string;
+  exam_id: string;
   term: string;
   session: string;
   class_name: string;
-  grade: string | null;
+  grade: string;
   subject_results: SubjectResult[];
+}
+
+/** Exam result as returned by GET /results (matches backend ExamResultSerializer) */
+export interface ExamResult extends Result {
+  student_id?: string;
+  student?: Record<string, unknown>;
+  school_id?: string;
+  school?: Record<string, unknown>;
   total_score: number;
   average_score: number;
-  position: number | null;
+  position: number;
   teacher_remarks: string | null;
   principal_remarks: string | null;
-  student?: unknown;
-  school?: unknown;
-  creator?: unknown;
-  updated_by?: unknown;
-  created_at: string;
-  updated_at: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
-export type ExamResultsListResponse = ApiListResponse<ExamResult> | {
-  status: boolean;
-  status_code: number;
-  message: string;
-  data: ExamResult[];
-};
+export interface CreateResultParams {
+  student_id: string;
+  exam_id: string;
+  term: string;
+  session: string;
+  class_name: string;
+  grade: string;
+  subject_results: Array<SubjectResult>;
+  total_score: number;
+  average_score: number;
+  position: number;
+  teacher_remarks: string;
+  principal_remarks: string;
+}
 
+export interface UpdateResultParams {
+  student_id?: string;
+  principal_remarks?: string;
+}
+
+/** Params for PUT /results/:id (partial update). Call as { id, principal_remarks } or { id, data: { principal_remarks } }. */
+export interface UpdateExamResultParams {
+  id: string;
+  principal_remarks?: string;
+  student_id?: string;
+  /** Alternative: pass update fields under data (e.g. { id, data: { principal_remarks } }) */
+  data?: Partial<UpdateResultParams>;
+}
+
+/** Query params for GET /results (supports _all and filter keys like class_name[eq], term[eq], session[eq]) */
 export interface ExamResultsQueryParams {
   _all?: boolean;
-  page?: number;
-  limit?: number;
-  session?: string;
-  term?: string;
-  "class_name[eq]"?: string;
-  "term[eq]"?: string;
-  "session[eq]"?: string;
-  "student_id[eq]"?: string;
-  "school_id[eq]"?: string;
+  [key: string]: string | boolean | number | undefined;
 }
 
-export interface UpdateExamResultRequest {
-  principal_remarks?: string;
-  teacher_remarks?: string;
-  grade?: string;
-  total_score?: number;
-  average_score?: number;
-  position?: number;
-  subject_results?: unknown[];
+/** List response: backend may return data as array or { data: array } */
+export type ExamResultsListResponse = ApiResponse<ExamResult[]>;
+
+// WHY??
+export interface DeleteResultParams {
+  creator_id: string;
+  username: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  birthday: string;
+  gender: string;
+  status: string;
+  is_active: boolean;
+  is_staff: boolean;
+  is_superuser: boolean;
+  role: string;
+  profile_image_url: string;
+  profile_image_public_id: string;
+  language_preference: string;
+  theme: string;
+  api_usage: number;
+  model_preferences: string[];
+  training_data: string[];
+  personalization_settings: { height: string };
+  two_factor_enabled: boolean;
+  data_sharing_consent: boolean;
 }
+
+export interface RecordResultsParams {
+  results: Array<{
+    student_id: string;
+    exam_id: string;
+    term: string;
+    session: string;
+    class_name: string;
+    grade: string;
+    subject_results: SubjectResult;
+    total_score: number;
+    average_score: number;
+    position: number;
+    teacher_remarks: string;
+    principal_remarks: string;
+    is_deleted: boolean;
+  }>;
+}
+
+/** Single grade bucket in the distribution (e.g. A-Grade, B-Grade) */
+export interface GradeDistributionItem {
+  label: string;
+  grade: string;
+  value: number;
+  percentage: number;
+}
+
+export interface ResultMetrics {
+  average_score: number;
+  average_grade_letter: string;
+  grade_distribution: GradeDistributionItem[];
+  total_students: number;
+}
+
+export type ResultResponse = ApiResponse<Result>;

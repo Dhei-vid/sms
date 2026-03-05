@@ -41,9 +41,12 @@ export function BasicExamDefinitionForm({
   isLoadingSchools = false,
   isLoadingSubjects = false,
 }: BasicExamDefinitionFormProps) {
-  const totalMarksNum = formData.totalMarks.trim() !== "" ? parseInt(formData.totalMarks, 10) : NaN;
+  const totalMarksNum =
+    formData.totalMarks.trim() !== "" ? parseInt(formData.totalMarks, 10) : NaN;
   const totalMarksInvalid = !isNaN(totalMarksNum) && totalMarksNum < 100;
-  const totalMarksError = formData.totalMarks.trim() !== "" && (isNaN(totalMarksNum) || totalMarksInvalid);
+  const totalMarksError =
+    formData.totalMarks.trim() !== "" &&
+    (isNaN(totalMarksNum) || totalMarksInvalid);
 
   return (
     <div className="space-y-6">
@@ -84,7 +87,11 @@ export function BasicExamDefinitionForm({
         onValueChange={(value) =>
           onFormDataChange({ applicableSubject: value })
         }
-        placeholder={isLoadingSubjects ? "Loading subjects…" : "Dropdown Select: (e.g., Biology)"}
+        placeholder={
+          isLoadingSubjects
+            ? "Loading subjects…"
+            : "Dropdown Select: (e.g., Biology)"
+        }
         disabled={isLoadingSubjects}
       >
         {subjectOptions.length > 0 ? (

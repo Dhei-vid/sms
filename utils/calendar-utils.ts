@@ -21,12 +21,24 @@ export interface SidebarEvent {
   color: "blue" | "orange" | "red" | "purple";
 }
 
-const COLORS: CalendarEventColor[] = ["blue", "purple", "red", "green", "yellow"];
-const SIDEBAR_COLORS: SidebarEvent["color"][] = ["blue", "orange", "red", "purple"];
+const COLORS: CalendarEventColor[] = [
+  "blue",
+  "purple",
+  "red",
+  "green",
+  "yellow",
+];
+const SIDEBAR_COLORS: SidebarEvent["color"][] = [
+  "blue",
+  "orange",
+  "red",
+  "purple",
+];
 
 function hashToColor(str: string, palette: readonly string[]): string {
   let hash = 0;
-  for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  for (let i = 0; i < str.length; i++)
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
   return palette[Math.abs(hash) % palette.length];
 }
 
@@ -38,7 +50,9 @@ function parseTime(t: string | null | undefined): string {
   const mm = parseInt(m ?? "0", 10);
   const ampm = hh >= 12 ? "PM" : "AM";
   const h12 = hh % 12 || 12;
-  return mm ? `${h12}:${mm.toString().padStart(2, "0")} ${ampm}` : `${h12} ${ampm}`;
+  return mm
+    ? `${h12}:${mm.toString().padStart(2, "0")} ${ampm}`
+    : `${h12} ${ampm}`;
 }
 
 export function mapScheduleToCalendarEvent(s: ScheduleEvent): CalendarEvent {
@@ -69,7 +83,8 @@ export function mapScheduleToSidebarEvent(s: ScheduleEvent): SidebarEvent {
 }
 
 function toBackendTime(timeStr: string, defaultH = 9, defaultM = 0): string {
-  if (!timeStr?.trim()) return `${String(defaultH).padStart(2, "0")}:${String(defaultM).padStart(2, "0")}:00.000000`;
+  if (!timeStr?.trim())
+    return `${String(defaultH).padStart(2, "0")}:${String(defaultM).padStart(2, "0")}:00.000000`;
   const match = timeStr.match(/(\d{1,2}):(\d{2})\s?(AM|PM)/i);
   if (match) {
     let h = parseInt(match[1], 10);
@@ -87,7 +102,7 @@ function toBackendTime(timeStr: string, defaultH = 9, defaultM = 0): string {
 }
 
 export function formDataToCreatePayload(
-  form: EventFormData
+  form: EventFormData,
 ): CreateScheduleEventPayload {
   const date = form.date
     ? form.date.toISOString().split("T")[0]
@@ -98,7 +113,7 @@ export function formDataToCreatePayload(
   const specifics: string[] | undefined =
     targetAudience === "private"
       ? (["teacher", "student", "parent", "staff"] as const).filter(
-          (k) => form.specifics[k]
+          (k) => form.specifics[k],
         )
       : undefined;
   return {
@@ -118,20 +133,32 @@ export function formDataToCreatePayload(
 /** Filter schedule events by user role. Admin sees all. Others see general + their role in specifics. */
 export function filterEventsByRole(
   events: ScheduleEvent[],
-  user: AuthUser | null
+  user: AuthUser | null,
 ): ScheduleEvent[] {
   if (!user) return [];
   const role = user.role;
   if (role === "admin" || role === "canteen") return events;
-  const roleKey = role === "teacher" ? "teacher" : role === "parent" ? "parent" : role === "student" ? "student" : null;
+  const roleKey =
+    role === "teacher"
+      ? "teacher"
+      : role === "parent"
+        ? "parent"
+        : role === "student"
+          ? "student"
+          : null;
   const staffKey = "staff";
   return events.filter((e) => {
     const audience = e.target_audience ?? "general";
     if (audience === "general") return true;
     if (audience !== "private") return false;
     const specifics = Array.isArray(e.specifics) ? e.specifics : [];
-    if (roleKey && specifics.some((s) => String(s).toLowerCase() === roleKey)) return true;
-    if (role === "teacher" && specifics.some((s) => String(s).toLowerCase() === staffKey)) return true;
+    if (roleKey && specifics.some((s) => String(s).toLowerCase() === roleKey))
+      return true;
+    if (
+      role === "teacher" &&
+      specifics.some((s) => String(s).toLowerCase() === staffKey)
+    )
+      return true;
     return false;
   });
 }
