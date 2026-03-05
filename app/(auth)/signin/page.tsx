@@ -13,11 +13,6 @@ import { useAppDispatch } from "@/store/hooks";
 import { setCredentials } from "@/store/slices/authSlice";
 import { getRolePath } from "@/utils/menu-utils";
 
-/**
- * Sign In Page Component
- * Handles user authentication and login flow
- * Connects to Redux store for state management and API for authentication
- */
 export default function SignInPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -32,12 +27,6 @@ export default function SignInPage() {
   // RTK Query mutation hook for login API call
   const [login, { isLoading: isLoginLoading }] = useLoginMutation();
 
-  /**
-   * Handle form submission
-   * Validates inputs, calls login API, and manages authentication state
-   *
-   * @param e - Form submission event
-   */
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
@@ -66,13 +55,6 @@ export default function SignInPage() {
     }
 
     try {
-      // Log login attempt
-      console.log("🔑 Attempting login:", {
-        email,
-        passwordLength: password.length,
-        timestamp: new Date().toISOString(),
-      });
-
       // Call login API endpoint
       const result = await login({ email, password }).unwrap();
 
@@ -89,17 +71,6 @@ export default function SignInPage() {
         throw new Error("No user data received");
       }
 
-      // Log the response for debugging
-      console.log("🔐 Login Response:", {
-        hasToken: !!result.data.access_token,
-        hasUser: !!result.data.user,
-        userId: result.data.user?.id,
-        userEmail: result.data.user?.email,
-        userRole: result.data.user?.role,
-        tokenLength: result.data.access_token?.length,
-      });
-
-      // Dispatch credentials to Redux store
       dispatch(
         setCredentials({
           token: result.data.access_token,
@@ -107,8 +78,6 @@ export default function SignInPage() {
         }),
       );
 
-      // Verify Redux state was updated
-      console.log("✅ Credentials dispatched to Redux");
 
       // Small delay to ensure state is updated before navigation
       await new Promise((resolve) => setTimeout(resolve, 100));
@@ -117,7 +86,6 @@ export default function SignInPage() {
       const defaultPath =
         result.data.user.role === "canteen" ? "store" : "dashboard";
       const dashboardPath = getRolePath(result.data.user.role, defaultPath);
-      console.log("🚀 Navigating to:", dashboardPath);
       router.push(dashboardPath);
     } catch (err: any) {
       // Enhanced error handling
