@@ -24,7 +24,7 @@ function getRoleFromPath(pathname: string): UserRole {
   if (pathname.startsWith("/parent")) return "parent";
   if (pathname.startsWith("/student")) return "student";
   if (pathname.startsWith("/canteen")) return "canteen";
-  return "admin"; 
+  return "admin";
 }
 
 // Check if sidebar should be hidden based on URL

@@ -5,23 +5,71 @@ import type {
   CreateResultParams,
   UpdateResultParams,
   DeleteResultParams,
+  UpdateExamResultParams,
   RecordResultsParams,
   ResultMetrics,
   Result,
+  ExamResult,
+  ExamResultsQueryParams,
+  ExamResultsListResponse,
 } from "./result-types";
 import { computeResultMetrics } from "./result-metrics";
 
 const BASE = "/results";
 
+/** Normalize list response: backend may return data as array or { data: array } */
+function normalizeExamResultsListResponse(
+  response: ApiResponse<ExamResult[] | { data?: ExamResult[] }> | undefined,
+): ExamResultsListResponse {
+  if (!response) {
+    return {
+      status: false,
+      status_code: 500,
+      message: "No response",
+      data: [],
+    };
+  }
+  const raw = response.data;
+  const list: ExamResult[] = Array.isArray(raw)
+    ? raw
+    : Array.isArray((raw as { data?: ExamResult[] })?.data)
+      ? (raw as { data: ExamResult[] }).data
+      : [];
+  return {
+    status: response.status ?? true,
+    status_code: response.status_code ?? 200,
+    message: response.message ?? "Success",
+    data: list,
+  };
+}
+
 export const resultsApi = baseApi.injectEndpoints({
   overrideExisting: true,
   endpoints: (build) => ({
-    getAllResults: build.query<ResultResponse, void>({
-      query: () => ({ url: BASE }),
+    getAllResults: build.query<
+      ExamResultsListResponse,
+      ExamResultsQueryParams | void
+    >({
+      query: (params) => ({
+        url: BASE,
+        params: (params ?? {}) as Record<string, string | number | boolean>,
+      }),
+      transformResponse: normalizeExamResultsListResponse,
+      providesTags: (result) =>
+        result?.data
+          ? [
+              ...result.data.map(({ id }) => ({
+                type: "ExamResult" as const,
+                id,
+              })),
+              { type: "ExamResult", id: "LIST" },
+            ]
+          : [{ type: "ExamResult", id: "LIST" }],
     }),
 
     getResultsById: build.query<ResultResponse, string>({
       query: (id) => `${BASE}/${id}`,
+      providesTags: (_, __, id) => [{ type: "ExamResult", id }],
     }),
 
     createResults: build.mutation<ResultResponse, CreateResultParams>({
@@ -30,6 +78,7 @@ export const resultsApi = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
+      invalidatesTags: [{ type: "ExamResult", id: "LIST" }],
     }),
 
     recordResults: build.mutation<ResultResponse, RecordResultsParams>({
@@ -38,22 +87,34 @@ export const resultsApi = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
+      invalidatesTags: [{ type: "ExamResult", id: "LIST" }],
     }),
 
-    updateResults: build.mutation<ResultResponse, UpdateResultParams, string>({
-      query: (id, ...body) => ({
-        url: `${BASE}/${id}`,
-        method: "PUT",
-        body,
-      }),
+    updateResults: build.mutation<ResultResponse, UpdateExamResultParams>({
+      query: (arg) => {
+        const { id, data: dataPayload, ...rest } = arg;
+        const body = dataPayload ?? rest;
+        return {
+          url: `${BASE}/${id}`,
+          method: "PUT",
+          body,
+        };
+      },
+      invalidatesTags: (_, __, arg) => [
+        { type: "ExamResult", id: arg.id },
+        { type: "ExamResult", id: "LIST" },
+      ],
     }),
 
-    deleteResult: build.mutation<null, DeleteResultParams>({
-      query: (id, ...body) => ({
+    deleteResult: build.mutation<null, string>({
+      query: (id) => ({
         url: `${BASE}/${id}`,
         method: "DELETE",
-        body,
       }),
+      invalidatesTags: (_, __, id) => [
+        { type: "ExamResult", id },
+        { type: "ExamResult", id: "LIST" },
+      ],
     }),
 
     getResultMetrics: build.query<ApiResponse<ResultMetrics>, void>({
@@ -84,3 +145,6 @@ export const {
   useDeleteResultMutation,
   useGetResultMetricsQuery,
 } = resultsApi;
+
+export const useGetAllExamResultsQuery = useGetAllResultsQuery;
+export const useUpdateExamResultMutation = useUpdateResultsMutation;

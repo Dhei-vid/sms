@@ -254,9 +254,8 @@ export default function LessonPlanReviewPage() {
               columns={columns}
               data={lessonPlansData}
               actions={tableActions}
-              emptyMessage={
-                isLoading ? "Loading..." : "No lesson plans submitted yet."
-              }
+              isLoading={isLoading}
+              emptyMessage="No lesson plans submitted yet."
               tableClassName="border-collapse"
             />
           </div>

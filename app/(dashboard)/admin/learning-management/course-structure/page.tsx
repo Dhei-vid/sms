@@ -16,8 +16,8 @@ import {
   Csv02Icon,
 } from "@hugeicons/core-free-icons";
 import { Icon } from "@/components/general/huge-icon";
-import { useGetSubjectsQuery } from "@/services/subjects/subjects";
 import { useGetSchoolsQuery } from "@/services/schools/schools";
+import { useGetSubjectsQuery } from "@/services/subjects/subjects";
 import { useGetAllStaffQuery } from "@/services/stakeholders/stakeholders";
 import { useCreateCourseMutation } from "@/services/courses/courses";
 import { useAppSelector } from "@/store/hooks";

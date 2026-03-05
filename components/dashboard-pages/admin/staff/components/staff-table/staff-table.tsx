@@ -245,25 +245,15 @@ export function StaffTable({
 
       {/* Table */}
       <div className="border rounded-lg overflow-hidden">
-        {isLoading ? (
-          <div className="p-8 text-center text-gray-500">
-            Loading staff data...
-          </div>
-        ) : filteredStaff.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
-            No staff members found.
-          </div>
-        ) : (
-          <DataTable
-            columns={columns}
-            data={filteredStaff}
-            actions={actions}
-            headerClassName="bg-main-blue/5"
-            onRowClick={(row) =>
-              router.push(`/admin/staff-management/${row.id}`)
-            }
-          />
-        )}
+        <DataTable
+          columns={columns}
+          data={filteredStaff}
+          actions={actions}
+          isLoading={isLoading}
+          headerClassName="bg-main-blue/5"
+          onRowClick={(row) => router.push(`/admin/staff-management/${row.id}`)}
+          emptyMessage="No staff members found."
+        />
       </div>
 
       {/* Load More */}

@@ -352,10 +352,4 @@ export const menuItems: MenuItem[] = [
     href: "/settings",
     roles: ["admin", "teacher", "parent"],
   },
-
-  // SUPERADMIN
-{  id: "superadmin",
-  label: "Super Admin",
-  href: "/superadmin",
-  roles: ["admin"],}
 ];

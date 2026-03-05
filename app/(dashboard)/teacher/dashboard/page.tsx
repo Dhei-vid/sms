@@ -40,10 +40,8 @@ export default function TeacherDashboardPage() {
   const { data: teacherActivityData } = useGetTeacherActivityQuery(undefined, {
     skip: !user?.id,
   });
-  const { data: activityLogData } = useGetTeacherActivityLogQuery(
-    teacherId ?? "",
-    { skip: !teacherId },
-  );
+  const { data: activityLogData, isLoading: isLoadingActivityLog } =
+    useGetTeacherActivityLogQuery(teacherId ?? "", { skip: !teacherId });
   const { data: coursesData } = useGetCoursesQuery(
     { _all: true } as { _all?: boolean },
     { skip: !user?.id },
@@ -239,7 +237,9 @@ export default function TeacherDashboardPage() {
             <DataTable
               columns={taskColumns}
               data={tasks}
+              isLoading={isLoadingActivityLog}
               showActionsColumn={false}
+              emptyMessage="No tasks yet."
             />
           </div>
         </CardContent>

@@ -8,7 +8,9 @@ import {
   PayByCheckIcon,
   FileManagementIcon,
   MailSend01Icon,
-  ViewIcon, PencilEdit01Icon, CancelCircleIcon
+  ViewIcon,
+  PencilEdit01Icon,
+  CancelCircleIcon,
 } from "@hugeicons/core-free-icons";
 import {
   DataTable,
@@ -26,13 +28,13 @@ const quickActions = [
     icon: PayByCheckIcon,
     title: "Onboard New School",
     description: "Register a new school and set their branding.",
-    href: "/superadmin/schools/new",
+    href: "/superadmin/main/add",
   },
   {
     icon: FileManagementIcon,
     title: "Manage Subscription Plans",
     description: "Edit existing tiers or create new subscription levels.",
-    href: "/superadmin/subscriptions",
+    href: "/superadmin/subscriptions/dashboard",
   },
   {
     icon: MailSend01Icon,
@@ -148,18 +150,17 @@ export default function SuperAdminDashboardPage() {
         items: [
           {
             label: "View Details",
-            icon: <Icon icon={ViewIcon} size={16}/>,
-            onClick: (row) => router.push(`/superadmin/schools/${row.id}`),
+            icon: <Icon icon={ViewIcon} size={16} />,
+            onClick: (row) => router.push(`/superadmin/main/${row.id}`),
           },
           {
             label: "Edit Details",
-            icon: <Icon icon={PencilEdit01Icon} size={16}/>,
-            onClick: (row) =>
-                router.push(`/superadmin/schools/${row.id}/edit`),
-        },
-        {
+            icon: <Icon icon={PencilEdit01Icon} size={16} />,
+            onClick: (row) => router.push(`/superadmin/main/${row.id}/edit`),
+          },
+          {
             label: "Deactivate",
-            icon: <Icon icon={CancelCircleIcon} size={16}/>,
+            icon: <Icon icon={CancelCircleIcon} size={16} />,
             variant: "destructive",
             onClick: (row) => {
               // TODO: confirm and call deactivate API
@@ -200,6 +201,21 @@ export default function SuperAdminDashboardPage() {
           />
         </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <MetricCard
+            title="New Chum Rate"
+            value={"1.2% YTD"}
+            trend="up"
+            subtitle="Percentage of schools cancelling subscriptions."
+          />
+          <MetricCard
+            title="Total Platform Users"
+            value={"15 Schools"}
+            trend="up"
+            subtitle="Schools that need a sale follow-up in the next 48 hours."
+          />
+        </div>
+
         <Card>
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-gray-800">
@@ -237,9 +253,8 @@ export default function SuperAdminDashboardPage() {
                 columns={columns}
                 data={schoolList}
                 actions={tableActions}
-                emptyMessage={
-                  isLoading ? "Loading schools…" : "No schools found."
-                }
+                isLoading={isLoading}
+                emptyMessage="No schools found."
                 tableClassName="border-collapse"
               />
             </div>

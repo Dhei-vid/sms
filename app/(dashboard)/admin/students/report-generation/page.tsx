@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ const TERM_OPTIONS = [
   { value: "third-term", label: "Third Term" },
 ];
 
-export default function ReportGenerationPage() {
+function ReportGenerationContent() {
   const searchParams = useSearchParams();
   const [term, setTerm] = useState(searchParams.get("term") ?? "first-term");
   const [session, setSession] = useState(
@@ -105,6 +105,36 @@ export default function ReportGenerationPage() {
           ) : (
             <ReportTable students={[]} />
           )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+export default function ReportGenerationPage() {
+  return (
+    <Suspense fallback={<ReportGenerationFallback />}>
+      <ReportGenerationContent />
+    </Suspense>
+  );
+}
+
+function ReportGenerationFallback() {
+  return (
+    <div className="space-y-6">
+      <div className="bg-background rounded-md p-6">
+        <div className="h-8 w-64 bg-muted animate-pulse rounded" />
+        <div className="h-4 w-96 bg-muted animate-pulse rounded mt-2" />
+      </div>
+      <Card>
+        <CardHeader>
+          <div className="flex gap-3">
+            <div className="h-10 w-32 bg-muted animate-pulse rounded" />
+            <div className="h-10 w-24 bg-muted animate-pulse rounded" />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="h-48 bg-muted animate-pulse rounded" />
         </CardContent>
       </Card>
     </div>
