@@ -17,7 +17,6 @@ export type {
   ForgetPasswordResponse,
 } from "./auth-type";
 
-
 export const authApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     login: build.mutation<LoginResponse, LoginRequest>({

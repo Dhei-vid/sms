@@ -79,26 +79,34 @@ export default function SignInPage() {
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       // Check if user is Super Admin
-      if (loginResponse.user.role === 'admin' && loginResponse.user.permissions.length > 0) {
-        const isSuperAdmin = loginResponse.user.permissions.includes("admin");
-        if (isSuperAdmin) router.push("/superadmin/main")
+      if (
+        loginResponse.user.role === "admin" &&
+        loginResponse.user.permissions.length === 0
+      ) {
+        router.push("/superadmin/main");
       }
 
       // Check if user is canteen staff and redirect to store
-      if (loginResponse.user.role === 'canteen') {
+      if (loginResponse.user.role === "canteen") {
         router.push("/admin/store");
       }
 
-      if (loginResponse.user.role === 'staff') {
-        const isTeacher = loginResponse.user.permissions.includes("write");
-        if (isTeacher) router.push("/admin/teacher");
+      const isStaff =
+        loginResponse.user.role === "staff" ||
+        loginResponse.user.role === "teacher";
+      if (isStaff) {
+        if (loginResponse.user.permissions.includes("write")) {
+          router.push("/admin/teacher");
+        } else if (loginResponse.user.permissions.includes("admin")) {
+          router.push("/admin/dashboard");
+        }
       }
 
-      if (loginResponse.user.role === 'student') {
+      if (loginResponse.user.role === "student") {
         router.push("/admin/student");
       }
 
-      if (loginResponse.user.role === 'parent') {
+      if (loginResponse.user.role === "parent") {
         router.push("/admin/parent");
       }
     } catch (err: any) {

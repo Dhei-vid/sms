@@ -27,7 +27,6 @@ const COUNTRY_CODES = [
 const SCHOOL_TYPES = [
   { value: "primary", label: "Primary" },
   { value: "secondary", label: "Secondary" },
-  { value: "tertiary", label: "Tertiary" },
 ];
 
 const TERM_OPTIONS = [
@@ -49,8 +48,12 @@ export function IdentityForm({
   onNext,
   onCancel,
 }: IdentityFormProps) {
-  const establishedDate = value.establishedDate
-    ? new Date(value.establishedDate)
+  const establishedDateRaw = value.establishedDate?.trim();
+  const establishedDate = establishedDateRaw
+    ? (() => {
+        const d = new Date(establishedDateRaw);
+        return isNaN(d.getTime()) ? undefined : d;
+      })()
     : undefined;
   const setEstablishedDate = (d: React.SetStateAction<Date | undefined>) => {
     const next = typeof d === "function" ? d(establishedDate) : d;

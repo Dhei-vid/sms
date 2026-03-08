@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { AddSchoolStepNavigation } from "@/components/dashboard-pages/superadmin/schools/components/add-school-step-navigation";
 import { IdentityForm } from "@/components/dashboard-pages/superadmin/schools/forms/identity-form";
@@ -9,19 +9,38 @@ import { BrandingForm } from "@/components/dashboard-pages/superadmin/schools/fo
 import { SubscriptionForm } from "@/components/dashboard-pages/superadmin/schools/forms/subscription-form";
 import {
   getInitialAddSchoolFormState,
-  buildCreateSchoolPayload,
+  schoolToFormState,
+  buildUpdateSchoolPayload,
 } from "@/components/dashboard-pages/superadmin/schools/forms/add-school-form-state";
-import { useCreateSchoolMutation } from "@/services/schools/schools";
+import {
+  useGetSchoolByIdQuery,
+  useUpdateSchoolMutation,
+} from "@/services/schools/schools";
 import { toast } from "sonner";
 import type { AddSchoolStepId } from "@/components/dashboard-pages/superadmin/schools/components/add-school-step-navigation";
 
-export default function AddNewSchoolPage() {
+export default function EditSchoolPage() {
   const router = useRouter();
+  const params = useParams();
+  const id = typeof params?.id === "string" ? params.id : "";
+
   const [currentStep, setCurrentStep] = useState<AddSchoolStepId>("identity");
   const [formState, setFormState] = useState(getInitialAddSchoolFormState());
-  const [createSchool, { isLoading: isCreating }] = useCreateSchoolMutation();
 
-  console.log("Form State:", formState); // Debugging log to check form state updates
+  const {
+    data: school,
+    isLoading,
+    isError,
+  } = useGetSchoolByIdQuery(id, {
+    skip: !id,
+  });
+  const [updateSchool, { isLoading: isUpdating }] = useUpdateSchoolMutation();
+
+  useEffect(() => {
+    if (school) {
+      setFormState(schoolToFormState(school));
+    }
+  }, [school]);
 
   const update = <K extends keyof typeof formState>(
     key: K,
@@ -29,6 +48,7 @@ export default function AddNewSchoolPage() {
   ) => setFormState((s) => ({ ...s, [key]: value }));
 
   const handleSubmit = async () => {
+    if (!school) return;
     if (!formState.identity.schoolName?.trim()) {
       toast.error("School name is required");
       return;
@@ -38,9 +58,9 @@ export default function AddNewSchoolPage() {
       return;
     }
     try {
-      const payload = buildCreateSchoolPayload(formState, null, null);
-      await createSchool(payload).unwrap();
-      toast.success("School created successfully");
+      const payload = buildUpdateSchoolPayload(formState, school, null, null);
+      await updateSchool({ id: school.id, data: payload }).unwrap();
+      toast.success("School updated successfully");
       router.push("/superadmin/main");
     } catch (err: unknown) {
       const message =
@@ -52,9 +72,53 @@ export default function AddNewSchoolPage() {
         "error" in err.data
           ? (err.data as { error?: string }).error
           : null;
-      toast.error(message || "Failed to create school");
+      toast.error(message || "Failed to update school");
     }
   };
+
+  if (!id) {
+    return (
+      <div className="space-y-4">
+        <div className="bg-background rounded-md p-6">
+          <p className="text-muted-foreground">Invalid school.</p>
+          <button
+            type="button"
+            onClick={() => router.push("/superadmin/main")}
+            className="text-main-blue hover:underline mt-2"
+          >
+            Back to schools
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading || !school) {
+    return (
+      <div className="space-y-4">
+        <div className="bg-background rounded-md p-6">
+          <p className="text-muted-foreground">Loading…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="space-y-4">
+        <div className="bg-background rounded-md p-6">
+          <p className="text-muted-foreground">School not found.</p>
+          <button
+            type="button"
+            onClick={() => router.push("/superadmin/main")}
+            className="text-main-blue hover:underline mt-2"
+          >
+            Back to schools
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const renderStepContent = () => {
     switch (currentStep) {
@@ -64,7 +128,7 @@ export default function AddNewSchoolPage() {
             value={formState.identity}
             onChange={(v) => update("identity", v)}
             onNext={() => setCurrentStep("branding")}
-            onCancel={() => router.back()}
+            onCancel={() => router.push("/superadmin/main")}
           />
         );
       case "branding":
@@ -74,7 +138,7 @@ export default function AddNewSchoolPage() {
             onChange={(v) => update("branding", v)}
             onNext={() => setCurrentStep("subscription")}
             onBack={() => setCurrentStep("identity")}
-            onCancel={() => router.back()}
+            onCancel={() => router.push("/superadmin/main")}
           />
         );
       case "subscription":
@@ -84,8 +148,8 @@ export default function AddNewSchoolPage() {
             onChange={(v) => update("subscription", v)}
             onSubmit={handleSubmit}
             onBack={() => setCurrentStep("branding")}
-            onCancel={() => router.back()}
-            isSubmitting={isCreating}
+            onCancel={() => router.push("/superadmin/main")}
+            isSubmitting={isUpdating}
           />
         );
     }
@@ -94,9 +158,9 @@ export default function AddNewSchoolPage() {
   return (
     <div className="space-y-4">
       <div className="bg-background rounded-md p-6">
-        <h2 className="text-2xl font-bold text-gray-800">Add New School</h2>
+        <h2 className="text-2xl font-bold text-gray-800">Edit School</h2>
         <p className="text-muted-foreground mt-1">
-          Fill in the details to add a new school to the system.
+          Update the details for {school.name}.
         </p>
       </div>
 
