@@ -5,13 +5,21 @@ import type { School } from "@/services/schools/schools-type";
 import type { KeyValueRow } from "../school-detail-types";
 import { SchoolDetailKeyValueTable } from "./school-detail-key-value-table";
 
-function formatDate(value: string | null | undefined): string {
-  if (!value) return "—";
+function parseEstablishedDate(value: string | null | undefined): Date | null {
+  if (value == null || String(value).trim() === "") return null;
+  const s = String(value).trim();
   try {
-    return format(parseISO(value), "MMM d, yyyy");
+    if (/^\d{4}-\d{2}-\d{2}/.test(s)) return parseISO(s);
+    const d = new Date(s);
+    return isNaN(d.getTime()) ? null : d;
   } catch {
-    return value;
+    return null;
   }
+}
+
+function formatEstablishedDate(value: string | null | undefined): string {
+  const d = parseEstablishedDate(value);
+  return d ? format(d, "MMM d, yyyy") : "—";
 }
 
 function capitalize(s: string): string {
@@ -45,7 +53,10 @@ function buildDetailsRows(school: School): KeyValueRow[] {
       label: "School Type",
       value: school.type ? capitalize(school.type) : "—",
     },
-    { label: "Established", value: formatDate(school.established_date) },
+    {
+      label: "Established",
+      value: formatEstablishedDate(school.established_date),
+    },
     { label: "Website", value: websiteValue },
   ];
 }

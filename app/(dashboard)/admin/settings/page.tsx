@@ -63,10 +63,7 @@ function toRosterRows(dashboard: SchoolSettingsDashboard): AdminRosterRow[] {
 export default function UserManagementPage() {
   const router = useRouter();
   const [addAdminModalOpen, setAddAdminModalOpen] = useState(false);
-  const adminRoster = useMemo(
-    () => toRosterRows(STATIC_DASHBOARD),
-    [],
-  );
+  const adminRoster = useMemo(() => toRosterRows(STATIC_DASHBOARD), []);
 
   const columns: TableColumn<AdminRosterRow>[] = [
     { key: "primaryRole", title: "Primary Role", className: "font-medium" },
@@ -135,9 +132,7 @@ export default function UserManagementPage() {
         />
         <MetricCard
           title="Last Security Audit"
-          value={
-            lastAudit ? format(new Date(lastAudit), "MMM. d, yyyy") : "—"
-          }
+          value={lastAudit ? format(new Date(lastAudit), "MMM. d, yyyy") : "—"}
           subtitle="Date of last security audit"
           trend="up"
         />

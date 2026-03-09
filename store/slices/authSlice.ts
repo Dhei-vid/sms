@@ -30,17 +30,6 @@ export const authSlice = createSlice({
         return;
       }
 
-      // Log for debugging
-      if (typeof window !== "undefined") {
-        console.log("💾 Storing credentials:", {
-          hasToken: !!token,
-          hasUser: !!user,
-          userId: user?.id,
-          userEmail: user?.email,
-          userRole: user?.role,
-        });
-      }
-
       state.token = token;
       state.user = user;
       state.isAuthenticated = true;

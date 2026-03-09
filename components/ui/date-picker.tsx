@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Dispatch, SetStateAction } from "react";
+import { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { Icon } from "../general/huge-icon";
@@ -75,6 +75,11 @@ export default function DatePickerIcon({
 }: DatePickerIconProps) {
   const [value, setValue] = useState(formatDate(date));
   const [month, setMonth] = useState<Date | undefined>(date);
+
+  useEffect(() => {
+    setValue(formatDate(date));
+    setMonth(date);
+  }, [date]);
 
   return (
     <div className="flex flex-col gap-2">
