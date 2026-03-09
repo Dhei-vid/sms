@@ -1,9 +1,13 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { format, parseISO } from "date-fns";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/general/huge-icon";
+import { PencilEdit01Icon } from "@hugeicons/core-free-icons";
 import { getSchoolSubscriptionDisplay } from "../school-detail-types";
 import type { School } from "@/services/schools/schools-type";
 import { cn } from "@/lib/utils";
@@ -20,6 +24,7 @@ interface SchoolDetailHeaderProps {
 }
 
 export function SchoolDetailHeader({ school }: SchoolDetailHeaderProps) {
+  const router = useRouter();
   const sub = getSchoolSubscriptionDisplay(school);
   const status = school.is_active ? "Active" : "Inactive";
   const tierLabel = formatTierLabel(sub.planName);
@@ -67,6 +72,15 @@ export function SchoolDetailHeader({ school }: SchoolDetailHeaderProps) {
           </p>
         )}
       </div>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => router.push(`/superadmin/main/edit/${school.id}`)}
+        className="shrink-0"
+      >
+        <Icon icon={PencilEdit01Icon} size={16} className="mr-1.5" />
+        Edit school
+      </Button>
     </Card>
   );
 }

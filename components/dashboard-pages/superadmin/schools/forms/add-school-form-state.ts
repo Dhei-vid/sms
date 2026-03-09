@@ -1,9 +1,21 @@
 import type {
   CreateSchoolRequest,
+  UpdateSchoolRequest,
+  School,
   SchoolColor,
   SchoolLogo,
   Term,
+  Bank,
+  Break,
 } from "@/services/schools/schools-type";
+
+const DEFAULT_BANK: Bank = {
+  bank_id: "",
+  bank_code: "",
+  bank_name: "",
+  account_name: "",
+  account_number: "",
+};
 
 export interface IdentityState {
   schoolName: string;
@@ -32,6 +44,7 @@ export interface BrandingState {
 
 export interface SubscriptionState {
   plan: string;
+  subscription_id: string;
   modules: Record<string, boolean>;
   studentLimit: string;
   staffLimit: string;
@@ -81,6 +94,7 @@ export const getInitialBrandingState = (): BrandingState => ({
 
 export const getInitialSubscriptionState = (): SubscriptionState => ({
   plan: "",
+  subscription_id: "",
   modules: MODULE_IDS.reduce(
     (acc, id) => ({ ...acc, [id]: false }),
     {} as Record<string, boolean>,
@@ -153,7 +167,8 @@ export function buildCreateSchoolPayload(
     color,
     logo,
     subscription: {
-      plan: subscription.plan || "standard",
+      subscription_id: subscription.subscription_id,
+      plan: subscription.plan.toLowerCase(),
       start_date: now,
       end_date: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
         .toISOString()
@@ -166,5 +181,197 @@ export function buildCreateSchoolPayload(
     linkedin_url: "",
     is_active: true,
     term,
+  };
+}
+
+const COUNTRY_CODES = ["+234", "+233", "+1", "+44", "+91", "+81"];
+
+/** Normalize API date to YYYY-MM-dd for form inputs and date picker. */
+function normalizeEstablishedDate(value: string | null | undefined): string {
+  if (value == null || String(value).trim() === "") return "";
+  const s = String(value).trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  try {
+    const d = new Date(s);
+    if (isNaN(d.getTime())) return "";
+    return d.toISOString().slice(0, 10);
+  } catch {
+    return "";
+  }
+}
+
+function parsePhone(phone: string | undefined): {
+  countryCode: string;
+  contactPhone: string;
+} {
+  if (!phone || !phone.trim()) {
+    return { countryCode: "+234", contactPhone: "" };
+  }
+  const trimmed = phone.trim();
+  for (const code of COUNTRY_CODES) {
+    if (trimmed.startsWith(code)) {
+      return {
+        countryCode: code,
+        contactPhone: trimmed.slice(code.length).replace(/\D/g, ""),
+      };
+    }
+  }
+  return { countryCode: "+234", contactPhone: trimmed.replace(/\D/g, "") };
+}
+
+/**
+ * Map a School (from API) into AddSchoolFormState for the edit form.
+ */
+export function schoolToFormState(school: School): AddSchoolFormState {
+  const { countryCode, contactPhone } = parsePhone(school.phone);
+  const sub = school.subscription_details ?? school.subscription;
+  const subscriptionId =
+    school.subscription_details?.subscription_id ??
+    (school.subscription as { subscription_id?: string } | undefined)
+      ?.subscription_id ??
+    "";
+  const plan =
+    school.subscription_details?.subscription?.plan ??
+    (school.subscription as { plan?: string } | undefined)?.plan ??
+    "";
+
+  const term = school.term ?? {
+    name: "3 Terms",
+    session: `${new Date().getFullYear()}/${new Date().getFullYear() + 1}`,
+    start_date: "",
+    end_date: "",
+  };
+  const [sessionStart] = (term.session ?? "").split("/").map((s) => s.trim());
+  const termsMatch = term.name?.match(/\d+/);
+  const defaultTerms = termsMatch ? termsMatch[0] : "3";
+
+  return {
+    identity: {
+      schoolName: school.name ?? "",
+      address: school.address ?? "",
+      primaryEmail: school.email ?? "",
+      countryCode,
+      contactPhone,
+      schoolType: school.type ?? "secondary",
+      establishedDate: normalizeEstablishedDate(school.established_date),
+      accreditationNumber: school.accreditation_number ?? "",
+      licenseNumber: school.license_number ?? "",
+      websiteDomain: school.website ?? "",
+      defaultTerms,
+      academicSession: sessionStart
+        ? `${sessionStart}/${Number(sessionStart) + 1}`
+        : "",
+    },
+    branding: {
+      primaryLogoFile: null,
+      secondaryLogoFile: null,
+      primaryColor: school.color?.primary ?? "#6366f1",
+      secondaryColor: school.color?.secondary ?? "#8b5cf6",
+      tertiaryColor: school.color?.tertiary ?? "#a855f7",
+      loginBackgroundFile: null,
+      eSignatureFile: null,
+    },
+    subscription: {
+      plan,
+      subscription_id: subscriptionId,
+      modules: MODULE_IDS.reduce(
+        (acc, id) => ({ ...acc, [id]: false }),
+        {} as Record<string, boolean>,
+      ),
+      studentLimit: String(school.student_capacity ?? ""),
+      staffLimit: "",
+      storageLimit: "",
+      paymentGateway: "",
+    },
+  };
+}
+
+/**
+ * Build the update payload for PUT /schools/:id from form state and existing school.
+ * Preserves existing logo URLs if no new file was uploaded.
+ */
+export function buildUpdateSchoolPayload(
+  state: AddSchoolFormState,
+  school: School,
+  primaryLogoUrl: string | null,
+  primaryLogoPublicId: string | null,
+): UpdateSchoolRequest {
+  const { identity, branding, subscription } = state;
+  const phone =
+    identity.countryCode && identity.contactPhone
+      ? `${identity.countryCode}${identity.contactPhone.replace(/\D/g, "")}`
+      : school.phone;
+
+  const color: SchoolColor = {
+    primary: branding.primaryColor || school.color?.primary || "#6366f1",
+    secondary: branding.secondaryColor || school.color?.secondary || "#8b5cf6",
+    tertiary: branding.tertiaryColor || school.color?.tertiary || "#a855f7",
+    accent: branding.primaryColor || school.color?.accent || "#6366f1",
+  };
+
+  const logo: SchoolLogo = {
+    svg: school.logo?.svg ?? "",
+    image_url: primaryLogoUrl ?? school.logo?.image_url ?? null,
+    image_public_id:
+      primaryLogoPublicId ?? school.logo?.image_public_id ?? null,
+  };
+
+  const term = defaultTerm(identity.academicSession, identity.defaultTerms);
+  const subSummary = school.subscription_details ?? school.subscription;
+  const startDate =
+    (subSummary as { start_date?: string })?.start_date ??
+    new Date().toISOString().slice(0, 10);
+  const endDate =
+    (subSummary as { end_date?: string })?.end_date ??
+    new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  const subStatus = (subSummary as { status?: string })?.status ?? "active";
+
+  const subscriptionPayload = {
+    subscription_id: subscription.subscription_id,
+    plan: subscription.plan.toLocaleLowerCase(),
+    start_date: startDate,
+    end_date: endDate,
+    status: subStatus,
+  };
+
+  return {
+    name: identity.schoolName,
+    address: identity.address ?? school.address ?? "",
+    email: identity.primaryEmail ?? school.email ?? "",
+    phone: phone ?? "",
+    website: identity.websiteDomain ?? school.website ?? "",
+    motto: school.motto ?? "",
+    type: identity.schoolType || school.type || "secondary",
+    status: (school as { status?: string }).status ?? "active",
+    established_date: identity.establishedDate || school.established_date,
+    accreditation_number:
+      identity.accreditationNumber ?? school.accreditation_number,
+    license_number: identity.licenseNumber ?? school.license_number ?? "",
+    student_capacity:
+      parseInt(subscription.studentLimit, 10) || school.student_capacity,
+    current_enrollment: school.current_enrollment ?? 0,
+    color,
+    logo,
+    subscription: subscriptionPayload,
+    facebook_url: school.facebook_url ?? "",
+    twitter_url: school.twitter_url ?? "",
+    instagram_url: school.instagram_url ?? "",
+    linkedin_url: school.linkedin_url ?? "",
+    is_active: school.is_active ?? true,
+    term,
+    bank: (school as unknown as { bank?: Bank }).bank ?? DEFAULT_BANK,
+    score: school.score ?? { ca: 0, exam: 0, total: 0 },
+    discount: school.discount ?? "",
+    classes: school.classes ?? [],
+    subjects: school.subjects ?? [],
+    timetable_name: school.timetable_name ?? "",
+    applicable_school_grade: school.applicable_school_grade ?? "",
+    academic_term: school.academic_term ?? "",
+    school_days: school.school_days ?? [],
+    no_of_periods_per_day: school.no_of_periods_per_day ?? 0,
+    default_period_duration: school.default_period_duration ?? 0,
+    break_periods: Array.isArray(school.break_periods)
+      ? (school.break_periods as unknown as Break[])
+      : [],
   };
 }

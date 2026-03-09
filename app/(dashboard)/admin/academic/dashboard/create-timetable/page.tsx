@@ -218,7 +218,7 @@ export default function CreateTimetablePage() {
               ? formData.breakPeriods
               : undefined,
         },
-      })
+      });
       toast.success("Timetable saved successfully.");
     } catch (err: unknown) {
       const msg =

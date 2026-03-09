@@ -7,11 +7,8 @@ import { CheckboxField } from "@/components/ui/checkbox-field";
 import type { SubscriptionState } from "./add-school-form-state";
 import { MODULE_IDS } from "./add-school-form-state";
 
-const PLAN_OPTIONS = [
-  { value: "basic", label: "Basic" },
-  { value: "pro", label: "Pro" },
-  { value: "custom", label: "Custom" },
-];
+// API
+import { useGetSubscriptionsQuery } from "@/services/subscriptions/subscriptions";
 
 const MODULE_LABELS: Record<string, string> = {
   academic_management: "Academic Management",
@@ -39,12 +36,15 @@ export function SubscriptionForm({
   onCancel,
   isSubmitting,
 }: SubscriptionFormProps) {
+  const { data: subscriptionsData } = useGetSubscriptionsQuery();
   const setModule = (id: string, checked: boolean) => {
     onChange({
       ...value,
       modules: { ...value.modules, [id]: checked },
     });
   };
+
+  const subscriptions = subscriptionsData?.data ?? [];
 
   return (
     <div className="space-y-6">
@@ -54,16 +54,26 @@ export function SubscriptionForm({
 
       <div className="space-y-2">
         <SelectField
-          label="Subscription Plan Selection"
-          placeholder="Choosing from your pre-defined tiers (Basic, Pro, or Custom)"
-          value={value.plan}
-          onValueChange={(v) => onChange({ ...value, plan: v })}
+          label="subscription plan"
+          placeholder="Choose a plan"
+          value={value.subscription_id}
+          onValueChange={(subscriptionId) => {
+            const selected = subscriptions.find((s) => s.id === subscriptionId);
+            onChange({
+              ...value,
+              subscription_id: subscriptionId ?? "",
+              plan: selected?.plan ?? value.plan,
+            });
+          }}
         >
-          {PLAN_OPTIONS.map((p) => (
-            <SelectItem key={p.value} value={p.value}>
-              {p.label}
-            </SelectItem>
-          ))}
+          <SelectItem value={"none"}>Select a subscription plan</SelectItem>
+          {subscriptions
+            .filter((sub) => sub.status === "available")
+            .map((sub) => (
+              <SelectItem key={sub.id} value={sub.id}>
+                {sub.plan}
+              </SelectItem>
+            ))}
         </SelectField>
       </div>
 

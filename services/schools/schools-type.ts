@@ -172,6 +172,7 @@ export interface CreateSchoolRequest {
   color: SchoolColor;
   logo: SchoolLogo;
   subscription: {
+    subscription_id: string;
     plan: "standard" | string;
     start_date: string;
     end_date: string;
@@ -201,6 +202,17 @@ export interface TimetableUpdatePayload {
 }
 
 /**
+ * Subscription payload for PUT /schools/:id (flat; no nested subscription object).
+ */
+export interface SchoolSubscriptionUpdate {
+  subscription_id: string;
+  plan: string;
+  start_date: string;
+  end_date: string;
+  status: string;
+}
+
+/**
  * School update request payload
  */
 export interface UpdateSchoolRequest {
@@ -223,7 +235,7 @@ export interface UpdateSchoolRequest {
 
   color: SchoolColor;
   logo: SchoolLogo;
-  subscription: SubscriptionDetails;
+  subscription: SchoolSubscriptionUpdate;
 
   facebook_url: string;
   twitter_url: string;
