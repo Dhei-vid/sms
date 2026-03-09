@@ -98,9 +98,10 @@ export default function EditRolePage() {
   const modulesError = false;
   const listError = false;
   const isSaving = false;
-  const updateTemplate = async (_args?: unknown) => ({
-    unwrap: async () => {},
-  } as { unwrap: () => Promise<void> });
+  const updateTemplate = async (_args?: unknown) =>
+    ({
+      unwrap: async () => {},
+    }) as { unwrap: () => Promise<void> };
 
   const roleTemplates =
     (listResponse as RoleTemplatesListResponse | undefined)?.roleTemplates ??

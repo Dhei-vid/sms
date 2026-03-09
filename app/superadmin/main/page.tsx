@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { MetricCard } from "@/components/dashboard-pages/admin/admissions/components/metric-card";
 import { QuickActionCard } from "@/components/dashboard-pages/admin/admissions/components/quick-action-card";
@@ -22,6 +23,7 @@ import { cn } from "@/lib/utils";
 import { School } from "@/services/schools/schools-type";
 import { useGetSchoolsQuery } from "@/services/schools/schools";
 import { Icon } from "@/components/general/huge-icon";
+import { formattedAmount } from "@/common/helper";
 
 const quickActions = [
   {
@@ -41,7 +43,7 @@ const quickActions = [
     title: "System Broadcast",
     description:
       "Send a system-wide announcement to all school Admins (e.g., 'Scheduled Maintenance at 12:00AM').",
-    href: "/superadmin/broadcast",
+    // href: "/superadmin/broadcast",
   },
 ];
 
@@ -66,12 +68,70 @@ function getSchoolsList(data: unknown): School[] {
   return [];
 }
 
+const FORTY_EIGHT_HOURS_MS = 48 * 60 * 60 * 1000;
+
+function schoolHasCancelledSubscription(school: School): boolean {
+  const status =
+    (school.subscription as { status?: string } | undefined)?.status ??
+    (school.subscription_details as { status?: string } | undefined)?.status;
+  return String(status).toLowerCase() === "cancelled";
+}
+
+function getSchoolMonthlyRevenue(school: School): number {
+  const status =
+    (school.subscription_details as { status?: string } | undefined)?.status ??
+    (school.subscription as { status?: string } | undefined)?.status;
+  if (String(status).toLowerCase() !== "active") return 0;
+  const plan = school.subscription_details?.subscription;
+  if (plan?.cost == null) return 0;
+  const cost = parseFloat(String(plan.cost));
+  if (Number.isNaN(cost) || cost < 0) return 0;
+  const duration = Math.max(1, Number(plan.duration) || 1);
+  return cost / duration;
+}
+
+function schoolNeedsFollowUp48h(school: School): boolean {
+  const sub = school.subscription_details ?? school.subscription;
+  const endDateStr =
+    (sub as { end_date?: string } | undefined)?.end_date ??
+    (school.subscription as { end_date?: string } | undefined)?.end_date;
+  if (!endDateStr || String(endDateStr).trim() === "") return false;
+  try {
+    const endMs = new Date(String(endDateStr).trim()).getTime();
+    if (Number.isNaN(endMs)) return false;
+    const nowMs = Date.now();
+    return endMs >= nowMs && endMs <= nowMs + FORTY_EIGHT_HOURS_MS;
+  } catch {
+    return false;
+  }
+}
+
 export default function SuperAdminDashboardPage() {
   const router = useRouter();
   const { data: schoolsResponse, isLoading } = useGetSchoolsQuery({
     _all: true,
   });
   const schoolList = getSchoolsList(schoolsResponse);
+  const schoolsNeedingFollowUp48h = useMemo(
+    () => schoolList.filter(schoolNeedsFollowUp48h).length,
+    [schoolList],
+  );
+
+  const cancellationRate = useMemo(() => {
+    const cancelled = schoolList.filter(schoolHasCancelledSubscription).length;
+    const total = schoolList.length;
+    if (total === 0) return { count: 0, pct: 0 };
+    return { count: cancelled, pct: (cancelled / total) * 100 };
+  }, [schoolList]);
+
+  const totalMRR = useMemo(
+    () =>
+      schoolList.reduce(
+        (sum, school) => sum + getSchoolMonthlyRevenue(school),
+        0,
+      ),
+    [schoolList],
+  );
 
   const columns: TableColumn<School>[] = [
     {
@@ -131,12 +191,14 @@ export default function SuperAdminDashboardPage() {
       title: "Established",
       render: (_, row) => {
         const raw = row.established_date;
-        if (!raw) return "—";
+        if (raw == null || String(raw).trim() === "") return "—";
+        const s = String(raw).trim();
         try {
-          const date = typeof raw === "string" ? parseISO(raw) : new Date(raw);
+          const date = /^\d{4}-\d{2}-\d{2}/.test(s) ? parseISO(s) : new Date(s);
+          if (isNaN(date.getTime())) return "—";
           return <span className="text-sm">{format(date, "LLL d, yyyy")}</span>;
         } catch {
-          return String(raw);
+          return "—";
         }
       },
     },
@@ -156,7 +218,7 @@ export default function SuperAdminDashboardPage() {
           {
             label: "Edit Details",
             icon: <Icon icon={PencilEdit01Icon} size={16} />,
-            onClick: (row) => router.push(`/superadmin/main/${row.id}/edit`),
+            onClick: (row) => router.push(`/superadmin/main/edit/${row.id}`),
           },
           {
             label: "Deactivate",
@@ -178,7 +240,7 @@ export default function SuperAdminDashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <MetricCard
             title="Total MRR"
-            value="120"
+            value={schoolList.length === 0 ? "—" : formattedAmount(totalMRR)}
             trend="up"
             subtitle="Monthly Recurring Revenue across all plans."
           />
@@ -203,14 +265,18 @@ export default function SuperAdminDashboardPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <MetricCard
-            title="New Chum Rate"
-            value={"1.2% YTD"}
+            title="Cancellation rate"
+            value={
+              schoolList.length === 0
+                ? "—"
+                : `${cancellationRate.pct.toFixed(1)}%`
+            }
             trend="up"
-            subtitle="Percentage of schools cancelling subscriptions."
+            subtitle={`${cancellationRate.count} of ${schoolList.length} schools with cancelled subscription.`}
           />
           <MetricCard
-            title="Total Platform Users"
-            value={"15 Schools"}
+            title="Follow-up (48h)"
+            value={`${schoolsNeedingFollowUp48h} School${schoolsNeedingFollowUp48h !== 1 ? "s" : ""}`}
             trend="up"
             subtitle="Schools that need a sale follow-up in the next 48 hours."
           />

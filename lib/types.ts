@@ -1,4 +1,10 @@
-export type UserRole = "admin" | "teacher" | "parent" | "student" | "canteen" | "staff";
+export type UserRole =
+  | "admin"
+  | "teacher"
+  | "parent"
+  | "student"
+  | "canteen"
+  | "staff";
 
 export interface MenuItem {
   id: string;

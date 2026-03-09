@@ -31,6 +31,13 @@ export interface CreateSubscriptionRequest {
   plan: string;
   cost: number;
   description: string;
+  total_students?: number;
+  total_teachers?: number;
+  total_users?: number;
+  duration?: number;
+  features?: string[];
+  discount?: number;
+  status?: string;
 }
 
 export interface UpdateSubcriptionsRequest {

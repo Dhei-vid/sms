@@ -41,7 +41,8 @@ export default function GradesReportCardPage() {
     >();
     const sorted = [...examResults].sort(
       (a, b) =>
-        new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime(),
+        new Date(b.created_at ?? 0).getTime() -
+        new Date(a.created_at ?? 0).getTime(),
     );
     for (const er of sorted) {
       for (const sr of er.subject_results ?? []) {

@@ -15,6 +15,7 @@ import {
   type FeatureGatingState,
 } from "@/components/dashboard-pages/superadmin/subscriptions/forms/feature-gating-form";
 import type { ManagePlanStepId } from "@/components/dashboard-pages/superadmin/subscriptions/manage-step-navigation";
+import { useCreateSubscriptionMutation } from "@/services/subscriptions/subscriptions";
 import { toast } from "sonner";
 
 interface ManagePlanViewProps {
@@ -23,6 +24,8 @@ interface ManagePlanViewProps {
 
 export function ManagePlanView({ planId }: ManagePlanViewProps) {
   const router = useRouter();
+  const [createSubscription, { isLoading: isCreating }] =
+    useCreateSubscriptionMutation();
   const [currentStep, setCurrentStep] = useState<ManagePlanStepId>("identity");
   const [planIdentity, setPlanIdentity] = useState<PlanIdentityState>(
     getInitialPlanIdentityState(),
@@ -33,15 +36,31 @@ export function ManagePlanView({ planId }: ManagePlanViewProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
-    setIsSubmitting(true);
     try {
-      // TODO: call create/update plan API
-      toast.success(planId ? "Plan updated." : "Plan created.");
+      const totalStudents =
+        Number(featureGating.usageQuotas.studentCapacity) || 100;
+      const totalTeachers =
+        Number(featureGating.usageQuotas.staffCapacity) || 10;
+      const features = Object.entries(featureGating.modules)
+        .filter(([, enabled]) => enabled)
+        .map(([id]) => id);
+
+      await createSubscription({
+        plan: planIdentity.planName,
+        cost: Number(planIdentity.monthlyPrice) || 0,
+        description: planIdentity.planDescription,
+        total_students: totalStudents,
+        total_teachers: totalTeachers,
+        total_users: totalStudents + totalTeachers,
+        duration: 1,
+        features,
+        discount: Number(planIdentity.setupFee) || 0,
+        status: "available",
+      }).unwrap();
+      toast.success("Plan created.");
       router.push("/superadmin/subscriptions/dashboard");
     } catch {
       toast.error("Failed to save plan.");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -64,7 +83,7 @@ export function ManagePlanView({ planId }: ManagePlanViewProps) {
             onSubmit={handleSubmit}
             onBack={() => setCurrentStep("identity")}
             onCancel={() => router.push("/superadmin/subscriptions/dashboard")}
-            isSubmitting={isSubmitting}
+            isSubmitting={planId ? isSubmitting : isCreating}
           />
         );
     }

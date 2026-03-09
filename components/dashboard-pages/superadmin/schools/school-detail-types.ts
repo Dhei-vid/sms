@@ -8,7 +8,7 @@ export type SchoolDetailSectionId =
 export interface SchoolDetailSectionConfig {
   id: SchoolDetailSectionId;
   label: string;
-  icon: any
+  icon: any;
 }
 
 export interface KeyValueRow {
