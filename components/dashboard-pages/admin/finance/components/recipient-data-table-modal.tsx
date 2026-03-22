@@ -53,7 +53,6 @@ export function RecipientDataTableModal({
   };
 
   const handleExclude = (id: string) => {
-    // Handle exclude action
     console.log("Exclude recipient:", id);
   };
 
@@ -66,7 +65,6 @@ export function RecipientDataTableModal({
       contentClassName="flex flex-col"
     >
       <div className="space-y-4 flex-1 overflow-hidden flex flex-col">
-        {/* Table */}
         <div className="border rounded-lg overflow-hidden flex-1 overflow-y-auto">
           <Table>
             <TableHeader className="sticky top-0 bg-white z-10">
@@ -148,7 +146,6 @@ export function RecipientDataTableModal({
           </Table>
         </div>
 
-        {/* Load More Button */}
         {hasMore && (
           <div className="flex justify-center pt-2">
             <Button variant="outline" onClick={handleLoadMore} className="w-32">

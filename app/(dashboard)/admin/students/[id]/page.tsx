@@ -9,7 +9,6 @@ import { AcademicOverviewView } from "@/components/dashboard-pages/admin/student
 import { DocumentsView } from "@/components/dashboard-pages/admin/students/views/student/documents-view";
 import { ReviewersNotesView } from "@/components/dashboard-pages/admin/students/views/student/reviewers-notes-view";
 
-// API
 import { useGetStudentByIdQuery } from "@/services/stakeholders/stakeholders";
 
 type TabId = "personal" | "academic" | "documents" | "notes";

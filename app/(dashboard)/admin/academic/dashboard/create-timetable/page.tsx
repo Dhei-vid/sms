@@ -38,12 +38,9 @@ const steps: Step[] = [
 
 const initialData = {
   schoolId: "",
-  // Step 1: Define Timetable Scope
   timetableName: "",
   applicableSchoolGrade: "",
   academicTerm: "",
-
-  // Step 2: Define Time Slot & Structure
   schoolDays: [] as string[],
   numberOfPeriodsPerDay: "",
   defaultPeriodDuration: "",
@@ -327,7 +324,6 @@ export default function CreateTimetablePage() {
               Define Time Slots and Structure
             </h3>
 
-            {/* School Days */}
             <div className="space-y-2">
               <Label className="text-sm font-medium">School Days</Label>
               <div className="flex flex-wrap gap-4">
@@ -375,7 +371,6 @@ export default function CreateTimetablePage() {
               }
             />
 
-            {/* Applicable School Grade with Add Break/Period Button */}
             <div className="space-y-2">
               <Label className="text-sm font-medium">
                 Applicable School Grade
@@ -460,7 +455,6 @@ export default function CreateTimetablePage() {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
       <div className="bg-background rounded-md p-6">
         <h2 className="text-2xl font-bold text-gray-800">
           Create New Timetable
@@ -470,9 +464,7 @@ export default function CreateTimetablePage() {
         </p>
       </div>
 
-      {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {/* Left Navigation */}
         <div className="lg:col-span-1">
           <Card className="bg-background p-0">
             <CardContent className="px-2 py-4">
@@ -486,7 +478,6 @@ export default function CreateTimetablePage() {
           </Card>
         </div>
 
-        {/* Right Content */}
         <div className="lg:col-span-3">
           <Card className="p-0 bg-background">
             <CardContent className="p-6">{renderStepContent()}</CardContent>
@@ -494,7 +485,6 @@ export default function CreateTimetablePage() {
         </div>
       </div>
 
-      {/* Breaks & Special Periods Modal */}
       <BreaksSpecialPeriodsModal
         open={breakModalOpen}
         onOpenChange={setBreakModalOpen}

@@ -14,11 +14,9 @@ const BASE = "/user-requests";
 export const userRequestsApi = baseApi.injectEndpoints({
   overrideExisting: true,
   endpoints: (build) => ({
-    /**
-     * Get all user requests
-     */
     getUserRequests: build.query<UserRequestsListResponse, void>({
-      query: () => ({ url: BASE, params: { _all: "true" } }), // Use _all to get all data without pagination wrapper
+      query: () => ({ url: BASE, params: { _all: "true" } }),
+      // Normalize nested list shapes
       transformResponse: (response: ApiListResponse<UserRequest> | any) => {
         if (
           response.status === false ||
@@ -26,14 +24,9 @@ export const userRequestsApi = baseApi.injectEndpoints({
         ) {
           throw new Error(response.message || "Failed to fetch user requests");
         }
-        // Backend returns different structures:
-        // 1. With _all: { data: [...] } - array directly
-        // 2. Paginated: { data: [...], pagination: {...} } - array with pagination
-        // 3. Non-paginated fallback: { data: { data: [...] } } - nested object
         if (response.data && Array.isArray(response.data)) {
           return response;
         }
-        // Handle nested data structure: { data: { data: [...] } }
         if (
           response.data &&
           typeof response.data === "object" &&
@@ -46,7 +39,6 @@ export const userRequestsApi = baseApi.injectEndpoints({
               (response.data as any).pagination || response.pagination,
           };
         }
-        // Fallback: ensure data is always an array
         return {
           ...response,
           data: [],
@@ -56,9 +48,6 @@ export const userRequestsApi = baseApi.injectEndpoints({
       providesTags: ["UserRequest"],
     }),
 
-    /**
-     * Get user request by ID
-     */
     getUserRequestById: build.query<UserRequestResponse, string>({
       query: (id) => ({ url: `${BASE}/${id}` }),
       transformResponse: (response: UserRequestResponse) => {
@@ -73,9 +62,6 @@ export const userRequestsApi = baseApi.injectEndpoints({
       providesTags: (_, __, id) => [{ type: "UserRequest", id }],
     }),
 
-    /**
-     * Create user request
-     */
     createUserRequest: build.mutation<
       UserRequestResponse,
       CreateUserRequestRequest
@@ -88,9 +74,6 @@ export const userRequestsApi = baseApi.injectEndpoints({
       invalidatesTags: ["UserRequest"],
     }),
 
-    /**
-     * Update user request
-     */
     updateUserRequest: build.mutation<
       UserRequestResponse,
       { id: string; data: UpdateUserRequestRequest }
@@ -106,9 +89,6 @@ export const userRequestsApi = baseApi.injectEndpoints({
       ],
     }),
 
-    /**
-     * Delete user request
-     */
     deleteUserRequest: build.mutation<DeleteUserRequestResponse, string>({
       query: (id) => ({ url: `${BASE}/${id}`, method: "DELETE" }),
       invalidatesTags: ["UserRequest"],

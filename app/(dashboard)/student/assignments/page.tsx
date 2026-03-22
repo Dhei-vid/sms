@@ -21,7 +21,6 @@ import { format, isAfter, isPast, parseISO } from "date-fns";
 import type { Assignment } from "@/services/assignments/assignments-type";
 import type { Grade } from "@/services/grades/grades-type";
 
-/** Extract CBT exams list from API response (handles both flat and nested data). */
 function getCbtExamsList(data: unknown): CbtExam[] {
   if (!data || typeof data !== "object") return [];
   const d = data as {
@@ -39,7 +38,6 @@ function getCbtExamsList(data: unknown): CbtExam[] {
   return [];
 }
 
-/** Row type for the assignments table (assignment + computed fields, all string/number where needed). */
 type AssignmentRow = Assignment & {
   assignmentName: string;
   subject: string;
@@ -291,7 +289,6 @@ export default function AssignmentsPage() {
 
   return (
     <div className="space-y-4">
-      {/* Page Title and Description */}
       <div className="bg-background rounded-md p-6">
         <h1 className="text-2xl font-bold text-gray-800 mb-2">
           Assignments & Quizzes Hub
@@ -302,7 +299,6 @@ export default function AssignmentsPage() {
         </p>
       </div>
 
-      {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <MetricCard
           title="Assignments/Quizzes Due Today"
@@ -321,7 +317,6 @@ export default function AssignmentsPage() {
         />
       </div>
 
-      {/* Content Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {(nextUpcomingCbtExam || upcomingAssignments[0]?.id) && (
           <UpcomingQuizCard
@@ -378,7 +373,6 @@ export default function AssignmentsPage() {
         )}
       </div>
 
-      {/* Assignments & Quizzes Management Table */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -428,7 +422,6 @@ export default function AssignmentsPage() {
         </CardContent>
       </Card>
 
-      {/* Teacher Feedback Modal */}
       {selectedAssignment && (selectedAssignment as AssignmentRow).grade && (
         <TeacherFeedbackModal
           open={feedbackModalOpen}

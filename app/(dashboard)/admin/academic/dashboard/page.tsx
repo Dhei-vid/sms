@@ -17,7 +17,6 @@ import {
 } from "@hugeicons/core-free-icons";
 import { cn } from "@/lib/utils";
 
-// API
 import { useGetResultMetricsQuery } from "@/services/results/results";
 import {
   useGetStudentMetricsQuery,
@@ -149,7 +148,6 @@ export default function AcademicManagementPage() {
   const averageGradeLetter = resultMetrics?.average_grade_letter ?? "—";
   const averageGradeDisplay = `${averageScore.toFixed(1)}% (${averageGradeLetter})`;
 
-  // Calculate donut chart segments
   const total = staffUtilization.reduce((sum, item) => sum + item.value, 0);
   const totalOrOne = total || 1;
   let currentAngle = 0;
@@ -168,7 +166,6 @@ export default function AcademicManagementPage() {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
       <div className="bg-background rounded-md p-6">
         <h2 className="text-2xl font-bold text-gray-800">
           Academic Management Overview Dashboard
@@ -179,7 +176,6 @@ export default function AcademicManagementPage() {
         </p>
       </div>
 
-      {/* Key Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FinancialMetricCard
           title="Average Student Grade (Current Term)"
@@ -195,9 +191,7 @@ export default function AcademicManagementPage() {
         />
       </div>
 
-      {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Grade Distribution Chart */}
         <Card className="col-span-2">
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -257,7 +251,6 @@ export default function AcademicManagementPage() {
           </CardContent>
         </Card>
 
-        {/* Quick Actions */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-gray-800">
@@ -294,9 +287,7 @@ export default function AcademicManagementPage() {
         </Card>
       </div>
 
-      {/* Bottom Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Staff Utilization Breakdown Chart */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -321,7 +312,6 @@ export default function AcademicManagementPage() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-6">
-              {/* Donut Chart */}
               <div className="relative w-48 h-48 shrink-0">
                 <svg
                   className="w-full h-full transform -rotate-90"
@@ -368,7 +358,6 @@ export default function AcademicManagementPage() {
                 </div>
               </div>
 
-              {/* Legend */}
               <div className="flex-1 space-y-3">
                 {staffUtilization.map((item) => (
                   <div key={item.label} className="flex items-center gap-2">
@@ -383,7 +372,6 @@ export default function AcademicManagementPage() {
           </CardContent>
         </Card>
 
-        {/* Upcoming Academic Tasks */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-gray-800">
@@ -423,7 +411,6 @@ export default function AcademicManagementPage() {
         </Card>
       </div>
 
-      {/* Assign Staff to Duty Modal */}
       <AssignStaffDutyModal
         open={assignDutyModalOpen}
         onOpenChange={setAssignDutyModalOpen}

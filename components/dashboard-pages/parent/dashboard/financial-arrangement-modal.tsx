@@ -31,7 +31,6 @@ export function FinancialArrangementModal({
 
   const handleClose = (isOpen: boolean) => {
     if (!isOpen) {
-      // Reset form when modal closes
       setRequestType("");
       setJustification("");
       setProposedPlan("");
@@ -46,14 +45,12 @@ export function FinancialArrangementModal({
   };
 
   const handleSubmit = () => {
-    // Handle form submission
     console.log("Financial arrangement request:", {
       requestType,
       justification,
       proposedPlan,
       file: selectedFile,
     });
-    // Reset form and close modal
     handleClose(false);
   };
 
@@ -79,7 +76,7 @@ export function FinancialArrangementModal({
       }
     >
       <div className="space-y-4">
-        {/* Request Type */}
+
         <div className="space-y-2">
           <Label
             htmlFor="requestType"
@@ -101,7 +98,7 @@ export function FinancialArrangementModal({
           </Select>
         </div>
 
-        {/* Justification */}
+
         <div className="space-y-2">
           <Label
             htmlFor="justification"
@@ -118,7 +115,7 @@ export function FinancialArrangementModal({
           />
         </div>
 
-        {/* Proposed Plan */}
+
         <div className="space-y-2">
           <Label
             htmlFor="proposedPlan"
@@ -135,7 +132,7 @@ export function FinancialArrangementModal({
           />
         </div>
 
-        {/* Attachment Field */}
+
         <div className="space-y-2">
           <Label className="text-sm font-medium text-gray-700">
             Attachment Field

@@ -40,13 +40,11 @@ export default function BulkInvoicesPage() {
     note: "",
   });
 
-  // Mock data - in real app, this would come from API based on form data
   const [previewData] = useState({
     totalInvoices: 145,
     totalAmount: 2452000,
   });
 
-  // Mock recipients data
   const [recipients] = useState([
     {
       id: "1",
@@ -120,7 +118,6 @@ export default function BulkInvoicesPage() {
     },
   ]);
 
-  // Mock excluded students data
   const [excludedStudents] = useState([
     {
       id: "1",
@@ -181,7 +178,6 @@ export default function BulkInvoicesPage() {
   ]);
 
   const handleStepChange = (stepId: string) => {
-    // Allow navigation to any step
     setActiveStep(stepId as StepId);
   };
 
@@ -206,10 +202,7 @@ export default function BulkInvoicesPage() {
   };
 
   const handleSubmit = () => {
-    // Handle final submission
     console.log("Generating invoices:", { formData, previewData });
-    // In a real app, this would submit to an API
-    // router.push("/admin/finance");
   };
 
   const renderStepContent = () => {
@@ -251,7 +244,6 @@ export default function BulkInvoicesPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="bg-background rounded-md p-6">
         <h2 className="text-2xl font-bold text-gray-800">
           Generate Bulk Invoices
@@ -262,9 +254,7 @@ export default function BulkInvoicesPage() {
         </p>
       </div>
 
-      {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {/* Left Navigation */}
         <div className="lg:col-span-1">
           <Card className="bg-background p-0">
             <CardContent className="px-2 py-4">
@@ -278,7 +268,6 @@ export default function BulkInvoicesPage() {
           </Card>
         </div>
 
-        {/* Right Content */}
         <div className="lg:col-span-3">
           <Card className="p-0 bg-background">
             <CardContent className="p-6">{renderStepContent()}</CardContent>

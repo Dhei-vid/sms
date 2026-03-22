@@ -47,7 +47,6 @@ export function StaffTable({
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
 
-  // Map API data to Staff format
   const staff: Staff[] = useMemo(() => {
     if (!staffData || staffData.length === 0) return [];
 
@@ -56,7 +55,6 @@ export function StaffTable({
         ? `${stakeholder.user.first_name || ""} ${stakeholder.user.middle_name || ""} ${stakeholder.user.last_name || ""}`.trim()
         : "Unknown";
 
-      // Format contract expiry date
       let contractExpiry: string | undefined;
       if (stakeholder.contract_end_date) {
         try {
@@ -67,14 +65,12 @@ export function StaffTable({
         }
       }
 
-      // Determine contract status
       const contractStatus = stakeholder.contract_end_date
         ? new Date(stakeholder.contract_end_date) > new Date()
           ? "Active"
           : "Expired"
         : "Active";
 
-      // Map status
       const statusMap: Record<string, "active" | "on-leave" | "inactive"> = {
         active: "active",
         inactive: "inactive",
@@ -82,12 +78,10 @@ export function StaffTable({
       };
       const status = statusMap[stakeholder.status?.toLowerCase()] || "active";
 
-      // Calculate leave days (if available)
       const leaveDaysLeft = stakeholder.annual_leave_entitlement
         ? parseInt(stakeholder.annual_leave_entitlement) || 0
         : 0;
 
-      // Get department from class_assigned or assigned_classes
       const department =
         stakeholder.class_assigned ||
         (stakeholder.assigned_classes && stakeholder.assigned_classes.length > 0
@@ -111,7 +105,6 @@ export function StaffTable({
     });
   }, [staffData]);
 
-  // Use API data if available, otherwise use fallback
   const displayStaff = staff.length > 0 ? staff : [];
 
   const toggleRowSelection = (id: string) => {
@@ -128,7 +121,6 @@ export function StaffTable({
 
   const getContractStatusColor = (expiry?: string) => {
     if (!expiry) return "text-gray-700";
-    // Check if expiry is within 90 days (simplified check)
     return expiry.includes("1/2026") ? "text-red-600" : "text-gray-700";
   };
 
@@ -221,7 +213,6 @@ export function StaffTable({
 
   return (
     <div className="space-y-4">
-      {/* Search and Filter */}
       <div className="flex items-center gap-4">
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -243,7 +234,6 @@ export function StaffTable({
         </Button>
       </div>
 
-      {/* Table */}
       <div className="border rounded-lg overflow-hidden">
         <DataTable
           columns={columns}
@@ -256,7 +246,6 @@ export function StaffTable({
         />
       </div>
 
-      {/* Load More */}
       <div className="flex justify-center">
         <Button variant="outline">Load More</Button>
       </div>

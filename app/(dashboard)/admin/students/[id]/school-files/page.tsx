@@ -26,10 +26,9 @@ export default function SchoolFilesPage({
 }) {
   const [activeSection, setActiveSection] = useState<SectionId>("contact");
 
-  // In a real app, fetch student data based on params.id
   const student = {
     name: "Chinedu Nwokodi",
-    profilePicture: undefined, // Add profile picture URL if available
+    profilePicture: undefined,
   };
 
   const renderSectionContent = () => {
@@ -62,9 +61,7 @@ export default function SchoolFilesPage({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-row items-center gap-6 bg-background rounded-md p-6">
-        {/* Profile Picture Section */}
         <div className="flex items-start gap-6 mb-6">
           <div className="relative flex flex-col items-center gap-3">
             {student.profilePicture ? (
@@ -96,9 +93,7 @@ export default function SchoolFilesPage({
         </h1>
       </div>
 
-      {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {/* Left Navigation */}
         <div className="lg:col-span-1">
           <Card className="bg-background p-0">
             <CardContent className="px-2 py-4">
@@ -110,7 +105,6 @@ export default function SchoolFilesPage({
           </Card>
         </div>
 
-        {/* Right Content */}
         <div className="lg:col-span-3">
           <Card className="p-0 bg-background">
             <CardContent className="p-6">{renderSectionContent()}</CardContent>

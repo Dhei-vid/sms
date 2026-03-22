@@ -4,7 +4,6 @@ import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StudentTable } from "@/components/dashboard-pages/admin/students/components/student-table";
 
-// API
 import { useGetAllStudentsQuery } from "@/services/stakeholders/stakeholders";
 import type { Stakeholders } from "@/services/stakeholders/stakeholder-types";
 
@@ -20,7 +19,6 @@ export default function AllStudentsPage() {
     );
   }, [studentsData]);
 
-  // Create filtered response object
   const filteredStudentsData = useMemo(() => {
     if (!studentsData) return undefined;
     return {
@@ -33,7 +31,6 @@ export default function AllStudentsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="bg-background rounded-md mb-6 p-6">
         <h2 className="text-2xl font-bold text-gray-800">
           All Penetraliahub Students List
@@ -43,7 +40,6 @@ export default function AllStudentsPage() {
         </p>
       </div>
 
-      {/* Total Students Summary */}
       <div className="bg-background rounded-md p-6">
         <div className="flex items-center gap-4">
           <div className="h-12 w-1 bg-orange-500 rounded"></div>
@@ -58,7 +54,6 @@ export default function AllStudentsPage() {
         </div>
       </div>
 
-      {/* All Classes Section */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">

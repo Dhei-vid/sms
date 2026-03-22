@@ -51,7 +51,6 @@ export default function AddStaffPage() {
   };
 
   const handleSubmit = async () => {
-    // Use schoolId from form state if provided, otherwise fall back to user's school_id or generate one
     const schoolIdFromForm = formState.personal.schoolId;
     const fallbackSchoolId = user?.school_id ?? generateSchoolID();
     const schoolId = schoolIdFromForm || fallbackSchoolId;
@@ -77,10 +76,7 @@ export default function AddStaffPage() {
     }
 
     try {
-      // Build FormData with user and stakeholder fields + documents
       const formData = buildStaffFormData(formState, schoolId);
-
-      // Use createStakeholder mutation with FormData
       await createStakeholder(formData as any).unwrap();
 
       toast.success("Staff member created successfully");
@@ -144,7 +140,6 @@ export default function AddStaffPage() {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
       <div className="bg-background rounded-md p-6">
         <h2 className="text-2xl font-bold text-gray-800">
           Add New Staff Member (Onboarding Form)
@@ -152,7 +147,6 @@ export default function AddStaffPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {/* Left Sidebar - Steps */}
         <div className="lg:col-span-1">
           <Card className="bg-background p-0">
             <CardContent className="px-2 py-4">
@@ -164,7 +158,6 @@ export default function AddStaffPage() {
           </Card>
         </div>
 
-        {/* Right Content - Form */}
         <div className="lg:col-span-3">
           <Card className="p-0 bg-background">
             <CardContent className="p-6">{renderStepContent()}</CardContent>

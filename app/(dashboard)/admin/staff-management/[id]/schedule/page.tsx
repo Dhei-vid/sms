@@ -30,49 +30,48 @@ export default function SchedulePage({
 }) {
   const staffName = searchParams?.name || "Mr. Chinedu Okafor";
 
-  const [currentWeek, setCurrentWeek] = useState(new Date(2025, 9, 22)); // October 22, 2025
+  const [currentWeek, setCurrentWeek] = useState(new Date(2025, 9, 22));
 
-  // Schedule events for the week
   const scheduleEvents: ScheduleEvent[] = [
     {
       id: "1",
       title: "JSS2 Math",
-      day: new Date(2025, 9, 27), // Monday
+      day: new Date(2025, 9, 27),
       period: 1,
       color: "blue",
     },
     {
       id: "2",
       title: "JSS2 Math",
-      day: new Date(2025, 9, 27), // Monday
+      day: new Date(2025, 9, 27),
       period: 3,
       color: "blue",
     },
     {
       id: "3",
       title: "SS2 Calculus",
-      day: new Date(2025, 9, 27), // Monday
+      day: new Date(2025, 9, 27),
       period: 4,
       color: "green",
     },
     {
       id: "4",
       title: "JSS2 Math",
-      day: new Date(2025, 9, 28), // Tuesday
+      day: new Date(2025, 9, 28),
       period: 1,
       color: "blue",
     },
     {
       id: "5",
       title: "JSS2 Math",
-      day: new Date(2025, 9, 28), // Tuesday
+      day: new Date(2025, 9, 28),
       period: 5,
       color: "blue",
     },
     {
       id: "6",
       title: "SS2 Calculus",
-      day: new Date(2025, 9, 28), // Tuesday
+      day: new Date(2025, 9, 28),
       period: 4,
       color: "green",
     },
@@ -126,7 +125,6 @@ export default function SchedulePage({
 
   return (
     <div className="space-y-4">
-      {/* Header */}
       <div className="bg-background rounded-md p-6">
         <h2 className="text-2xl font-bold text-gray-800">
           Schedule & Assignments: {staffName}
@@ -137,9 +135,7 @@ export default function SchedulePage({
         </p>
       </div>
 
-      {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Schedule Grid */}
         <div className="lg:col-span-2">
           <Card>
             <CardContent className="space-y-6">
@@ -170,9 +166,7 @@ export default function SchedulePage({
           </Card>
         </div>
 
-        {/* Assignments Sidebar */}
         <div className="lg:col-span-1">
-          {/* Events Sidebar */}
           <div className="lg:col-span-1 space-y-3">
             <Card>
               <CardContent>
@@ -187,10 +181,7 @@ export default function SchedulePage({
               </CardContent>
             </Card>
 
-            {/* official Assignment Card */}
             <StaffEventSidebar {...officialAssignments} />
-
-            {/* Resouce allocation summary Card */}
             <StaffEventSidebar {...resourceAllocation} />
           </div>
         </div>

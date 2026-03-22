@@ -20,11 +20,8 @@ interface InvigilatorOption {
 interface DeploySchedulingModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Exam options from API */
   examOptions?: ExamOption[];
-  /** Suggested venues (e.g. distinct CbtExam.location_venue from API); user can type any string */
   venueSuggestions?: string[];
-  /** Invigilator options (e.g. teachers from API) */
   invigilatorOptions?: InvigilatorOption[];
   onScheduleAndActivate?: (data: {
     exam: string;
@@ -84,7 +81,6 @@ export function DeploySchedulingModal({
       }
     >
       <div className="space-y-6">
-        {/* Select Exam to Deploy - from API */}
         <SelectField
           label="Select Exam to Deploy"
           value={exam}
@@ -108,7 +104,6 @@ export function DeploySchedulingModal({
           )}
         </SelectField>
 
-        {/* Testing Venue - free text, CbtExam.location_venue; suggestions from existing exams */}
         <div className="space-y-2">
           <InputField
             label="Testing Venue"
@@ -126,7 +121,6 @@ export function DeploySchedulingModal({
           )}
         </div>
 
-        {/* Invigilator Assignment - from API (teachers) */}
         <SelectField
           label="Invigilator Assignment"
           value={invigilator}

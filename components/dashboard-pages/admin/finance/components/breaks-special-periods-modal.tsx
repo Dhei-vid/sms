@@ -29,9 +29,7 @@ interface BreaksSpecialPeriodsModalProps {
   onSubmit?: (data: { title: string; timeRange: TimeRange }) => void;
 }
 
-// Generate hours (1-12)
 const hours = Array.from({ length: 12 }, (_, i) => i + 1);
-// Generate minutes (00-59)
 const minutes = Array.from({ length: 60 }, (_, i) =>
   i.toString().padStart(2, "0"),
 );
@@ -54,7 +52,6 @@ export function BreaksSpecialPeriodsModal({
 
   const handleClose = (open: boolean) => {
     if (!open) {
-      // Reset form when modal closes
       setTitle("");
       setTimeRange({
         startHour: "1",
@@ -83,7 +80,6 @@ export function BreaksSpecialPeriodsModal({
       size="2xl"
     >
       <div className="space-y-6 py-4">
-        {/* Title Input */}
         <InputField
           label="Title"
           placeholder="E.g., Morning Assembly, Lunch Break"
@@ -92,13 +88,10 @@ export function BreaksSpecialPeriodsModal({
           onChange={(e) => setTitle(e.target.value)}
         />
 
-        {/* Time Input */}
         <div className="space-y-2">
           <Label className="text-sm font-medium">Time Input</Label>
           <div className="flex items-center gap-2">
-            {/* Start Time */}
             <div className="flex items-center gap-1">
-              {/* Start Hour */}
               <Select
                 value={timeRange.startHour}
                 onValueChange={(value) =>
@@ -121,7 +114,6 @@ export function BreaksSpecialPeriodsModal({
 
               <span className="text-gray-600">:</span>
 
-              {/* Start Minute */}
               <Select
                 value={timeRange.startMinute}
                 onValueChange={(value) =>
@@ -140,7 +132,6 @@ export function BreaksSpecialPeriodsModal({
                 </SelectContent>
               </Select>
 
-              {/* Start AM/PM */}
               <Select
                 value={timeRange.startPeriod}
                 onValueChange={(value) =>
@@ -163,12 +154,9 @@ export function BreaksSpecialPeriodsModal({
               </Select>
             </div>
 
-            {/* Separator */}
             <span className="text-gray-600 mx-2">-</span>
 
-            {/* End Time */}
             <div className="flex items-center gap-1">
-              {/* End Hour */}
               <Select
                 value={timeRange.endHour}
                 onValueChange={(value) =>
@@ -191,7 +179,6 @@ export function BreaksSpecialPeriodsModal({
 
               <span className="text-gray-600">:</span>
 
-              {/* End Minute */}
               <Select
                 value={timeRange.endMinute}
                 onValueChange={(value) =>
@@ -210,7 +197,6 @@ export function BreaksSpecialPeriodsModal({
                 </SelectContent>
               </Select>
 
-              {/* End AM/PM */}
               <Select
                 value={timeRange.endPeriod}
                 onValueChange={(value) =>
@@ -235,7 +221,6 @@ export function BreaksSpecialPeriodsModal({
           </div>
         </div>
 
-        {/* Action Buttons */}
         <div className="grid grid-cols-2 gap-3 pt-4">
           <Button variant="outline" onClick={() => handleClose(false)}>
             Cancel

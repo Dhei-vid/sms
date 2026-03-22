@@ -43,11 +43,7 @@ function getItemSource(tx: Transaction): string {
   return pt ?? "—";
 }
 
-/**
- * Maps API transactions to UI rows with running balance.
- * Transactions are sorted by created_at descending (newest first).
- * Running balance is computed from current balance working backwards.
- */
+// Newest first; running balance from current balance backward
 export function mapTransactionsToRows(
   transactions: Transaction[],
   currentBalance: string | number,

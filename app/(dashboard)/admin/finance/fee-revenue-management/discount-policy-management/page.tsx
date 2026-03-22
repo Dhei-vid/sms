@@ -157,7 +157,6 @@ export default function DiscountPolicyManagementPage() {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
       <div className="bg-background rounded-md p-6">
         <h2 className="text-2xl font-bold text-gray-800">
           Discount Policy Rules Management
@@ -167,7 +166,6 @@ export default function DiscountPolicyManagementPage() {
         </p>
       </div>
 
-      {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <FinancialMetricCard
           title="Total Discount Rules"
@@ -189,7 +187,6 @@ export default function DiscountPolicyManagementPage() {
         />
       </div>
 
-      {/* Action Buttons */}
       <div className="grid grid-cols-2 gap-3">
         <Button
           variant={"outline"}
@@ -205,7 +202,6 @@ export default function DiscountPolicyManagementPage() {
         </Button>
       </div>
 
-      {/* Active Discount Rules Table */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-gray-800">
@@ -229,14 +225,12 @@ export default function DiscountPolicyManagementPage() {
         </CardContent>
       </Card>
 
-      {/* Rule Modification Modal */}
       <RuleModificationModal
         open={editModalOpen}
         onOpenChange={setEditModalOpen}
         rule={selectedRule}
         onSave={(ruleId, data) => {
           console.log("Save rule modification", ruleId, data);
-          // Handle save logic
         }}
       />
     </div>

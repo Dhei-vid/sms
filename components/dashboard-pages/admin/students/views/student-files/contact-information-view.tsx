@@ -13,12 +13,10 @@ export function ContactInformationView() {
   });
 
   const handleSubmit = () => {
-    // Handle form submission
     console.log("Contact Information:", formData);
   };
 
   const handleCancel = () => {
-    // Reset form or navigate back
     setFormData({
       primaryPhone: "",
       email: "",

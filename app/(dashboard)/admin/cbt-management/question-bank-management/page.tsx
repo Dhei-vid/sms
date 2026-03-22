@@ -212,13 +212,11 @@ export default function QuestionBankManagementPage() {
 
   const handleSendBack = (questionId: string) => {
     console.log("Send back question", questionId);
-    // Handle send back logic
     setReviewModalOpen(false);
   };
 
   const handleApprove = (questionId: string) => {
     console.log("Approve question", questionId);
-    // Handle approve logic
     setReviewModalOpen(false);
   };
 
@@ -236,7 +234,6 @@ export default function QuestionBankManagementPage() {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
       <div className="bg-background rounded-md p-6">
         <h2 className="text-2xl font-bold text-gray-800">
           Question Bank Management
@@ -247,7 +244,6 @@ export default function QuestionBankManagementPage() {
         </p>
       </div>
 
-      {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <MetricCard
           title="Questions in Database"
@@ -267,7 +263,6 @@ export default function QuestionBankManagementPage() {
         />
       </div>
 
-      {/* Question Listing Table */}
       <Card>
         <CardHeader className="flex items-center justify-between">
           <CardTitle className="text-lg font-semibold text-gray-800">
@@ -312,7 +307,6 @@ export default function QuestionBankManagementPage() {
         </CardContent>
       </Card>
 
-      {/* Question Review Modal */}
       <QuestionReviewModal
         open={reviewModalOpen}
         onOpenChange={setReviewModalOpen}

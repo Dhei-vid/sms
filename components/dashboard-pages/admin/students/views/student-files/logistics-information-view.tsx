@@ -12,12 +12,10 @@ export function LogisticsInformationView() {
   });
 
   const handleSubmit = () => {
-    // Handle form submission
     console.log("Logistics Information:", formData);
   };
 
   const handleCancel = () => {
-    // Reset form or navigate back
     setFormData({
       lockerNumber: "",
       transportationStop: "",

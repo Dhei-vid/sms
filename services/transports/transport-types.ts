@@ -23,7 +23,5 @@ export interface UpdateTransportPayload {
 export interface AssignBus {
   stakeholder_id: string;
   transport_id: string;
-  // "payer_id": "01jzr9xft7zaxsh7mbgr3hnzv5",
-  // "amount": 2000,
   seat: string;
 }

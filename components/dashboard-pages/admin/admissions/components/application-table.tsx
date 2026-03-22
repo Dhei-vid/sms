@@ -45,17 +45,14 @@ export function ApplicationTable({
     try {
       setUpdatingStage(applicationId);
 
-      // Update stakeholder stage in backend
-      // Using partial update - only sending stage field
       const result = await updateStakeholder({
         id: applicationId,
         data: {
           stage: newStage,
-        } as any, // Type assertion needed since UpdateStakeholdersRequest doesn't fully support partial updates
+        } as any,
       }).unwrap();
 
       if (result.status) {
-        // Update local state optimistically
         const updatedApplications = applications.map((app) =>
           app.id === applicationId
             ? { ...app, stage: newStage, statusLabel }
@@ -64,10 +61,6 @@ export function ApplicationTable({
         onApplicationsChange(updatedApplications);
 
         toast.success(`Status changed to "${statusLabel}" successfully`);
-
-        // Refresh the page data to get updated stakeholder list
-        // RTK Query cache invalidation will handle this automatically,
-        // but we can also trigger a manual refresh if needed
         router.refresh();
       } else {
         throw new Error(
@@ -247,7 +240,6 @@ export function ApplicationTable({
         </Button>
       </div>
 
-      {/* Table */}
       <div className="border rounded-lg overflow-hidden">
         <DataTable
           columns={columns}
@@ -264,7 +256,6 @@ export function ApplicationTable({
         />
       </div>
 
-      {/* Load More */}
       <div className="flex justify-center">
         <Button variant="outline">Load More</Button>
       </div>

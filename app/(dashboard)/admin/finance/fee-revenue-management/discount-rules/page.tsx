@@ -38,18 +38,13 @@ const steps: Step[] = [
 ];
 
 const initialData = {
-  // Step 1: Rule Identity and Value
   ruleName: "",
   discountType: "",
   discountValue: "",
   supervisor: "",
-
-  // Step 2: Scope and Exclusions
   applicableTo: "",
   exclusions: "",
   scopeSupervisor: "",
-
-  // Step 3: Automation Criteria
   ruleCondition: "",
   conflictResolution: "",
 };
@@ -107,11 +102,7 @@ export default function CreateDiscountRulePage() {
   };
 
   const handleSubmit = () => {
-    // Handle final submission
-    console.log("Create discount rule submitted", {
-      ...formData,
-    });
-    // In a real app, this would submit to an API
+    console.log("Create discount rule submitted", { ...formData });
     router.push("/admin/finance/discount-policy-management");
   };
 
@@ -307,7 +298,6 @@ export default function CreateDiscountRulePage() {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
       <div className="bg-background rounded-md p-6">
         <h2 className="text-2xl font-bold text-gray-800">
           Create New Discount Rule
@@ -317,9 +307,7 @@ export default function CreateDiscountRulePage() {
         </p>
       </div>
 
-      {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {/* Left Navigation */}
         <div className="lg:col-span-1">
           <Card className="bg-background p-0">
             <CardContent className="px-2 py-4">
@@ -333,7 +321,6 @@ export default function CreateDiscountRulePage() {
           </Card>
         </div>
 
-        {/* Right Content */}
         <div className="lg:col-span-3">
           <Card className="p-0 bg-background">
             <CardContent className="p-6">{renderStepContent()}</CardContent>

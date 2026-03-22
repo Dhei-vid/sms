@@ -24,24 +24,24 @@ export function CalendarContainer({
 }: CalendarContainerProps) {
   return (
     <div className="space-y-4">
-      {/* Header: Date centered, Navigation arrows on right */}
+
       <div className="flex items-center justify-between w-full relative">
-        {/* Spacer for balance */}
+
         <div className="w-16" />
 
-        {/* Date */}
+
         <span className="text-lg font-semibold text-gray-800 min-w-[140px] text-center">
           {format(currentDate, "MMMM yyyy")}
         </span>
 
-        {/* Calendar arrows */}
+
         <CalendarNavigation
           currentDate={currentDate}
           onDateChange={onDateChange}
         />
       </div>
 
-      {/* Calendar Grid */}
+
       <CalendarGrid
         events={events}
         currentDate={currentDate}

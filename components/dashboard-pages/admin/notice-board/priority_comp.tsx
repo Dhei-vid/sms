@@ -33,21 +33,19 @@ const getIconForType = (type: string) => {
   return iconMap[type] || InformationCircleIcon;
 };
 
-// Priority level for sorting (lower number = higher priority)
 const getPriorityLevel = (type: string): number => {
   switch (type) {
     case "error":
-      return 1; // Highest priority
+      return 1;
     case "warning":
-      return 2; // High priority
+      return 2;
     case "notice":
-      return 3; // Medium priority
+      return 3;
     default:
-      return 4; // Lower priority
+      return 4;
   }
 };
 
-// Get color for notification type
 const getTypeColor = (type: string): string => {
   switch (type) {
     case "error":
@@ -65,14 +63,12 @@ const NoticePriorityBoard = () => {
   const user = useAppSelector(selectUser);
   const [markRead] = useMarkNotificationReadMutation();
 
-  // Fetch all notifications - we'll filter for priority types (warning, error)
   const {
     data: notificationsData,
     isLoading,
     isError,
   } = useGetNotificationsQuery({});
 
-  // Filter and transform priority notifications
   const priorityNotifications = useMemo(() => {
     if (!notificationsData?.data) return [];
 
@@ -81,7 +77,6 @@ const NoticePriorityBoard = () => {
 
     return notificationsData.data
       .filter((notification) => {
-        // Filter for priority types (error, warning) and optionally recent notices
         const isPriorityType =
           notification.type === "error" ||
           notification.type === "warning" ||
@@ -242,7 +237,6 @@ const NoticePriorityBoard = () => {
                     {notice.description}
                   </p>
 
-                  {/* Footer */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="px-3 py-1 text-xs font-medium bg-main-blue/5 rounded-sm">

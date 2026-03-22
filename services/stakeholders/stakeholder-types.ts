@@ -5,7 +5,6 @@ import { Notes } from "../notes/note-types";
 import { ApiResponse } from "../shared-types";
 import { Notifications } from "../shared";
 
-/** Child/ward details returned in parent's children_details */
 export interface StakeholderChildDetails {
   id: string;
   user_id: string;
@@ -125,14 +124,14 @@ export interface CreateStakeholdersRequest {
 
   phone: string;
 
-  // Academic / staff
+  // Staff / academic
   position?: string;
   subjects?: string[];
   class_assigned?: string;
   qualification?: string;
   salary?: number;
 
-  // Business / vendor
+  // Vendor
   business?: string;
   services?: string[];
   contracts?: Contract[];
@@ -149,7 +148,6 @@ export interface CreateStakeholdersRequest {
   relationship_to_student?: string;
   occupation?: string;
 
-  // Common
   address?: string;
   date_joined: string;
 }
@@ -180,12 +178,10 @@ export interface AssignDutyStakeholder {
   stakeholder_id: "01kaphp565xbxb5vtdrm2js2ps";
   type: "teaching" | "non teaching"; // teaching, non teaching
   date: string;
-  // Teaching
   class_grade: "SSS 3";
   subject: string;
   period: string;
   classroom: "Test Classroom";
-  // Non Teaching
   duty_type: string;
   start_time: string;
   end_time: string;
@@ -208,17 +204,17 @@ export interface UpdateStakeholdersRequest {
 
 export interface StakeholderMetrics {
   total: number;
-  inquiries: number; // Stage 1
-  applicationStarted: number; // Stage 2
-  submittedForms: number; // Stage 3
-  underReview: number; // Stage 4
-  acceptedOffers: number; // Stage 5
-  enrolled: number; // Stage 6
+  inquiries: number;
+  applicationStarted: number;
+  submittedForms: number;
+  underReview: number;
+  acceptedOffers: number;
+  enrolled: number;
 }
 
 export interface StudentStakeholderMetrics {
   total: number;
-  enrolled: number; // Stage 6
+  enrolled: number;
   totalStudents: number;
   genderRatio: {
     totalMale: number;

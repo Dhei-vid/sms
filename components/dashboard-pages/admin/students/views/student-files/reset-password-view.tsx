@@ -11,12 +11,10 @@ export function ResetPasswordView() {
   });
 
   const handleSubmit = () => {
-    // Handle form submission
     console.log("Reset Password:", formData);
   };
 
   const handleCancel = () => {
-    // Reset form or navigate back
     setFormData({
       newPassword: "",
       confirmPassword: "",

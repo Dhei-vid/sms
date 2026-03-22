@@ -43,7 +43,6 @@ export function RecordAssessmentModal({
     if (onRecord) {
       onRecord(formData);
     }
-    // Reset form
     setFormData({
       assessmentType: "",
       interviewer: "",

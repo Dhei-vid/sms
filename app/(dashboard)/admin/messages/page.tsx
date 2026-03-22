@@ -146,7 +146,6 @@ export default function MessagesPage() {
     },
   ];
 
-  // Thread list is only static (General, Academic) + per-user (teacher/individual). Not by chat id.
   const threads: MessageThread[] = useMemo(() => {
     return [...staticThreads, ...teacherThreads];
   }, [teacherThreads]);
@@ -294,11 +293,9 @@ export default function MessagesPage() {
         payload.type = chatType;
         if (user?.school_id) payload.school_id = user.school_id;
       }
-      // 1:1: backend finds/creates chat by recipient so previous messages are in same thread
       if (isTeacherThread && selectedThreadId) {
         payload.recipient_id = String(selectedThreadId);
       }
-      // Send chat id when we already have it (e.g. after first message, list refetched)
       if (!isGeneralOrAcademic && chatIdToFetch) {
         payload.id = chatIdToFetch;
       } else if (!isGeneralOrAcademic && !isTeacherThread && selectedThreadId) {
@@ -332,7 +329,6 @@ export default function MessagesPage() {
           ...prev,
           [selectedThreadId]: messages,
         }));
-        // Store by returned chat id so when list refetches and chatIdToFetch updates we have messages
         if (result.data.id) {
           setAccumulatedMessages((prev) => ({
             ...prev,
@@ -393,7 +389,6 @@ export default function MessagesPage() {
 
   return (
     <div className="space-y-4">
-      {/* Messages Header */}
       <div className="bg-background rounded-md p-6">
         <h2 className="text-2xl font-bold text-gray-800">Messages</h2>
         <p className="text-gray-600 mt-1">
@@ -403,7 +398,6 @@ export default function MessagesPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Message Threads List */}
         <MessageThreadsList
           threads={threads}
           selectedThreadId={selectedThreadId}
@@ -413,11 +407,9 @@ export default function MessagesPage() {
           onTeacherSelect={handleTeacherSelect}
         />
 
-        {/* Chat Conversation */}
         <div className="lg:col-span-2 flex flex-col">
           {selectedThread ? (
             <div className="flex flex-col gap-4">
-              {/* Header */}
               <ChatHeader
                 title={`${selectedThread.name}.`}
                 subtitle={selectedThread.description}
@@ -432,7 +424,6 @@ export default function MessagesPage() {
                 }
               />
 
-              {/* Input */}
               <MessageInput onSend={handleSendMessage} />
             </div>
           ) : (

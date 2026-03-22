@@ -64,12 +64,10 @@ export function OutstandingFeesModal({
   };
 
   const handleDownloadInvoice = (invoiceId: string) => {
-    // Handle download logic
     console.log("Download invoice:", invoiceId);
   };
 
   const handlePayFees = () => {
-    // Handle payment logic
     console.log("Pay outstanding fees");
     onOpenChange(false);
   };
@@ -96,7 +94,7 @@ export function OutstandingFeesModal({
       }
     >
       <div className="space-y-6">
-        {/* Total Outstanding Fees */}
+
         <div className="flex items-center gap-4">
           <Label className="text-sm font-medium text-gray-700 whitespace-nowrap">
             Total Outstanding Fees Due
@@ -108,7 +106,7 @@ export function OutstandingFeesModal({
           />
         </div>
 
-        {/* List of Active Invoices */}
+
         <div className="space-y-4">
           <Label className="text-sm font-medium text-gray-700">
             List of all active invoices:

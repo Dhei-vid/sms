@@ -75,7 +75,7 @@ export function ScheduleGrid({
 
   return (
     <div className="bg-white rounded-lg border overflow-hidden">
-      {/* Header with Week Navigation */}
+
       <div className="flex items-center justify-between p-4 border-b bg-gray-50">
         <div className="flex items-center gap-2">
           <Button
@@ -97,10 +97,9 @@ export function ScheduleGrid({
         </div>
       </div>
 
-      {/* Schedule Grid */}
+
       <div className="overflow-x-auto">
         <div className="min-w-full">
-          {/* Days Header */}
           <div className="grid grid-cols-6 border-b">
             <div className="p-3 text-center text-sm font-semibold text-gray-700 bg-gray-50 border-r">
               Time
@@ -126,14 +125,11 @@ export function ScheduleGrid({
             })}
           </div>
 
-          {/* Time Slots and Events */}
           {timeSlots.map((slot, slotIndex) => (
             <div key={slotIndex} className="grid grid-cols-6">
-              {/* Time Column */}
               <div className="p-3 text-sm text-gray-600 border-r border-b bg-gray-50">
                 {slot.time || `Period ${slot.period}`}
               </div>
-              {/* Day Columns */}
               {weekDays.map((day, dayIndex) => {
                 const dayEvents = getEventsForDayAndPeriod(day, slot.period);
                 const isToday = isSameDay(day, today);

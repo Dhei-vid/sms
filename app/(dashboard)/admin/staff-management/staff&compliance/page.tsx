@@ -11,15 +11,9 @@ type TabId = "employment" | "leave";
 export default function StatusCompliancePage() {
   const [activeTab, setActiveTab] = useState<TabId>("employment");
 
-  const handleCancel = () => {
-    // Handle cancel logic
-    console.log("Cancel clicked");
-  };
+  const handleCancel = () => {};
 
-  const handleConfirm = () => {
-    // Handle confirm/apply logic
-    console.log("Confirm/Apply clicked");
-  };
+  const handleConfirm = () => {};
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -49,7 +43,6 @@ export default function StatusCompliancePage() {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
       <div className="bg-background rounded-md p-6">
         <h2 className="text-2xl font-bold text-gray-800">
           Status & Compliance
@@ -61,7 +54,6 @@ export default function StatusCompliancePage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {/* Left Column - Sub Navigation */}
         <div className="lg:col-span-1">
           <Card className="bg-background p-0">
             <CardContent className="px-2 py-4">
@@ -73,7 +65,6 @@ export default function StatusCompliancePage() {
           </Card>
         </div>
 
-        {/* Right Column - Form Content */}
         <div className="lg:col-span-3">
           <Card className="p-0 bg-background">
             <CardContent className="p-6">{renderTabContent()}</CardContent>

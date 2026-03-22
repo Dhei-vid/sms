@@ -18,10 +18,6 @@ import {
   CancelCircleIcon,
 } from "@hugeicons/core-free-icons";
 
-/**
- * Interface for assessment display in the interview view
- * Matches the structure expected by InterviewAssessmentView component
- */
 interface Assessment {
   assessment: string;
   interviewer: string;
@@ -34,13 +30,6 @@ import { QuickActionCard } from "@/components/dashboard-pages/admin/admissions/c
 
 type TabId = "details" | "documents" | "interview";
 
-/**
- * Applicant Detail Page Component
- * Displays detailed information about a job applicant
- * Handles dynamic route params which may be a Promise in Next.js 15+
- *
- * @param params - Route parameters containing applicant ID
- */
 export default function ApplicantDetailPage({
   params,
 }: {
@@ -51,7 +40,6 @@ export default function ApplicantDetailPage({
   const [isRecordAssessmentOpen, setIsRecordAssessmentOpen] = useState(false);
   const [assessments, setAssessments] = useState<Assessment[]>([]);
 
-  // In a real app, fetch applicant data based on params.id
   const applicant = {
     name: "Ms. Elizabeth Johnson",
     role: "JSS Science Teacher",
@@ -85,14 +73,7 @@ export default function ApplicantDetailPage({
     ],
   };
 
-  /**
-   * Handle recording a new assessment
-   * Converts AssessmentData from modal to Assessment format for display
-   *
-   * @param data - Assessment data from the record assessment modal
-   */
-  const handleRecordAssessment = (data: AssessmentData) => {
-    // Convert AssessmentData to Assessment format
+    const handleRecordAssessment = (data: AssessmentData) => {
     const newAssessment: Assessment = {
       assessment: data.assessmentType,
       interviewer: data.interviewer,
@@ -105,17 +86,14 @@ export default function ApplicantDetailPage({
 
   const handleSendOfferEmail = () => {
     console.log("Send offer email");
-    // Implement email sending logic
   };
 
   const handleRejectCandidate = () => {
     console.log("Reject candidate");
-    // Implement rejection logic
   };
 
   const handleViewDocument = (fileName: string) => {
     console.log("View document:", fileName);
-    // Implement document viewing logic
   };
 
   const renderTabContent = () => {
@@ -161,7 +139,6 @@ export default function ApplicantDetailPage({
 
   return (
     <div className="space-y-4">
-      {/* Applicant Header */}
       <ApplicantHeader
         name={applicant.name}
         role={applicant.role}
@@ -170,7 +147,6 @@ export default function ApplicantDetailPage({
         profilePicture={applicant.profilePicture}
       />
 
-      {/* Summary Cards and Actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
         <div className="col-span-2 grid grid-cols-1 md:grid-cols-2 gap-3">
           <MetricCard
@@ -227,9 +203,7 @@ export default function ApplicantDetailPage({
         </Card>
       </div>
 
-      {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-3">
-        {/* Left Navigation */}
         <div className="lg:col-span-1">
           <Card className="bg-background p-0">
             <CardContent className="px-2 py-3">
@@ -238,7 +212,6 @@ export default function ApplicantDetailPage({
           </Card>
         </div>
 
-        {/* Right Content */}
         <div className="lg:col-span-3">
           <Card className="p-0 bg-background">
             <CardContent className="p-4">{renderTabContent()}</CardContent>
@@ -246,7 +219,6 @@ export default function ApplicantDetailPage({
         </div>
       </div>
 
-      {/* Record Assessment Modal */}
       <RecordAssessmentModal
         open={isRecordAssessmentOpen}
         onOpenChange={setIsRecordAssessmentOpen}

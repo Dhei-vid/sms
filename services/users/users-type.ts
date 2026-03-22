@@ -11,14 +11,6 @@ import type {
   BaseQueryParams,
 } from "../shared-types";
 
-/**
- * Type definitions for Users API responses
- * These types are based on the API response structure from the backend
- */
-
-/**
- * User entity structure
- */
 export interface User {
   id: string;
   creator_id: string;
@@ -77,9 +69,6 @@ export interface User {
   deleted_at: string | null;
 }
 
-/**
- * User creation request payload
- */
 export interface CreateUserRequest {
   user_name: string;
   first_name: string;
@@ -93,12 +82,8 @@ export interface CreateUserRequest {
   permissions: string[];
 }
 
-// Re-export shared types for convenience
 export type { Roles, Gender, UserStatus } from "../shared-types";
 
-/**
- * User update request payload
- */
 export interface UpdateUserRequest {
   school_id: string;
   username: string;
@@ -136,8 +121,7 @@ export interface AdmissionRegister {
   gender: string;
   class_assigned?: string | null;
   role: Roles;
-  /** Optional; backend uses USER_PASSWORD from settings when omitted */
-  password?: string;
+  password?: string; // backend uses USER_PASSWORD env var when omitted
   parent_name: string;
   phone_number: string;
   stage: number;
@@ -153,29 +137,10 @@ export interface Documents {
   file: string;
 }
 
-/**
- * Standard API response wrapper
- * Used for single entity responses (getById, create, update)
- */
 export type UserResponse = ApiResponse<User>;
-
-/**
- * Users list response with pagination
- * Matches the actual API response structure
- */
 export type UsersListResponse = ApiListResponse<User>;
-
-/**
- * Delete user response
- * Standard API response for delete operations
- */
 export type DeleteUserResponse = ApiDeleteResponse;
 
-/**
- * User query parameters for filtering and pagination
- * Matches the RTK Query implementation in users.ts
- * All parameters are optional and will only be added to the query string if provided
- */
 export interface UsersQueryParams extends BaseQueryParams {
   role?: Roles;
   status?: UserStatus;

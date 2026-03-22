@@ -29,14 +29,12 @@ export default function SignInPage() {
     setError(null);
     setIsLoading(true);
 
-    // Enhanced client-side validation
     if (!email || !password) {
       setError("Please fill in all fields");
       setIsLoading(false);
       return;
     }
 
-    // Email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setError("Please enter a valid email address");
@@ -44,7 +42,6 @@ export default function SignInPage() {
       return;
     }
 
-    // Password length validation
     if (password.length < 6) {
       setError("Password must be at least 6 characters");
       setIsLoading(false);
@@ -55,7 +52,6 @@ export default function SignInPage() {
       const result = await login({ email, password }).unwrap();
       const loginResponse = result.data;
 
-      // Validate response structure
       if (!result?.data) {
         throw new Error("Invalid response from server");
       }
@@ -78,7 +74,6 @@ export default function SignInPage() {
       // Small delay to ensure state is updated before navigation
       await new Promise((resolve) => setTimeout(resolve, 100));
 
-      // Check if user is Super Admin
       if (
         loginResponse.user.role === "admin" &&
         loginResponse.user.permissions.length === 0
@@ -86,7 +81,6 @@ export default function SignInPage() {
         router.push("/superadmin/main");
       }
 
-      // Check if user is canteen staff and redirect to store
       if (loginResponse.user.role === "canteen") {
         router.push("/admin/store");
       }
@@ -146,14 +140,12 @@ export default function SignInPage() {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Error Message Display */}
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
               {error}
             </div>
           )}
 
-          {/* Email Field */}
           <div className="space-y-2">
             <Label htmlFor="email" className="text-gray-700">
               Email address
@@ -178,7 +170,6 @@ export default function SignInPage() {
             </div>
           </div>
 
-          {/* Password Field */}
           <div className="space-y-2">
             <Label htmlFor="password" className="text-gray-700">
               Password
@@ -210,7 +201,6 @@ export default function SignInPage() {
             </div>
           </div>
 
-          {/* Forgot Password Link */}
           <div className="flex justify-end">
             <a
               href="#"
@@ -220,7 +210,6 @@ export default function SignInPage() {
             </a>
           </div>
 
-          {/* Sign In Button */}
           <Button
             type="submit"
             disabled={isLoading || isLoginLoading}

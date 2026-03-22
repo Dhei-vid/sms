@@ -35,7 +35,6 @@ export function CreateQuestionModal({
 
   const handleClose = (isOpen: boolean) => {
     if (!isOpen) {
-      // Reset form when modal closes
       setAssignedCourse("");
       setTargetStudent("");
       setQuestionModel("");
@@ -59,7 +58,6 @@ export function CreateQuestionModal({
   };
 
   const handleSaveDraft = () => {
-    // Handle save as draft
     console.log("Save as draft:", {
       assignedCourse,
       targetStudent,
@@ -74,7 +72,6 @@ export function CreateQuestionModal({
   };
 
   const handleSaveAndSubmit = () => {
-    // Handle save and submit
     console.log("Save and submit:", {
       assignedCourse,
       targetStudent,
@@ -122,7 +119,7 @@ export function CreateQuestionModal({
       }
     >
       <div className="space-y-4 h-full">
-        {/* Assign to Course */}
+
         <div className="space-y-2">
           <Label
             htmlFor="assignedCourse"
@@ -145,7 +142,7 @@ export function CreateQuestionModal({
           </Select>
         </div>
 
-        {/* Target Student */}
+
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label
@@ -166,7 +163,7 @@ export function CreateQuestionModal({
           />
         </div>
 
-        {/* Select Question Model */}
+
         <div className="space-y-2">
           <Label
             htmlFor="questionModel"
@@ -190,7 +187,7 @@ export function CreateQuestionModal({
           </Select>
         </div>
 
-        {/* Question Instruction */}
+
         <div className="space-y-2">
           <Label
             htmlFor="questionInstruction"
@@ -207,7 +204,7 @@ export function CreateQuestionModal({
           />
         </div>
 
-        {/* Question */}
+
         <div className="space-y-2">
           <Label
             htmlFor="question"
@@ -224,7 +221,7 @@ export function CreateQuestionModal({
           />
         </div>
 
-        {/* Answer Options */}
+
         <div className="space-y-2">
           <Label
             htmlFor="answerOptions"
@@ -256,7 +253,7 @@ export function CreateQuestionModal({
           </div>
         </div>
 
-        {/* Correct Answer and Score Marks - Side by Side */}
+
         <div className="grid grid-cols-2 gap-4">
           {/* Correct Answer */}
           <div className="space-y-2">

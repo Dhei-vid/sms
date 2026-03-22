@@ -117,7 +117,6 @@ export function MonitorLiveTestSessionModal({
       size="6xl"
     >
       <div className="space-y-4">
-        {/* Summary Tags */}
         <div className="flex flex-wrap gap-3">
           <div className="bg-gray-100 rounded-md px-4 py-2">
             <span className="text-sm text-gray-600">
@@ -143,7 +142,6 @@ export function MonitorLiveTestSessionModal({
           </div>
         </div>
 
-        {/* Students Table */}
         <div className="border rounded-lg overflow-hidden">
           <div className="overflow-x-auto max-h-[60vh]">
             <DataTable
@@ -156,7 +154,6 @@ export function MonitorLiveTestSessionModal({
           </div>
         </div>
 
-        {/* Load More Button */}
         {hasMore && onLoadMore && (
           <div className="flex justify-center pt-2">
             <Button variant="outline" onClick={onLoadMore}>

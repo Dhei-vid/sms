@@ -24,6 +24,7 @@ import { School } from "@/services/schools/schools-type";
 import { useGetSchoolsQuery } from "@/services/schools/schools";
 import { Icon } from "@/components/general/huge-icon";
 import { formattedAmount } from "@/common/helper";
+import { toast } from "sonner";
 
 const quickActions = [
   {
@@ -43,7 +44,6 @@ const quickActions = [
     title: "System Broadcast",
     description:
       "Send a system-wide announcement to all school Admins (e.g., 'Scheduled Maintenance at 12:00AM').",
-    // href: "/superadmin/broadcast",
   },
 ];
 
@@ -224,9 +224,8 @@ export default function SuperAdminDashboardPage() {
             label: "Deactivate",
             icon: <Icon icon={CancelCircleIcon} size={16} />,
             variant: "destructive",
-            onClick: (row) => {
-              // TODO: confirm and call deactivate API
-              console.log("Deactivate school:", row.id);
+            onClick: () => {
+              toast.info("School deactivation is not available yet.");
             },
           },
         ],

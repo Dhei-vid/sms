@@ -18,7 +18,6 @@ interface Transaction {
   status: "Completed" | "Pending" | "Cancelled";
 }
 
-/** Format order items for display */
 function formatItemCount(
   items: { quantity?: number; product?: { name?: string } }[] | undefined,
 ): string {
@@ -156,7 +155,6 @@ export default function SalesReportPage() {
 
   return (
     <div className="space-y-4">
-      {/* Page Header */}
       <Card>
         <CardContent className="p-6">
           <h1 className="text-2xl font-bold text-gray-800 mb-2">
@@ -166,7 +164,6 @@ export default function SalesReportPage() {
         </CardContent>
       </Card>
 
-      {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <MetricCard
           title="Total Revenue"
@@ -181,7 +178,6 @@ export default function SalesReportPage() {
         <MetricCard title="Voucher/Discount Used" value="Nil" trend="up" />
       </div>
 
-      {/* Transaction Report Table */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-gray-800">

@@ -186,7 +186,6 @@ export function buildCreateSchoolPayload(
 
 const COUNTRY_CODES = ["+234", "+233", "+1", "+44", "+91", "+81"];
 
-/** Normalize API date to YYYY-MM-dd for form inputs and date picker. */
 function normalizeEstablishedDate(value: string | null | undefined): string {
   if (value == null || String(value).trim() === "") return "";
   const s = String(value).trim();
@@ -219,9 +218,6 @@ function parsePhone(phone: string | undefined): {
   return { countryCode: "+234", contactPhone: trimmed.replace(/\D/g, "") };
 }
 
-/**
- * Map a School (from API) into AddSchoolFormState for the edit form.
- */
 export function schoolToFormState(school: School): AddSchoolFormState {
   const { countryCode, contactPhone } = parsePhone(school.phone);
   const sub = school.subscription_details ?? school.subscription;
@@ -286,10 +282,7 @@ export function schoolToFormState(school: School): AddSchoolFormState {
   };
 }
 
-/**
- * Build the update payload for PUT /schools/:id from form state and existing school.
- * Preserves existing logo URLs if no new file was uploaded.
- */
+// Keeps existing logo when no new upload
 export function buildUpdateSchoolPayload(
   state: AddSchoolFormState,
   school: School,

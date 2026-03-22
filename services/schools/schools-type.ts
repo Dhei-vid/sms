@@ -7,14 +7,6 @@ import type {
   BaseQueryParams,
 } from "../shared-types";
 
-/**
- * Type definitions for Schools API responses
- * These types are based on the API response structure from the backend
- */
-
-/**
- * School entity structure
- */
 export type School = {
   id: string;
   creator_id: string;
@@ -30,7 +22,7 @@ export type School = {
   website: string;
 
   term: Term;
-  bank: Record<string, unknown>; // empty object from API
+  bank: Record<string, unknown>;
   score: Score;
 
   discount: string | null;
@@ -79,11 +71,11 @@ export interface SubscriptionPlan {
   creator: string;
   updated_by: string | null;
   plan: string;
-  cost: string; // money as string
+  cost: string;
   total_students: number;
   total_teachers: number;
   total_users: number;
-  duration: number; // months
+  duration: number;
   features: string[];
   description: string;
   discount: string;
@@ -148,9 +140,6 @@ export interface Break {
   end_time: string;
 }
 
-/**
- * School creation request payload
- */
 export interface CreateSchoolRequest {
   name: string;
   code?: string;
@@ -188,9 +177,6 @@ export interface CreateSchoolRequest {
   term: Term;
 }
 
-/**
- * Timetable fields only - for partial update via PUT /schools/<id>
- */
 export interface TimetableUpdatePayload {
   timetable_name?: string;
   applicable_school_grade?: string;
@@ -201,9 +187,7 @@ export interface TimetableUpdatePayload {
   break_periods?: Break[];
 }
 
-/**
- * Subscription payload for PUT /schools/:id (flat; no nested subscription object).
- */
+// PUT /schools/:id subscription JSON (flat)
 export interface SchoolSubscriptionUpdate {
   subscription_id: string;
   plan: string;
@@ -212,9 +196,6 @@ export interface SchoolSubscriptionUpdate {
   status: string;
 }
 
-/**
- * School update request payload
- */
 export interface UpdateSchoolRequest {
   name: string;
   code?: string;
@@ -260,31 +241,14 @@ export interface UpdateSchoolRequest {
   break_periods: Break[];
 }
 
-/**
- * Schools list response with pagination
- */
 export type SchoolListResponse = ApiListResponse<School>;
-
-/**
- * School response for single entity operations
- */
 export type SchoolResponse = ApiResponse<School>;
-
-/**
- * Delete school response
- */
 export type DeleteSchoolResponse = ApiDeleteResponse;
 
-/**
- * School query parameters for filtering and pagination
- */
 export interface SchoolQueryParams extends BaseQueryParams {
   _all?: boolean;
 }
 
-/**
- * Application config returned by GET/PUT /schools/:id/application-config
- */
 export interface SchoolApplicationConfig {
   term: Term;
   score: Score;
@@ -297,9 +261,6 @@ export interface SchoolApplicationConfig {
   break_periods: Break[];
 }
 
-/**
- * Payload for PUT /schools/:id/application-config (all optional)
- */
 export interface SchoolApplicationConfigUpdate {
   term?: Term;
   score?: Score;
@@ -312,9 +273,6 @@ export interface SchoolApplicationConfigUpdate {
   break_periods?: Break[];
 }
 
-/**
- * Admin roster entry from GET /schools/:id/settings-dashboard
- */
 export interface SettingsDashboardAdminRole {
   id: string;
   primaryRole: string;
@@ -323,9 +281,6 @@ export interface SettingsDashboardAdminRole {
   lastPermissionUpdate: string | null;
 }
 
-/**
- * Response from GET/PUT /schools/:id/settings-dashboard
- */
 export interface SchoolSettingsDashboard {
   activeAdminsCount: number;
   lastSecurityAudit: string | null;
@@ -333,17 +288,11 @@ export interface SchoolSettingsDashboard {
   adminRoster: SettingsDashboardAdminRole[];
 }
 
-/**
- * Payload for PUT /schools/:id/settings-dashboard (optional metrics)
- */
 export interface SchoolSettingsDashboardUpdate {
   lastSecurityAudit?: string | null;
   systemUptime?: string | null;
 }
 
-/**
- * Module permission for role template (edit-role)
- */
 export interface RoleTemplateModulePermission {
   module: string;
   readOnly: boolean;
@@ -351,39 +300,23 @@ export interface RoleTemplateModulePermission {
   none: boolean;
 }
 
-/**
- * Role template (edit-role).
- * `permissions` is resolved from modulePermissions and matches User.permissions / stakeholder.user.permissions.
- * When assigning this role to a user or stakeholder, set the linked user's permissions to this array.
- */
 export interface RoleTemplate {
   id: string;
   name: string;
   description: string;
   modulePermissions: RoleTemplateModulePermission[];
-  /** Resolved permission strings for User.permissions (and stakeholder.user); use when assigning this role. */
   permissions?: string[];
 }
 
-/**
- * Response from GET /schools/:id/role-template-modules (canonical list from backend)
- */
 export interface RoleTemplateModulesResponse {
   modules: string[];
 }
 
-/**
- * Response from GET /schools/:id/role-templates
- */
 export interface RoleTemplatesListResponse {
   roleTemplates: RoleTemplate[];
-  /** Canonical list of module names for permission matrix (from backend). */
   modules: string[];
 }
 
-/**
- * Payload for PUT /schools/:id/role-templates/:templateId
- */
 export interface RoleTemplateUpdatePayload {
   id: string;
   name: string;

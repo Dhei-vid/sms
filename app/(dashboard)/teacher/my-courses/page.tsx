@@ -51,7 +51,6 @@ export default function MyCoursesPage() {
   const { data, isLoading, isError } = useGetTeacherCoursesQuery();
   const appError = useAppSelector((state) => state.error.lastError);
 
-  // Ensure tableData is always an array, fallback to mockCourses if API data is unavailable
   const tableData = (data ?? mockCourses) || [];
 
   const columns: TableColumn<TeacherCourse>[] = [
@@ -114,7 +113,6 @@ export default function MyCoursesPage() {
           {appError.message}
         </div>
       )}
-      {/* Page Header */}
       <div className="bg-background rounded-md p-6">
         <h1 className="text-2xl font-bold text-gray-800 mb-2">
           LMS: My Courses Dashboard
@@ -125,7 +123,6 @@ export default function MyCoursesPage() {
         </p>
       </div>
 
-      {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <MetricCard
           title="My Active Courses"
@@ -147,7 +144,6 @@ export default function MyCoursesPage() {
         />
       </div>
 
-      {/* Quick Actions Section */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-gray-800">
@@ -185,7 +181,6 @@ export default function MyCoursesPage() {
         </CardContent>
       </Card>
 
-      {/* My Courses Table */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-gray-800">

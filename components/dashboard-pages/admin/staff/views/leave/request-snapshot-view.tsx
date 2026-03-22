@@ -78,7 +78,6 @@ export function RequestSnapshotView({
         </Table>
       </div>
 
-      {/* Action Buttons */}
       <div className="flex justify-end gap-3 mt-6">
         <Button
           variant="outline"

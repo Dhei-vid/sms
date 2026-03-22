@@ -32,13 +32,12 @@ interface Transaction {
   runningBalance: number;
 }
 
-// Mock student data - in real app, this would come from props or API
 const mockStudent = {
   name: "Adaeze Okoro",
   studentId: "okoroum178023",
   currentClass: "Senior Secondary 2 (SS2)",
   profilePicture:
-    "https://images.pexels.com/photos/1068209/pexels-photo-1068209.jpeg", // Placeholder for profile picture
+    "https://images.pexels.com/photos/1068209/pexels-photo-1068209.jpeg",
   walletBalance: 4500,
 };
 
@@ -96,7 +95,6 @@ export function StudentWalletHistoryForm({
   const [hideBalance, setHideBalance] = useState<boolean>(false);
 
   const handlePrintStatement = () => {
-    // Handle print transaction statement
     console.log("Print transaction statement");
     window.print();
   };
@@ -112,10 +110,8 @@ export function StudentWalletHistoryForm({
 
   return (
     <div className="space-y-6 py-4">
-      {/* Student Information Section */}
       <div className="grid grid-cols-2 items-start gap-2">
         <div className="flex items-start gap-2 border rounded-md h-full">
-          {/* Profile Picture */}
           <div className="w-35 h-35 rounded-md bg-gray-200 flex items-center justify-center overflow-hidden shrink-0">
             {mockStudent.profilePicture ? (
               <Image
@@ -134,7 +130,6 @@ export function StudentWalletHistoryForm({
             )}
           </div>
 
-          {/* Student Details */}
           <div className="flex flex-col gap-2">
             <h3 className="text-xl font-bold text-gray-800 mb-1">
               {mockStudent.name}
@@ -152,7 +147,6 @@ export function StudentWalletHistoryForm({
           </div>
         </div>
 
-        {/* Wallet Balance Card */}
         <div className="flex flex-col bg-main-blue rounded-lg p-4 min-w-[200px] relative">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-white/90">
@@ -190,9 +184,7 @@ export function StudentWalletHistoryForm({
         </div>
       </div>
 
-      {/* Transaction History Table Section */}
       <div className="space-y-4">
-        {/* Header */}
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold text-gray-800">
             Transaction History Table
@@ -208,7 +200,6 @@ export function StudentWalletHistoryForm({
           </Button>
         </div>
 
-        {/* Table */}
         <div className="border rounded-lg overflow-hidden">
           <Table>
             <TableHeader>
@@ -251,7 +242,6 @@ export function StudentWalletHistoryForm({
           </Table>
         </div>
 
-        {/* Load More Button */}
         <div className="flex justify-center pt-2">
           <Button variant="outline" onClick={() => console.log("Load more")}>
             Load More
@@ -259,7 +249,6 @@ export function StudentWalletHistoryForm({
         </div>
       </div>
 
-      {/* Add Wallet Top-Up Modal */}
       <AddWalletTopUpModal
         open={topUpModalOpen}
         onOpenChange={setTopUpModalOpen}

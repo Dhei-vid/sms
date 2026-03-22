@@ -46,7 +46,6 @@ export function SetFeeStructureModal({
   const [formData, setFormData] = useState<FeeStructureForm>(initialData);
   const [openDatePicker, setOpenDatePicker] = useState<boolean>(false);
 
-  // handling date
   const handleDateChange: Dispatch<SetStateAction<Date | undefined>> = (
     date,
   ) => {
@@ -56,7 +55,6 @@ export function SetFeeStructureModal({
     }));
   };
 
-  // Add new line item
   const handleAddLineItem = () => {
     setFormData((prev) => ({
       ...prev,
@@ -70,7 +68,6 @@ export function SetFeeStructureModal({
     }));
   };
 
-  // Update line item
   const handleUpdateLineItem = (
     index: number,
     field: "itemName" | "itemPrice",
@@ -89,7 +86,6 @@ export function SetFeeStructureModal({
     });
   };
 
-  // Remove line item
   const handleRemoveLineItem = (index: number) => {
     setFormData((prev) => ({
       ...prev,
@@ -98,18 +94,15 @@ export function SetFeeStructureModal({
   };
 
   const handleSubmit = () => {
-    // Handle form submission
     console.log("Set fee structure submitted", {
       ...formData,
     });
-    // Reset form and close modal
     setFormData(initialData);
     onOpenChange(false);
   };
 
   const handleClose = (open: boolean) => {
     if (!open) {
-      // Reset form when modal closes
       setFormData(initialData);
     }
     onOpenChange(open);
@@ -133,7 +126,6 @@ export function SetFeeStructureModal({
           }
         />
 
-        {/* Academic Level */}
         <SelectField
           label="Applicable Term"
           value={formData.applicableTerm}
@@ -212,7 +204,6 @@ export function SetFeeStructureModal({
           Add New Line Item
         </Button>
 
-        {/* Due Date */}
         <DatePickerIcon
           label="Due Date"
           open={openDatePicker}
@@ -221,7 +212,6 @@ export function SetFeeStructureModal({
           setDate={handleDateChange}
         />
 
-        {/* Action Buttons */}
         <div className="grid grid-cols-2 gap-3 pt-4">
           <Button variant="outline" onClick={() => handleClose(false)}>
             Cancel

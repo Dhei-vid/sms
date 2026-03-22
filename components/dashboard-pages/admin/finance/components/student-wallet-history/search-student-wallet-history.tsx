@@ -21,14 +21,12 @@ export function StudentWalletHistorySearch({
   setIsStudent,
 }: StudentWalletHistorySearchProps) {
   const handleSearch = () => {
-    // Handle search
     console.log("Search student wallet history", searchQuery);
     setIsStudent(true);
   };
 
   return (
     <div className="space-y-6 py-4">
-      {/* Search Student Account */}
       <div className="space-y-2">
         <Label className="text-sm font-medium">Search Student Account</Label>
         <div className="relative">
@@ -43,7 +41,6 @@ export function StudentWalletHistorySearch({
         </div>
       </div>
 
-      {/* Action Buttons */}
       <div className="grid grid-cols-2 gap-3 pt-4">
         <Button variant="outline" onClick={onClose}>
           Cancel

@@ -257,7 +257,6 @@ export default function NewCBTExamPage() {
       toast.success("CBT exam created successfully.");
       router.push("/admin/cbt-management");
     } catch (err) {
-      // baseApi already shows a toast with getApiErrorMessage; show again here so form errors are visible if global toast was skipped
       const data =
         err && typeof err === "object" && "data" in err
           ? (err as { data?: unknown }).data
@@ -340,7 +339,6 @@ export default function NewCBTExamPage() {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
       <div className="bg-background rounded-md p-6">
         <h2 className="text-2xl font-bold text-gray-800">
           CBT Management Dashboard
@@ -351,9 +349,7 @@ export default function NewCBTExamPage() {
         </p>
       </div>
 
-      {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {/* Left Navigation */}
         <div className="lg:col-span-1">
           <Card className="bg-background p-0">
             <CardContent className="px-2 py-4">
@@ -367,7 +363,6 @@ export default function NewCBTExamPage() {
           </Card>
         </div>
 
-        {/* Right Content */}
         <div className="lg:col-span-3">
           <Card className="p-0 bg-background">
             <CardContent className="p-6">{renderStepContent()}</CardContent>

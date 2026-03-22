@@ -23,14 +23,12 @@ interface AssignStaffDutyModalProps {
 
 interface DutyAssignmentData {
   dutyType: DutyType;
-  // Teaching Duty fields
   teacher?: string;
   class?: string;
   subject?: string;
   day?: string;
   period?: string;
   classroom?: string;
-  // Non-Teaching Duty fields
   staffMember?: string;
   dutyTypeName?: string;
   date?: Date;
@@ -132,7 +130,6 @@ export function AssignStaffDutyModal({
     dutyType: "teaching",
   });
 
-  // Time state for non-teaching duty
   const [startTime, setStartTime] = useState<TimeValue>({
     hour: "1",
     minute: "00",
@@ -146,7 +143,6 @@ export function AssignStaffDutyModal({
 
   const handleClose = (open: boolean) => {
     if (!open) {
-      // Reset form when modal closes
       setDutyType("teaching");
       setFormData({ dutyType: "teaching" });
       setStartTime({ hour: "1", minute: "00", period: "AM" });
@@ -233,7 +229,6 @@ export function AssignStaffDutyModal({
       maxHeight="90vh"
     >
       <div className="space-y-6 py-4">
-        {/* Duty Type Toggle */}
         <div className="flex gap-2 border rounded-md p-1">
           <Button
             type="button"
@@ -269,7 +264,6 @@ export function AssignStaffDutyModal({
           </Button>
         </div>
 
-        {/* Teaching Duty Form */}
         {dutyType === "teaching" && (
           <div className="space-y-6">
             <SelectField
@@ -368,7 +362,6 @@ export function AssignStaffDutyModal({
           </div>
         )}
 
-        {/* Non-Teaching Duty Form */}
         {dutyType === "non-teaching" && (
           <div className="space-y-6">
             <SelectField
@@ -417,7 +410,6 @@ export function AssignStaffDutyModal({
           </div>
         )}
 
-        {/* Action Buttons */}
         <div className="grid grid-cols-2 gap-3 pt-4">
           <Button
             variant="outline"

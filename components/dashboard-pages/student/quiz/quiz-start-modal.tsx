@@ -42,7 +42,6 @@ export function QuizStartModal({
         </DialogHeader>
 
         <div className="space-y-4 py-4">
-          {/* Time Limit */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label
@@ -61,7 +60,6 @@ export function QuizStartModal({
             />
           </div>
 
-          {/* Attempts Remaining */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label
@@ -80,7 +78,6 @@ export function QuizStartModal({
             />
           </div>
 
-          {/* Instructions */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label

@@ -83,7 +83,6 @@ export function CreateEventModal({
     if (onSubmit) {
       onSubmit(formData);
     }
-    // Reset form
     setFormData({
       ...initialFormData,
       schoolId: defaultSchoolId ?? "",
@@ -139,7 +138,6 @@ export function CreateEventModal({
       maxHeight="90vh"
     >
       <div className="space-y-6 py-4">
-        {/* School Selector */}
         <SelectField
           label="School"
           placeholder={
@@ -158,7 +156,6 @@ export function CreateEventModal({
           ))}
         </SelectField>
 
-        {/* Event Title */}
         <InputField
           id="event-title"
           label="Event Title"
@@ -167,7 +164,6 @@ export function CreateEventModal({
           onChange={(e) => setFormData({ ...formData, title: e.target.value })}
         />
 
-        {/* Description */}
         <TextareaField
           id="description"
           label="Description"
@@ -179,9 +175,7 @@ export function CreateEventModal({
           rows={4}
         />
 
-        {/* Date, Start Time and End Time */}
         <div className="grid grid-cols-3 gap-2">
-          {/* Date */}
           <DatePickerIcon
             label="Date"
             open={openDatePicker}
@@ -190,7 +184,6 @@ export function CreateEventModal({
             setDate={handleDateChange}
           />
 
-          {/* Start Time */}
           <TimePicker
             label="Start Time"
             time={formData.startTime}
@@ -204,7 +197,6 @@ export function CreateEventModal({
             id="start-time"
           />
 
-          {/* End Time */}
           <TimePicker
             label="End Time"
             time={formData.endTime}
@@ -219,7 +211,6 @@ export function CreateEventModal({
           />
         </div>
 
-        {/* Location */}
         <InputField
           id="location"
           label="Location"
@@ -230,7 +221,6 @@ export function CreateEventModal({
           }
         />
 
-        {/* Audience Visibility */}
         <div className="space-y-3">
           <Label className="text-sm font-medium text-gray-700">
             Audience Visibility
@@ -284,7 +274,6 @@ export function CreateEventModal({
           )}
         </div>
 
-        {/* Send Notification */}
         <div className="space-y-3">
           <Label className="text-sm font-medium text-gray-700">
             Send Notification

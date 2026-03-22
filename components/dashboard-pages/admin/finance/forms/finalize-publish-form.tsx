@@ -64,7 +64,6 @@ export function FinalizePublishForm({
           </div>
         </div>
 
-        {/* Confirmation Check */}
         <div className="flex items-center justify-between">
           <div className="flex-1">
             <Label htmlFor="confirmation" className="text-sm text-gray-700">
@@ -79,7 +78,6 @@ export function FinalizePublishForm({
           />
         </div>
 
-        {/* Communication Method */}
         <div className="flex items-center justify-between">
           <div className="flex-1">
             <Label htmlFor="communication" className="text-sm text-gray-700">
@@ -93,7 +91,6 @@ export function FinalizePublishForm({
           />
         </div>
 
-        {/* Invoice Archival */}
         <div className="flex items-center justify-between">
           <div className="flex-1">
             <Label htmlFor="archival" className="text-sm text-gray-700">

@@ -13,12 +13,10 @@ export function LogActivityView() {
   });
 
   const handleSubmit = () => {
-    // Handle form submission
     console.log("Activity Log:", formData);
   };
 
   const handleCancel = () => {
-    // Reset form or navigate back
     setFormData({
       activityTitle: "",
       date: "",

@@ -44,7 +44,6 @@ export function ActivityLogModal({
   const [activityLog, setActivityLog] =
     useState<ActivityLogEntry[]>(activityList);
 
-  // Sync activity log from server (includes persisted administrative notes)
   React.useEffect(() => {
     setActivityLog(activityList);
   }, [activityList]);

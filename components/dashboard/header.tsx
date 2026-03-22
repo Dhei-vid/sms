@@ -29,14 +29,9 @@ interface HeaderProps {
   sidebarCollapsed?: boolean;
 }
 
-/**
- * Header Component
- * Displays page title, search bar, and user information
- * Integrates with Redux to show authenticated user and handle logout
- */
 export function Header({
   metaData,
-  searchPlaceholder = "Search students name/ID, staff name/ID",
+  searchPlaceholder = "Search sidebar",
   user: userProp,
   onMenuClick,
   onSidebarToggle,
@@ -44,11 +39,8 @@ export function Header({
 }: HeaderProps) {
   const router = useRouter();
   const dispatch = useAppDispatch();
-
-  // Get authenticated user from Redux store
   const authUser = useAppSelector(selectUser);
 
-  // Use Redux user if available, otherwise fall back to prop
   const user = authUser
     ? {
         name: authUser.first_name + " " + authUser?.last_name,
@@ -56,10 +48,6 @@ export function Header({
       }
     : userProp || { name: "Guest" };
 
-  /**
-   * Handle logout action
-   * Clears authentication state and redirects to login page
-   */
   const handleLogout = () => {
     dispatch(logout());
     router.push("/signin");
@@ -93,14 +81,6 @@ export function Header({
             <h1 className="text-sm font-semibold text-gray-800 line-clamp-1 truncate">
               {metaData?.label || "Dashboard"}
             </h1>
-            <span>/</span>
-            <Button
-              onClick={() => router.back()}
-              variant={"link"}
-              className="p-0 text-sm font-light"
-            >
-              Back
-            </Button>
           </div>
         </div>
 

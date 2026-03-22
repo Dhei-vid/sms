@@ -122,7 +122,6 @@ export default function EditRolePage() {
     detailResponse as ApiResponse<RoleTemplate> | undefined
   )?.data;
 
-  // Initialize permissions when we have modules from API (and no permissions yet)
   useEffect(() => {
     if (
       modulesFromApi.length > 0 &&
@@ -140,7 +139,6 @@ export default function EditRolePage() {
     }
   }, [modulesFromApi, loadedTemplate]);
 
-  // When template detail loads, fill name, description, and permissions (ordered by backend modules)
   useEffect(() => {
     if (!loadedTemplate || modulesFromApi.length === 0) return;
     setTemplateName(loadedTemplate.name ?? "");
@@ -187,7 +185,6 @@ export default function EditRolePage() {
     setActiveStep("module-permissions");
   };
 
-  // Permissions array for the form: same length as modules (pad with defaults if needed)
   const permissionsForForm = useMemo(() => {
     if (modulesFromApi.length === 0) return [];
     if (permissions.length === modulesFromApi.length) return permissions;
@@ -229,7 +226,6 @@ export default function EditRolePage() {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
       <div className="bg-background rounded-md p-6">
         <h2 className="text-2xl font-bold text-gray-800">
           Edit Role Templates
@@ -240,9 +236,7 @@ export default function EditRolePage() {
         </p>
       </div>
 
-      {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {/* Step Navigation - Tabs */}
         <div className="lg:col-span-1">
           <Card className="bg-background p-0">
             <CardContent className="px-2 py-4">
@@ -257,7 +251,6 @@ export default function EditRolePage() {
         </div>
 
         <div className="lg:col-span-3">
-          {/* Step Content */}
           <Card>
             <CardContent className="px-6">
               {activeStep === "template-selection" && (

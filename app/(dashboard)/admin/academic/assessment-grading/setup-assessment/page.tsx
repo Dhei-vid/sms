@@ -30,14 +30,11 @@ const steps: Step[] = [
 ];
 
 const initialData = {
-  // Step 1: General Assessment Details
   assessmentName: "",
   assessmentType: "",
   applicableGrades: "",
   applicableSubjects: "",
   totalMarksAvailable: "",
-
-  // Step 2: Timing & Venue
   startDate: undefined as Date | undefined,
   startTime: "",
   duration: "",
@@ -45,8 +42,6 @@ const initialData = {
   assignInvigilators: "",
   questionPaperDeadlineDate: undefined as Date | undefined,
   questionPaperDeadlineTime: "",
-
-  // Step 3: Grading, Score Entry Rules
   scoreSubmissionDeadlineDate: undefined as Date | undefined,
   scoreSubmissionDeadlineTime: "",
   finalGradeWeight: "",
@@ -209,7 +204,6 @@ export default function SetupAssessmentPage() {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
       <div className="bg-background rounded-md p-6">
         <h2 className="text-2xl font-bold text-gray-800">
           Setup New Assessment/Exam Configuration
@@ -220,9 +214,7 @@ export default function SetupAssessmentPage() {
         </p>
       </div>
 
-      {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {/* Left Navigation */}
         <div className="lg:col-span-1">
           <Card className="bg-background p-0">
             <CardContent className="px-2 py-4">
@@ -236,7 +228,6 @@ export default function SetupAssessmentPage() {
           </Card>
         </div>
 
-        {/* Right Content */}
         <div className="lg:col-span-3">
           <Card className="p-0 bg-background">
             <CardContent className="p-6">{renderStepContent()}</CardContent>

@@ -28,7 +28,6 @@ interface Student {
   teacherRemarks: string;
 }
 
-// Sample data - in production, this would come from an API
 const allStudents: Student[] = [
   {
     id: "1",
@@ -117,7 +116,6 @@ export default function GradeEntryPortalEntryPage() {
   );
   const [assessmentSelector, setAssessmentSelector] = useState("");
 
-  // Pagination for student data
   const {
     displayedData: studentData,
     hasMore,
@@ -128,7 +126,6 @@ export default function GradeEntryPortalEntryPage() {
     itemsPerPage: 5,
   });
 
-  // Create a state that tracks all students' scores and remarks
   const [allStudentScores, setAllStudentScores] = useState<
     Record<string, { scoreEntry: string; teacherRemarks: string }>
   >({});
@@ -151,7 +148,6 @@ export default function GradeEntryPortalEntryPage() {
     }));
   };
 
-  // Merge paginated student data with scores/remarks
   const studentDataWithScores = studentData.map((student) => ({
     ...student,
     scoreEntry: allStudentScores[student.id]?.scoreEntry || "",
@@ -160,7 +156,6 @@ export default function GradeEntryPortalEntryPage() {
 
   return (
     <div className="space-y-4">
-      {/* Page Header */}
       <div className="bg-background rounded-md p-6">
         <h1 className="text-2xl font-bold text-gray-800 mb-2">
           Grade Entry Portal
@@ -171,9 +166,7 @@ export default function GradeEntryPortalEntryPage() {
         </p>
       </div>
 
-      {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {/* Step Navigation */}
         <div className="lg:col-span-1">
           <Card>
             <CardContent className="px-2">
@@ -187,7 +180,6 @@ export default function GradeEntryPortalEntryPage() {
           </Card>
         </div>
 
-        {/* Step Content */}
         <div className="lg:col-span-3">
           <Card>
             <CardContent className="px-6">
@@ -197,7 +189,6 @@ export default function GradeEntryPortalEntryPage() {
                     Assessment Selection
                   </h2>
 
-                  {/* Assessment Selector */}
                   <div className="space-y-2">
                     <Label
                       htmlFor="assessmentSelector"
@@ -229,7 +220,6 @@ export default function GradeEntryPortalEntryPage() {
                     </Select>
                   </div>
 
-                  {/* Total Marks Available */}
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <Label
@@ -250,7 +240,6 @@ export default function GradeEntryPortalEntryPage() {
                     />
                   </div>
 
-                  {/* Submission Deadline */}
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <Label
@@ -273,7 +262,6 @@ export default function GradeEntryPortalEntryPage() {
                     />
                   </div>
 
-                  {/* Submission Status */}
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <Label
@@ -296,7 +284,6 @@ export default function GradeEntryPortalEntryPage() {
                     />
                   </div>
 
-                  {/* Action Buttons */}
                   <div className="flex items-center justify-end gap-3 pt-4">
                     <Link href="/teacher/grade-entry-portal">
                       <Button variant="outline">Back</Button>
@@ -322,7 +309,6 @@ export default function GradeEntryPortalEntryPage() {
                     </p>
                   </div>
 
-                  {/* Score Input Table */}
                   <div className="border rounded-lg overflow-hidden">
                     <DataTable
                       columns={[
@@ -385,7 +371,6 @@ export default function GradeEntryPortalEntryPage() {
                     />
                   </div>
 
-                  {/* Load More Button */}
                   {hasMore && (
                     <div className="flex justify-center">
                       <Button variant="outline" onClick={loadMore}>
@@ -394,7 +379,6 @@ export default function GradeEntryPortalEntryPage() {
                     </div>
                   )}
 
-                  {/* Action Buttons */}
                   <div className="flex items-center justify-end gap-3 pt-4">
                     <Link href="/teacher/grade-entry-portal">
                       <Button variant="outline">Save as Draft</Button>

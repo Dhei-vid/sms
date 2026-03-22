@@ -102,14 +102,13 @@ export function DocumentsView({ stakeholder }: DocumentsViewProps) {
           : null;
       const apiKey = process.env.NEXT_PUBLIC_AUTH_API_KEY || "";
 
-      // Fetch with auth headers - this will follow redirects to the signed S3 URL
       const response = await fetch(fileUrl, {
         method: "GET",
         headers: {
           ...(apiKey && { "x-api-key": apiKey }),
           ...(token && { Authorization: `Bearer ${token}` }),
         },
-        redirect: "follow", // Follow redirects to S3 signed URL
+        redirect: "follow",
       });
 
       if (!response.ok) {

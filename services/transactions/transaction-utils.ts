@@ -1,9 +1,5 @@
 import type { Transaction } from "./transaction-types";
 
-/**
- * Result of grouping transactions by category (expense-only, aggregated).
- * Used by selectors and UI for Budget vs Actual and similar views.
- */
 export interface TransactionsByCategoryGroup {
   category: string;
   totalAmount: number;
@@ -13,19 +9,12 @@ export interface TransactionsByCategoryGroup {
 
 const UNCATEGORIZED = "Uncategorized";
 
-/**
- * Normalize category for grouping (API may return null or empty).
- */
 export function normalizeCategory(category: string | null | undefined): string {
   const value = (category ?? "").toString().trim();
   return value || UNCATEGORIZED;
 }
 
-/**
- * Group transactions by category and aggregate amounts.
- * Uses expense transactions only (actual spending for budget vs actual).
- * Returns groups sorted by totalAmount descending, with percentageOfTotal.
- */
+// Expenses only, sorted by total descending
 export function groupTransactionsByCategory(
   transactions: Transaction[] | undefined,
 ): TransactionsByCategoryGroup[] {

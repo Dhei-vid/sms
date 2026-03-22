@@ -92,24 +92,20 @@ export function GradingScalesForm({
         />
       </div>
 
-      {/* Term/Semester Configuration Modal */}
       <TermSemesterConfigModal
         open={termModalOpen}
         onOpenChange={setTermModalOpen}
         numberOfTerms={numberOfTerms}
         onConfirm={(terms) => {
           console.log("Terms configured:", terms);
-          // Handle term configuration
         }}
       />
 
-      {/* Letter Grade Definitions Modal */}
       <LetterGradeDefinitionsModal
         open={gradeTableModalOpen}
         onOpenChange={setGradeTableModalOpen}
         onEditGrade={(gradeId) => {
           console.log("Edit grade:", gradeId);
-          // Handle edit grade action
         }}
       />
     </div>

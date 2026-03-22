@@ -12,12 +12,10 @@ export function MedicalNotesView() {
   });
 
   const handleSubmit = () => {
-    // Handle form submission
     console.log("Medical Notes:", formData);
   };
 
   const handleCancel = () => {
-    // Reset form or navigate back
     setFormData({
       reviewer: "",
       report: "",

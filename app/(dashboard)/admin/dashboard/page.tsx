@@ -33,9 +33,6 @@ export default function AdminDashboard() {
   const { data: notificationsData, error: notificationsError } =
     useGetNotificationsQuery({ limit: 5 });
 
-  console.log("studentsData ", studentsData);
-
-  // Extract data from API responses
   const totalStudents = studentsData?.data?.length ?? 0;
   const totalStaff = staffData?.data?.length ?? 0;
   const totalFinance = 0;
@@ -47,11 +44,6 @@ export default function AdminDashboard() {
     description?: string;
     type?: string;
   }
-
-  // const todayEvents = calendarData?.data?.filter((event: CalendarEvent) => {
-  //   if (!event.startDate) return false;
-  //   return isToday(new Date(event.startDate));
-  // }) || [];
 
   interface Notification {
     title: string;
@@ -73,7 +65,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-4">
-      {/* Welcome Section */}
       <div className="bg-background rounded-md p-6">
         <h2 className="text-2xl font-bold text-gray-800">Admin Dashboard</h2>
         <p className="text-gray-600 mt-1">
@@ -81,7 +72,6 @@ export default function AdminDashboard() {
         </p>
       </div>
 
-      {/* Key Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
           title="Total Students"
@@ -113,13 +103,10 @@ export default function AdminDashboard() {
         />
       </div>
 
-      {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Grade Distribution Chart */}
         <GradeDistributionChart className="lg:col-span-2" />
 
         <div className="grid grid-rows-2 gap-4">
-          {/* Today's Event */}
           <TodaysEventCard
             events={[].map((event: CalendarEvent) => ({
               title: event.title,
@@ -137,7 +124,6 @@ export default function AdminDashboard() {
             }))}
           />
 
-          {/* Today on the Notice Board */}
           <NoticeBoardCard
             notices={todayNotifications.map((notification: Notification) => ({
               title: notification.title,
@@ -150,12 +136,8 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Bottom Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Recent Activities */}
         <RecentActivitiesCard />
-
-        {/* Transactions */}
         <TransactionsCard />
       </div>
     </div>

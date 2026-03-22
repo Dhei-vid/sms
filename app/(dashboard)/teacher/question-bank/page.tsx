@@ -31,7 +31,6 @@ interface Question {
   status: "Approved" | "Pending" | "Draft" | "Rejected";
 }
 
-// Sample data - in production, this would come from an API
 const allQuestions: Question[] = [
   {
     id: "Q152",
@@ -111,7 +110,6 @@ export default function QuestionBankPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [createModalOpen, setCreateModalOpen] = useState(false);
 
-  // Filter questions based on search and status
   const filteredQuestions = allQuestions.filter((question) => {
     const matchesSearch =
       !searchQuery ||
@@ -124,7 +122,6 @@ export default function QuestionBankPage() {
     return matchesSearch && matchesStatus;
   });
 
-  // Pagination
   const {
     displayedData: questions,
     hasMore,
@@ -210,7 +207,6 @@ export default function QuestionBankPage() {
 
   return (
     <div className="space-y-4">
-      {/* Page Header */}
       <div className="bg-background rounded-md p-6">
         <h1 className="text-2xl font-bold text-gray-800 mb-2">
           Question Bank (Teacher Workflow)
@@ -222,7 +218,6 @@ export default function QuestionBankPage() {
         </p>
       </div>
 
-      {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <MetricCard
           title="Total Questions Created"
@@ -238,7 +233,6 @@ export default function QuestionBankPage() {
         />
       </div>
 
-      {/* Create New Question Button */}
       <Button
         variant={"outline"}
         className="w-full h-11 flex items-center gap-2"
@@ -248,14 +242,12 @@ export default function QuestionBankPage() {
         Create New Question
       </Button>
 
-      {/* My Question Bank Table Section */}
       <div className="bg-background rounded-md p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-gray-800">
             My Question Bank Table
           </h2>
           <div className="flex items-center gap-3">
-            {/* Search Bar */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
@@ -266,7 +258,6 @@ export default function QuestionBankPage() {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            {/* Filter Dropdown */}
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="Filter: Status" />
@@ -282,7 +273,6 @@ export default function QuestionBankPage() {
           </div>
         </div>
 
-        {/* Question Table */}
         <div className="border rounded-lg overflow-hidden">
           <DataTable
             columns={columns}
@@ -293,7 +283,6 @@ export default function QuestionBankPage() {
           />
         </div>
 
-        {/* Load More Button */}
         {hasMore && (
           <div className="flex justify-center mt-4">
             <Button variant="outline" onClick={loadMore}>
@@ -303,7 +292,6 @@ export default function QuestionBankPage() {
         )}
       </div>
 
-      {/* Create Question Modal */}
       <CreateQuestionModal
         open={createModalOpen}
         onOpenChange={setCreateModalOpen}

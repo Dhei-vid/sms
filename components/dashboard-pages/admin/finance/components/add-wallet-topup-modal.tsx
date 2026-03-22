@@ -46,18 +46,15 @@ export function AddWalletTopUpModal({
   const [formData, setFormData] = useState<AddWalletTopUpForm>(initialData);
 
   const handleSubmit = () => {
-    // Handle form submission
     console.log("Add wallet top-up submitted", {
       ...formData,
     });
-    // Reset form and close modal
     setFormData(initialData);
     onOpenChange(false);
   };
 
   const handleClose = (open: boolean) => {
     if (!open) {
-      // Reset form when modal closes
       setFormData(initialData);
     }
     onOpenChange(open);
@@ -71,7 +68,6 @@ export function AddWalletTopUpModal({
       size="2xl"
     >
       <div className="space-y-6 py-4">
-        {/* Search Student Account */}
         <div className="space-y-2">
           <Label className="text-sm font-medium">Search Student Account</Label>
           <div className="relative">
@@ -91,7 +87,6 @@ export function AddWalletTopUpModal({
           </div>
         </div>
 
-        {/* Payer/Student Name */}
         <InputField
           label="Payer/Student Name"
           placeholder="Pre-filled after search."
@@ -105,7 +100,6 @@ export function AddWalletTopUpModal({
           }
         />
 
-        {/* Amount to Credit */}
         <InputField
           label="Amount to Credit (₦)"
           placeholder="placeholder"
@@ -119,7 +113,6 @@ export function AddWalletTopUpModal({
           }
         />
 
-        {/* Payment Method */}
         <SelectField
           label="Payment Method"
           value={formData.paymentMethod}
@@ -134,7 +127,6 @@ export function AddWalletTopUpModal({
           <SelectItem value="cheque">Cheque</SelectItem>
         </SelectField>
 
-        {/* Transaction Reference */}
         <InputField
           label="Transaction Reference"
           placeholder="placeholder"
@@ -148,7 +140,6 @@ export function AddWalletTopUpModal({
           }
         />
 
-        {/* Deposited By */}
         <InputField
           label="Deposited By"
           placeholder="placeholder"
@@ -162,7 +153,6 @@ export function AddWalletTopUpModal({
           }
         />
 
-        {/* Date of Payment */}
         <div className="space-y-2">
           <DatePickerIcon
             label="Date of Payment"
@@ -177,7 +167,6 @@ export function AddWalletTopUpModal({
           />
         </div>
 
-        {/* Send Confirmation Checkbox */}
         <div className="flex justify-between items-center gap-2">
           <Label
             htmlFor="send-confirmation"
@@ -197,7 +186,6 @@ export function AddWalletTopUpModal({
           />
         </div>
 
-        {/* Action Buttons */}
         <div className="grid grid-cols-2 gap-3 pt-4">
           <Button variant="outline" onClick={() => handleClose(false)}>
             Cancel

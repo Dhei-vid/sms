@@ -24,24 +24,19 @@ interface Vacancy {
 
 export default function ApplicantTrackingPage() {
   const router = useRouter();
-  // Fetch all stakeholders and filter for applicants on frontend
-  // Backend will need to support type='applicant' in stakeholders
   const {
     data: stakeholdersData,
     isLoading,
     error,
   } = useGetStakeholdersQuery();
 
-  // Filter applicants and group by position (job title) to create vacancies
   const vacancies: Vacancy[] = useMemo(() => {
     if (!stakeholdersData?.data) return [];
 
-    // Filter for applicants only
     const applicants = stakeholdersData.data.filter(
       (s) => s.type === "applicant",
     );
 
-    // Group applicants by position (job title)
     const vacancyMap = new Map<
       string,
       {
@@ -55,9 +50,8 @@ export default function ApplicantTrackingPage() {
       const jobTitle = applicant.position || "Unspecified Position";
 
       if (!vacancyMap.has(jobTitle)) {
-        // Use first applicant's ID as vacancy ID (or generate from job title)
         vacancyMap.set(jobTitle, {
-          id: applicant.id, // Using first applicant ID as vacancy identifier
+          id: applicant.id,
           jobTitle,
           applicants: [],
         });
@@ -66,12 +60,9 @@ export default function ApplicantTrackingPage() {
       vacancyMap.get(jobTitle)!.applicants.push(applicant);
     });
 
-    // Transform to vacancy format with counts
     return Array.from(vacancyMap.values()).map((vacancy) => {
       const applicants = vacancy.applicants;
 
-      // Count by status - assuming status field indicates stage
-      // Adjust these based on actual status values used
       const shortlisted = applicants.filter(
         (a) =>
           a.status?.toLowerCase() === "shortlisted" ||
@@ -95,14 +86,12 @@ export default function ApplicantTrackingPage() {
     });
   }, [stakeholdersData]);
 
-  // Calculate metrics from API data
   const metrics = useMemo(() => {
-    const openVacancies = vacancies.length; // All vacancies shown are "open"
+    const openVacancies = vacancies.length;
     const totalApplicants = vacancies.reduce(
       (sum, v) => sum + v.applicationCount,
       0,
     );
-    // Placeholder for avg time-to-hire (would need backend calculation)
     return {
       openVacancies,
       totalApplicants,
@@ -163,7 +152,6 @@ export default function ApplicantTrackingPage() {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
       <div className="bg-background rounded-md p-6">
         <h2 className="text-2xl font-bold text-gray-800">Applicant Tracking</h2>
         <p className="text-gray-600 mt-1">
@@ -171,7 +159,6 @@ export default function ApplicantTrackingPage() {
         </p>
       </div>
 
-      {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <MetricCard
           title="Open Vacancies"
@@ -190,7 +177,6 @@ export default function ApplicantTrackingPage() {
         />
       </div>
 
-      {/* Post New Vacancy Button */}
       <div>
         <Button
           variant={"outline"}
@@ -202,7 +188,6 @@ export default function ApplicantTrackingPage() {
         </Button>
       </div>
 
-      {/* Vacancy Summary Table */}
       <Card>
         <CardContent className="p-6">
           <div className="space-y-4">

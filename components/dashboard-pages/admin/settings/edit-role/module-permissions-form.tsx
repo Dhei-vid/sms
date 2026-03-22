@@ -10,7 +10,6 @@ interface ModulePermission {
 }
 
 interface ModulePermissionsFormProps {
-  /** Module names from backend (GET role-templates response.modules). */
   modules: string[];
   permissions: ModulePermission[];
   onPermissionChange: (

@@ -34,7 +34,6 @@ const categories: Category[] = [
   },
 ];
 
-/** Format product for store display */
 function toStoreProduct(p: Product): {
   id: string;
   name: string;
@@ -83,13 +82,11 @@ export default function CanteenTerminalPage() {
       const newCart = { ...prevCart };
 
       if (newCart[productId]) {
-        // If already in cart, increase quantity
         newCart[productId] = {
           ...newCart[productId],
           quantity: newCart[productId].quantity + 1,
         };
       } else {
-        // Add to cart with quantity 1
         newCart[productId] = { productId, quantity: 1 };
       }
 
@@ -139,7 +136,6 @@ export default function CanteenTerminalPage() {
   };
 
   const handlePurchase = () => {
-    // Open order summary sheet
     setOrderSummaryOpen(true);
   };
 
@@ -171,7 +167,6 @@ export default function CanteenTerminalPage() {
   };
 
   const handleAddAnotherItem = () => {
-    // Close sheet to allow adding more items
     setOrderSummaryOpen(false);
   };
 
@@ -185,14 +180,12 @@ export default function CanteenTerminalPage() {
 
   return (
     <div className="space-y-6 pb-24">
-      {/* Category Filters */}
       <CategoryFilter
         categories={categories}
         selectedCategory={selectedCategory}
         onCategoryChange={setSelectedCategory}
       />
 
-      {/* Products Grid */}
       <div className="px-1 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         {filteredProducts.map((product) => {
           const cartItem = cart[product.id];
@@ -217,14 +210,12 @@ export default function CanteenTerminalPage() {
         })}
       </div>
 
-      {/* Empty State */}
       {filteredProducts.length === 0 && (
         <div className="text-center py-12">
           <p className="text-gray-500">No products found in this category.</p>
         </div>
       )}
 
-      {/* Purchase Button - Fixed at bottom */}
       {getTotalItems() > 0 && (
         <div className="fixed bottom-6 right-6 z-50">
           <Button
@@ -245,7 +236,6 @@ export default function CanteenTerminalPage() {
         </div>
       )}
 
-      {/* Order Summary Sheet */}
       <OrderSummarySheet
         open={orderSummaryOpen}
         onOpenChange={setOrderSummaryOpen}

@@ -139,7 +139,6 @@ export default function GeneralAccountingPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="bg-background rounded-md p-6">
         <h2 className="text-2xl font-bold text-gray-800">General Accounting</h2>
         <p className="text-gray-600 mt-1">
@@ -148,7 +147,6 @@ export default function GeneralAccountingPage() {
         </p>
       </div>
 
-      {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <FinancialMetricCard
           title="Net Available Cash"
@@ -182,9 +180,7 @@ export default function GeneralAccountingPage() {
         />
       </div>
 
-      {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Cash Flow Trend */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -209,7 +205,6 @@ export default function GeneralAccountingPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {/* Legend */}
               <div className="flex items-center gap-4 text-sm">
                 <div className="flex items-center gap-2">
                   <div className="h-3 w-3 rounded bg-green-500" />
@@ -221,7 +216,6 @@ export default function GeneralAccountingPage() {
                 </div>
               </div>
 
-              {/* Chart Placeholder */}
               <div className="h-64 flex items-end justify-between gap-2 border rounded-lg p-4">
                 {["Jul", "Aug", "Sep", "Oct", "Nov", "Dec"].map(
                   (month, index) => (
@@ -252,7 +246,6 @@ export default function GeneralAccountingPage() {
           </CardContent>
         </Card>
 
-        {/* Quick Actions */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-gray-800">
@@ -267,7 +260,6 @@ export default function GeneralAccountingPage() {
                 icon={action.icon}
                 description={action.description}
                 onClick={() => {
-                  // Handle action click
                   console.log(action.title);
                 }}
               />
@@ -276,7 +268,6 @@ export default function GeneralAccountingPage() {
         </Card>
       </div>
 
-      {/* Recent Activity Log */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">

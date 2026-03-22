@@ -49,7 +49,7 @@ export function ProductCard({
       }}
     >
       <CardContent className="p-0">
-        {/* Product Image */}
+
         <div className="relative w-full h-48 bg-gray-100 flex items-center justify-center overflow-hidden">
           {image ? (
             <Image
@@ -64,7 +64,7 @@ export function ProductCard({
           )}
         </div>
 
-        {/* Product Info */}
+
         <div className="p-4">
           <div className="col-span-2">
             <h3 className="font-semibold text-gray-800 mb-2 line-clamp-2">

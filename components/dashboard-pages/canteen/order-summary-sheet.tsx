@@ -59,7 +59,6 @@ export function OrderSummarySheet({
     "wallet",
   );
 
-  // Get cart items with product details
   const cartItems = Object.values(cart).map((item) => {
     const product = products.find((p) => p.id === item.productId);
     return {
@@ -68,7 +67,6 @@ export function OrderSummarySheet({
     };
   });
 
-  // Calculate totals
   const calculateSubtotal = () => {
     return cartItems.reduce((total, item) => {
       if (!item.product) return total;
@@ -78,7 +76,7 @@ export function OrderSummarySheet({
   };
 
   const subtotal = calculateSubtotal();
-  const total = subtotal; // No tax or fees for now
+  const total = subtotal;
 
   const formatCurrency = (amount: number) => {
     return `₦ ${amount.toLocaleString("en-NG", {
@@ -89,7 +87,6 @@ export function OrderSummarySheet({
 
   const handleCompleteTransaction = () => {
     if (!studentId.trim()) {
-      // Could add validation here
       return;
     }
     onCompleteTransaction(studentId, paymentMethod);
@@ -109,7 +106,6 @@ export function OrderSummarySheet({
         </SheetHeader>
 
         <div className="px-6 py-6 space-y-6">
-          {/* Ordered Items */}
           <div className="space-y-4">
             {cartItems.map((item) => {
               if (!item.product) return null;
@@ -119,7 +115,6 @@ export function OrderSummarySheet({
                   key={item.productId}
                   className="flex items-start gap-4 pb-4 border-b last:border-b-0"
                 >
-                  {/* Product Image */}
                   <div className="relative w-16 h-16 rounded-full overflow-hidden shrink-0 bg-gray-100">
                     {item.product.image ? (
                       <Image
@@ -136,7 +131,6 @@ export function OrderSummarySheet({
                     )}
                   </div>
 
-                  {/* Product Details */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <h3 className="font-semibold text-gray-800 text-sm">
@@ -147,7 +141,6 @@ export function OrderSummarySheet({
                       </p>
                     </div>
 
-                    {/* Quantity Selector */}
                     <div
                       className="place-self-end"
                       onClick={(e) => e.stopPropagation()}
@@ -165,7 +158,6 @@ export function OrderSummarySheet({
             })}
           </div>
 
-          {/* Add Another Item Button */}
           <Button
             variant="outline"
             onClick={onAddAnotherItem}
@@ -175,7 +167,6 @@ export function OrderSummarySheet({
             Add another item
           </Button>
 
-          {/* Summary Totals */}
           <div className="space-y-3 pt-4 border-t">
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">Sub-total</span>
@@ -191,13 +182,11 @@ export function OrderSummarySheet({
             </div>
           </div>
 
-          {/* Payment Method Section */}
           <div className="space-y-4 pt-4 border-t">
             <h3 className="text-base font-semibold text-gray-800">
               Payment Method
             </h3>
 
-            {/* Student ID Input */}
             <div className="space-y-2">
               <Label htmlFor="studentId" className="text-sm text-gray-700">
                 Enter Student ID
@@ -212,7 +201,6 @@ export function OrderSummarySheet({
               />
             </div>
 
-            {/* Payment Buttons */}
             <div className="grid grid-cols-2 gap-3">
               <Button
                 variant="outline"

@@ -15,7 +15,6 @@ export interface ApplicantDetailsState {
 
 export type DocumentUploadState = Record<string, File | null>;
 
-/** Academic history fields (optional) - matches Academic history in admissions record view */
 export interface AcademicDetailsState {
   currentPreviousSchool: string;
   lastGradeCompleted: string;
@@ -103,7 +102,6 @@ function toScalars(state: AdmissionFormState, schoolId: string | null) {
   const username =
     details.email.trim() ||
     details.firstName.replace(/\s+/g, ".").toLowerCase();
-  // Use schoolId from form details if provided, otherwise fall back to passed schoolId
   const finalSchoolId = details.schoolId || schoolId || "";
   return {
     school_id: finalSchoolId,

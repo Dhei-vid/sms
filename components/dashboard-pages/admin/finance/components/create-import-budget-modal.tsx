@@ -38,18 +38,15 @@ export function CreateImportBudgetModal({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = () => {
-    // Handle form submission
     console.log("Create/Import budget submitted", {
       ...formData,
     });
-    // Reset form and close modal
     setFormData(initialData);
     onOpenChange(false);
   };
 
   const handleClose = (open: boolean) => {
     if (!open) {
-      // Reset form when modal closes
       setFormData(initialData);
     }
     onOpenChange(open);
@@ -83,7 +80,6 @@ export function CreateImportBudgetModal({
       size="2xl"
     >
       <div className="space-y-6 py-4">
-        {/* Import from Template */}
         <div className="space-y-2">
           <Label className="text-sm font-medium">
             Import from Template (Excel/CSV)
@@ -112,7 +108,6 @@ export function CreateImportBudgetModal({
           </div>
         </div>
 
-        {/* Budget Fiscal Year */}
         <SelectField
           label="Budget Fiscal Year"
           value={formData.fiscalYear}
@@ -128,7 +123,6 @@ export function CreateImportBudgetModal({
           ))}
         </SelectField>
 
-        {/* Budget Category */}
         <SelectField
           label="Budget Category"
           value={formData.budgetCategory}
@@ -144,7 +138,6 @@ export function CreateImportBudgetModal({
           ))}
         </SelectField>
 
-        {/* Budget Title */}
         <InputField
           label="Budget Title"
           placeholder="E.g., Salaries, Utilities"
@@ -155,7 +148,6 @@ export function CreateImportBudgetModal({
           }
         />
 
-        {/* Budget Amount */}
         <div className="space-y-2">
           <Label className="text-sm font-medium">Budget Amount (₦)</Label>
           <div className="relative">
@@ -177,7 +169,6 @@ export function CreateImportBudgetModal({
           </div>
         </div>
 
-        {/* Action Buttons */}
         <div className="grid grid-cols-2 gap-3 pt-4">
           <Button variant="outline" onClick={() => handleClose(false)}>
             Cancel

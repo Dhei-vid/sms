@@ -6,7 +6,6 @@ import { MetricCard } from "@/components/dashboard-pages/admin/admissions/compon
 import { AttendanceFilters } from "@/components/dashboard-pages/admin/students/components/attendance-filters";
 import { AttendanceTable } from "@/components/dashboard-pages/admin/students/components/attendance-table";
 
-// API
 import { useGetAllAttendanceQuery } from "@/services/attendance/attendance";
 
 type AttendanceStatus = "present" | "absent" | "no-data";
@@ -18,10 +17,8 @@ interface StudentAttendance {
   attendance: Record<number, AttendanceStatus>;
 }
 
-// Generate dates from 13 to 25
 const dates = Array.from({ length: 13 }, (_, i) => i + 13);
 
-// Sample student data
 const sampleStudents: StudentAttendance[] = [
   {
     id: "1",
@@ -194,7 +191,6 @@ export default function AttendanceTrackingPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="bg-background rounded-md p-6">
         <h2 className="text-2xl font-bold text-gray-800">
           Attendance Tracking & Overview
@@ -204,12 +200,10 @@ export default function AttendanceTrackingPage() {
         </p>
       </div>
 
-      {/* Class Attendance Section */}
       <Card>
         <CardHeader>Class Attendace</CardHeader>
         <CardContent>
           <div className="space-y-6">
-            {/* Filters */}
             <AttendanceFilters
               month={month}
               week={week}
@@ -222,7 +216,6 @@ export default function AttendanceTrackingPage() {
         </CardContent>
       </Card>
 
-      {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <MetricCard
           title="Total Students"
@@ -247,7 +240,6 @@ export default function AttendanceTrackingPage() {
         />
       </div>
 
-      {/* Attendance List Section */}
       <Card>
         <CardHeader>Attendance List</CardHeader>
         <CardContent>

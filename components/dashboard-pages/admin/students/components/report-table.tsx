@@ -127,7 +127,6 @@ export function ReportTable({ students }: ReportTableProps) {
         </Table>
       </div>
 
-      {/* Load More */}
       <div className="flex justify-center">
         <Button variant="outline">Load More</Button>
       </div>

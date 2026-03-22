@@ -17,7 +17,7 @@ import { computeResultMetrics } from "./result-metrics";
 
 const BASE = "/results";
 
-/** Normalize list response: backend may return data as array or { data: array } */
+// GET /results: data is array or { data: [] }
 function normalizeExamResultsListResponse(
   response: ApiResponse<ExamResult[] | { data?: ExamResult[] }> | undefined,
 ): ExamResultsListResponse {

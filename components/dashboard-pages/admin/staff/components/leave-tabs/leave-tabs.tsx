@@ -5,7 +5,6 @@ import { Icon } from "@/components/general/huge-icon";
 import {
   User03Icon,
   DocumentValidationIcon,
-  // DocumentCheckIcon,
 } from "@hugeicons/core-free-icons";
 
 type TabId = "snapshot" | "details" | "policy";

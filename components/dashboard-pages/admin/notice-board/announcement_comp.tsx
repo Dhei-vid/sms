@@ -19,7 +19,6 @@ import { format } from "date-fns";
 import { useAppSelector } from "@/store/hooks";
 import { selectUser } from "@/store/slices/authSlice";
 
-// Icon mapping based on notification type
 const getIconForType = (type: string) => {
   const iconMap: Record<string, any> = {
     info: InformationCircleIcon,
@@ -35,25 +34,19 @@ const NoticeGeneralAnnouncementBoard = () => {
   const user = useAppSelector(selectUser);
   const [markRead] = useMarkNotificationReadMutation();
 
-  // Fetch general announcements - filter by target_audience=general
-  // Backend QueryFilter expects: target_audience[eq]=general
   const {
     data: notificationsData,
     isLoading,
     isError,
   } = useGetNotificationsQuery({
-    // Pass filter parameter in the format backend expects
     "target_audience[eq]": "general",
   } as any);
 
-  // Filter for general announcements and transform data
   const generalAnnouncements = useMemo(() => {
     if (!notificationsData?.data) return [];
 
-    // Filter and map notifications
     const filtered = notificationsData.data
       .filter((notification) => {
-        // Filter for general announcements and non-deleted
         return (
           notification.target_audience === "general" &&
           !notification.is_deleted &&
@@ -61,21 +54,17 @@ const NoticeGeneralAnnouncementBoard = () => {
         );
       })
       .map((notification) => {
-        // Format posted date
         const postedDate = notification.created_at
           ? format(new Date(notification.created_at), "MMMM d, h:mm a")
           : "Unknown date";
 
-        // Get creator name
         const postedBy =
           notification.creator?.first_name && notification.creator?.last_name
             ? `${notification.creator.first_name} ${notification.creator.last_name}`
             : notification.creator?.username || "Admin";
 
-        // Calculate viewed count (read_users length)
         const viewedCount = notification.read_users?.length || 0;
 
-        // Check if current user has read this notification
         const isUnread = user?.id
           ? !notification.read_users?.includes(user.id)
           : true;
@@ -89,18 +78,16 @@ const NoticeGeneralAnnouncementBoard = () => {
           posted: postedDate,
           icon: getIconForType(notification.type || "info"),
           isUnread: isUnread,
-          createdAt: notification.created_at, // Keep for sorting
+          createdAt: notification.created_at,
         };
       })
       .sort((a, b) => {
-        // Sort by date (newest first)
         if (!a.createdAt || !b.createdAt) return 0;
         return (
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
       });
 
-    // Remove createdAt from final output
     return filtered.map(({ createdAt, ...rest }) => rest);
   }, [notificationsData, user?.id]);
 

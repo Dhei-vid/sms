@@ -208,7 +208,7 @@ export const stakeholdersApi = baseApi.injectEndpoints({
       CreateStakeholdersRequest | FormData
     >({
       query: (body) => {
-        // If FormData, don't set Content-Type header (browser will set it with boundary)
+        // FormData: browser sets Content-Type + boundary
         if (body instanceof FormData) {
           return {
             url: BASE,

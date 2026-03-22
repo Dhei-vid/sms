@@ -16,7 +16,6 @@ export default function LeaveDetailPage({
 }) {
   const [activeTab, setActiveTab] = useState<TabId>("snapshot");
 
-  // In a real app, fetch leave request data based on params.id
   const leaveRequest = {
     staffName: "Mr. Chinedu Okafor",
     leaveType: "Annual Leave",
@@ -28,27 +27,19 @@ export default function LeaveDetailPage({
   };
 
   const handleApprove = () => {
-    // Handle approve action
     console.log("Approve leave request");
-    // Could show confirmation modal, update status, etc.
   };
 
   const handleDeny = () => {
-    // Handle deny action
     console.log("Deny leave request");
-    // Could show confirmation modal, update status, etc.
   };
 
   const handleViewDocument = () => {
-    // Handle view document action
     console.log("View supporting document");
-    // Could open document viewer, download, etc.
   };
 
   const handleAssignCoverage = () => {
-    // Handle assign coverage action
     console.log("Assign coverage");
-    // Could open modal to assign coverage, etc.
   };
 
   const renderTabContent = () => {
@@ -91,7 +82,6 @@ export default function LeaveDetailPage({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="bg-background rounded-md p-6">
         <h2 className="text-2xl font-bold text-gray-800">
           Leave Request Details: {leaveRequest.staffName}
@@ -99,9 +89,7 @@ export default function LeaveDetailPage({
         <p className="text-gray-600 mt-1">All necessary context for approval</p>
       </div>
 
-      {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {/* Left Navigation */}
         <div className="lg:col-span-1">
           <Card className="bg-background p-0">
             <CardContent className="px-2 py-4">
@@ -110,7 +98,6 @@ export default function LeaveDetailPage({
           </Card>
         </div>
 
-        {/* Right Content */}
         <div className="lg:col-span-3">
           <Card className="p-0 bg-background">
             <CardContent className="p-6">{renderTabContent()}</CardContent>

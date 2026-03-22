@@ -118,7 +118,6 @@ export default function GradesReportCardPage() {
     });
   }, [allSubjectPerformances]);
 
-  // Pagination for subject performances
   const {
     displayedData: subjectPerformances,
     hasMore: hasMoreSubjects,
@@ -129,7 +128,6 @@ export default function GradesReportCardPage() {
     itemsPerPage: 4,
   });
 
-  // Pagination for report cards
   const {
     displayedData: reportCards,
     hasMore: hasMoreReportCards,
@@ -146,7 +144,6 @@ export default function GradesReportCardPage() {
   };
 
   const handleDownloadPDF = (reportCard: ReportCard) => {
-    // Handle download logic
     console.log("Download PDF for:", reportCard.documentName);
   };
 
@@ -228,7 +225,6 @@ export default function GradesReportCardPage() {
 
   return (
     <div className="space-y-4">
-      {/* Page Header */}
       <div className="bg-background rounded-md p-6">
         <h1 className="text-2xl font-bold text-gray-800 mb-2">
           Grades & Report Card Overview
@@ -240,7 +236,6 @@ export default function GradesReportCardPage() {
         </p>
       </div>
 
-      {/* Key Performance Indicators */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <MetricCard
           title="Current Term Performance"
@@ -259,7 +254,6 @@ export default function GradesReportCardPage() {
         />
       </div>
 
-      {/* Subject-Specific Current Averages */}
       <Card>
         <CardHeader>
           <div>
@@ -291,7 +285,6 @@ export default function GradesReportCardPage() {
         </CardContent>
       </Card>
 
-      {/* Official Report Card Access */}
       <Card>
         <CardHeader>
           <div>
@@ -323,7 +316,6 @@ export default function GradesReportCardPage() {
         </CardContent>
       </Card>
 
-      {/* Detailed Grade View Modal */}
       {selectedSubject && (
         <DetailedGradeViewModal
           open={modalOpen}

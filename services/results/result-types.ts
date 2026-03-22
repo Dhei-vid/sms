@@ -1,7 +1,6 @@
 import type { ApiResponse, ApiListResponse } from "../shared-types";
 import { Stakeholders } from "../stakeholders/stakeholder-types";
 
-/** Subject result (per-subject scores) from the API */
 export interface SubjectResult {
   id: string;
   subject: string;
@@ -29,7 +28,6 @@ export interface Result {
   subject_results: SubjectResult[];
 }
 
-/** Exam result as returned by GET /results (matches backend ExamResultSerializer) */
 export interface ExamResult extends Result {
   student_id?: string;
   student?: Record<string, unknown>;
@@ -64,25 +62,20 @@ export interface UpdateResultParams {
   principal_remarks?: string;
 }
 
-/** Params for PUT /results/:id (partial update). Call as { id, principal_remarks } or { id, data: { principal_remarks } }. */
 export interface UpdateExamResultParams {
   id: string;
   principal_remarks?: string;
   student_id?: string;
-  /** Alternative: pass update fields under data (e.g. { id, data: { principal_remarks } }) */
   data?: Partial<UpdateResultParams>;
 }
 
-/** Query params for GET /results (supports _all and filter keys like class_name[eq], term[eq], session[eq]) */
 export interface ExamResultsQueryParams {
   _all?: boolean;
   [key: string]: string | boolean | number | undefined;
 }
 
-/** List response: backend may return data as array or { data: array } */
 export type ExamResultsListResponse = ApiResponse<ExamResult[]>;
 
-// WHY??
 export interface DeleteResultParams {
   creator_id: string;
   username: string;
@@ -126,7 +119,6 @@ export interface RecordResultsParams {
   }>;
 }
 
-/** Single grade bucket in the distribution (e.g. A-Grade, B-Grade) */
 export interface GradeDistributionItem {
   label: string;
   grade: string;

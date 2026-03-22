@@ -227,8 +227,6 @@ function AddEditSubjectOutlineContent() {
         mode: "edit",
         ...subjectToForm(subjectResponse.data as Subject),
       }));
-    } else if (editId && !subjectResponse?.data) {
-      // Id in URL but no subject loaded - could be loading or error
     }
   }, [editId, subjectResponse?.data]);
 
@@ -425,7 +423,6 @@ function AddEditSubjectOutlineContent() {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
       <div className="bg-background rounded-md p-6">
         <h2 className="text-2xl font-bold text-gray-800">
           Add/Edit Subject Outline
@@ -436,9 +433,7 @@ function AddEditSubjectOutlineContent() {
         </p>
       </div>
 
-      {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {/* Left Navigation */}
         <div className="lg:col-span-1">
           <Card className="bg-background p-0">
             <CardContent className="px-2 py-4">
@@ -452,7 +447,6 @@ function AddEditSubjectOutlineContent() {
           </Card>
         </div>
 
-        {/* Right Content */}
         <div className="lg:col-span-3">
           <Card className="p-0 bg-background">
             <CardContent className="p-6">{renderStepContent()}</CardContent>

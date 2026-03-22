@@ -33,18 +33,15 @@ export function SetDailySpendingLimitModal({
     useState<SetDailySpendingLimitForm>(initialData);
 
   const handleSubmit = () => {
-    // Handle form submission
     console.log("Set daily spending limit submitted", {
       ...formData,
     });
-    // Reset form and close modal
     setFormData(initialData);
     onOpenChange(false);
   };
 
   const handleClose = (open: boolean) => {
     if (!open) {
-      // Reset form when modal closes
       setFormData(initialData);
     }
     onOpenChange(open);
@@ -58,7 +55,6 @@ export function SetDailySpendingLimitModal({
       size="2xl"
     >
       <div className="space-y-6 py-4">
-        {/* Apply To */}
         <InputField
           label="Apply To:"
           placeholder="E.g., All Students, Specific Grade/Class, Individual Student"
@@ -72,7 +68,6 @@ export function SetDailySpendingLimitModal({
           }
         />
 
-        {/* Max Daily Spend */}
         <InputField
           label="Max Daily Spend (₦)"
           placeholder="placeholder"
@@ -86,7 +81,6 @@ export function SetDailySpendingLimitModal({
           }
         />
 
-        {/* Reset Time */}
         <TimePicker
           label="Reset Time"
           time={formData.resetTime}
@@ -101,7 +95,6 @@ export function SetDailySpendingLimitModal({
           }
         />
 
-        {/* Policy Reference */}
         <InputField
           label="Policy Reference"
           placeholder='E.g., "Parent requested low limit for dietary control."'
@@ -115,7 +108,6 @@ export function SetDailySpendingLimitModal({
           }
         />
 
-        {/* Action Buttons */}
         <div className="grid grid-cols-2 gap-3 pt-4">
           <Button variant="outline" onClick={() => handleClose(false)}>
             Cancel

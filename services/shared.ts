@@ -1,4 +1,3 @@
-/** Re-exports shared API hooks (same baseApi cache across dashboards). */
 export {
   useGetCoursesQuery,
   useGetCourseByIdQuery,
@@ -9,8 +8,6 @@ export {
 
 export type {
   Course,
-  // CoursesListResponse,
-  // CoursesQueryParams,
   CreateCourseRequest,
   UpdateCourseRequest,
 } from "./courses/courses-type";
@@ -33,8 +30,6 @@ export {
 
 export type {
   Assignment,
-  // AssignmentsListResponse,
-  // AssignmentsQueryParams,
   CreateAssignmentRequest,
   UpdateAssignmentRequest,
 } from "./assignments/assignments-type";
@@ -46,7 +41,6 @@ export type {
   NoticesQueryParams,
 } from "./notices/notice-types";
 
-// Calendar Events - Used in: Admin, Teacher, Parent, Student dashboards
 export {
   useGetCalendarEventsQuery,
   useGetCalendarEventByIdQuery,
@@ -67,8 +61,6 @@ export {
 
 export type {
   Message,
-  // MessagesListResponse,
-  // MessagesQueryParams,
   CreateMessageRequest,
 } from "./messages/messages-type";
 
@@ -88,7 +80,6 @@ export type {
   UpdateNotifications,
 } from "./notifications/notification-types";
 
-// Canteen - Products & Orders (used by canteen dashboard)
 export {
   useGetProductsQuery,
   useGetProductByIdQuery,

@@ -11,7 +11,6 @@ import DatePickerIcon from "@/components/ui/date-picker";
 import { SelectItem } from "@/components/ui/select";
 import type { PersonalInformationState } from "./staff-form-state";
 
-// Helper function to generate school email
 function generateSchoolEmail(
   firstName: string,
   lastName: string,
@@ -21,7 +20,6 @@ function generateSchoolEmail(
     return "";
   }
 
-  // Clean and format names
   const cleanFirstName = firstName
     .toLowerCase()
     .trim()
@@ -33,7 +31,6 @@ function generateSchoolEmail(
     .replace(/\s+/g, ".")
     .replace(/[^a-z0-9.]/g, "");
 
-  // Convert school name to domain format (lowercase, remove special chars, replace spaces)
   const schoolDomain = schoolName
     .toLowerCase()
     .trim()
@@ -63,13 +60,9 @@ export function PersonalInformationForm({
     useGetSchoolsQuery();
   const schools = schoolsData?.data || [];
 
-  // Get selected school
   const selectedSchool = schools.find((s) => s.id === formData.schoolId);
 
-  // Auto-generate school email when firstName, lastName, or schoolId changes
-  // Use useEffect with proper dependency handling to avoid hydration issues
   useEffect(() => {
-    // Only run on client side to avoid hydration mismatch
     if (typeof window === "undefined") return;
 
     if (formData.firstName && formData.lastName && selectedSchool) {
@@ -120,7 +113,6 @@ export function PersonalInformationForm({
       </h2>
 
       <div className="space-y-6">
-        {/* School Selector */}
         <SelectField
           label="School"
           placeholder={

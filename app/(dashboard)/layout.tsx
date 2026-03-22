@@ -6,6 +6,7 @@ import { matchMenuItemByPath } from "@/utils";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { Header } from "@/components/dashboard/header";
 import { UserRole } from "@/lib/types";
+import { AuthUser } from "@/services/auth/auth";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
@@ -16,7 +17,6 @@ import {
   rehydrateAuth,
 } from "@/store/slices/authSlice";
 
-// Extract role from pathname
 function getRoleFromPath(pathname: string): UserRole {
   if (pathname.startsWith("/admin") || pathname === "/dashboard")
     return "admin";
@@ -27,7 +27,15 @@ function getRoleFromPath(pathname: string): UserRole {
   return "admin";
 }
 
-// Check if sidebar should be hidden based on URL
+// Users with "admin" permission → admin UI
+function getEffectiveRole(user: AuthUser | null, pathRole: UserRole): UserRole {
+  if (!user) return pathRole;
+  const permissions = user.permissions as string[];
+  if (Array.isArray(permissions) && permissions.includes("admin"))
+    return "admin";
+  return user.role;
+}
+
 function shouldHideSidebar(pathname: string): boolean {
   const quizPagePattern = /^\/student\/(quiz|assignments)\/[^/]+$/;
   if (quizPagePattern.test(pathname)) {
@@ -53,13 +61,11 @@ export default function DashboardLayout({
     }
   }, [dispatch, pathname, router]);
 
-  // Get authentication state from Redux
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const authUser = useAppSelector(selectUser);
 
-  // Determine role from pathname or authenticated user
   const roleFromPath = getRoleFromPath(pathname);
-  const role = authUser?.role || roleFromPath;
+  const role = getEffectiveRole(authUser, roleFromPath);
 
   const hideSidebar = shouldHideSidebar(pathname);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -75,14 +81,11 @@ export default function DashboardLayout({
     }
   }, [isAuthenticated, router, pathname]);
 
-  // Handle window resize to manage sidebar state
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1024) {
-        // Desktop: restore sidebar if it was collapsed
         setMobileMenuOpen(false);
       } else {
-        // Mobile: close mobile menu on resize
         setMobileMenuOpen(false);
       }
     };
@@ -93,7 +96,6 @@ export default function DashboardLayout({
 
   return (
     <div className="flex h-screen overflow-hidden bg-main-bg">
-      {/* Desktop Sidebar */}
       {!hideSidebar && (
         <>
           <aside
@@ -111,7 +113,6 @@ export default function DashboardLayout({
             </div>
           </aside>
 
-          {/* Mobile Sidebar Sheet */}
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetContent side="left" className="w-64 p-0 sm:max-w-sm">
               <Sidebar
@@ -124,11 +125,9 @@ export default function DashboardLayout({
         </>
       )}
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         <div className="p-2">
           <Header
-            // user={authUser}
             metaData={path}
             onMenuClick={() => setMobileMenuOpen(true)}
             onSidebarToggle={() => setSidebarCollapsed(!sidebarCollapsed)}

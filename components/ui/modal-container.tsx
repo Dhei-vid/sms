@@ -47,8 +47,7 @@ const sizeClasses = {
   full: "sm:max-w-full",
 };
 
-// Map semantic maxHeight values to real Tailwind classes
-// We use custom values instead of the (non-existent) max-h-sm/md/lg utilities.
+// Tailwind has no max-h-sm/md/lg; use arbitrary values
 const maxHeightClasses = {
   sm: "!max-h-[60vh]",
   md: "!max-h-[70vh]",

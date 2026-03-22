@@ -70,7 +70,6 @@ export default function WalletPage() {
     } else if (amount.startsWith("-")) {
       return "text-red-600";
     }
-    // For amounts without sign (debits), default to red
     return "text-red-600";
   };
 
@@ -110,7 +109,6 @@ export default function WalletPage() {
 
   return (
     <div className="space-y-4">
-      {/* Page Header */}
       <div className="bg-background rounded-md p-6">
         <h1 className="text-2xl font-bold text-gray-800 mb-2">
           My Wallet (Canteen/Payments)
@@ -121,7 +119,6 @@ export default function WalletPage() {
         </p>
       </div>
 
-      {/* Wallet Balance Section */}
       <div className="bg-main-blue text-white rounded-md p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -150,7 +147,6 @@ export default function WalletPage() {
         </div>
       </div>
 
-      {/* Transaction History Table */}
       <div className="bg-background rounded-md p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-gray-800">
@@ -175,7 +171,6 @@ export default function WalletPage() {
         </div>
       </div>
 
-      {/* Top Up Wallet Modal */}
       <TopUpWalletModal
         open={topUpModalOpen}
         onOpenChange={setTopUpModalOpen}

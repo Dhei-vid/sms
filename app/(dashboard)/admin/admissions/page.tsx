@@ -7,11 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MetricCard } from "@/components/dashboard-pages/admin/admissions/components/metric-card";
 import { QuickActionCard } from "@/components/dashboard-pages/admin/admissions/components/quick-action-card";
 import { Separator } from "@/components/ui/separator";
-import {
-  DocumentValidationIcon,
-  PendulumIcon,
-  UserAdd01Icon,
-} from "@hugeicons/core-free-icons";
+import { UserAdd01Icon } from "@hugeicons/core-free-icons";
 import { ApplicationTable } from "@/components/dashboard-pages/admin/admissions/components/application-table";
 import type { AdmissionApplication } from "@/services/shared-types";
 import type { Stakeholders } from "@/services/stakeholders/stakeholder-types";
@@ -71,18 +67,6 @@ export default function AdmissionsPage() {
   }
 
   const quickActions: QuickAction[] = [
-    // {
-    //   title: "New Applications",
-    //   description: "Review new applications.",
-    //   icon: DocumentValidationIcon,
-    //   onClick: () => router.push("admissions/add"),
-    // },
-    // {
-    //   title: "Pending Fees",
-    //   description: "See applications awaiting enrollment payment.",
-    //   icon: PendulumIcon,
-    //   onClick: () => console.log("Pending Fees clicked"),
-    // },
     {
       title: "Add New Applicant",
       description: "Manually add an applicant.",
@@ -92,7 +76,6 @@ export default function AdmissionsPage() {
   ];
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="bg-background rounded-md mb-6 p-6">
         <h2 className="text-2xl font-bold text-gray-800">
           Admissions & Enrollments
@@ -102,9 +85,7 @@ export default function AdmissionsPage() {
         </p>
       </div>
 
-      {/* Key Metrics and Quick Actions Section */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {/* Key Metrics Section */}
         <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <MetricCard
             title="Inquiries/Interest (Stage 1)"
@@ -148,7 +129,6 @@ export default function AdmissionsPage() {
           />
         </div>
 
-        {/* Quick Actions */}
         <div className="lg:col-span-1">
           <Card className="bg-background">
             <CardHeader>
@@ -175,7 +155,6 @@ export default function AdmissionsPage() {
         </div>
       </div>
 
-      {/* Application Management */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg font-semibold">
@@ -194,10 +173,7 @@ export default function AdmissionsPage() {
           ) : (
             <ApplicationTable
               applications={applications}
-              onApplicationsChange={(updatedApplications) => {
-                // This callback can be used to update local state if needed
-                // The table will automatically refresh via RTK Query cache invalidation
-              }}
+              onApplicationsChange={(updatedApplications) => {}}
             />
           )}
         </CardContent>

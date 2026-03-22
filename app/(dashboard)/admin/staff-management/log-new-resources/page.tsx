@@ -17,11 +17,7 @@ export default function LogNewResourcesPage() {
     router.back();
   };
 
-  const handleSubmit = () => {
-    // Forms handle their own success messages via toast
-    // Optionally navigate back or stay on page for multiple entries
-    // For now, we'll stay on the page to allow multiple entries
-  };
+  const handleSubmit = () => {};
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -51,7 +47,6 @@ export default function LogNewResourcesPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="bg-background rounded-md p-6">
         <h2 className="text-2xl font-bold text-gray-800">Log New Resources</h2>
         <p className="text-gray-600 mt-1">
@@ -60,9 +55,7 @@ export default function LogNewResourcesPage() {
         </p>
       </div>
 
-      {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {/* Left Navigation */}
         <div className="lg:col-span-1">
           <Card className="bg-background p-0">
             <CardContent className="px-2 py-4">
@@ -71,7 +64,6 @@ export default function LogNewResourcesPage() {
           </Card>
         </div>
 
-        {/* Right Content */}
         <div className="lg:col-span-3">
           <Card className="p-0 bg-background">
             <CardContent className="p-6">{renderTabContent()}</CardContent>

@@ -28,16 +28,11 @@ export default function ApplicantDetailPage({
   useEffect(() => {
     const resolveParams = async () => {
       try {
-        console.log("Raw params:", params);
         const resolvedParams =
           params instanceof Promise ? await params : params;
-        console.log("Resolved params:", resolvedParams);
         const id = resolvedParams?.id;
-        console.log("Extracted ID:", id);
         if (id) {
           setStakeholderId(id);
-        } else {
-          console.warn("No ID found in params:", resolvedParams);
         }
         setHasChecked(true);
       } catch (error) {

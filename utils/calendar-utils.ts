@@ -130,7 +130,6 @@ export function formDataToCreatePayload(
   };
 }
 
-/** Filter schedule events by user role. Admin sees all. Others see general + their role in specifics. */
 export function filterEventsByRole(
   events: ScheduleEvent[],
   user: AuthUser | null,

@@ -37,17 +37,14 @@ export function EditCanteenItemForm({ onClose }: { onClose: () => void }) {
   const [formData, setFormData] = useState<EditCanteenItemForm>(initialData);
 
   const handleSubmit = () => {
-    // Handle form submission
     console.log("Post canteen item submitted", {
       ...formData,
     });
-    // Reset form and close modal
     setFormData(initialData);
   };
 
   return (
     <div className="space-y-6 py-4">
-      {/* Select Item Category */}
       <SelectField
         label="Select Item"
         value={formData.selectItem}
@@ -62,7 +59,6 @@ export function EditCanteenItemForm({ onClose }: { onClose: () => void }) {
         <SelectItem value="other">Other</SelectItem>
       </SelectField>
 
-      {/* Unit Price */}
       <InputField
         label="Unit Price (₦)"
         placeholder="placeholder"
@@ -76,7 +72,6 @@ export function EditCanteenItemForm({ onClose }: { onClose: () => void }) {
         }
       />
 
-      {/* New Unit Price */}
       <InputField
         label="New Unit Price (₦)"
         placeholder="placeholder"
@@ -90,7 +85,6 @@ export function EditCanteenItemForm({ onClose }: { onClose: () => void }) {
         }
       />
 
-      {/* Available Stock */}
       <InputField
         label="Available Stock"
         placeholder="placeholder"
@@ -104,7 +98,6 @@ export function EditCanteenItemForm({ onClose }: { onClose: () => void }) {
         }
       />
 
-      {/* Payment Allowed */}
       <div className="space-y-3">
         <Label className="text-sm font-medium">Payment Allowed</Label>
         <div className="flex flex-row flex-wrap gap-6">
@@ -165,7 +158,6 @@ export function EditCanteenItemForm({ onClose }: { onClose: () => void }) {
         </div>
       </div>
 
-      {/* Sales Tax Applicable */}
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <Label className="text-sm font-medium">Sales Tax Applicable</Label>
@@ -181,7 +173,6 @@ export function EditCanteenItemForm({ onClose }: { onClose: () => void }) {
         />
       </div>
 
-      {/* Item Status */}
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <Label className="text-sm font-medium">Item Status</Label>
@@ -198,7 +189,6 @@ export function EditCanteenItemForm({ onClose }: { onClose: () => void }) {
         />
       </div>
 
-      {/* Action Buttons */}
       <div className="grid grid-cols-2 gap-3 pt-4">
         <Button variant="outline" onClick={onClose}>
           Cancel

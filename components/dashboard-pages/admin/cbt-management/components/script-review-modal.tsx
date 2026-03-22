@@ -60,7 +60,6 @@ export function ScriptReviewModal({
 }: ScriptReviewModalProps) {
   const [currentIndex, setCurrentIndex] = useState(currentQuestionIndex);
 
-  // Sync internal state with prop when it changes
   React.useEffect(() => {
     setCurrentIndex(currentQuestionIndex);
   }, [currentQuestionIndex]);
@@ -106,11 +105,9 @@ export function ScriptReviewModal({
       maxHeight="90vh"
       className="space-y-6"
     >
-      {/* Student Information Card */}
       <Card className="p-4">
         <CardContent className="p-0">
           <div className="flex items-center gap-4">
-            {/* Profile Picture */}
             <div className="shrink-0">
               {student.avatar ? (
                 <img
@@ -125,7 +122,6 @@ export function ScriptReviewModal({
               )}
             </div>
 
-            {/* Student Details */}
             <div className="flex-1 space-y-2">
               <div>
                 <h3 className="text-lg font-semibold text-gray-800">
@@ -136,7 +132,6 @@ export function ScriptReviewModal({
                 </p>
               </div>
 
-              {/* Tags */}
               <div className="flex flex-wrap gap-2">
                 <div className="bg-gray-100 rounded-md px-3 py-1">
                   <span className="text-xs text-gray-600">
@@ -161,12 +156,10 @@ export function ScriptReviewModal({
         </CardContent>
       </Card>
 
-      {/* Topic Tag */}
       <div>
         <p className="text-sm text-gray-600">{currentQuestion.topicTag}</p>
       </div>
 
-      {/* Question Details Table */}
       <div className="border rounded-lg overflow-hidden">
         <Table>
           <TableHeader>
@@ -176,19 +169,16 @@ export function ScriptReviewModal({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {/* Question Type */}
             <TableRow>
               <TableCell className="font-medium">Question Type</TableCell>
               <TableCell>{currentQuestion.questionType}</TableCell>
             </TableRow>
 
-            {/* Question */}
             <TableRow>
               <TableCell className="font-medium">Questions</TableCell>
               <TableCell>{currentQuestion.question}</TableCell>
             </TableRow>
 
-            {/* Correct Answer */}
             <TableRow>
               <TableCell className="font-medium">Correct Answer</TableCell>
               <TableCell className="font-medium text-green-600">
@@ -196,13 +186,11 @@ export function ScriptReviewModal({
               </TableCell>
             </TableRow>
 
-            {/* Student Response */}
             <TableRow>
               <TableCell className="font-medium">Student Response</TableCell>
               <TableCell>{currentQuestion.studentResponse}</TableCell>
             </TableRow>
 
-            {/* Score Earned */}
             <TableRow>
               <TableCell className="font-medium">Score Earned</TableCell>
               <TableCell className="font-medium">
@@ -210,7 +198,6 @@ export function ScriptReviewModal({
               </TableCell>
             </TableRow>
 
-            {/* Status */}
             <TableRow>
               <TableCell className="font-medium">Status</TableCell>
               <TableCell>
@@ -239,7 +226,6 @@ export function ScriptReviewModal({
         </Table>
       </div>
 
-      {/* Navigation Footer */}
       <div className="flex justify-end gap-2 pt-4 border-t">
         <Button
           variant="outline"

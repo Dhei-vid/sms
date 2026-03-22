@@ -33,7 +33,6 @@ function ReportGenerationContent() {
     <div className="space-y-6">
       <div className="bg-background rounded-md p-6">
         <h2 className="text-2xl font-bold text-gray-800">
-          {/* Add something here */}
           Report Generation -
         </h2>
         <p className="text-gray-600 mt-1">
@@ -41,18 +40,6 @@ function ReportGenerationContent() {
           academic reports.
         </p>
       </div>
-
-      {/* {true && (
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-sm text-gray-700">
-              Report status: {reportStatus.studentsWithResults} of{" "}
-              {reportStatus.totalStudents} students have results (
-              {reportStatus.percentageComplete}% complete).
-            </p>
-          </CardContent>
-        </Card>
-      )} */}
 
       <Card>
         <CardHeader>

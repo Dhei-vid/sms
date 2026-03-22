@@ -18,7 +18,6 @@ export default function CanteenTransactionDetailPage({
   const [activeTab, setActiveTab] = useState<TabId>("core");
   const transactionId = params.id as string;
 
-  // Mock transaction data - in real app, this would be fetched based on transactionId
   const transaction = {
     id: transactionId,
     studentName: "Sola Adebayo",

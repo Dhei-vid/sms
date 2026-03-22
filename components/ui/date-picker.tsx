@@ -44,27 +44,11 @@ export function DatePickerDropDown({ date, setDate, placeholder }: DatePicker) {
   );
 }
 
-/**
- * Extended DatePicker interface with optional open state management
- * Used for date picker components that need controlled open/close state
- */
 interface DatePickerIconProps extends DatePicker {
   open?: boolean;
   setOpen?: Dispatch<SetStateAction<boolean>>;
 }
 
-/**
- * DatePickerIcon Component
- * A date picker input field with calendar icon trigger
- * Supports controlled open state and date selection
- *
- * @param label - Label text for the date picker field
- * @param date - Selected date value (can be undefined)
- * @param setDate - Callback function to update the selected date
- * @param open - Optional controlled open state for the calendar popover
- * @param setOpen - Optional callback to control the popover open state
- * @param placeholder - Optional placeholder text for the input field
- */
 export default function DatePickerIcon({
   label,
   date,

@@ -17,7 +17,6 @@ import {
   TeamviewerIcon,
 } from "@hugeicons/core-free-icons";
 
-// API
 import { useGetAllStaffQuery } from "@/services/stakeholders/stakeholders";
 import { useGetUserRequestsQuery } from "@/services/user-requests/user-requests";
 import { useGetNotificationsQuery } from "@/services/shared";
@@ -29,14 +28,6 @@ export default function StaffDashboardPage() {
   const { data: userRequestData, isLoading: isUserRequestLoading } =
     useGetUserRequestsQuery();
 
-  const recentActivitiess = staffData?.data[0];
-
-  console.log(recentActivitiess);
-
-  // console.log("User request ", userRequestData);
-  // console.log("Stakeholders Data:", staffData);
-
-  // Quick Actions Configuration
   interface QuickAction {
     title: string;
     description: string;
@@ -74,7 +65,6 @@ export default function StaffDashboardPage() {
     },
   ];
 
-  // Recent Activities Configuration
   interface StaffActivity {
     type: "hired" | "absent" | "resignation" | "leave" | "appraisal";
     title: string;
@@ -85,7 +75,6 @@ export default function StaffDashboardPage() {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
       <div className="bg-background rounded-md p-6">
         <h2 className="text-2xl font-bold text-gray-800">
           Staff Overview Dashboard
@@ -96,7 +85,6 @@ export default function StaffDashboardPage() {
         </p>
       </div>
 
-      {/* Workforce Status Section */}
       <div className="space-y-4">
         <div className="bg-card py-6 px-3 rounded-md">
           <div className="border-l-3 border-amber-500 pl-3">
@@ -132,7 +120,6 @@ export default function StaffDashboardPage() {
         </div>
       </div>
 
-      {/* HR & Risk Metrics Section */}
       <div className="space-y-4">
         <div className="bg-card py-6 px-3 rounded-md">
           <div className="border-l-3 border-green-500 pl-3">
@@ -168,9 +155,7 @@ export default function StaffDashboardPage() {
         </div>
       </div>
 
-      {/* Recent Activities and Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Recent Activities Section */}
         <div className="lg:col-span-2">
           <Card>
             <CardHeader>
@@ -197,7 +182,6 @@ export default function StaffDashboardPage() {
           </Card>
         </div>
 
-        {/* Quick Actions Section */}
         <div className="lg:col-span-1">
           <Card className="bg-background py-4">
             <CardHeader>

@@ -51,7 +51,6 @@ export function ReviewDiscountRequestModal({
 
   const handleClose = (open: boolean) => {
     if (!open) {
-      // Reset form when modal closes
       setDiscountValue("");
       setDenialReason("");
     }
@@ -74,7 +73,6 @@ export function ReviewDiscountRequestModal({
 
   if (!request) return null;
 
-  // Request details from the request object
   const requestDetails = [
     {
       field: "Request Summary",
@@ -92,7 +90,6 @@ export function ReviewDiscountRequestModal({
               variant="link"
               className="text-main-blue p-0 h-auto text-sm ml-auto border-0"
               onClick={() => {
-                // Handle view docs
                 console.log("View docs for", request.id);
               }}
             >
@@ -118,7 +115,6 @@ export function ReviewDiscountRequestModal({
       maxHeight="90vh"
     >
       <div className="space-y-6 py-4">
-        {/* Request Details Section */}
         <div className="space-y-4">
           <div className="border rounded-lg overflow-hidden">
             <Table>
@@ -146,7 +142,6 @@ export function ReviewDiscountRequestModal({
           </div>
         </div>
 
-        {/* Admin Decision Input Section */}
         <div className="space-y-4 pt-4 border-t">
           <h3 className="text-lg font-semibold text-gray-800">
             Admin Decision Input
@@ -178,7 +173,6 @@ export function ReviewDiscountRequestModal({
           </div>
         </div>
 
-        {/* Action Buttons */}
         <div className="grid grid-cols-2 gap-3 pt-4">
           <Button
             variant="outline"

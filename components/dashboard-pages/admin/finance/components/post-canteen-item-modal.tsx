@@ -20,7 +20,6 @@ export function PostCanteenItemModal({
 
   const handleClose = (open: boolean) => {
     if (!open) {
-      // Reset form when modal closes
       //   setFormData(initialData);
       setActiveTab("new");
     }

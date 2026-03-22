@@ -16,7 +16,6 @@ interface GradingTask {
   deadline: string;
 }
 
-// Sample data - in production, this would come from an API
 const allGradingTasks: GradingTask[] = [
   {
     id: "1",
@@ -95,7 +94,6 @@ const getActionLabel = (status: GradingTask["submissionStatus"]) => {
 };
 
 export default function GradeEntryPortalPage() {
-  // Pagination
   const {
     displayedData: gradingTasks,
     hasMore,
@@ -167,7 +165,6 @@ export default function GradeEntryPortalPage() {
 
   return (
     <div className="space-y-4">
-      {/* Page Header */}
       <div className="bg-background rounded-md p-6">
         <h1 className="text-2xl font-bold text-gray-800 mb-2">
           Grade Entry Portal Dashboard
@@ -178,7 +175,6 @@ export default function GradeEntryPortalPage() {
         </p>
       </div>
 
-      {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <MetricCard
           title="Pending Submissions"
@@ -194,10 +190,8 @@ export default function GradeEntryPortalPage() {
         />
       </div>
 
-      {/* Quick Actions Section */}
       <GradeEntryQuickActionsCard />
 
-      {/* Grading Task Table Section */}
       <div className="bg-background rounded-md p-6">
         <div className="mb-4">
           <h2 className="text-lg font-semibold text-gray-800">
@@ -205,7 +199,6 @@ export default function GradeEntryPortalPage() {
           </h2>
         </div>
 
-        {/* Grading Task Table */}
         <div className="border rounded-lg overflow-hidden">
           <DataTable
             columns={columns}
@@ -214,7 +207,6 @@ export default function GradeEntryPortalPage() {
           />
         </div>
 
-        {/* Load More Button */}
         {hasMore && (
           <div className="flex justify-center mt-4">
             <Button variant="outline" onClick={loadMore}>

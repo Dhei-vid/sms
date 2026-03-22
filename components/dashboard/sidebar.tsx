@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useMemo } from "react";
@@ -16,6 +17,7 @@ import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
 import { Icon } from "../general/huge-icon";
 import { Button } from "../ui/button";
+import { ArrowLeft05Icon } from "@hugeicons/core-free-icons";
 
 interface SidebarProps {
   role: UserRole;
@@ -31,6 +33,7 @@ export function Sidebar({
   onToggleCollapse,
 }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter()
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const unreadNoticeCount = useUnreadNoticeCount();
   const user = useAppSelector(selectUser);
@@ -88,7 +91,7 @@ export function Sidebar({
   return (
     <div className="flex flex-col space-y-4 h-full rounded-md">
       {/* Logo & Toggle */}
-      <div className="rounded-md flex items-center justify-between gap-3 p-4 lg:p-6 border-b border-border h-13 bg-background">
+      <div className="rounded-md flex items-center justify-between gap-3 p-4 border-b border-border h-13 bg-background">
         <Link
           href="/"
           className={cn(
@@ -97,17 +100,13 @@ export function Sidebar({
           )}
           onClick={onClose}
         >
-          <Image
-            className="w-7 h-7 shrink-0"
-            src={"/logo/sms_icon_blue.png"}
-            alt={"logo"}
-            width={40}
-            height={40}
-          />
           {!collapsed && (
-            <span className="font-bold text-lg whitespace-nowrap">DaraEd </span>
+            <Image src={"/logo/daraEd_icon.png"} width={100} height={100} alt="icon"/>
           )}
         </Link>
+        <div onClick={() => router.back()}>
+          <Icon icon={ArrowLeft05Icon} size={25} className="cursor-pointer" />
+        </div>
       </div>
 
       {/* Navigation */}

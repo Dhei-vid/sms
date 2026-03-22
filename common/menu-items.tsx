@@ -32,28 +32,27 @@ import {
 
 import { MenuItem } from "../lib/types";
 
-// Menu items configuration with role-based access
 export const menuItems: MenuItem[] = [
   {
     id: "dashboard",
     label: "Dashboard",
     icon: DashboardSquare03Icon,
     href: "dashboard",
-    roles: ["admin", "teacher", "parent", "student"],
+    roles: ["admin", "teacher", "staff", "parent", "student"],
   },
   {
     id: "notice-board",
     label: "Notice Board",
     icon: NotificationSquareIcon,
     href: "/notice-board",
-    roles: ["admin", "teacher", "parent", "student"],
+    roles: ["admin", "teacher", "staff", "parent", "student"],
   },
   {
     id: "calendar",
     label: "Calendar",
     icon: Calendar03Icon,
     href: "/calendar",
-    roles: ["admin", "teacher", "parent"],
+    roles: ["admin", "teacher", "staff", "parent"],
     badge: 1,
   },
   {
@@ -61,7 +60,7 @@ export const menuItems: MenuItem[] = [
     label: "Messages",
     icon: Chat01Icon,
     href: "/messages",
-    roles: ["admin", "teacher", "parent", "student"],
+    roles: ["admin", "staff", "teacher", "parent", "student"],
     badge: 3,
   },
   {
@@ -76,7 +75,7 @@ export const menuItems: MenuItem[] = [
     id: "separator",
     label: "",
     href: "",
-    roles: ["admin", "teacher", "parent", "student"],
+    roles: ["admin", "staff", "teacher", "parent", "student"],
   },
   {
     id: "myclass",
@@ -125,27 +124,27 @@ export const menuItems: MenuItem[] = [
     label: "Admissions",
     icon: GraduateMaleIcon,
     href: "/admissions",
-    roles: ["admin"],
+    roles: ["admin", "staff"],
   },
   {
     id: "students",
     label: "Students",
     icon: StudentsIcon,
     href: "/students",
-    roles: ["admin"],
+    roles: ["admin", "staff"],
   },
   {
     id: "staff-management",
     label: "Staff Management",
     icon: TeacherIcon,
     href: "/staff-management",
-    roles: ["admin"],
+    roles: ["admin", "staff"],
   },
   {
     id: "separator",
     label: "",
     href: "",
-    roles: ["admin", "teacher", "parent", "student"],
+    roles: ["admin", "staff", "teacher", "parent", "student"],
   },
   {
     id: "questionbank",
@@ -201,28 +200,28 @@ export const menuItems: MenuItem[] = [
     label: "Finance",
     icon: Money03Icon,
     href: "/finance",
-    roles: ["admin"],
+    roles: ["admin", "staff"],
     children: [
-      // {
-      //   id: "financedashboard",
-      //   label: "Finance Dashboard",
-      //   icon: ArrowRight02Icon,
-      //   href: "/finance",
-      //   roles: ["admin"],
-      // },
+      {
+        id: "financedashboard",
+        label: "Finance Dashboard",
+        icon: ArrowRight02Icon,
+        href: "/finance",
+        roles: ["admin", "staff"],
+      },
       {
         id: "fee&revenue",
         label: "Fee & Revenue Management",
         icon: ArrowRight02Icon,
         href: "/finance/fee-revenue-management",
-        roles: ["admin"],
+        roles: ["admin", "staff"],
       },
       {
         id: "dailyoperations",
         label: "Daily Operations & Treasury",
         icon: ArrowRight02Icon,
         href: "/finance/daily-operations-treasury",
-        roles: ["admin"],
+        roles: ["admin", "staff"],
       },
       {
         id: "reporting&compliance",
@@ -237,7 +236,7 @@ export const menuItems: MenuItem[] = [
     id: "separator",
     label: "",
     href: "",
-    roles: ["admin", "teacher", "parent", "student"],
+    roles: ["admin", "staff", "teacher", "parent", "student"],
   },
   {
     id: "personaltaskmanager",
@@ -258,28 +257,28 @@ export const menuItems: MenuItem[] = [
     label: "Academic Management",
     icon: GlobalEducationIcon,
     href: "/academic",
-    roles: ["admin"],
+    roles: ["admin", "staff"],
     children: [
       {
         id: "academicdashboard",
         label: "Academic Dashboard",
         icon: ArrowRight02Icon,
         href: "academic/dashboard",
-        roles: ["admin"],
+        roles: ["admin", "staff"],
       },
       {
         id: "curriculummanagement",
         label: "Curriculum Management",
         icon: ArrowRight02Icon,
         href: "academic/curriculum-management",
-        roles: ["admin"],
+        roles: ["admin", "staff"],
       },
       {
         id: "assessment&grading",
         label: "Assessment & Grading",
         icon: ArrowRight02Icon,
         href: "academic/assessment-grading",
-        roles: ["admin"],
+        roles: ["admin", "staff"],
       },
     ],
   },
@@ -288,20 +287,20 @@ export const menuItems: MenuItem[] = [
     label: "CBT Management",
     icon: ComputerProgramming02Icon,
     href: "/cbt-management",
-    roles: ["admin"],
+    roles: ["admin", "staff"],
   },
   {
     id: "learning-management",
     label: "Learning Management",
     icon: OnlineLearning02Icon,
     href: "/learning-management",
-    roles: ["admin"],
+    roles: ["admin", "staff"],
   },
   {
     id: "separator",
     label: "",
     href: "",
-    roles: ["admin"],
+    roles: ["admin", "staff"],
   },
   {
     id: "report-analysis",
@@ -315,7 +314,7 @@ export const menuItems: MenuItem[] = [
     label: "Alumni Management",
     icon: StudentIcon,
     href: "/alumni-management",
-    roles: ["admin"],
+    roles: ["admin", "staff"],
   },
   {
     id: "terminal",
@@ -350,6 +349,6 @@ export const menuItems: MenuItem[] = [
     label: "System Settings",
     icon: Settings01Icon,
     href: "/settings",
-    roles: ["admin", "teacher", "parent"],
+    roles: ["admin", "staff", "teacher", "parent"],
   },
 ];

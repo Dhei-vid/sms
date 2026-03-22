@@ -53,7 +53,6 @@ const quizData: Record<string, { title: string; questions: Question[] }> = {
           { label: "D", value: "x = 10" },
         ],
       },
-      // Add more questions to reach 12 total
       ...Array.from({ length: 10 }, (_, i) => ({
         id: i + 3,
         topic: "Linear Equation",
@@ -114,14 +113,11 @@ export default function QuizPage() {
   };
 
   const handleSubmit = () => {
-    // Handle quiz submission
     console.log("Submitting quiz with answers:", selectedAnswers);
-    // Add navigation or submission logic here
   };
 
   const handleBeginAssessment = () => {
     setIsModalOpen(false);
-    // Start the quiz timer or any other initialization logic
   };
 
   return (

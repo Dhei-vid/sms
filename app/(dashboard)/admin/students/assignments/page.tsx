@@ -16,13 +16,11 @@ import type { Assignment } from "@/services/assignments/assignments-type";
 export default function AdminStudentAssignmentsPage() {
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Fetch all assignments (no studentId = all, or backend may require filter)
   const { data: assignmentsData, isLoading: assignmentsLoading } =
     useGetAssignmentsQuery(undefined, {
       skip: false,
     });
 
-  // Grades are per-student; we don't have a single student here. Omit or fetch per assignment later.
   const assignments = useMemo(() => {
     const list = assignmentsData?.data ?? [];
     return list

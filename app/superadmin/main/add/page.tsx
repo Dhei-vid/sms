@@ -21,8 +21,6 @@ export default function AddNewSchoolPage() {
   const [formState, setFormState] = useState(getInitialAddSchoolFormState());
   const [createSchool, { isLoading: isCreating }] = useCreateSchoolMutation();
 
-  console.log("Form State:", formState); // Debugging log to check form state updates
-
   const update = <K extends keyof typeof formState>(
     key: K,
     value: (typeof formState)[K],

@@ -13,12 +13,10 @@ import { CheckboxField } from "../../../ui/checkbox-field";
 import { SelectItem } from "@/components/ui/select";
 import { toast } from "sonner";
 
-// API
 import { useGetSchoolsQuery } from "@/services/schools/schools";
 import { useCreateNotificationMutation } from "@/services/shared";
 import type { CreateNotifications } from "@/services/shared";
 
-// Role mapping for specifics
 const ROLE_MAPPING: Record<string, "teacher" | "parent" | "admin" | "student"> =
   {
     teachers: "teacher",
@@ -62,7 +60,6 @@ const NewNoticeBoard = () => {
         ...prev,
         [key]: !prev[key],
       };
-      // If general is selected, uncheck private and vice versa
       if (key === "general" && updated.general) {
         updated.private = false;
       } else if (key === "private" && updated.private) {
@@ -70,7 +67,6 @@ const NewNoticeBoard = () => {
       }
       return updated;
     });
-    // Clear specifics when switching to general
     if (key === "general") {
       setSpecifics({
         teachers: false,
@@ -79,7 +75,6 @@ const NewNoticeBoard = () => {
         students: false,
       });
     }
-    // Clear errors
     setErrors((prev) => ({
       ...prev,
       targetAudience: undefined,
@@ -94,7 +89,6 @@ const NewNoticeBoard = () => {
       ...prev,
       [key]: !prev[key],
     }));
-    // Clear errors
     setErrors((prev) => ({ ...prev, specifics: undefined }));
   };
 
@@ -146,14 +140,12 @@ const NewNoticeBoard = () => {
   };
 
   const handleSubmit = async () => {
-    // Validate form
     if (!validateForm()) {
       toast.error("Please fill in all required fields");
       return;
     }
 
     try {
-      // Map form data to API structure
       const targetAudienceValue = targetAudience.general
         ? "general"
         : "private";
@@ -167,7 +159,6 @@ const NewNoticeBoard = () => {
         });
       }
 
-      // Build payload - backend accepts target_audience and specifics
       const payload: CreateNotifications & {
         target_audience?: string;
         specifics?: string[];
@@ -175,11 +166,11 @@ const NewNoticeBoard = () => {
         school_id: selectedSchool,
         title: noticeTitle.trim(),
         content: noticeContent.trim(),
-        type: isPriorityAlert ? "warning" : "info", // Set to "warning" for priority alerts, "info" otherwise
-        status: "active", // Default status
-        classes: [], // Empty array for now, can be extended later
+        type: isPriorityAlert ? "warning" : "info",
+        status: "active",
+        classes: [],
         target_audience: targetAudienceValue,
-        specifics: specificsRoles, // Empty array if no specifics selected
+        specifics: specificsRoles,
       };
 
       const response = await createNotification(payload as any).unwrap();
@@ -212,7 +203,7 @@ const NewNoticeBoard = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Notice Title */}
+
         <div className="space-y-2">
           <InputField
             id="notice-title"
@@ -231,7 +222,7 @@ const NewNoticeBoard = () => {
           )}
         </div>
 
-        {/* Select School */}
+
         <div className="space-y-2">
           <SelectField
             label="School"
@@ -256,7 +247,7 @@ const NewNoticeBoard = () => {
           )}
         </div>
 
-        {/* Select Target Audience */}
+
         <div className="space-y-3">
           <Label className="text-sm font-medium text-gray-700">
             Select Target Audience <span className="text-red-600">*</span>
@@ -280,7 +271,7 @@ const NewNoticeBoard = () => {
           )}
         </div>
 
-        {/* Specifics - Only show when Private is checked */}
+
         {targetAudience.private && (
           <div className="space-y-3">
             <Label className="text-sm font-medium text-gray-700">
@@ -318,7 +309,7 @@ const NewNoticeBoard = () => {
           </div>
         )}
 
-        {/* Notice Content */}
+
         <div className="space-y-2">
           <TextareaField
             id="notice-content"
@@ -338,7 +329,7 @@ const NewNoticeBoard = () => {
           )}
         </div>
 
-        {/* Priority Alert & Memo Checkbox */}
+
         <div className="space-y-2">
           <CheckboxField
             id="priority-alert"
@@ -352,7 +343,7 @@ const NewNoticeBoard = () => {
           </p>
         </div>
 
-        {/* Action Buttons */}
+
         <div className="flex justify-end gap-3 pt-4">
           <Button
             variant="outline"

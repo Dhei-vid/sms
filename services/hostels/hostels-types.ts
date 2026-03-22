@@ -27,6 +27,4 @@ export interface AssignHostelPayload {
   stakeholder_id: string;
   hostel_id: string;
   room: string;
-  // "payer_id": "01jzr9xft7zaxsh7mbgr3hnzv5",
-  // "amount": 2000,
 }

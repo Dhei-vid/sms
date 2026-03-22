@@ -118,7 +118,6 @@ export function AttendanceRosterModal({
   };
 
   const handleSaveAttendance = () => {
-    // Handle save attendance
     console.log("Save attendance:", {
       date: selectedDate,
       class: selectedClass,
@@ -153,7 +152,7 @@ export function AttendanceRosterModal({
       }
     >
       <div className="space-y-4">
-        {/* Header with Date and Class */}
+
         <div className="grid grid-cols-2 gap-4">
           <DatePickerIcon
             label="Date"
@@ -176,7 +175,7 @@ export function AttendanceRosterModal({
           </SelectField>
         </div>
 
-        {/* Student List Table */}
+
         <div className="border rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -218,7 +217,7 @@ export function AttendanceRosterModal({
           </div>
         </div>
 
-        {/* Load More Button */}
+
         {hasMore && (
           <div className="flex justify-center">
             <Button variant="outline" onClick={loadMore}>

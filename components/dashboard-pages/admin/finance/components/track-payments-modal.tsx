@@ -44,7 +44,6 @@ export function TrackPaymentsModal({
   const [formData, setFormData] = useState<TrackPaymentForm>(initialData);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
 
-  // Handle date change
   const handleDateChange: Dispatch<SetStateAction<Date | undefined>> = (
     date,
   ) => {
@@ -55,18 +54,15 @@ export function TrackPaymentsModal({
   };
 
   const handleSubmit = () => {
-    // Handle form submission
     console.log("Track payment submitted", {
       ...formData,
     });
-    // Reset form and close modal
     setFormData(initialData);
     onOpenChange(false);
   };
 
   const handleClose = (open: boolean) => {
     if (!open) {
-      // Reset form when modal closes
       setFormData(initialData);
     }
     onOpenChange(open);
@@ -80,7 +76,6 @@ export function TrackPaymentsModal({
       size="2xl"
     >
       <div className="space-y-6 py-4">
-        {/* Search Student Account */}
         <div className="space-y-2">
           <Label htmlFor="search-account" className="text-sm font-medium">
             Search Student Account
@@ -102,7 +97,6 @@ export function TrackPaymentsModal({
           </div>
         </div>
 
-        {/* Payer/Student Name */}
         <InputField
           label="Payer/Student Name"
           placeholder="Pre-filled after search"
@@ -112,7 +106,6 @@ export function TrackPaymentsModal({
           }
         />
 
-        {/* Date of Payment */}
         <DatePickerIcon
           label="Date of Payment"
           date={formData.paymentDate}
@@ -122,7 +115,6 @@ export function TrackPaymentsModal({
           placeholder="mm/dd/yy"
         />
 
-        {/* Payment Method */}
         <SelectField
           label="Payment Method"
           value={formData.paymentMethod}
@@ -138,7 +130,6 @@ export function TrackPaymentsModal({
           <SelectItem value="online">Online Payment</SelectItem>
         </SelectField>
 
-        {/* Transaction Reference */}
         <InputField
           label="Transaction Reference"
           placeholder="placeholder"
@@ -151,7 +142,6 @@ export function TrackPaymentsModal({
           }
         />
 
-        {/* Amount Received */}
         <InputField
           label="Amount Received (N)"
           placeholder="placeholder"
@@ -165,7 +155,6 @@ export function TrackPaymentsModal({
           }
         />
 
-        {/* Payment for Outstanding Balance */}
         <div className="space-y-2">
           <div className="flex justify-between items-center gap-2">
             <div className="space-y-1">
@@ -192,7 +181,6 @@ export function TrackPaymentsModal({
           </div>
         </div>
 
-        {/* Action Buttons */}
         <div className="grid grid-cols-2 gap-3 pt-4">
           <Button variant="outline" onClick={() => handleClose(false)}>
             Cancel

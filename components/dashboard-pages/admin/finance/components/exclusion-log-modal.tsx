@@ -58,7 +58,6 @@ export function ExclusionLogModal({
       </div>
 
       <div className="space-y-4 flex-1 overflow-hidden flex flex-col">
-        {/* Table */}
         <div className="border rounded-lg overflow-hidden flex-1 overflow-y-auto">
           <Table>
             <TableHeader className="sticky top-0 bg-white z-10">

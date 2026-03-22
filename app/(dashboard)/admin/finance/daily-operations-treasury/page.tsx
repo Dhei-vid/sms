@@ -122,7 +122,6 @@ export default function DailyOperationsTreasuryPage() {
 
   const cashFlowData: CashFlowData[] = [];
 
-  // Chart configuration
   const chartConfig = {
     income: {
       label: "Income",
@@ -171,7 +170,6 @@ export default function DailyOperationsTreasuryPage() {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
       <div className="bg-background rounded-md p-6">
         <h2 className="text-2xl font-bold text-gray-800">
           Daily Operations & Treasury Overview Dashboard
@@ -206,9 +204,7 @@ export default function DailyOperationsTreasuryPage() {
         />
       </div>
 
-      {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Budget vs. Actuals Summary – grouped by category from transactions */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-gray-800">
@@ -246,7 +242,6 @@ export default function DailyOperationsTreasuryPage() {
           </CardContent>
         </Card>
 
-        {/* Cash Flow Trend */}
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -271,7 +266,6 @@ export default function DailyOperationsTreasuryPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {/* Legend */}
               <div className="flex items-center gap-4 text-sm">
                 <div className="flex items-center gap-2">
                   <div className="h-3 w-3 rounded bg-green-500" />
@@ -424,7 +418,6 @@ export default function DailyOperationsTreasuryPage() {
           </CardContent>
         </Card>
 
-        {/* Recent Financial Activities */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-gray-800">

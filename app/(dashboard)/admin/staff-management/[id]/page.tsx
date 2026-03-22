@@ -90,7 +90,6 @@ export default function StaffDetailPage({
     );
   }
 
-  // Check if it's a staff or teacher type
   if (stakeholder.type !== "staff" && stakeholder.type !== "teacher") {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -102,12 +101,10 @@ export default function StaffDetailPage({
     );
   }
 
-  // Map stakeholder data to staff format
   const fullName = stakeholder.user
     ? `${stakeholder.user.first_name || ""} ${stakeholder.user.middle_name || ""} ${stakeholder.user.last_name || ""}`.trim()
     : "Unknown";
 
-  // Format contract status
   let contractStatus = "Active";
   if (stakeholder.contract_end_date) {
     try {
@@ -123,7 +120,6 @@ export default function StaffDetailPage({
     }
   }
 
-  // Map status
   const statusMap: Record<string, "active" | "on-leave" | "inactive"> = {
     active: "active",
     inactive: "inactive",
@@ -131,7 +127,6 @@ export default function StaffDetailPage({
   };
   const status = statusMap[stakeholder.status?.toLowerCase()] || "active";
 
-  // Get leave balance
   const leaveBalance = stakeholder.annual_leave_entitlement
     ? parseInt(stakeholder.annual_leave_entitlement) || 0
     : 0;

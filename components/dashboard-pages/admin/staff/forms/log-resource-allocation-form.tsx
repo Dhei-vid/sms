@@ -49,7 +49,6 @@ export function LogResourceAllocationForm({
   const schools = schoolsData?.data || [];
 
   const handleSubmit = async () => {
-    // Validation
     if (!formData.schoolId) {
       toast.error("Please select a school");
       return;
@@ -100,7 +99,6 @@ export function LogResourceAllocationForm({
       await createUserRequest(payload).unwrap();
       toast.success("Resource allocation logged successfully");
 
-      // Reset form
       setFormData({
         schoolId: "",
         staffMember: "",

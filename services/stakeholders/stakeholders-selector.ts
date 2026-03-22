@@ -5,9 +5,6 @@ import {
   StudentStakeholderMetrics,
 } from "./stakeholder-types";
 
-/**
- * Maps stage numbers to readable labels (Equivalent to your Python helper)
- */
 export const getStakeholderStageLabel = (value: number): string => {
   const stageMap: Record<number, string> = {
     2: "Application Started",
@@ -19,9 +16,6 @@ export const getStakeholderStageLabel = (value: number): string => {
   return stageMap[value] || "Inquires/Interest";
 };
 
-/**
- * Aggregates stakeholder data into metrics based on stages
- */
 export const calculateStakeholderMetrics = (
   data: Stakeholders[],
 ): StakeholderMetrics => {
@@ -89,10 +83,6 @@ export interface StaffUtilizationBreakdown {
   color: string;
 }
 
-/**
- * Computes staff utilization breakdown from stakeholders.
- * Uses teaching_duty and non_teaching_duty to categorize staff into Teaching Time, Admin/Duty, Free Periods.
- */
 export const calculateStaffUtilization = (
   data: Stakeholders[],
 ): StaffUtilizationBreakdown[] => {

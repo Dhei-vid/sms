@@ -23,10 +23,6 @@ function filterByRole(
   );
 }
 
-/**
- * Returns the count of unread notifications (notices) for the current user
- * based on their role. Used for the Notice Board sidebar badge.
- */
 export function useUnreadNoticeCount(): number {
   const user = useAppSelector(selectUser);
   const role = (user?.role ?? "admin") as UserRole;

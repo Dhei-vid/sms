@@ -59,7 +59,6 @@ export function QuestionReviewModal({
 }: QuestionReviewModalProps) {
   const [currentIndex, setCurrentIndex] = useState(currentQuestionIndex);
 
-  // Sync internal state with prop when it changes
   React.useEffect(() => {
     setCurrentIndex(currentQuestionIndex);
   }, [currentQuestionIndex]);
@@ -113,7 +112,6 @@ export function QuestionReviewModal({
       maxHeight="90vh"
       className="space-y-6"
     >
-      {/* Summary Tags */}
       <div className="flex flex-wrap gap-3">
         <div className="bg-gray-100 rounded-md px-4 py-2">
           <span className="text-sm text-gray-600">
@@ -131,7 +129,6 @@ export function QuestionReviewModal({
         </div>
       </div>
 
-      {/* Navigation Buttons */}
       <div className="flex justify-end gap-2">
         <Button
           variant="outline"
@@ -153,12 +150,10 @@ export function QuestionReviewModal({
         </Button>
       </div>
 
-      {/* Topic Tag */}
       <div>
         <p className="text-sm text-gray-600">{currentQuestion.topicTag}</p>
       </div>
 
-      {/* Question Details Table */}
       <div className="border rounded-lg overflow-hidden">
         <Table>
           <TableHeader>
@@ -168,19 +163,16 @@ export function QuestionReviewModal({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {/* Question Type */}
             <TableRow>
               <TableCell className="font-medium">Question Type</TableCell>
               <TableCell>{currentQuestion.questionType}</TableCell>
             </TableRow>
 
-            {/* Question */}
             <TableRow>
               <TableCell className="font-medium">Questions</TableCell>
               <TableCell>{currentQuestion.question}</TableCell>
             </TableRow>
 
-            {/* Answer Options */}
             <TableRow>
               <TableCell className="font-medium">Answer Options</TableCell>
               <TableCell>
@@ -203,7 +195,6 @@ export function QuestionReviewModal({
               </TableCell>
             </TableRow>
 
-            {/* Explanation */}
             <TableRow>
               <TableCell className="font-medium">Explanation</TableCell>
               <TableCell className="text-sm text-gray-700">
@@ -214,7 +205,6 @@ export function QuestionReviewModal({
         </Table>
       </div>
 
-      {/* Action Buttons Footer */}
       <div className="flex justify-end gap-3 pt-4 border-t">
         <Button variant="outline" onClick={handleSendBack}>
           Send back for Review

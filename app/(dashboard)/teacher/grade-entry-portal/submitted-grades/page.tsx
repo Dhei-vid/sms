@@ -23,7 +23,6 @@ interface SubmittedGrade {
   verificationStatus: string;
 }
 
-// Sample data - in production, this would come from an API
 const allSubmittedGrades: SubmittedGrade[] = [
   {
     id: "1",
@@ -109,7 +108,6 @@ export default function SubmittedGradesHistoryPage() {
   >(null);
   const [scoreScriptModalOpen, setScoreScriptModalOpen] = useState(false);
 
-  // Pagination
   const {
     displayedData: submittedGrades,
     hasMore,
@@ -182,7 +180,6 @@ export default function SubmittedGradesHistoryPage() {
 
   return (
     <div className="space-y-4">
-      {/* Page Header */}
       <div className="bg-background rounded-md p-6">
         <h1 className="text-2xl font-bold text-gray-800 mb-2">
           Submitted Grades History
@@ -193,14 +190,12 @@ export default function SubmittedGradesHistoryPage() {
         </p>
       </div>
 
-      {/* Grading Task Table Section */}
       <div className="bg-background rounded-md p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-gray-800">
             Grading Task Table
           </h2>
           <div className="flex items-center gap-3">
-            {/* Year Filter */}
             <Select value={yearFilter} onValueChange={setYearFilter}>
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="Year" />
@@ -211,7 +206,6 @@ export default function SubmittedGradesHistoryPage() {
                 <SelectItem value="2026-2027">Year 2026/2027</SelectItem>
               </SelectContent>
             </Select>
-            {/* Term Filter */}
             <Select value={termFilter} onValueChange={setTermFilter}>
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="Term" />
@@ -222,7 +216,6 @@ export default function SubmittedGradesHistoryPage() {
                 <SelectItem value="third-term">Third Term</SelectItem>
               </SelectContent>
             </Select>
-            {/* Class Filter */}
             <Select value={classFilter} onValueChange={setClassFilter}>
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="Class" />
@@ -239,7 +232,6 @@ export default function SubmittedGradesHistoryPage() {
           </div>
         </div>
 
-        {/* Grading Task Table */}
         <div className="border rounded-lg overflow-hidden">
           <DataTable
             columns={columns}
@@ -248,7 +240,6 @@ export default function SubmittedGradesHistoryPage() {
           />
         </div>
 
-        {/* Load More Button */}
         {hasMore && (
           <div className="flex justify-center mt-4">
             <Button variant="outline" onClick={loadMore}>
@@ -258,7 +249,6 @@ export default function SubmittedGradesHistoryPage() {
         )}
       </div>
 
-      {/* Score Script Modal */}
       <ScoreScriptModal
         open={scoreScriptModalOpen}
         onOpenChange={setScoreScriptModalOpen}

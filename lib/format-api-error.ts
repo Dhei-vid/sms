@@ -1,14 +1,4 @@
-/**
- * Format API error payloads into a single user-facing message for toasts/UI.
- * Use this everywhere we show API errors (baseApi global handler, mutation catch blocks, etc.)
- * so validation messages (e.g. Django REST field errors) are descriptive instead of "Bad request".
- *
- * Supports:
- * - Django REST: { "field_name": ["Error message."] } or { "field_name": "Error message." }
- * - Generic: { "detail": "..." } | { "message": "..." } | { "error": "..." }
- * - String response bodies
- */
-
+// API error → single string (DRF fields, detail, message).
 const DEFAULT_MESSAGE = "Something went wrong. Please try again.";
 
 export function getApiErrorMessage(
@@ -24,20 +14,18 @@ export function getApiErrorMessage(
 
   const d = data as Record<string, unknown>;
 
-  // Single-message keys (common in APIs; backend may put descriptive text in message/error)
   if (typeof d.detail === "string" && d.detail.trim()) return d.detail.trim();
   if (typeof d.message === "string" && d.message.trim())
     return d.message.trim();
   if (typeof d.error === "string" && d.error.trim()) return d.error.trim();
 
-  // Wrapped shape: { data: { field: ["msg"] } } (e.g. ApiResponse.error(http_data=serializer.errors))
+  // { data: { field: ["msg"] } }
   const inner = d.data;
   if (inner != null && typeof inner === "object" && !Array.isArray(inner)) {
     const fromInner = formatFieldErrors(inner as Record<string, unknown>);
     if (fromInner) return fromInner;
   }
 
-  // Django REST / field-level validation: { field: ["msg"] } or { field: "msg" }
   const fromTop = formatFieldErrors(d);
   if (fromTop) return fromTop;
 

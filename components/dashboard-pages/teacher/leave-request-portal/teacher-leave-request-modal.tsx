@@ -66,33 +66,17 @@ export function TeacherLeaveRequestModal({
     setDuration(`${diffDays} day${diffDays > 1 ? "s" : ""}`);
   };
 
-  /**
-   * Handle start date change
-   * Updates start date state and recalculates duration
-   * Accepts SetStateAction to match DatePickerIcon's expected type
-   *
-   * @param value - New date value or updater function
-   */
   const handleStartDateChange: Dispatch<SetStateAction<Date | undefined>> = (
     value,
   ) => {
-    // Handle both direct value and updater function
     const newDate = typeof value === "function" ? value(startDate) : value;
     setStartDate(newDate);
     calculateDuration(newDate, endDate);
   };
 
-  /**
-   * Handle end date change
-   * Updates end date state and recalculates duration
-   * Accepts SetStateAction to match DatePickerIcon's expected type
-   *
-   * @param value - New date value or updater function
-   */
   const handleEndDateChange: Dispatch<SetStateAction<Date | undefined>> = (
     value,
   ) => {
-    // Handle both direct value and updater function
     const newDate = typeof value === "function" ? value(endDate) : value;
     setEndDate(newDate);
     calculateDuration(startDate, newDate);
@@ -104,7 +88,6 @@ export function TeacherLeaveRequestModal({
   };
 
   const handleSubmit = () => {
-    // Handle submission (e.g., call API)
     console.log("Teacher leave request:", {
       leaveType,
       startDate,
@@ -139,7 +122,6 @@ export function TeacherLeaveRequestModal({
       }
     >
       <div className="space-y-4">
-        {/* Leave Type */}
         <SelectField
           label="Leave Type"
           value={leaveType}
@@ -152,7 +134,6 @@ export function TeacherLeaveRequestModal({
           <SelectItem value="compassionate">Compassionate Leave</SelectItem>
         </SelectField>
 
-        {/* Start & End Date */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <DatePickerIcon
             label="Start Date"
@@ -168,7 +149,6 @@ export function TeacherLeaveRequestModal({
           />
         </div>
 
-        {/* Duration */}
         <InputField
           label="Duration"
           placeholder="Calculated according to date selected"
@@ -176,7 +156,6 @@ export function TeacherLeaveRequestModal({
           readOnly
         />
 
-        {/* Reason / Justification */}
         <div className="space-y-2">
           <Label
             htmlFor="teacher-leave-reason"
@@ -193,7 +172,6 @@ export function TeacherLeaveRequestModal({
           />
         </div>
 
-        {/* Attachment Field */}
         <div className="space-y-2">
           <Label className="text-sm font-medium text-gray-700">
             Attachment Field
@@ -223,7 +201,6 @@ export function TeacherLeaveRequestModal({
           </Button>
         </div>
 
-        {/* Academic Cover Requirement */}
         <SelectField
           label="Academic Cover Requirement"
           value={coverStaff}

@@ -17,8 +17,6 @@ import { useAppSelector } from "@/store/hooks";
 import { selectUser } from "@/store/slices/authSlice";
 import { generateSchoolID } from "@/common/helper";
 
-// API
-
 const STEPS = ["details", "academic", "documents", "status"] as const;
 type StepId = (typeof STEPS)[number];
 
@@ -41,7 +39,6 @@ export default function AddApplicantPage() {
   ) => setFormState((s) => ({ ...s, [key]: value }));
 
   const handleSubmit = async () => {
-    // Use schoolId from form state if provided, otherwise fall back to user's school_id or generate one
     const schoolIdFromForm = formState.details.schoolId;
     const fallbackSchoolId = user?.school_id ?? generateSchoolID();
     const schoolId = schoolIdFromForm || fallbackSchoolId;

@@ -34,7 +34,6 @@ export function LeaveRequestModal({
 
   const handleClose = (isOpen: boolean) => {
     if (!isOpen) {
-      // Reset form when modal closes
       setRequestType("");
       setLeaveStartDate(undefined);
       setLeaveEndDate(undefined);
@@ -50,7 +49,6 @@ export function LeaveRequestModal({
   };
 
   const handleSubmit = () => {
-    // Handle form submission
     console.log("Leave request:", {
       requestType,
       leaveStartDate,
@@ -58,7 +56,6 @@ export function LeaveRequestModal({
       reason,
       file: selectedFile,
     });
-    // Reset form and close modal
     handleClose(false);
   };
 
@@ -84,7 +81,7 @@ export function LeaveRequestModal({
       }
     >
       <div className="space-y-4">
-        {/* Request Type */}
+
         <div className="space-y-2">
           <Label
             htmlFor="requestType"
@@ -106,7 +103,7 @@ export function LeaveRequestModal({
           </Select>
         </div>
 
-        {/* Date Fields */}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <DatePickerIcon
             label="Leave Start Date"
@@ -122,7 +119,7 @@ export function LeaveRequestModal({
           />
         </div>
 
-        {/* Reason for Absence */}
+
         <div className="space-y-2">
           <Label htmlFor="reason" className="text-sm font-medium text-gray-700">
             Reason for Absence
@@ -136,7 +133,7 @@ export function LeaveRequestModal({
           />
         </div>
 
-        {/* Attachment Field */}
+
         <div className="space-y-2">
           <Label className="text-sm font-medium text-gray-700">
             Attachment Field

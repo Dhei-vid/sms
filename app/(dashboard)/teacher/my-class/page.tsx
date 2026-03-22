@@ -28,7 +28,6 @@ interface Student {
   lastAssignmentName: string;
 }
 
-// Sample data - in production, this would come from an API
 const allStudents: Student[] = [
   {
     id: "1",
@@ -112,13 +111,11 @@ export default function MyClassPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [attendanceModalOpen, setAttendanceModalOpen] = useState(false);
 
-  // Filter students based on status
   const filteredStudents = allStudents.filter((student) => {
     if (statusFilter === "all") return true;
     return student.status.toLowerCase() === statusFilter;
   });
 
-  // Pagination
   const {
     displayedData: students,
     hasMore,
@@ -197,7 +194,6 @@ export default function MyClassPage() {
 
   return (
     <div className="space-y-4">
-      {/* Page Header */}
       <div className="bg-background rounded-md p-6">
         <h1 className="text-2xl font-bold text-gray-800 mb-2">
           My Class Roster
@@ -208,7 +204,6 @@ export default function MyClassPage() {
         </p>
       </div>
 
-      {/* Summary Metric Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <MetricCard
           title="Total Students"
@@ -230,7 +225,6 @@ export default function MyClassPage() {
         />
       </div>
 
-      {/* Mark Attendance Button */}
       <Button
         variant={"outline"}
         onClick={() => setAttendanceModalOpen(true)}
@@ -239,14 +233,12 @@ export default function MyClassPage() {
         Mark Attendance
       </Button>
 
-      {/* Student Roster Table Section */}
       <div className="bg-background rounded-md p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-gray-800">
             Student Roster Table
           </h2>
           <div className="flex items-center gap-3">
-            {/* Class Filter */}
             <Select value={classFilter} onValueChange={setClassFilter}>
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="Class" />
@@ -260,7 +252,6 @@ export default function MyClassPage() {
                 <SelectItem value="ss3">SS 3</SelectItem>
               </SelectContent>
             </Select>
-            {/* Status Filter */}
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="Status" />
@@ -274,7 +265,6 @@ export default function MyClassPage() {
           </div>
         </div>
 
-        {/* Student Table */}
         <div className="border rounded-lg overflow-hidden">
           <DataTable
             columns={columns}
@@ -285,7 +275,6 @@ export default function MyClassPage() {
           />
         </div>
 
-        {/* Load More Button */}
         {hasMore && (
           <div className="flex justify-center mt-4">
             <Button variant="outline" onClick={loadMore}>
@@ -295,7 +284,6 @@ export default function MyClassPage() {
         )}
       </div>
 
-      {/* Attendance Roster Modal */}
       <AttendanceRosterModal
         open={attendanceModalOpen}
         onOpenChange={setAttendanceModalOpen}

@@ -40,7 +40,6 @@ export function EmploymentStatusForm({
   };
 
   const handleSubmit = () => {
-    // Handle form submission
     console.log("Employment Status Update:", formData);
     if (onConfirm) {
       onConfirm();

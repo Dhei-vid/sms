@@ -11,10 +11,7 @@ import { logout, selectToken } from "@/store/slices/authSlice";
 import { toast } from "sonner";
 import { getApiErrorMessage } from "@/lib/format-api-error";
 
-/**
- * API Configuration (centralized here).
- * Services: endpoints = url/params/body only (lean). Use *-selectors.ts + createSelector to derive/transform cached data for UI.
- */
+// Endpoints: URL/params/body; use *-selectors for UI transforms.
 const getBaseUrl = () => {
   const rawUrl =
     process.env.NEXT_PUBLIC_API_URL ||
@@ -42,10 +39,6 @@ const getBaseUrl = () => {
     return "https://api-placeholder.invalid";
   }
 
-  if (typeof window !== "undefined") {
-    // console.log("🔗 API Base URL:", url);
-  }
-
   return url;
 };
 
@@ -59,19 +52,8 @@ const getApiKey = () => {
   return apiKey || "";
 };
 
-/**
- * Base Query Configuration
- * Sets up base URL and prepares headers matching Postman requirements
- */
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: getBaseUrl(),
-  /**
-   * Prepare headers for each API request
-   * Matches Postman configuration:
-   * - x-api-key: Required for all requests
-   * - Content-Type: application/json
-   * - Authorization: Bearer token (from cookie, for authenticated requests)
-   */
   prepareHeaders: (headers, { getState, endpoint }) => {
     if (typeof window === "undefined") {
       return headers;
@@ -82,7 +64,7 @@ const rawBaseQuery = fetchBaseQuery({
       headers.set("x-api-key", apiKey);
     }
 
-    // Skip ngrok free-tier interstitial page when using ngrok tunnel
+    // Ngrok: skip browser warning page
     const baseUrl = getBaseUrl();
     if (
       baseUrl.includes("ngrok-free.app") ||
@@ -108,11 +90,6 @@ const rawBaseQuery = fetchBaseQuery({
   },
 });
 
-/**
- * Enhanced base query with error handling
- * Intercepts all API responses and handles errors globally
- * Matches axios interceptor behavior with toast notifications and logout on 401
- */
 const baseQueryWithErrorHandling: BaseQueryFn<
   string | FetchArgs,
   unknown,
@@ -123,36 +100,7 @@ const baseQueryWithErrorHandling: BaseQueryFn<
   const method = typeof args === "string" ? "GET" : args.method || "GET";
   const fullUrl = `${baseUrl}${requestUrl}`;
 
-  // Log request
   if (typeof window !== "undefined") {
-    const isLoginRequest = fullUrl.includes("/auth/login");
-    const headers: Record<string, string> = {};
-    if (typeof args !== "string" && args.headers) {
-      Object.entries(args.headers).forEach(([key, value]) => {
-        if (key.toLowerCase() !== "authorization") {
-          headers[key] = String(value);
-        } else {
-          headers[key] = "Bearer [REDACTED]";
-        }
-      });
-    }
-
-    // console.group(`🚀 ${method} ${requestUrl}`);
-    // console.log("Full URL:", fullUrl);
-    // console.log("Headers:", headers);
-    if (isLoginRequest) {
-      const body = typeof args !== "string" ? args.body : undefined;
-      if (body && typeof body === "object") {
-        const safeBody = { ...(body as Record<string, unknown>) };
-        if ("password" in safeBody) {
-          safeBody.password = "[REDACTED]";
-        }
-        // console.log("Body:", safeBody);
-      }
-    } else {
-      // console.log("Body:", typeof args !== "string" ? args.body : undefined);
-    }
-    // console.log("Timestamp:", new Date().toISOString());
     console.groupEnd();
   }
 
@@ -160,7 +108,6 @@ const baseQueryWithErrorHandling: BaseQueryFn<
   const result = await rawBaseQuery(args, api, extraOptions);
   const duration = Date.now() - startTime;
 
-  // Log response
   if (typeof window !== "undefined") {
     if (result.data) {
       const response = result.data as
@@ -170,22 +117,9 @@ const baseQueryWithErrorHandling: BaseQueryFn<
         response?.status === true ||
         (response?.status_code && response.status_code < 400);
 
-      if (isSuccess) {
-        // console.group(`✅ ${method} ${requestUrl} - Success (${duration}ms)`);
-        // console.log(
-        //   "Response Status:",
-        //   response?.status,
-        //   response?.status_code,
-        // );
-        // console.log("Response Data:", result.data);
-        console.groupEnd();
-      } else {
+      if (!isSuccess) {
         console.group(`❌ ${method} ${requestUrl} - Failed (${duration}ms)`);
-        console.error(
-          "Response Status:",
-          response?.status,
-          response?.status_code,
-        );
+        console.error("Response Status:", response?.status, response?.status_code);
         console.error("Response:", result.data);
         console.groupEnd();
       }
@@ -197,7 +131,7 @@ const baseQueryWithErrorHandling: BaseQueryFn<
     }
   }
 
-  // Check response status field - if status is false, treat as error
+  // API { status: false } or status_code >= 400 → error
   if (result.data) {
     const response = result.data as
       | { status?: boolean; status_code?: number; message?: string }
@@ -216,25 +150,21 @@ const baseQueryWithErrorHandling: BaseQueryFn<
       };
     }
 
-    // Show success toast if message is present
     if (response?.status === true && response?.message) {
       // toast.success(response.message);
     }
   }
 
-  // Handle errors
   if (result.error) {
     const status = result.error.status;
     const data = result.error.data;
 
-    // Check if we got an HTML response (404 from Next.js routing)
+    // HTML body = Next 404, not API JSON
     const isHtmlResponse =
       typeof data === "string" && (data as string).includes("<!DOCTYPE html>");
 
-    // Descriptive message from API body (Django field errors, detail, message, etc.)
     let errorMessage = getApiErrorMessage(data);
 
-    // If we got HTML, or 404 without any API error message, treat as endpoint not found
     const defaultMsg = "Something went wrong. Please try again.";
     if (isHtmlResponse || (status === 404 && errorMessage === defaultMsg)) {
       errorMessage = `API endpoint not found. Check API configuration. Attempted: ${fullUrl}`;
@@ -246,9 +176,7 @@ const baseQueryWithErrorHandling: BaseQueryFn<
       });
     }
 
-    // Handle specific error status codes
     if (status === 401) {
-      // Unauthorized - only logout if already authenticated
       const state = api.getState() as RootState;
       const isAuthenticated = state.auth.isAuthenticated;
 
@@ -256,7 +184,7 @@ const baseQueryWithErrorHandling: BaseQueryFn<
         toast.error(`Session expired. Please log in again.`);
         api.dispatch(logout());
       } else {
-        // Don't show toast for login page errors (handled by form)
+        // Sign-in shows its own errors
         if (
           typeof window !== "undefined" &&
           !window.location.pathname.includes("/signin")
@@ -265,10 +193,8 @@ const baseQueryWithErrorHandling: BaseQueryFn<
         }
       }
     } else if (status === 403) {
-      // Forbidden
       toast.error(`Forbidden: ${errorMessage}`);
     } else {
-      // Other errors - don't show toast for login page (handled by form)
       if (
         typeof window !== "undefined" &&
         !window.location.pathname.includes("/signin")
@@ -277,34 +203,15 @@ const baseQueryWithErrorHandling: BaseQueryFn<
       }
     }
 
-    // Dispatch error to global error state
-    api.dispatch(
-      setError({
-        code: status,
-        message: errorMessage,
-        details: data,
-      }),
-    );
+    api.dispatch(setError({ code: status, message: errorMessage, details: data }));
   } else {
-    // Clear any previous errors on successful request
     api.dispatch(clearError());
   }
 
   return result;
 };
 
-/**
- * Shared API Instance
- *
- * All services inject endpoints into this single baseApi instance.
- * This ensures data is cached globally and shared across all dashboards.
- *
- * Key Benefits:
- * - Data fetched in admin dashboard is immediately available in parent/teacher dashboards
- * - Single source of truth for cached API responses
- * - Tag-based invalidation keeps cache synchronized across the app
- * - Reduces redundant API calls when same data is accessed from different dashboards
- */
+// Shared RTK Query API (single cache)
 export const baseApi = createApi({
   reducerPath: "api",
   baseQuery: baseQueryWithErrorHandling,

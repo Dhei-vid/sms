@@ -37,7 +37,6 @@ const parseTime = (
 ): { hour: string; minute: string; period: "AM" | "PM" } => {
   const match = time.match(/(\d{1,2}):(\d{2})\s?(AM|PM)/i);
   if (match) {
-    // Remove leading zero from hour for matching with select values (1-12)
     const hourValue = parseInt(match[1], 10).toString();
     return {
       hour: hourValue,

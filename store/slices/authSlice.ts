@@ -7,7 +7,7 @@ interface AuthState {
   isAuthenticated: boolean;
 }
 
-// Start with empty state so server and client initial render match (avoids hydration error)
+// Avoid SSR/client auth state mismatch
 const getInitialState = (): AuthState => ({
   token: null,
   user: null,
@@ -24,7 +24,6 @@ export const authSlice = createSlice({
     ) => {
       const { token, user } = action.payload;
 
-      // Validate inputs
       if (!token || !user) {
         console.error("❌ Invalid credentials: missing token or user");
         return;
@@ -39,17 +38,11 @@ export const authSlice = createSlice({
           localStorage.setItem("auth_token", token);
           localStorage.setItem("auth_user", JSON.stringify(user));
 
-          // Verify storage
           const storedToken = localStorage.getItem("auth_token");
           const storedUser = localStorage.getItem("auth_user");
 
           if (!storedToken || !storedUser) {
             console.error("❌ Failed to store credentials in localStorage");
-          } else {
-            console.log("✅ User stored in localStorage:", {
-              stored: true,
-              userId: user?.id,
-            });
           }
         } catch (storageError) {
           console.error("❌ localStorage error:", storageError);

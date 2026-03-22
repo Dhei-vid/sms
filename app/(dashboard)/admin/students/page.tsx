@@ -18,8 +18,6 @@ import {
   Alert01Icon,
 } from "@hugeicons/core-free-icons";
 
-// API
-
 import {
   useGetStudentStakeholderMetricsQuery,
   useGetStudentMetricsQuery,
@@ -38,13 +36,10 @@ export default function StudentsPage() {
     useGetStudentMetricsQuery();
   const { data: attendanceData } = useGetAllAttendanceQuery();
 
-  // Extract metrics from backend response
   const studentMetrics = studentMetricsResponse?.data;
 
-  // Combine frontend and backend metrics
   const metrics = useMemo(
     () => ({
-      // From backend metrics
       totalEnrollment: studentMetrics?.total_enrollment ?? 0,
       newEnrollment: studentMetrics?.new_enrollment ?? 0,
       studentToClassAverage: studentMetrics?.student_to_class_average ?? 0,
@@ -68,7 +63,6 @@ export default function StudentsPage() {
         totalAmount: studentMetrics?.unpaid_fees?.total_amount ?? 0,
         percentage: studentMetrics?.unpaid_fees?.percentage ?? 0,
       },
-      // Fallback to frontend metrics if backend not available
       total:
         studentStakeholderMetrics?.metrics?.totalStudents ??
         studentMetrics?.total_enrollment ??
@@ -81,7 +75,6 @@ export default function StudentsPage() {
     [studentMetrics, studentStakeholderMetrics],
   );
 
-  // Quick Actions Configuration
   interface QuickAction {
     title: string;
     description: string;
@@ -110,7 +103,6 @@ export default function StudentsPage() {
     },
   ];
 
-  // Recent Activities Configuration
   interface StudentActivity {
     type: "withdrawn" | "registered" | "attendance" | "grade";
     title: string;
@@ -156,7 +148,6 @@ export default function StudentsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="bg-background rounded-md mb-6 p-6">
         <h2 className="text-2xl font-bold text-gray-800">
           Students Overview Dashboard
@@ -166,7 +157,6 @@ export default function StudentsPage() {
         </p>
       </div>
 
-      {/* High-Level Enrollment Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
           title="Total Enrollment"
@@ -228,7 +218,6 @@ export default function StudentsPage() {
         />
       </div>
 
-      {/* Student Health & Risk Metrics Section */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <MetricCard
           title="Chronic Absences"
@@ -276,9 +265,7 @@ export default function StudentsPage() {
         />
       </div>
 
-      {/* Recent Activities and Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Recent Activities Section */}
         <div className="lg:col-span-2">
           <Card>
             <CardHeader>
@@ -306,7 +293,6 @@ export default function StudentsPage() {
           </Card>
         </div>
 
-        {/* Quick Actions Section */}
         <div className="lg:col-span-1">
           <Card className="bg-background py-2">
             <CardHeader>

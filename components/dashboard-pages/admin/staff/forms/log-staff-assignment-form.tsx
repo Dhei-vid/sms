@@ -55,7 +55,6 @@ export function LogStaffAssignmentForm({
   const schools = schoolsData?.data || [];
 
   const handleSubmit = async () => {
-    // Validation
     if (!formData.schoolId) {
       toast.error("Please select a school");
       return;
@@ -105,7 +104,6 @@ export function LogStaffAssignmentForm({
       await createUserRequest(payload).unwrap();
       toast.success("Staff assignment logged successfully");
 
-      // Reset form
       setFormData({
         schoolId: "",
         staffMember: "",

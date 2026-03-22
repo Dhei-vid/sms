@@ -32,7 +32,6 @@ const ORDERED_BUCKETS: GradeDistributionItem[] = [
   { label: "F-Grade", grade: "F", value: 0, percentage: 0 },
 ];
 
-/** Converts a percentage score (0–100) to letter grade */
 export function scoreToLetterGrade(score: number): string {
   if (score >= 70) return "A";
   if (score >= 60) return "B";
@@ -42,7 +41,6 @@ export function scoreToLetterGrade(score: number): string {
   return "F";
 }
 
-/** Computes the average score for a single result from its subject results */
 function getAverageScoreForResult(result: Result): number | null {
   const subjects = result.subject_results;
   if (!subjects?.length) return null;
@@ -51,7 +49,6 @@ function getAverageScoreForResult(result: Result): number | null {
   return sum / subjects.length;
 }
 
-/** Normalizes a raw grade string to an A–F bucket key */
 function normalizeGradeToBucket(rawGrade: string): string | null {
   const trimmed = String(rawGrade ?? "")
     .trim()
@@ -62,10 +59,6 @@ function normalizeGradeToBucket(rawGrade: string): string | null {
   );
 }
 
-/**
- * Computes result metrics from an array of results.
- * Derives average student grade and grade distribution (percentage per A/B/C/D/E/F).
- */
 export function computeResultMetrics(results: Result[]): ResultMetrics {
   const normalized = Array.isArray(results) ? results : [];
   const totalStudents = normalized.length;

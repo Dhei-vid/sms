@@ -53,11 +53,9 @@ export default function LeaveRequestsPage() {
   const { data: userRequestData, isLoading: isUserRequestLoading } =
     useGetUserRequestsQuery();
 
-  // Transform API data to LeaveRequest format
   const leaveRequests: LeaveRequest[] = useMemo(() => {
     if (!userRequestData?.data) return [];
 
-    // Filter for leave type requests only
     const leaveTypeRequests = userRequestData.data.filter(
       (req) => req.type === "leave",
     );
@@ -74,7 +72,6 @@ export default function LeaveRequestsPage() {
 
       const role = req.staff_member?.position || "Staff";
 
-      // Format dates
       const startDate = req.start_date
         ? format(new Date(req.start_date), "yyyy/MM/dd")
         : "N/A";
@@ -82,7 +79,6 @@ export default function LeaveRequestsPage() {
         ? format(new Date(req.end_date), "yyyy/MM/dd")
         : "N/A";
 
-      // Calculate duration
       let duration = 0;
       if (req.start_date && req.end_date) {
         const start = new Date(req.start_date);
@@ -91,7 +87,6 @@ export default function LeaveRequestsPage() {
         duration = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
       }
 
-      // Map status
       const statusMap: Record<
         string,
         "pending" | "approved" | "denied" | "current"
@@ -111,7 +106,6 @@ export default function LeaveRequestsPage() {
       };
       const statusLabel = statusLabelMap[status] || "Pending Request";
 
-      // Coverage staff
       const coverageName = req.coverage_staff?.user
         ? `${req.coverage_staff.user.first_name || ""} ${req.coverage_staff.user.last_name || ""}`.trim()
         : null;
@@ -138,7 +132,6 @@ export default function LeaveRequestsPage() {
     });
   }, [userRequestData]);
 
-  // Calculate metrics from API data
   const metrics = useMemo(() => {
     if (!userRequestData?.data) {
       return {
@@ -152,12 +145,10 @@ export default function LeaveRequestsPage() {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
 
-    // Filter for leave type requests only
     const leaveTypeRequests = userRequestData.data.filter(
       (req: UserRequest) => req.type === "leave",
     );
 
-    // Currently on Leave: approved requests where current date is between start and end date
     const currentlyOnLeave = leaveTypeRequests.filter((req: UserRequest) => {
       const status = req.status?.toLowerCase();
       if (status !== "approved" && status !== "current") return false;
@@ -173,12 +164,10 @@ export default function LeaveRequestsPage() {
       }
     }).length;
 
-    // Pending Requests: count of pending status
     const pendingRequests = leaveTypeRequests.filter(
       (req: UserRequest) => req.status?.toLowerCase() === "pending",
     ).length;
 
-    // Upcoming Absences: approved requests where start date is in the future
     const upcomingAbsences = leaveTypeRequests.filter((req: UserRequest) => {
       if (req.status?.toLowerCase() !== "approved") return false;
       if (!req.start_date) return false;
@@ -191,7 +180,6 @@ export default function LeaveRequestsPage() {
       }
     }).length;
 
-    // Average Approval Time: calculate average days between created_at and updated_at for approved requests
     let avgApprovalTime = 0;
     const approvedRequests = leaveTypeRequests.filter(
       (req: UserRequest) => req.status?.toLowerCase() === "approved",
@@ -327,7 +315,6 @@ export default function LeaveRequestsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="bg-background rounded-md p-6">
         <h2 className="text-2xl font-bold text-gray-800">
           Staff Leave Requests Management
@@ -337,7 +324,6 @@ export default function LeaveRequestsPage() {
         </p>
       </div>
 
-      {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
           title="Currently on Leave"
@@ -361,17 +347,14 @@ export default function LeaveRequestsPage() {
         />
       </div>
 
-      {/* Create New Leave Policy Button */}
       <Button variant={"outline"} className="h-11 w-full gap-2">
         <Plus className="h-4 w-4" />
         Create New Leave Policy
       </Button>
 
-      {/* Request Table Section */}
       <Card>
         <CardContent className="p-6">
           <div className="space-y-4">
-            {/* Table Header with Search and Sort */}
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-800">
                 Request Table
@@ -402,7 +385,6 @@ export default function LeaveRequestsPage() {
               </div>
             </div>
 
-            {/* DataTable */}
             <div className="border rounded-lg overflow-hidden">
               <DataTable
                 columns={columns}
@@ -415,7 +397,6 @@ export default function LeaveRequestsPage() {
               />
             </div>
 
-            {/* Load More Button */}
             <div className="flex justify-center">
               <Button variant="outline">Load More</Button>
             </div>

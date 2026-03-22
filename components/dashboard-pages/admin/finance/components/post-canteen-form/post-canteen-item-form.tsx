@@ -91,7 +91,6 @@ export function PostCanteenItemForm({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="space-y-6 py-4">
-      {/* Item Name */}
       <InputField
         label="Item Name"
         placeholder="E.g., meat pie, spring roll, hamburger"
@@ -105,7 +104,6 @@ export function PostCanteenItemForm({ onClose }: { onClose: () => void }) {
         }
       />
 
-      {/* Select Item Category */}
       <SelectField
         label="Select Item"
         value={formData.itemCategory}
@@ -120,7 +118,6 @@ export function PostCanteenItemForm({ onClose }: { onClose: () => void }) {
         <SelectItem value="other">Other</SelectItem>
       </SelectField>
 
-      {/* Unit Price */}
       <InputField
         label="Unit Price (₦)"
         placeholder="placeholder"
@@ -134,7 +131,6 @@ export function PostCanteenItemForm({ onClose }: { onClose: () => void }) {
         }
       />
 
-      {/* Available Stock */}
       <InputField
         label="Available Stock"
         placeholder="placeholder"
@@ -148,7 +144,6 @@ export function PostCanteenItemForm({ onClose }: { onClose: () => void }) {
         }
       />
 
-      {/* Payment Allowed */}
       <div className="space-y-3">
         <Label className="text-sm font-medium">Payment Allowed</Label>
         <div className="flex flex-row flex-wrap gap-6">
@@ -209,7 +204,6 @@ export function PostCanteenItemForm({ onClose }: { onClose: () => void }) {
         </div>
       </div>
 
-      {/* Sales Tax Applicable */}
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <Label className="text-sm font-medium">Sales Tax Applicable</Label>
@@ -225,7 +219,6 @@ export function PostCanteenItemForm({ onClose }: { onClose: () => void }) {
         />
       </div>
 
-      {/* Item Status */}
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <Label className="text-sm font-medium">Item Status</Label>
@@ -242,7 +235,6 @@ export function PostCanteenItemForm({ onClose }: { onClose: () => void }) {
         />
       </div>
 
-      {/* Action Buttons */}
       <div className="grid grid-cols-2 gap-3 pt-4">
         <Button variant="outline" onClick={onClose}>
           Cancel

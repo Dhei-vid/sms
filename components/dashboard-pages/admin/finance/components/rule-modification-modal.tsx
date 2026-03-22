@@ -57,7 +57,6 @@ export function RuleModificationModal({
     reasonForChange: "",
   });
 
-  // Populate form when rule changes
   useEffect(() => {
     if (rule) {
       setFormData({
@@ -74,7 +73,6 @@ export function RuleModificationModal({
 
   const handleClose = (open: boolean) => {
     if (!open) {
-      // Reset form when modal closes
       if (rule) {
         setFormData({
           ruleName: rule.ruleName,
@@ -107,7 +105,6 @@ export function RuleModificationModal({
       size="2xl"
     >
       <div className="space-y-6 py-4">
-        {/* Rule Name */}
         <InputField
           label="Rule Name"
           placeholder="placeholder"
@@ -117,7 +114,6 @@ export function RuleModificationModal({
           }
         />
 
-        {/* Discount Value */}
         <InputField
           label="Discount Value"
           placeholder="placeholder"
@@ -130,7 +126,6 @@ export function RuleModificationModal({
           }
         />
 
-        {/* Trigger Criteria */}
         <InputField
           label="Trigger Criteria"
           placeholder="placeholder"
@@ -143,7 +138,6 @@ export function RuleModificationModal({
           }
         />
 
-        {/* Policy Type */}
         <SelectField
           label="Policy Type"
           value={formData.policyType}
@@ -159,7 +153,6 @@ export function RuleModificationModal({
           ))}
         </SelectField>
 
-        {/* Status Control */}
         <div className="space-y-2">
           <Label className="text-sm font-medium">Status Control</Label>
           <div className="flex items-center gap-3">
@@ -178,7 +171,6 @@ export function RuleModificationModal({
           </div>
         </div>
 
-        {/* Reason for Change */}
         <TextareaField
           label="Reason for Change"
           placeholder="placeholder"
@@ -192,7 +184,6 @@ export function RuleModificationModal({
           rows={4}
         />
 
-        {/* Action Buttons */}
         <div className="grid grid-cols-2 gap-3 pt-4">
           <Button variant="outline" onClick={() => handleClose(false)}>
             Cancel

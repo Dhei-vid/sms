@@ -69,7 +69,6 @@ export function ViewStudentsModal({
       contentClassName="flex flex-col"
     >
       <div className="space-y-4 flex-1 overflow-hidden flex flex-col">
-        {/* Summary */}
         <div className="flex items-center gap-5 text-sm text-gray-600">
           <div className="border px-4 py-2 rounded-md">
             <span>
@@ -90,19 +89,6 @@ export function ViewStudentsModal({
             </span>
           </div>
         </div>
-        {/* Search */}
-        {/* <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <Input
-            type="search"
-            placeholder="Search by student name, ID, or parent name"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div> */}
-
-        {/* Table */}
         <div className="border rounded-lg overflow-hidden flex-1 overflow-y-auto">
           <Table>
             <TableHeader className="sticky top-0 bg-white z-10">
@@ -154,7 +140,6 @@ export function ViewStudentsModal({
                         href="#"
                         onClick={(e) => {
                           e.preventDefault();
-                          // Handle send reminder action
                           console.log("Send reminder for", student.id);
                         }}
                         className="text-main-blue hover:underline text-sm"

@@ -14,7 +14,7 @@ export interface PersonalInformationState {
 
 export interface ContractDetailsState {
   staffId: string;
-  staffType: string; // "teacher" or "staff"
+  staffType: string;
   jobTitle: string;
   department: string;
   employmentType: string;
@@ -76,15 +76,12 @@ function formatDate(date: Date | undefined): string {
 
 function formatDateFromString(dateStr: string): string {
   if (!dateStr) return "";
-  // If it's already in YYYY-MM-DD format, return as is
   if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) return dateStr;
-  // Otherwise try to parse and format
   const date = new Date(dateStr);
   if (isNaN(date.getTime())) return "";
   return formatDate(date);
 }
 
-// Document type mapping for staff documents
 const STAFF_DOCUMENT_TYPE_MAP: Record<string, string> = {
   medicalReport: "medical report",
   passportPhoto: "passport photo",
@@ -104,46 +101,37 @@ export function buildStaffFormData(
       ? "male"
       : "";
 
-  // Use schoolId from form state if provided, otherwise fall back to passed schoolId
   const finalSchoolId = personal.schoolId || schoolId || "";
 
-  // Generate username from email or first name
   const username =
     personal.email.trim() ||
     personal.firstName.replace(/\s+/g, ".").toLowerCase();
 
-  // Format dates
   const dateOfBirth = formatDateFromString(personal.dateOfBirth);
   const contractStartDate = formatDateFromString(contract.contractStartDate);
   const contractEndDate = formatDateFromString(contract.contractEndDate);
   const dateJoined =
     contractStartDate || new Date().toISOString().split("T")[0];
 
-  // Build FormData for stakeholder creation
-  // Include user fields so backend can create user first, then stakeholder
   const fd = new FormData();
 
-  // User fields (will be used to create user first, then stakeholder)
   fd.append("username", username);
   fd.append("email", personal.email);
   fd.append("first_name", personal.firstName);
   fd.append("last_name", personal.lastName);
   fd.append("gender", gender);
   fd.append("phone_number", personal.phoneNumber);
-  // Omit password - backend uses USER_PASSWORD from settings (e.g. password123)
   fd.append("role", contract.staffType === "teacher" ? "teacher" : "staff");
   if (dateOfBirth) fd.append("date_of_birth", dateOfBirth);
   if (personal.residentialAddress)
     fd.append("residential_address", personal.residentialAddress);
   fd.append("school_id", finalSchoolId);
 
-  // Stakeholder fields
   fd.append("type", contract.staffType || "staff");
   fd.append("status", "active");
   if (contract.jobTitle) fd.append("position", contract.jobTitle);
   if (contract.employmentType)
     fd.append("employment_type", contract.employmentType);
-  // Only include contract dates if employment type is Contract
   if (contract.employmentType === "Contract") {
     if (contractStartDate) fd.append("contract_start_date", contractStartDate);
     if (contractEndDate) fd.append("contract_end_date", contractEndDate);
@@ -155,7 +143,6 @@ export function buildStaffFormData(
   fd.append("date_joined", dateJoined);
   if (access.schoolEmail) fd.append("school_email", access.schoolEmail);
 
-  // Add documents
   let docIndex = 0;
   for (const id of STAFF_DOCUMENT_IDS) {
     const file = documents[id];

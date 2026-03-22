@@ -45,7 +45,6 @@ export function LogPaymentModal({ open, onOpenChange }: LogPaymentModalProps) {
   const [formData, setFormData] = useState<LogPaymentForm>(initialData);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
 
-  // Handle date change
   const handleDateChange: Dispatch<SetStateAction<Date | undefined>> = (
     date,
   ) => {
@@ -56,18 +55,15 @@ export function LogPaymentModal({ open, onOpenChange }: LogPaymentModalProps) {
   };
 
   const handleSubmit = () => {
-    // Handle form submission
     console.log("Log payment submitted", {
       ...formData,
     });
-    // Reset form and close modal
     setFormData(initialData);
     onOpenChange(false);
   };
 
   const handleClose = (open: boolean) => {
     if (!open) {
-      // Reset form when modal closes
       setFormData(initialData);
     }
     onOpenChange(open);
@@ -81,7 +77,6 @@ export function LogPaymentModal({ open, onOpenChange }: LogPaymentModalProps) {
       size="2xl"
     >
       <div className="space-y-6 py-4">
-        {/* Search Student Account */}
         <div className="space-y-2">
           <Label htmlFor="search-account" className="text-sm font-medium">
             Search Student Account
@@ -103,7 +98,6 @@ export function LogPaymentModal({ open, onOpenChange }: LogPaymentModalProps) {
           </div>
         </div>
 
-        {/* Payer/Student Name */}
         <InputField
           label="Payer/Student Name"
           placeholder="Pre-filled after search"
@@ -113,7 +107,6 @@ export function LogPaymentModal({ open, onOpenChange }: LogPaymentModalProps) {
           }
         />
 
-        {/* Date of Payment */}
         <DatePickerIcon
           label="Date of Payment"
           date={formData.paymentDate}
@@ -123,7 +116,6 @@ export function LogPaymentModal({ open, onOpenChange }: LogPaymentModalProps) {
           placeholder="mm/dd/yy"
         />
 
-        {/* Payment Method */}
         <SelectField
           label="Payment Method"
           value={formData.paymentMethod}
@@ -139,7 +131,6 @@ export function LogPaymentModal({ open, onOpenChange }: LogPaymentModalProps) {
           <SelectItem value="online">Online Payment</SelectItem>
         </SelectField>
 
-        {/* Transaction Reference */}
         <InputField
           label="Transaction Reference"
           placeholder="placeholder"
@@ -152,7 +143,6 @@ export function LogPaymentModal({ open, onOpenChange }: LogPaymentModalProps) {
           }
         />
 
-        {/* Amount Received */}
         <InputField
           label="Amount Received (₦)"
           placeholder="placeholder"
@@ -166,7 +156,6 @@ export function LogPaymentModal({ open, onOpenChange }: LogPaymentModalProps) {
           }
         />
 
-        {/* Payment for Outstanding Balance */}
         <div className="space-y-2">
           <div className="flex justify-between items-center gap-2">
             <div className="space-y-1">
@@ -193,7 +182,6 @@ export function LogPaymentModal({ open, onOpenChange }: LogPaymentModalProps) {
           </div>
         </div>
 
-        {/* Verification Checkbox */}
         <div className="flex justify-between items-center gap-2">
           <Label
             htmlFor="verified"
@@ -214,7 +202,6 @@ export function LogPaymentModal({ open, onOpenChange }: LogPaymentModalProps) {
           />
         </div>
 
-        {/* Send Receipt Checkbox */}
         <div className="flex justify-between items-center gap-2">
           <Label
             htmlFor="send-receipt"
@@ -234,7 +221,6 @@ export function LogPaymentModal({ open, onOpenChange }: LogPaymentModalProps) {
           />
         </div>
 
-        {/* Action Buttons */}
         <div className="grid grid-cols-2 gap-3 pt-4">
           <Button variant="outline" onClick={() => handleClose(false)}>
             Cancel

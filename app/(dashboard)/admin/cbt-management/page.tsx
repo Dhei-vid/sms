@@ -324,16 +324,7 @@ export default function CBTManagementDashboardPage() {
             .map((e) => ({ value: e.id, label: e.title }))}
           venueSuggestions={venueSuggestions}
           invigilatorOptions={invigilatorOptions}
-          onScheduleAndActivate={({ exam, venue, invigilator }) => {
-            console.log(
-              "Scheduled Exam:",
-              exam,
-              "at Venue:",
-              venue,
-              "with Invigilator:",
-              invigilator,
-            );
-
+          onScheduleAndActivate={() => {
             setScheduleModalOpen(false);
           }}
         />

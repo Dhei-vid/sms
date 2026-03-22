@@ -33,7 +33,6 @@ export function ManageLeaveBalanceForm({
   ];
 
   const handleSubmit = () => {
-    // Handle form submission
     console.log("Leave Balance Adjustment:", formData);
     if (onApply) {
       onApply();
