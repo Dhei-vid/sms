@@ -82,7 +82,11 @@ export default function SignInPage() {
       }
 
       if (loginResponse.user.role === "canteen") {
-        router.push("/admin/store");
+        router.push("/canteen/store");
+      }
+
+      if (loginResponse.user.role === "vendor") {
+        router.push("/canteen/store");
       }
 
       const isStaff =

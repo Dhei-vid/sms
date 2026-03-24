@@ -2,11 +2,12 @@ import { MenuItem, UserRole } from "@/lib/types";
 import { menuItems } from "@/common/menu-items";
 
 export function getRolePath(role: UserRole, basePath: string): string {
+  const pathRole = role === "vendor" ? "canteen" : role;
   if (basePath === "/dashboard") {
-    return role === "admin" ? "/admin" : `/${role}`;
+    return role === "admin" ? "/admin" : `/${pathRole}`;
   }
   const cleanPath = basePath.startsWith("/") ? basePath.slice(1) : basePath;
-  return `/${role}/${cleanPath}`;
+  return `/${pathRole}/${cleanPath}`;
 }
 
 export function getMenuItemsByRole(role: UserRole): MenuItem[] {

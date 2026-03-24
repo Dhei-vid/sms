@@ -4,6 +4,7 @@ export type UserRole =
   | "parent"
   | "student"
   | "canteen"
+  | "vendor"
   | "staff";
 
 export interface MenuItem {
