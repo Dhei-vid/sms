@@ -41,7 +41,9 @@ export default function SettingsPage() {
                 Reconcile Sale Transaction Dispute
               </CardDescription>
             </div>
-            <Button variant={"outline"}>Initiate Refund</Button>
+            <Button onClick={() => setModalOpen(true)} variant={"outline"}>
+              Initiate Refund
+            </Button>
           </div>
           <Separator className="border-none h-px bg-[#D4D4D4] my-4" />
           {/* low stock threshold */}
