@@ -206,7 +206,7 @@ export const menuItems: MenuItem[] = [
         id: "financedashboard",
         label: "Finance Dashboard",
         icon: ArrowRight02Icon,
-        href: "/finance",
+        href: "/finance/reporting-and-compliance",
         roles: ["admin", "staff"],
       },
       {
