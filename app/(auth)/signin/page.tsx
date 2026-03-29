@@ -52,6 +52,8 @@ export default function SignInPage() {
       const result = await login({ email, password }).unwrap();
       const loginResponse = result.data;
 
+      console.log("Result ", result)
+
       if (!result?.data) {
         throw new Error("Invalid response from server");
       }
@@ -93,19 +95,19 @@ export default function SignInPage() {
         loginResponse.user.role === "staff" ||
         loginResponse.user.role === "teacher";
       if (isStaff) {
-        if (loginResponse.user.permissions.includes("write")) {
-          router.push("/admin/teacher");
+        if (loginResponse.user.permissions.includes("read")) {
+          router.push("/teacher/dashboard");
         } else if (loginResponse.user.permissions.includes("admin")) {
           router.push("/admin/dashboard");
         }
       }
 
       if (loginResponse.user.role === "student") {
-        router.push("/admin/student");
+        router.push("/student/dashboard");
       }
 
       if (loginResponse.user.role === "parent") {
-        router.push("/admin/parent");
+        router.push("/parent/dashboard");
       }
     } catch (err: any) {
       let errorMessage = "Invalid email or password. Please try again.";
