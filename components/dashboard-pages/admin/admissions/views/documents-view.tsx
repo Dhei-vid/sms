@@ -228,7 +228,7 @@ export function DocumentsView({ stakeholder }: DocumentsViewProps) {
             <TableBody>
               {documents.map((doc, index) => (
                 <TableRow key={index}>
-                  <TableCell className="font-medium text-gray-700 border-r">
+                  <TableCell className="font-medium text-gray-700 border-r capitalize">
                     {doc.type}
                   </TableCell>
                   <TableCell className="text-gray-600 border-r">

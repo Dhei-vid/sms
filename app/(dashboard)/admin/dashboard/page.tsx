@@ -10,7 +10,7 @@ import { RecentActivitiesCard } from "@/components/dashboard-pages/admin/dashboa
 import { TransactionsCard } from "@/components/dashboard-pages/admin/dashboard/transactions-card";
 import { useGetNotificationsQuery } from "@/services/shared";
 import { format, isToday } from "date-fns";
-import { useEffect } from "react";
+// import { useEffect } from "react";
 
 import {
   useGetAllStudentsQuery,
@@ -51,11 +51,13 @@ export default function AdminDashboard() {
     created_at?: string | null;
   }
 
-  const todayNotifications =
-    notificationsData?.data?.filter((notification: Notification) => {
-      if (!notification.created_at) return false;
-      return isToday(new Date(notification.created_at));
-    }) || [];
+  // const todayNotifications =
+  //   notificationsData?.data?.filter((notification: Notification) => {
+  //     if (!notification.created_at) return;
+  //     return isToday(new Date(notification.created_at));
+  //   }) || [];
+
+  const today = notificationsData?.data;
 
   const displayName = user
     ? `${user.first_name || ""} ${user.last_name || ""}`.trim() ||
@@ -125,7 +127,7 @@ export default function AdminDashboard() {
           />
 
           <NoticeBoardCard
-            notices={todayNotifications.map((notification: Notification) => ({
+            notices={today?.map((notification: Notification) => ({
               title: notification.title,
               time: notification.created_at
                 ? format(new Date(notification.created_at), "h:mm a")

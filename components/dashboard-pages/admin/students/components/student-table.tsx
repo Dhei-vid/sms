@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   DataTable,
@@ -39,12 +39,14 @@ interface Student {
 interface StudentTableProps {
   studentsData?: { data: any[]; total?: number };
   isLoading?: boolean;
+  setFilterModal: Dispatch<SetStateAction<boolean>>;
 }
 
 export function StudentTable({
   studentsData,
   isLoading = false,
-}: StudentTableProps = {}) {
+  setFilterModal,
+}: StudentTableProps) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
@@ -256,7 +258,6 @@ export function StudentTable({
 
   return (
     <div className="space-y-4">
-
       <div className="flex items-center gap-4">
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -268,7 +269,11 @@ export function StudentTable({
             className="pl-10"
           />
         </div>
-        <Button variant="outline" className="text-muted-foreground gap-2">
+        <Button
+          onClick={() => setFilterModal(true)}
+          variant="outline"
+          className="text-muted-foreground gap-2"
+        >
           <Icon icon={FilterIcon} size={20} />
           Filter by:
         </Button>
@@ -277,7 +282,6 @@ export function StudentTable({
           Export Data
         </Button>
       </div>
-
 
       <div className="border rounded-lg overflow-hidden">
         <DataTable
@@ -290,7 +294,6 @@ export function StudentTable({
           emptyMessage="No students found."
         />
       </div>
-
 
       <div className="flex justify-center">
         <Button variant="outline">Load More</Button>
