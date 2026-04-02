@@ -6,40 +6,87 @@ import NotificationPreferences from "@/components/dashboard-pages/student/settin
 import PersonalProfileViews from "@/components/dashboard-pages/student/settings/views/PersonalProfileViews";
 import { Card, CardContent } from "@/components/ui/card";
 import { Step, StepNavigation } from "@/components/ui/step-navigation";
-import { DocumentCodeIcon } from "@hugeicons/core-free-icons";
-import { useState } from "react";
+import {
+  Profile02Icon,
+  Notification01FreeIcons,
+  SecurityLockFreeIcons,
+} from "@hugeicons/core-free-icons";
+import { useState, ChangeEvent, FormEvent } from "react";
 
 type StepId =
   | "personal-profile"
   | "financial-wallet-security"
   | "notification-preferences";
 
+export type ModalStepId = "verify-password" | "change-password";
+
+export type PasswordHandler = {
+  oldPass: string;
+  newPass: string;
+  confirmPass: string;
+};
+
 const steps: Step[] = [
   {
     id: "personal-profile",
     label: "Personal Profile",
-    icon: DocumentCodeIcon,
+    icon: Profile02Icon,
   },
   {
     id: "financial-wallet-security",
     label: "Financial & Wallet Security",
-    icon: DocumentCodeIcon,
+    icon: SecurityLockFreeIcons,
   },
   {
     id: "notification-preferences",
     label: "Notification Preferences",
-    icon: DocumentCodeIcon,
+    icon: Notification01FreeIcons,
   },
 ];
 
 export default function ParentSettingsPage() {
   //view state handler
   const [currentStep, setCurrentStep] = useState<StepId>("personal-profile");
+  const [modalStepsId, setModalStepsId] =
+    useState<ModalStepId>("verify-password");
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [passwordHandler, setPasswordHandler] = useState<PasswordHandler>({
+    oldPass: "",
+    newPass: "",
+    confirmPass: "",
+  });
 
   //view change handler
   const handleStepChange = (stepId: string) => {
     setCurrentStep(stepId as StepId);
+  };
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setPasswordHandler((prevState) => {
+      return {
+        ...prevState,
+        [name]: value,
+      };
+    });
+  };
+
+  const handlePasswordVerification = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log(passwordHandler.oldPass);
+    //validate
+    //call-endpoint
+    setModalStepsId("change-password");
+  };
+
+  const handlePasswordUpdate = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log(passwordHandler.newPass);
+    console.log(passwordHandler.confirmPass);
+    //validate
+    //call endpoint
+    //notify
+    setOpenModal(false);
   };
 
   const renderContent = () => {
@@ -87,7 +134,15 @@ export default function ParentSettingsPage() {
         </div>
       </div>
       {/* modal */}
-      <SystemVerificationModal open={openModal} onOpenChange={setOpenModal} />
+      <SystemVerificationModal
+        modalStepsId={modalStepsId}
+        handlePasswordUpdate={handlePasswordUpdate}
+        handlePasswordVerification={handlePasswordVerification}
+        passwordHandler={passwordHandler}
+        handleChange={handleChange}
+        open={openModal}
+        onOpenChange={setOpenModal}
+      />
     </div>
   );
 }
