@@ -119,7 +119,6 @@ export function CreateQuestionModal({
       }
     >
       <div className="space-y-4 h-full">
-
         <div className="space-y-2">
           <Label
             htmlFor="assignedCourse"
@@ -142,7 +141,6 @@ export function CreateQuestionModal({
           </Select>
         </div>
 
-
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label
@@ -162,7 +160,6 @@ export function CreateQuestionModal({
             className="bg-gray-50 cursor-not-allowed"
           />
         </div>
-
 
         <div className="space-y-2">
           <Label
@@ -187,7 +184,6 @@ export function CreateQuestionModal({
           </Select>
         </div>
 
-
         <div className="space-y-2">
           <Label
             htmlFor="questionInstruction"
@@ -204,7 +200,6 @@ export function CreateQuestionModal({
           />
         </div>
 
-
         <div className="space-y-2">
           <Label
             htmlFor="question"
@@ -220,7 +215,6 @@ export function CreateQuestionModal({
             className="min-h-[100px]"
           />
         </div>
-
 
         <div className="space-y-2">
           <Label
@@ -252,7 +246,6 @@ export function CreateQuestionModal({
             </div>
           </div>
         </div>
-
 
         <div className="grid grid-cols-2 gap-4">
           {/* Correct Answer */}

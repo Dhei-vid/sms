@@ -10,7 +10,9 @@ import type {
   InitializePaymentResponse,
   VerifyTransaction,
   TransferMoney,
+  BudgetSummary,
 } from "./transaction-types";
+import { calculateBudgetSummary } from "./transaction-selectors";
 import type { ApiResponse, ApiDeleteResponse } from "../shared-types";
 
 const BASE = "/transactions";
@@ -23,7 +25,6 @@ export const transactionsApi = baseApi.injectEndpoints({
       TransactionsQueryParams | void
     >({
       query: (params) => ({ url: BASE, params: params ?? {} }),
-      transformResponse: (response: TransactionResponse) => response,
       providesTags: (result) =>
         result?.data
           ? [
@@ -126,6 +127,13 @@ export const transactionsApi = baseApi.injectEndpoints({
         "WalletTransaction",
       ],
     }),
+
+    getBudgetSummary: build.query<BudgetSummary, void>({
+      query: () => ({ url: BASE }),
+      transformResponse: (response: TransactionResponse): BudgetSummary =>
+        calculateBudgetSummary(response.data ?? []),
+      providesTags: [{ type: "Transaction", id: "LIST" }],
+    }),
   }),
 });
 
@@ -139,4 +147,5 @@ export const {
   useInitializePaymentMutation,
   useVerifyPaymentMutation,
   useTransferMoneyMutation,
+  useGetBudgetSummaryQuery,
 } = transactionsApi;

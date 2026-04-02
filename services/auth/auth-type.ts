@@ -14,7 +14,14 @@ export interface AuthUser {
   is_active: boolean;
   is_staff: boolean;
   is_superuser: boolean;
-  role: "teacher" | "student" | "parent" | "admin" | "canteen" | "staff" | "vendor";
+  role:
+    | "teacher"
+    | "student"
+    | "parent"
+    | "admin"
+    | "canteen"
+    | "staff"
+    | "vendor";
   phone_number: string | null;
   residential_address: string | null;
   profile_image_url: string | null;

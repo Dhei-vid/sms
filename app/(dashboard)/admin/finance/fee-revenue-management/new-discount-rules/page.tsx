@@ -9,6 +9,14 @@ import { SelectField } from "@/components/ui/input-field";
 import { SelectItem } from "@/components/ui/select";
 import { AssignmentsIcon, ResourcesAddIcon } from "@hugeicons/core-free-icons";
 import { useRouter } from "next/navigation";
+import { useAppSelector } from "@/store/hooks";
+import { selectUser } from "@/store/slices/authSlice";
+import { getApiErrorMessage } from "@/lib/format-api-error";
+import { DiscountRule } from "@/services/schools/schools-type";
+
+import { useUpdateSchoolMutation } from "@/services/schools/schools";
+import { useGetAllStaffQuery } from "@/services/stakeholders/stakeholders";
+import { toast } from "sonner";
 
 type StepId = "identity" | "scope" | "automation";
 
@@ -31,44 +39,42 @@ const steps: Step[] = [
 ];
 
 const initialData = {
-  ruleName: "",
-  discountType: "",
-  discountValue: "",
+  rule_name: "",
+  discount_value: 0,
+  trigger_criteria: "",
+  policy_type: "",
+  status_control: false,
+  reason: "",
   supervisor: "",
-  applicableTo: "",
+  rule_condition: "",
+  conflict_resolution: "",
+  applicable_to: "",
   exclusions: "",
-  scopeSupervisor: "",
-  ruleCondition: "",
-  conflictResolution: "",
 };
 
-interface DiscountRuleForm {
-  ruleName: string;
-  discountType: string;
-  discountValue: string;
-  supervisor: string;
-  applicableTo: string;
-  exclusions: string;
-  scopeSupervisor: string;
-  ruleCondition: string;
-  conflictResolution: string;
-}
-
-const discountTypeOptions = [
-  { value: "fixed", label: "Fixed Amount" },
-  { value: "percentage", label: "Percentage" },
-];
-
-const supervisorOptions = [
-  { value: "principal", label: "Principal" },
-  { value: "finance-manager", label: "Finance Manager" },
-  { value: "admin", label: "Administrator" },
-];
+// const discountTypeOptions = [
+//   { value: "fixed", label: "Fixed Amount" },
+//   { value: "percentage", label: "Percentage" },
+// ];
 
 export default function CreateDiscountRulePage() {
   const router = useRouter();
+  const user = useAppSelector(selectUser);
   const [activeStep, setActiveStep] = useState<StepId>("identity");
-  const [formData, setFormData] = useState<DiscountRuleForm>(initialData);
+  const [formData, setFormData] = useState<DiscountRule>(initialData);
+
+  const { data: staffResponse, isLoading: isLoadingStaff } =
+    useGetAllStaffQuery();
+  const teacherOptions = (staffResponse?.data ?? [])
+    .filter((s) => s.type === "teacher" || s.type === "staff")
+    .map((t) => ({
+      value: t.id,
+      label: t.user
+        ? `${t.user.first_name} ${t.user.last_name}`.trim() || t.id
+        : t.id,
+    }));
+
+  const [updateSchool] = useUpdateSchoolMutation();
 
   const handleStepChange = (stepId: string) => {
     setActiveStep(stepId as StepId);
@@ -82,23 +88,33 @@ export default function CreateDiscountRulePage() {
     }
   };
 
-  const handleBack = () => {
-    if (activeStep === "scope") {
-      setActiveStep("identity");
-    } else if (activeStep === "automation") {
-      setActiveStep("scope");
-    }
-  };
-
   const handleCancel = () => {
     router.back();
   };
 
-  const handleSubmit = () => {
-    console.log("Create discount rule submitted", { ...formData });
-    router.push(
-      "/admin/finance/fee-revenue-management/discount-policy-management",
-    );
+  const handleSubmit = async () => {
+    const schoolId = user?.school_id;
+    if (!schoolId) {
+      toast.error("School ID not found. Please try again.");
+      return;
+    }
+
+    try {
+      await updateSchool({
+        id: schoolId,
+        data: { discount_rules: [formData] } as any,
+      }).unwrap();
+
+      router.push(
+        "/admin/finance/fee-revenue-management/discount-policy-management",
+      );
+    } catch (error) {
+      const message = getApiErrorMessage(
+        error,
+        "Failed to create discount rule. Please try again.",
+      );
+      toast.error(message);
+    }
   };
 
   const renderStepContent = () => {
@@ -113,13 +129,13 @@ export default function CreateDiscountRulePage() {
             <InputField
               label="Rule Name"
               placeholder="placeholder"
-              value={formData.ruleName}
+              value={formData.rule_name}
               onChange={(e) =>
-                setFormData((prev) => ({ ...prev, ruleName: e.target.value }))
+                setFormData((prev) => ({ ...prev, rule_name: e.target.value }))
               }
             />
 
-            <SelectField
+            {/* <SelectField
               label="Discount Type"
               value={formData.discountType}
               onValueChange={(value) =>
@@ -132,41 +148,28 @@ export default function CreateDiscountRulePage() {
                   {option.label}
                 </SelectItem>
               ))}
-            </SelectField>
+            </SelectField> */}
 
             <InputField
               label="Discount Value"
               placeholder="Number/Currency Input"
               type="number"
-              value={formData.discountValue}
+              value={formData.discount_value}
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
-                  discountValue: e.target.value,
+                  discount_value: Number(e.target.value),
                 }))
               }
             />
 
-            <SelectField
-              label="Supervisor"
-              value={formData.supervisor}
-              onValueChange={(value) =>
-                setFormData((prev) => ({ ...prev, supervisor: value }))
-              }
-              placeholder="Select the manager responsible for overseeing this duty."
-            >
-              {supervisorOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectField>
-
-            <div className="flex justify-end gap-3 pt-4">
+            <div className="grid grid-cols-3 gap-4 pt-4 justify-self-end">
               <Button variant="outline" onClick={handleCancel}>
                 Cancel
               </Button>
-              <Button onClick={handleNext}>Next</Button>
+              <Button className="col-span-2" onClick={handleNext}>
+                Next
+              </Button>
             </div>
           </div>
         );
@@ -181,11 +184,11 @@ export default function CreateDiscountRulePage() {
             <InputField
               label="Applicable To"
               placeholder="E.g., All Grades, JSS Only"
-              value={formData.applicableTo}
+              value={formData.applicable_to}
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
-                  applicableTo: e.target.value,
+                  applicable_to: e.target.value,
                 }))
               }
             />
@@ -204,30 +207,33 @@ export default function CreateDiscountRulePage() {
 
             <SelectField
               label="Supervisor"
-              value={formData.scopeSupervisor}
+              value={formData.supervisor}
               onValueChange={(value) =>
                 setFormData((prev) => ({
                   ...prev,
-                  scopeSupervisor: value,
+                  supervisor: value,
                 }))
               }
-              placeholder="Select the manager responsible for overseeing this duty."
+              placeholder={
+                isLoadingStaff
+                  ? "Loading teachers..."
+                  : "Select a supervising teacher"
+              }
             >
-              {supervisorOptions.map((option) => (
+              {teacherOptions.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>
               ))}
             </SelectField>
 
-            <div className="flex justify-end gap-3 pt-4">
+            <div className="grid grid-cols-3 gap-4 pt-4 justify-self-end">
               <Button variant="outline" onClick={handleCancel}>
                 Cancel
               </Button>
-              <Button variant="outline" onClick={handleBack}>
-                Back
+              <Button className="col-span-2" onClick={handleNext}>
+                Next
               </Button>
-              <Button onClick={handleNext}>Next</Button>
             </div>
           </div>
         );
@@ -243,11 +249,11 @@ export default function CreateDiscountRulePage() {
               <InputField
                 label="Rule Condition"
                 placeholder="The main logical trigger for the discount application."
-                value={formData.ruleCondition}
+                value={formData.rule_condition}
                 onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,
-                    ruleCondition: e.target.value,
+                    rule_condition: e.target.value,
                   }))
                 }
               />
@@ -260,11 +266,11 @@ export default function CreateDiscountRulePage() {
               <InputField
                 label="Conflict Resolution"
                 placeholder="Defines how the system handles a student who qualifies for multiple discounts."
-                value={formData.conflictResolution}
+                value={formData.conflict_resolution}
                 onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,
-                    conflictResolution: e.target.value,
+                    conflict_resolution: e.target.value,
                   }))
                 }
               />
@@ -274,14 +280,13 @@ export default function CreateDiscountRulePage() {
               </p>
             </div>
 
-            <div className="flex justify-end gap-3 pt-4">
+            <div className="grid grid-cols-3 gap-4 pt-4 justify-self-end">
               <Button variant="outline" onClick={handleCancel}>
                 Cancel
               </Button>
-              <Button variant="outline" onClick={handleBack}>
-                Back
+              <Button className="col-span-2" onClick={handleSubmit}>
+                Save and Activate Rule
               </Button>
-              <Button onClick={handleSubmit}>Save and Activate Rule</Button>
             </div>
           </div>
         );
@@ -293,14 +298,16 @@ export default function CreateDiscountRulePage() {
 
   return (
     <div className="space-y-4">
-      <div className="bg-background rounded-md p-6">
-        <h2 className="text-2xl font-bold text-gray-800">
-          Create New Discount Rule
-        </h2>
-        <p className="text-gray-600 mt-1">
-          Clearly define the who, what, and how of a discount.
-        </p>
-      </div>
+      <Card>
+        <CardContent>
+          <h2 className="text-2xl font-bold text-gray-800">
+            Create New Discount Rule
+          </h2>
+          <p className="text-gray-600 mt-1">
+            Clearly define the who, what, and how of a discount.
+          </p>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         <div className="lg:col-span-1">

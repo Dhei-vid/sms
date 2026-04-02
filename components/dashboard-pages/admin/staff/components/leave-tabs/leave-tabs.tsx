@@ -2,10 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { Icon } from "@/components/general/huge-icon";
-import {
-  User03Icon,
-  DocumentValidationIcon,
-} from "@hugeicons/core-free-icons";
+import { User03Icon, DocumentValidationIcon } from "@hugeicons/core-free-icons";
 
 type TabId = "snapshot" | "details" | "policy";
 

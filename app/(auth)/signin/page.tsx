@@ -52,7 +52,7 @@ export default function SignInPage() {
       const result = await login({ email, password }).unwrap();
       const loginResponse = result.data;
 
-      console.log("Result ", result)
+      console.log("Result ", result);
 
       if (!result?.data) {
         throw new Error("Invalid response from server");

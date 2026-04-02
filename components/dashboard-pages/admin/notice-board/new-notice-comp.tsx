@@ -203,7 +203,6 @@ const NewNoticeBoard = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-
         <div className="space-y-2">
           <InputField
             id="notice-title"
@@ -221,7 +220,6 @@ const NewNoticeBoard = () => {
             <p className="text-sm text-red-600 px-1">{errors.title}</p>
           )}
         </div>
-
 
         <div className="space-y-2">
           <SelectField
@@ -247,7 +245,6 @@ const NewNoticeBoard = () => {
           )}
         </div>
 
-
         <div className="space-y-3">
           <Label className="text-sm font-medium text-gray-700">
             Select Target Audience <span className="text-red-600">*</span>
@@ -270,7 +267,6 @@ const NewNoticeBoard = () => {
             <p className="text-sm text-red-600 px-1">{errors.targetAudience}</p>
           )}
         </div>
-
 
         {targetAudience.private && (
           <div className="space-y-3">
@@ -309,7 +305,6 @@ const NewNoticeBoard = () => {
           </div>
         )}
 
-
         <div className="space-y-2">
           <TextareaField
             id="notice-content"
@@ -329,7 +324,6 @@ const NewNoticeBoard = () => {
           )}
         </div>
 
-
         <div className="space-y-2">
           <CheckboxField
             id="priority-alert"
@@ -342,7 +336,6 @@ const NewNoticeBoard = () => {
             section
           </p>
         </div>
-
 
         <div className="flex justify-end gap-3 pt-4">
           <Button

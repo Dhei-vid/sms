@@ -104,6 +104,16 @@ export interface TransferMoney {
 
 export type TransactionSingleResponse = ApiResponse<Transaction>;
 
+export interface BudgetSummary {
+  total_income: number;
+  total_expense: number;
+  net_balance: number;
+  currency: Currency;
+  transaction_count: number;
+}
+
+export type BudgetSummaryResponse = ApiResponse<BudgetSummary>;
+
 export interface TransactionsQueryParams extends BaseQueryParams {
   wallet_id?: string;
   user_id?: string;

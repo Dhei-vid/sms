@@ -256,7 +256,6 @@ export function StudentTable({
 
   return (
     <div className="space-y-4">
-
       <div className="flex items-center gap-4">
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -278,7 +277,6 @@ export function StudentTable({
         </Button>
       </div>
 
-
       <div className="border rounded-lg overflow-hidden">
         <DataTable
           columns={columns}
@@ -290,7 +288,6 @@ export function StudentTable({
           emptyMessage="No students found."
         />
       </div>
-
 
       <div className="flex justify-center">
         <Button variant="outline">Load More</Button>

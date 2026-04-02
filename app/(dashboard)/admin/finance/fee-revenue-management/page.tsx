@@ -148,30 +148,32 @@ export default function FinancePage() {
 
   return (
     <div className="space-y-4">
-      <div className="bg-background rounded-md p-6">
-        <h2 className="text-2xl font-bold text-gray-800">
-          Fee & Revenue Management Overview Dashboard
-        </h2>
-        <p className="text-gray-600 mt-1">
-          Use this overview to monitor outstanding risk, track cash flow, and
-          ensure compliance with all budgetary controls.
-        </p>
-      </div>
+      <Card>
+        <CardContent>
+          <h2 className="text-2xl font-bold text-gray-800">
+            Fee & Revenue Management Overview Dashboard
+          </h2>
+          <p className="text-gray-600 mt-1">
+            Use this overview to monitor outstanding risk, track cash flow, and
+            ensure compliance with all budgetary controls.
+          </p>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <FinancialMetricCard
           title="Net Available Cash"
-          value="—"
+          value="0"
           subtitle="No data"
         />
         <FinancialMetricCard
           title="Total Outstanding Fees"
-          value="—"
+          value="0"
           subtitle="No data"
         />
         <FinancialMetricCard
           title="Budget Adherence"
-          value="—"
+          value="0"
           subtitle="No data"
         />
       </div>

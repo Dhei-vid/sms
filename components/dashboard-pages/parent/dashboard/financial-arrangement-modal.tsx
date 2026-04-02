@@ -76,7 +76,6 @@ export function FinancialArrangementModal({
       }
     >
       <div className="space-y-4">
-
         <div className="space-y-2">
           <Label
             htmlFor="requestType"
@@ -98,7 +97,6 @@ export function FinancialArrangementModal({
           </Select>
         </div>
 
-
         <div className="space-y-2">
           <Label
             htmlFor="justification"
@@ -115,7 +113,6 @@ export function FinancialArrangementModal({
           />
         </div>
 
-
         <div className="space-y-2">
           <Label
             htmlFor="proposedPlan"
@@ -131,7 +128,6 @@ export function FinancialArrangementModal({
             onChange={(e) => setProposedPlan(e.target.value)}
           />
         </div>
-
 
         <div className="space-y-2">
           <Label className="text-sm font-medium text-gray-700">

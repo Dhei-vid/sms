@@ -39,7 +39,6 @@ export function MessageThreadItem({
       )}
     >
       <div className="flex gap-2 items-start w-full">
-
         {avatar ? (
           <div className="relative h-12 w-12 rounded-full overflow-hidden shrink-0">
             <Image
@@ -59,7 +58,6 @@ export function MessageThreadItem({
             <Icon icon={SharedDriveIcon} size={24} className="text-main-blue" />
           </div>
         )}
-
 
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 mb-1">

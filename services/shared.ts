@@ -59,10 +59,7 @@ export {
   useDeleteMessageMutation,
 } from "./messages/messages";
 
-export type {
-  Message,
-  CreateMessageRequest,
-} from "./messages/messages-type";
+export type { Message, CreateMessageRequest } from "./messages/messages-type";
 
 export {
   useGetNotificationsQuery,

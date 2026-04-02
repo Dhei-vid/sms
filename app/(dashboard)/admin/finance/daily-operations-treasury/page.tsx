@@ -25,7 +25,10 @@ import { ProgressBar } from "@/components/ui/progress-bar";
 import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 import { Bar, BarChart, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 
-import { useGetAllTransactionsQuery } from "@/services/transactions/transactions";
+import {
+  useGetAllTransactionsQuery,
+  useGetBudgetSummaryQuery,
+} from "@/services/transactions/transactions";
 import {
   selectTransactionsGroupedByCategory,
   selectAllTransactionsData,
@@ -109,6 +112,11 @@ export default function DailyOperationsTreasuryPage() {
     selectTransactionsGroupedByCategory,
   );
 
+  const { data: budgetSummary } = useGetBudgetSummaryQuery();
+
+  console.log("Budget summary from API:", budgetSummary);
+  console.log("All transactions:", transactions);
+
   const budgetTableData = useMemo((): BudgetItem[] => {
     return transactionsGroupedByCategory.map((g, i) => ({
       id: g.category,
@@ -170,37 +178,39 @@ export default function DailyOperationsTreasuryPage() {
 
   return (
     <div className="space-y-4">
-      <div className="bg-background rounded-md p-6">
-        <h2 className="text-2xl font-bold text-gray-800">
-          Daily Operations & Treasury Overview Dashboard
-        </h2>
-        <p className="text-gray-600 mt-1">
-          This dashboard focuses on liquidity, transactional volume, and budget
-          control, providing real-time data from wallet, canteen, and general
-          accounting features.
-        </p>
-      </div>
+      <Card>
+        <CardContent>
+          <h2 className="text-2xl font-bold text-gray-800">
+            Daily Operations & Treasury Overview Dashboard
+          </h2>
+          <p className="text-gray-600 mt-1">
+            This dashboard focuses on liquidity, transactional volume, and
+            budget control, providing real-time data from wallet, canteen, and
+            general accounting features.
+          </p>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <FinancialMetricCard
           title="Net Available Cash"
-          value="—"
-          subtitle="No data"
+          value="0"
+          subtitle={`${2} Compared to last month`}
         />
         <FinancialMetricCard
           title="Total Wallet Liability"
-          value="—"
-          subtitle="No data"
+          value="0"
+          subtitle={`${5} increase on short term debt`}
         />
         <FinancialMetricCard
           title="Budget Consumption Rate"
-          value="—"
-          subtitle="No data"
+          value="0"
+          subtitle={`${2} Compared to last academic year`}
         />
         <FinancialMetricCard
           title="Unpaid Creditor Bills (7 Days)"
-          value="—"
-          subtitle="No data"
+          value="0"
+          subtitle={`${5} immediate cash outlow forecast`}
         />
       </div>
 
@@ -235,7 +245,13 @@ export default function DailyOperationsTreasuryPage() {
               </div>
             )}
             <div className={"pt-4 w-full flex justify-center mt-0"}>
-              <Button variant={"outline"} className={"w-full"}>
+              <Button
+                onClick={() =>
+                  router.push("daily-operations-treasury/budget-tracking")
+                }
+                variant={"outline"}
+                className={"w-full"}
+              >
                 View Full Budget Breakdown
               </Button>
             </div>
@@ -411,7 +427,11 @@ export default function DailyOperationsTreasuryPage() {
                 </div>
               )}
 
-              <Button variant="outline" className="w-full mt-auto">
+              <Button
+                onClick={() => router.push("general-accounting")}
+                variant="outline"
+                className="w-full mt-auto"
+              >
                 View Statistics
               </Button>
             </div>
