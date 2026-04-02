@@ -75,7 +75,6 @@ export function ScheduleGrid({
 
   return (
     <div className="bg-white rounded-lg border overflow-hidden">
-
       <div className="flex items-center justify-between p-4 border-b bg-gray-50">
         <div className="flex items-center gap-2">
           <Button
@@ -96,7 +95,6 @@ export function ScheduleGrid({
           </Button>
         </div>
       </div>
-
 
       <div className="overflow-x-auto">
         <div className="min-w-full">

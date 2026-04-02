@@ -119,7 +119,11 @@ const baseQueryWithErrorHandling: BaseQueryFn<
 
       if (!isSuccess) {
         console.group(`❌ ${method} ${requestUrl} - Failed (${duration}ms)`);
-        console.error("Response Status:", response?.status, response?.status_code);
+        console.error(
+          "Response Status:",
+          response?.status,
+          response?.status_code,
+        );
         console.error("Response:", result.data);
         console.groupEnd();
       }
@@ -203,7 +207,9 @@ const baseQueryWithErrorHandling: BaseQueryFn<
       }
     }
 
-    api.dispatch(setError({ code: status, message: errorMessage, details: data }));
+    api.dispatch(
+      setError({ code: status, message: errorMessage, details: data }),
+    );
   } else {
     api.dispatch(clearError());
   }

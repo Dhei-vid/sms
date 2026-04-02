@@ -203,13 +203,6 @@ export const menuItems: MenuItem[] = [
     roles: ["admin", "staff"],
     children: [
       {
-        id: "financedashboard",
-        label: "Finance Dashboard",
-        icon: ArrowRight02Icon,
-        href: "/finance/reporting-and-compliance",
-        roles: ["admin", "staff"],
-      },
-      {
         id: "fee&revenue",
         label: "Fee & Revenue Management",
         icon: ArrowRight02Icon,
@@ -223,13 +216,13 @@ export const menuItems: MenuItem[] = [
         href: "/finance/daily-operations-treasury",
         roles: ["admin", "staff"],
       },
-      {
-        id: "reporting&compliance",
-        label: "Reporting & Compliance",
-        icon: ArrowRight02Icon,
-        href: "/finance/reporting-and-compliance",
-        roles: [],
-      },
+      // {
+      //   id: "reporting&compliance",
+      //   label: "Reporting & Compliance",
+      //   icon: ArrowRight02Icon,
+      //   href: "/finance/reporting-and-compliance",
+      //   roles: ["admin", "staff"],
+      // },
     ],
   },
   {

@@ -1,35 +1,41 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { FinancialMetricCard } from "@/components/dashboard-pages/admin/finance/finance-metrics";
 
-export default function ReportingAndCompliancePage() {
+export default function GeneralAccountingPage() {
   return (
     <div className="space-y-4">
       {/* Header */}
       <Card>
         <CardContent>
           <h2 className="text-2xl font-bold text-gray-800">
-            Reporting & Compliance
+            General Accounting
           </h2>
           <p className="text-gray-600 mt-1">
-            Generate Financial Reports and Ensure Regulatory Compliance.
+            The Centralized control panel for expense tracking, and creditor
+            management.
           </p>
         </CardContent>
       </Card>
 
       {/* Metrics cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <FinancialMetricCard
           title="Net Available Cash"
           value="0"
           subtitle="No data"
         />
         <FinancialMetricCard
-          title="Total Wallet Liability"
+          title="Unpaid Creditor Bills (7 Days)"
           value="0"
           subtitle="No data"
         />
         <FinancialMetricCard
-          title="Budget Consumption Rate"
+          title="Total Non-Fee Income YTD"
+          value="0"
+          subtitle="No data"
+        />
+        <FinancialMetricCard
+          title="Active Vendors"
           value="0"
           subtitle="No data"
         />

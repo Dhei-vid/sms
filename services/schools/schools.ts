@@ -6,6 +6,7 @@ import type {
   UpdateSchoolRequest,
   SchoolListResponse,
   SchoolQueryParams,
+  DiscountRule,
 } from "./schools-type";
 
 const BASE = "/schools";
@@ -52,12 +53,21 @@ export const schoolsApi = baseApi.injectEndpoints({
         invalidatesTags: ["School"],
       },
     ),
+
+    getDiscountRules: build.query<DiscountRule[], void>({
+      query: () => ({ url: `${BASE}` }),
+      transformResponse: (response: ApiResponse<School>): DiscountRule[] => {
+        const school = response.data;
+        return school.discount_rules ?? [];
+      },
+    }),
   }),
 });
 
 export const {
   useGetSchoolsQuery,
   useGetSchoolByIdQuery,
+  useGetDiscountRulesQuery,
   useCreateSchoolMutation,
   useUpdateSchoolMutation,
   useDeleteSchoolMutation,

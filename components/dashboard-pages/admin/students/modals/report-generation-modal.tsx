@@ -52,7 +52,6 @@ export function ReportGenerationModal({
       }
     >
       <div className="py-4 space-y-5">
-
         <SelectField
           label="Generation Type"
           placeholder="Select a batch"
@@ -79,7 +78,6 @@ export function ReportGenerationModal({
           ))}
         </SelectField>
 
-
         <SelectField
           label="Academic Term"
           placeholder="Select a term"
@@ -105,7 +103,6 @@ export function ReportGenerationModal({
             </SelectItem>
           ))}
         </SelectField>
-
 
         <SelectField
           label="Grade/Class"
@@ -144,7 +141,6 @@ export function ReportGenerationModal({
             </SelectItem>
           ))}
         </SelectField>
-
 
         <InputField
           label="Report Status Check"

@@ -35,6 +35,8 @@ export function PersonalDetailsView({ stakeholder }: PersonalDetailsViewProps) {
     : stakeholder.emergency_contact_and_phone || "—";
   const address =
     (stakeholder.user as unknown as Record<string, unknown>)?.address ?? "—";
+  const parentName = stakeholder?.parent_name ?? "—";
+  const parentEmail = stakeholder?.parent_name ?? "—"; // should be changed to parent email
 
   const personalDetailsRows = [
     {
@@ -62,10 +64,20 @@ export function PersonalDetailsView({ stakeholder }: PersonalDetailsViewProps) {
       content: primaryPhone,
     },
     {
+      field: "Parent Name",
+      content: parentName,
+    },
+    {
+      field: "Parent Email",
+      content: parentEmail,
+    },
+    {
       field: "Emergency Contact",
       content: emergencyContact,
     },
   ];
+
+  console.log("Details ", stakeholder);
 
   return (
     <div className="space-y-4">

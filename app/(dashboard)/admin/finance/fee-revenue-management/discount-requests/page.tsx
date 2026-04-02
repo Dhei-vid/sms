@@ -203,15 +203,17 @@ export default function DiscountRequestsPage() {
 
   return (
     <div className="space-y-4">
-      <div className="bg-background rounded-md p-6">
-        <h2 className="text-2xl font-bold text-gray-800">
-          Review Discount Requests
-        </h2>
-        <p className="text-gray-600 mt-1">
-          Review all pending requests, allowing the Admin to quickly review the
-          details and make an informed choice.
-        </p>
-      </div>
+      <Card>
+        <CardContent>
+          <h2 className="text-2xl font-bold text-gray-800">
+            Review Discount Requests
+          </h2>
+          <p className="text-gray-600 mt-1">
+            Review all pending requests, allowing the Admin to quickly review
+            the details and make an informed choice.
+          </p>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FinancialMetricCard
@@ -284,7 +286,12 @@ export default function DiscountRequestsPage() {
         onOpenChange={setReviewModalOpen}
         request={selectedRequest}
         onApprove={(requestId, discountValue) => {
-          console.log("Approve request", requestId, "with value", discountValue);
+          console.log(
+            "Approve request",
+            requestId,
+            "with value",
+            discountValue,
+          );
         }}
         onDeny={(requestId, reason) => {
           console.log("Deny request", requestId, "with reason", reason);

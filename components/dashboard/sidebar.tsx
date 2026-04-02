@@ -33,7 +33,7 @@ export function Sidebar({
   onToggleCollapse,
 }: SidebarProps) {
   const pathname = usePathname();
-  const router = useRouter()
+  const router = useRouter();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const unreadNoticeCount = useUnreadNoticeCount();
   const user = useAppSelector(selectUser);
@@ -101,7 +101,12 @@ export function Sidebar({
           onClick={onClose}
         >
           {!collapsed && (
-            <Image src={"/logo/daraEd_icon.png"} width={100} height={100} alt="icon"/>
+            <Image
+              src={"/logo/daraEd_icon.png"}
+              width={100}
+              height={100}
+              alt="icon"
+            />
           )}
         </Link>
         <div onClick={() => router.back()}>

@@ -243,16 +243,18 @@ export default function BulkInvoicesPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="bg-background rounded-md p-6">
-        <h2 className="text-2xl font-bold text-gray-800">
-          Generate Bulk Invoices
-        </h2>
-        <p className="text-gray-600 mt-1">
-          Three-step process with clear progression indicators to minimize
-          errors.
-        </p>
-      </div>
+    <div className="space-y-4">
+      <Card>
+        <CardContent>
+          <h2 className="text-2xl font-bold text-gray-800">
+            Generate Bulk Invoices
+          </h2>
+          <p className="text-gray-600 mt-1">
+            Three-step process with clear progression indicators to minimize
+            errors.
+          </p>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         <div className="lg:col-span-1">

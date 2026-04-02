@@ -62,6 +62,7 @@ export type School = {
 
   status: GeneralStatus;
   is_deleted: boolean;
+  discount_rules?: DiscountRule[];
 
   creator: User;
 };
@@ -196,6 +197,171 @@ export interface SchoolSubscriptionUpdate {
   status: string;
 }
 
+// {
+//     "name": "Example School",
+//     "address": "123 Education Street, City, Country",
+//     "motto": "Knowledge is Power",
+//     "type": "secondary",
+//     "phone": "+1234567890",
+//     "email": "info@exampleschool.com",
+//     "website": "https://exampleschool.com",
+//     "term": {
+//         "name": "first-term",
+//         "session": "2022/2023",
+//         "end_date": "2024-04-30",
+//         "start_date": "2024-01-08"
+//     },
+//     "bank": {
+//         "bank_id": "1",
+//         "bank_code": "1234",
+//         "bank_name": "Firstbank",
+//         "account_name": "Test Name",
+//         "account_number": "1234567890"
+//     },
+//     "score": {
+//         "ca": 12,
+//         "exam": 34,
+//         "total": 46
+//     },
+//     "discount": "4000.00",
+//     "established_date": "2020-01-01",
+//     "accreditation_number": "ACC123456",
+//     "license_number": "LIC789012",
+//     "student_capacity": 1000,
+//     "current_enrollment": 750,
+//     "subscription": {
+//         "plan": "standard",
+//         "status": "active",
+//         "end_date": "2024-12-31T23:59:59Z",
+//         "start_date": "2024-01-01T00:00:00Z",
+//         "subscription_id": "01kady0vxg0h5wqsp0pk73zjm3"
+//     },
+//     "color": {
+//         "accent": "#ff4081",
+//         "primary": "#1a237e",
+//         "tertiary": "#2196f3",
+//         "secondary": "#0d47a1"
+//     },
+//     "logo": {
+//         "svg": "<svg>...</svg>",
+//         "image_url": "https://storage.example.com/schools/example-logo.png",
+//         "image_public_id": "schools/example-school/logo"
+//     },
+//     "facebook_url": "https://facebook.com/exampleschool",
+//     "twitter_url": "https://twitter.com/exampleschool",
+//     "instagram_url": "https://instagram.com/exampleschool",
+//     "linkedin_url": "https://linkedin.com/company/exampleschool",
+//     "is_active": true,
+//     "classes": [
+//         "JSS 1",
+//         "JSS 2",
+//         "JSS 3"
+//     ],
+//     "timetable_name": "Test Timetable Name",
+//     "timetable": [
+//         {
+//             "school_days": [
+//                 "Monday",
+//                 "Tuesday",
+//                 "Wednesday",
+//                 "Thursday",
+//                 "Friday"
+//             ],
+//             "academic_term": "First Term",
+//             "break_periods": [
+//                 {
+//                     "type": "break",
+//                     "title": "Test Title 1",
+//                     "end_time": "18:00",
+//                     "start_time": "12:00"
+//                 },
+//                 {
+//                     "type": "period",
+//                     "title": "Test Title 2",
+//                     "end_time": "11:00",
+//                     "start_time": "08:00"
+//                 }
+//             ],
+//             "timetable_name": "Test Timetable Name",
+//             "no_of_periods_per_day": 10,
+//             "applicable_school_grade": "SSS 2",
+//             "default_period_duration": 30
+//         }
+//     ],
+//     "applicable_school_grade": "SSS 2",
+//     "academic_term": "First Term",
+//     "school_days": [
+//         "Monday",
+//         "Tuesday",
+//         "Wednesday",
+//         "Thursday",
+//         "Friday"
+//     ],
+//     "no_of_periods_per_day": 10,
+//     "default_period_duration": 30,
+//     "break_periods": [
+//         {
+//             "type": "break",
+//             "title": "Test Title 1",
+//             "end_time": "18:00",
+//             "start_time": "12:00"
+//         },
+//         {
+//             "type": "period",
+//             "title": "Test Title 2",
+//             "end_time": "11:00",
+//             "start_time": "08:00"
+//         }
+//     ],
+//     "subjects": [
+//         "Mathematics",
+//         "Physics",
+//         "Chemistry"
+//     ],
+//     "grading_scales_config": [
+//         {
+//             "name": "A",
+//             "gpa_value": "2.5",
+//             "lower_percentage": 40,
+//             "upper_percentage": 90,
+//             "holidays_or_breaks": "Poor Performance"
+//         }
+//     ],
+//     "academic_calendar_config": {
+//         "name": "Test Name",
+//         "end_date": "2026-05-02",
+//         "start_date": "2026-02-02",
+//         "no_of_terms": 3,
+//         "holidays_or_breaks": [
+//             {
+//                 "name": "Test Break",
+//                 "time_in": "09:00:00",
+//                 "end_date": "2026-05-02",
+//                 "time_out": "09:00:00",
+//                 "start_date": "2026-02-02"
+//             }
+//         ]
+//     },
+//     "discount_rules": [
+//         {
+//             "rule_name": "Early Payment Discount",
+//             "discount_value": 10,
+//             "trigger_criteria": "Payment made within 7 days",
+//             "policy_type": "Percentage",
+//             "status_control": true,
+//             "reason": "Encourage early payments",
+//             "supervisor": "Finance Manager",
+//             "rule_condition": "Payment >= 5000",
+//             "conflict_resolution": "Apply highest discount",
+//             "applicable_to": "All Grades",
+//             "exclusions": "Late Payments"
+//         }
+//     ],
+//     "daily_reconciliation": true,
+//     "max_single_transaction": "20000",
+//     "low_stock_threshold": 10
+// }
+
 export interface UpdateSchoolRequest {
   name: string;
   code?: string;
@@ -229,6 +395,15 @@ export interface UpdateSchoolRequest {
   bank: Bank;
   score: Score;
 
+  timetable?: TimeTable[];
+  grading_scales_config: GradingScaleConfig[];
+  academic_calendar_config: AcademicCalendarConfig;
+  discount_rules: DiscountRule[];
+
+  daily_reconciliation: Boolean;
+  max_single_transaction: string;
+  low_stock_threshold: number;
+
   discount: string;
   classes: string[];
   subjects: string[];
@@ -239,6 +414,52 @@ export interface UpdateSchoolRequest {
   no_of_periods_per_day: number;
   default_period_duration: number;
   break_periods: Break[];
+}
+
+interface TimeTable {
+  school_days: string[];
+  academic_term: string;
+  break_periods: Break[];
+  timetable_name: string;
+  no_of_periods_per_day: number;
+  applicable_school_grade: string;
+  default_period_duration: number;
+}
+
+interface GradingScaleConfig {
+  name: string;
+  gpa_value: string;
+  lower_percentage: number;
+  upper_percentage: number;
+  holidays_or_breaks: string;
+}
+
+interface AcademicCalendarConfig {
+  name: string;
+  end_date: string;
+  start_date: string;
+  no_of_terms: number;
+  holidays_or_breaks: {
+    name: string;
+    time_in: string;
+    end_date: string;
+    time_out: string;
+    start_date: string;
+  };
+}
+
+export interface DiscountRule {
+  rule_name: string;
+  discount_value: number;
+  trigger_criteria: string;
+  policy_type?: string;
+  status_control: Boolean;
+  reason: string;
+  supervisor: string;
+  rule_condition: string;
+  conflict_resolution: string;
+  applicable_to: string;
+  exclusions: string;
 }
 
 export type SchoolListResponse = ApiListResponse<School>;

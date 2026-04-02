@@ -14,6 +14,8 @@ import { PencilEdit02Icon, PolicyIcon } from "@hugeicons/core-free-icons";
 import { FinancialMetricCard } from "@/components/dashboard-pages/admin/finance/finance-metrics";
 import { RuleModificationModal } from "@/components/dashboard-pages/admin/finance/components/rule-modification-modal";
 
+import { useGetDiscountRulesQuery } from "@/services/schools/schools";
+
 interface DiscountRule {
   id: string;
   ruleName: string;
@@ -44,6 +46,10 @@ export default function DiscountPolicyManagementPage() {
   const router = useRouter();
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedRule, setSelectedRule] = useState<DiscountRule | null>(null);
+
+  const { data: discountRules, isLoading } = useGetDiscountRulesQuery();
+
+  console.log("Fetched discount rules:", discountRules);
   const [rules] = useState<DiscountRule[]>([
     {
       id: "1",
@@ -157,14 +163,16 @@ export default function DiscountPolicyManagementPage() {
 
   return (
     <div className="space-y-4">
-      <div className="bg-background rounded-md p-6">
-        <h2 className="text-2xl font-bold text-gray-800">
-          Discount Policy Rules Management
-        </h2>
-        <p className="text-gray-600 mt-1">
-          The control center for the school's fee exceptions.
-        </p>
-      </div>
+      <Card>
+        <CardContent>
+          <h2 className="text-2xl font-bold text-gray-800">
+            Discount Policy Rules Management
+          </h2>
+          <p className="text-gray-600 mt-1">
+            The control center for the school's fee exceptions.
+          </p>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <FinancialMetricCard

@@ -73,7 +73,7 @@ export default function ApplicantDetailPage({
     ],
   };
 
-    const handleRecordAssessment = (data: AssessmentData) => {
+  const handleRecordAssessment = (data: AssessmentData) => {
     const newAssessment: Assessment = {
       assessment: data.assessmentType,
       interviewer: data.interviewer,

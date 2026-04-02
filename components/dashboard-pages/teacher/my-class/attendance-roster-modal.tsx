@@ -152,7 +152,6 @@ export function AttendanceRosterModal({
       }
     >
       <div className="space-y-4">
-
         <div className="grid grid-cols-2 gap-4">
           <DatePickerIcon
             label="Date"
@@ -174,7 +173,6 @@ export function AttendanceRosterModal({
             <SelectItem value="ss2-chemistry">SS 2 Chemistry</SelectItem>
           </SelectField>
         </div>
-
 
         <div className="border rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
@@ -216,7 +214,6 @@ export function AttendanceRosterModal({
             </table>
           </div>
         </div>
-
 
         {hasMore && (
           <div className="flex justify-center">

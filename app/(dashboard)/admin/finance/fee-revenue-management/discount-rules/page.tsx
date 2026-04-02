@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Dispatch, SetStateAction } from "react";
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StepNavigation, Step } from "@/components/ui/step-navigation";
@@ -298,14 +298,16 @@ export default function CreateDiscountRulePage() {
 
   return (
     <div className="space-y-4">
-      <div className="bg-background rounded-md p-6">
-        <h2 className="text-2xl font-bold text-gray-800">
-          Create New Discount Rule
-        </h2>
-        <p className="text-gray-600 mt-1">
-          Clearly define the who, what, and how of a discount.
-        </p>
-      </div>
+      <Card>
+        <CardContent>
+          <h2 className="text-2xl font-bold text-gray-800">
+            Create New Discount Rule
+          </h2>
+          <p className="text-gray-600 mt-1">
+            Clearly define the who, what, and how of a discount.
+          </p>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         <div className="lg:col-span-1">

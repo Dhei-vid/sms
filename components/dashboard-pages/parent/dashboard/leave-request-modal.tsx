@@ -81,7 +81,6 @@ export function LeaveRequestModal({
       }
     >
       <div className="space-y-4">
-
         <div className="space-y-2">
           <Label
             htmlFor="requestType"
@@ -103,7 +102,6 @@ export function LeaveRequestModal({
           </Select>
         </div>
 
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <DatePickerIcon
             label="Leave Start Date"
@@ -119,7 +117,6 @@ export function LeaveRequestModal({
           />
         </div>
 
-
         <div className="space-y-2">
           <Label htmlFor="reason" className="text-sm font-medium text-gray-700">
             Reason for Absence
@@ -132,7 +129,6 @@ export function LeaveRequestModal({
             className="min-h-[100px]"
           />
         </div>
-
 
         <div className="space-y-2">
           <Label className="text-sm font-medium text-gray-700">

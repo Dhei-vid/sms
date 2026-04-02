@@ -49,7 +49,6 @@ export function ProductCard({
       }}
     >
       <CardContent className="p-0">
-
         <div className="relative w-full h-48 bg-gray-100 flex items-center justify-center overflow-hidden">
           {image ? (
             <Image
@@ -63,7 +62,6 @@ export function ProductCard({
             <div className="text-gray-400 text-sm">No Image</div>
           )}
         </div>
-
 
         <div className="p-4">
           <div className="col-span-2">

@@ -94,7 +94,6 @@ export function OutstandingFeesModal({
       }
     >
       <div className="space-y-6">
-
         <div className="flex items-center gap-4">
           <Label className="text-sm font-medium text-gray-700 whitespace-nowrap">
             Total Outstanding Fees Due
@@ -105,7 +104,6 @@ export function OutstandingFeesModal({
             className="bg-gray-100 cursor-not-allowed rounded-md"
           />
         </div>
-
 
         <div className="space-y-4">
           <Label className="text-sm font-medium text-gray-700">
