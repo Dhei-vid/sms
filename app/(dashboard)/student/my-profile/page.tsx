@@ -1,20 +1,21 @@
 "use client";
-import { useState, ChangeEvent, FormEvent } from "react";
+
+import SystemVerificationModal from "@/components/dashboard-pages/student/settings/modals/SystemVerificationModal";
+import NotificationPreferences from "@/components/dashboard-pages/student/settings/views/NotificationPreferences";
+import PersonalProfileViews from "@/components/dashboard-pages/student/settings/views/PersonalProfileViews";
+import { Card, CardContent } from "@/components/ui/card";
+import { Step, StepNavigation } from "@/components/ui/step-navigation";
 import {
   Profile02Icon,
   Notification01FreeIcons,
   SecurityLockFreeIcons,
 } from "@hugeicons/core-free-icons";
-import PersonalProfileViews from "@/components/dashboard-pages/parent/settings/views/personal-profile-views";
-import FinancialWalletSecurity from "@/components/dashboard-pages/parent/settings/views/financial-wallet-verification";
-import NotificationPreferences from "@/components/dashboard-pages/parent/settings/views/notification-preferences";
-import SystemVerificationModal from "@/components/dashboard-pages/parent/settings/modals/system-verification-modal";
-import { Card, CardContent } from "@/components/ui/card";
-import { Step, StepNavigation } from "@/components/ui/step-navigation";
+import { useState, ChangeEvent, FormEvent } from "react";
+import SecurityAccess from "@/components/dashboard-pages/student/settings/views/SecurityAccess";
 
 type StepId =
   | "personal-profile"
-  | "financial-wallet-security"
+  | "security-access"
   | "notification-preferences";
 
 export type ModalStepId = "verify-password" | "change-password";
@@ -32,8 +33,8 @@ const steps: Step[] = [
     icon: Profile02Icon,
   },
   {
-    id: "financial-wallet-security",
-    label: "Financial & Wallet Security",
+    id: "security-access",
+    label: "Security & Access",
     icon: SecurityLockFreeIcons,
   },
   {
@@ -43,7 +44,7 @@ const steps: Step[] = [
   },
 ];
 
-export default function ParentSettingsPage() {
+export default function MyProfilePage() {
   //view state handler
   const [currentStep, setCurrentStep] = useState<StepId>("personal-profile");
   const [modalStepsId, setModalStepsId] =
@@ -92,8 +93,8 @@ export default function ParentSettingsPage() {
     switch (currentStep) {
       case "personal-profile":
         return <PersonalProfileViews />;
-      case "financial-wallet-security":
-        return <FinancialWalletSecurity setOpenModal={setOpenModal} />;
+      case "security-access":
+        return <SecurityAccess setOpenModal={setOpenModal} />;
       case "notification-preferences":
         return <NotificationPreferences />;
       default:
@@ -109,7 +110,7 @@ export default function ParentSettingsPage() {
             System Settings
           </h1>
           <p className="text-sm text-gray-600">
-            This screen manages the parents digital identity.
+            This screen manages the student&#39;s identity.
           </p>
         </CardContent>
       </Card>

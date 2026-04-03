@@ -13,12 +13,27 @@ export default function PersonalProfileViews() {
     {
       field: "Display Name",
       //   content: stakeholder?.user?.phone_number || "—",
-      content: "Tunde Oluwole",
+      content: "Kunle Oluwole",
     },
     {
-      field: "Class / Student ID",
+      field: "Phone Number",
       //   content: stakeholder?.school_email || stakeholder?.user?.email || "—",
-      content: "JS 2 / oluwole.m178023",
+      content: "+234 091 234 5678",
+    },
+    {
+      field: "Email Contact",
+      //   content: stakeholder?.user?.residential_address || "—",
+      content: "kunleoluwole@gmail.com",
+    },
+    {
+      field: "Link Students",
+      //   content: stakeholder?.user?.residential_address || "—",
+      content: "Tunde [ Go to Profile ], Seyi [ Go to Profile ]",
+    },
+    {
+      field: "Home Address",
+      //   content: stakeholder?.user?.residential_address || "—",
+      content: "Lagos State, Nigeria.",
     },
   ];
   return (
@@ -45,16 +60,11 @@ export default function PersonalProfileViews() {
           )}
         </div> */}
         <div className="w-30 h-30 rounded-full bg-gray-200 flex items-center justify-center">
-          <span className="text-4xl font-bold text-gray-400">S</span>
+          <span className="text-4xl font-bold text-gray-400">P</span>
         </div>
-        <div>
-          <Button className="w-fit h-13" variant={"outline"}>
-            Change Profile Image
-          </Button>
-          <p className="text-sm italic text-[#DC3545] mt-1">
-            Profile change is subject to admin approval
-          </p>
-        </div>
+        <Button className="w-fit h-13" variant={"outline"}>
+          Change Profile Image
+        </Button>
       </div>
       {/* table data */}
       <div className="border rounded-lg overflow-hidden">

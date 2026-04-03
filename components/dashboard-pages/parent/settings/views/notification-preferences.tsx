@@ -10,24 +10,29 @@ import {
 export default function NotificationPreferences() {
   const notificationPreferences = [
     {
-      field: "New Assignment Posted",
+      field: "Attendance (Check-in/out)",
       appNotification: "Enabled",
       emailAlert: "Disabled",
     },
     {
-      field: "Grade / Result Published",
+      field: "Academic Results / Report Cards",
       appNotification: "Enabled",
       emailAlert: "Enabled",
     },
     {
-      field: "New Message from Teacher",
+      field: "Wallet 'Low Balance' Alert",
       appNotification: "Enabled",
       emailAlert: "Enabled",
     },
     {
-      field: "Canteen Wallet Low Balance",
+      field: "School Fee Invoices",
       appNotification: "Enabled",
       emailAlert: "Disabled",
+    },
+    {
+      field: "Emergency Broadcasts",
+      appNotification: "Enabled",
+      emailAlert: "Enabled",
     },
   ];
   return (
