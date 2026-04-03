@@ -8,11 +8,12 @@ import {
   Table,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { CardDescription } from "@/components/ui/card";
+import { CardDescription, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { EyeOff, Eye } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Dispatch, SetStateAction, useState } from "react";
+import { Switch } from "@/components/ui/switch";
 
 interface showPasswords {
   currPassword: boolean;
@@ -88,16 +89,25 @@ export default function SecurityAccess({ setOpenModal }: Props) {
           </Button>
         </div>
       </div>
-      {/* recovery contact */}
-      <div className="relative space-y-3 mt-5">
-        <div className="flex items-center justify-between w-full">
-          <Label>Recovery Contact</Label>
-          <CardDescription className="italic text-sm">
-            Email/Parent Phone Number
+      {/* 2FA */}
+      <div className="flex items-center justify-between mt-8">
+        <div>
+          <CardHeader className="px-0">
+            Two-Factor Authentication(2FA)
+          </CardHeader>
+          <CardDescription className="">
+            Recommended for grade-entry security
           </CardDescription>
         </div>
+        <Switch />
+      </div>
+      {/* recovery contact */}
+      <div className="relative space-y-3 mt-8">
+        <div className="flex items-center justify-between w-full">
+          <Label>Recovery Contact</Label>
+        </div>
         <Input
-          value={"+234 098 765 4321"}
+          value="zarargent@gmail.com"
           readOnly
           type="text"
           placeholder="Enter value"

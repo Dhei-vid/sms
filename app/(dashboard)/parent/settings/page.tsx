@@ -8,9 +8,9 @@ import {
 import PersonalProfileViews from "@/components/dashboard-pages/parent/settings/views/personal-profile-views";
 import FinancialWalletSecurity from "@/components/dashboard-pages/parent/settings/views/financial-wallet-verification";
 import NotificationPreferences from "@/components/dashboard-pages/parent/settings/views/notification-preferences";
-import SystemVerificationModal from "@/components/dashboard-pages/parent/settings/modals/system-verification-modal";
 import { Card, CardContent } from "@/components/ui/card";
 import { Step, StepNavigation } from "@/components/ui/step-navigation";
+import PasswordChange from "@/components/general/shared-modals/password-change";
 
 type StepId =
   | "personal-profile"
@@ -133,7 +133,7 @@ export default function ParentSettingsPage() {
         </div>
       </div>
       {/* modal */}
-      <SystemVerificationModal
+      <PasswordChange
         modalStepsId={modalStepsId}
         handlePasswordUpdate={handlePasswordUpdate}
         handlePasswordVerification={handlePasswordVerification}

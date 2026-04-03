@@ -6,11 +6,12 @@ import {
   SecurityLockFreeIcons,
 } from "@hugeicons/core-free-icons";
 import { useState, ChangeEvent, FormEvent } from "react";
-import NotificationPreferences from "@/components/dashboard-pages/student/settings/views/NotificationPreferences";
-import PersonalProfileViews from "@/components/dashboard-pages/student/settings/views/PersonalProfileViews";
+// import NotificationPreferences from "@/components/dashboard-pages/student/settings/views/NotificationPreferences";
+import NotificationPreferences from "@/components/dashboard-pages/teacher/settings/views/notifiation-preferences";
+import PersonalProfile from "@/components/dashboard-pages/teacher/settings/views/personal-profile";
+import SecurityAccess from "@/components/dashboard-pages/teacher/settings/views/security-access";
 import { Card, CardContent } from "@/components/ui/card";
 import { Step, StepNavigation } from "@/components/ui/step-navigation";
-import SecurityAccess from "@/components/dashboard-pages/student/settings/views/SecurityAccess";
 import PasswordChange from "@/components/general/shared-modals/password-change";
 
 type StepId =
@@ -44,7 +45,7 @@ const steps: Step[] = [
   },
 ];
 
-export default function MyProfilePage() {
+export default function SettingsPage() {
   //view state handler
   const [currentStep, setCurrentStep] = useState<StepId>("personal-profile");
   const [modalStepsId, setModalStepsId] =
@@ -92,13 +93,13 @@ export default function MyProfilePage() {
   const renderContent = () => {
     switch (currentStep) {
       case "personal-profile":
-        return <PersonalProfileViews />;
+        return <PersonalProfile />;
       case "security-access":
         return <SecurityAccess setOpenModal={setOpenModal} />;
       case "notification-preferences":
         return <NotificationPreferences />;
       default:
-        return <PersonalProfileViews />;
+        return <PersonalProfile />;
     }
   };
 
@@ -110,7 +111,7 @@ export default function MyProfilePage() {
             System Settings
           </h1>
           <p className="text-sm text-gray-600">
-            This screen manages the student&#39;s identity.
+            This screen manages the teacher&#39;s digital identity.
           </p>
         </CardContent>
       </Card>

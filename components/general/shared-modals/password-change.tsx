@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { ModalContainer } from "@/components/ui/modal-container";
 import { ChangeEvent, FormEvent } from "react";
 
-interface RefundAuthProps {
+interface PasswordChangeProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   handleChange: (e: ChangeEvent<HTMLInputElement>) => void;
@@ -19,7 +19,7 @@ interface RefundAuthProps {
   modalStepsId: ModalStepId;
 }
 
-export default function SystemVerificationModal({
+export default function PasswordChange({
   onOpenChange,
   open,
   handleChange,
@@ -27,7 +27,7 @@ export default function SystemVerificationModal({
   handlePasswordUpdate,
   handlePasswordVerification,
   modalStepsId,
-}: RefundAuthProps) {
+}: PasswordChangeProps) {
   return (
     <ModalContainer
       open={open}
