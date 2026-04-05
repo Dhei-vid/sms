@@ -6,7 +6,6 @@ import {
   SecurityLockFreeIcons,
 } from "@hugeicons/core-free-icons";
 import { useState, ChangeEvent, FormEvent } from "react";
-// import NotificationPreferences from "@/components/dashboard-pages/student/settings/views/NotificationPreferences";
 import NotificationPreferences from "@/components/dashboard-pages/teacher/settings/views/notifiation-preferences";
 import PersonalProfile from "@/components/dashboard-pages/teacher/settings/views/personal-profile";
 import SecurityAccess from "@/components/dashboard-pages/teacher/settings/views/security-access";

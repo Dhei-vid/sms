@@ -15,6 +15,9 @@ import {
   Folder02Icon,
 } from "@hugeicons/core-free-icons";
 import Link from "next/link";
+import { useState } from "react";
+import UploadNewResource from "@/components/dashboard-pages/teacher/my-courses/modals/upload-new-resource";
+import { useRouter } from "next/navigation";
 
 const mockCourses: TeacherCourse[] = [
   {
@@ -48,8 +51,10 @@ const mockCourses: TeacherCourse[] = [
 ];
 
 export default function MyCoursesPage() {
+  const { push } = useRouter();
   const { data, isLoading, isError } = useGetTeacherCoursesQuery();
   const appError = useAppSelector((state) => state.error.lastError);
+  const [openModal, setOpenModal] = useState<boolean>(false);
 
   const tableData = (data ?? mockCourses) || [];
 
@@ -155,14 +160,16 @@ export default function MyCoursesPage() {
             title="Upload New Resource"
             description="A modal to upload a file (PDF, Video, PPT) and tag it to a specific course and unit."
             icon={Upload02Icon}
-            onClick={() => console.log("Upload New Resource")}
+            // onClick={() => console.log("Upload New Resource")}
+            onClick={() => setOpenModal(true)}
             className="border-b"
           />
           <QuickActionCard
             title="Create New Assignment/Quiz"
             description="Create a new digital task and assign it."
             icon={Edit01Icon}
-            onClick={() => console.log("Create New Assignment/Quiz")}
+            // onClick={() => console.log("Create New Assignment/Quiz")}
+            onClick={() => push("/teacher/my-courses/create-new-questions")}
             className="border-b"
           />
           <QuickActionCard
@@ -208,6 +215,9 @@ export default function MyCoursesPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* upload new resource modal */}
+      <UploadNewResource open={openModal} onOpenChange={setOpenModal} />
     </div>
   );
 }
