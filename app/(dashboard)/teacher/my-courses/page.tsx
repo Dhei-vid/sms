@@ -176,7 +176,7 @@ export default function MyCoursesPage() {
             title="View My Content Library"
             description="Links to a personal repository of all files the teacher has uploaded, allowing reuse across different courses."
             icon={Folder02Icon}
-            onClick={() => console.log("View My Content Library")}
+            onClick={() => push("/teacher/my-courses/content-library")}
             className="border-b"
           />
           <QuickActionCard
