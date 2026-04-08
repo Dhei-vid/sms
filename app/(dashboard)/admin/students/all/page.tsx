@@ -1,16 +1,17 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StudentTable } from "@/components/dashboard-pages/admin/students/components/student-table";
 
 import { useGetAllStudentsQuery } from "@/services/stakeholders/stakeholders";
 import type { Stakeholders } from "@/services/stakeholders/stakeholder-types";
+import FilterStudents from "@/components/dashboard-pages/admin/students/modals/FilterStudents";
 
 export default function AllStudentsPage() {
   const { data: studentsData, isLoading: isAllStudentsLoading } =
     useGetAllStudentsQuery();
-
+  const [filterModal, setFilterModal] = useState<boolean>(false);
   // Filter to only show enrolled students (stage=6)
   const enrolledStudents = useMemo(() => {
     if (!studentsData?.data) return [];
@@ -67,12 +68,17 @@ export default function AllStudentsPage() {
             </div>
           ) : (
             <StudentTable
+              setFilterModal={setFilterModal}
               studentsData={filteredStudentsData}
               isLoading={isAllStudentsLoading}
             />
           )}
         </CardContent>
       </Card>
+      {/* refund auth modal */}
+      {filterModal && (
+        <FilterStudents open={filterModal} onOpenChange={setFilterModal} />
+      )}
     </div>
   );
 }

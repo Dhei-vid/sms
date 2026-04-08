@@ -342,6 +342,6 @@ export const menuItems: MenuItem[] = [
     label: "System Settings",
     icon: Settings01Icon,
     href: "/settings",
-    roles: ["admin", "staff", "teacher", "parent"],
+    roles: ["admin", "staff", "teacher", "parent", "vendor"],
   },
 ];

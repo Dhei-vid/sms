@@ -1,21 +1,20 @@
 "use client";
-
+import { useState, ChangeEvent, FormEvent } from "react";
 import {
   Profile02Icon,
   Notification01FreeIcons,
   SecurityLockFreeIcons,
 } from "@hugeicons/core-free-icons";
-import { useState, ChangeEvent, FormEvent } from "react";
-import NotificationPreferences from "@/components/dashboard-pages/teacher/settings/views/notifiation-preferences";
-import PersonalProfile from "@/components/dashboard-pages/teacher/settings/views/personal-profile";
-import SecurityAccess from "@/components/dashboard-pages/teacher/settings/views/security-access";
+import PersonalProfileViews from "@/components/dashboard-pages/parent/settings/views/personal-profile-views";
+import FinancialWalletSecurity from "@/components/dashboard-pages/parent/settings/views/financial-wallet-verification";
+import NotificationPreferences from "@/components/dashboard-pages/parent/settings/views/notification-preferences";
 import { Card, CardContent } from "@/components/ui/card";
 import { Step, StepNavigation } from "@/components/ui/step-navigation";
 import PasswordChange from "@/components/general/shared-modals/password-change";
 
 type StepId =
   | "personal-profile"
-  | "security-access"
+  | "financial-wallet-security"
   | "notification-preferences";
 
 export type ModalStepId = "verify-password" | "change-password";
@@ -33,8 +32,8 @@ const steps: Step[] = [
     icon: Profile02Icon,
   },
   {
-    id: "security-access",
-    label: "Security & Access",
+    id: "financial-wallet-security",
+    label: "Financial & Wallet Security",
     icon: SecurityLockFreeIcons,
   },
   {
@@ -44,7 +43,7 @@ const steps: Step[] = [
   },
 ];
 
-export default function SettingsPage() {
+export default function ParentSettingsPage() {
   //view state handler
   const [currentStep, setCurrentStep] = useState<StepId>("personal-profile");
   const [modalStepsId, setModalStepsId] =
@@ -92,13 +91,13 @@ export default function SettingsPage() {
   const renderContent = () => {
     switch (currentStep) {
       case "personal-profile":
-        return <PersonalProfile />;
-      case "security-access":
-        return <SecurityAccess setOpenModal={setOpenModal} />;
+        return <PersonalProfileViews />;
+      case "financial-wallet-security":
+        return <FinancialWalletSecurity setOpenModal={setOpenModal} />;
       case "notification-preferences":
         return <NotificationPreferences />;
       default:
-        return <PersonalProfile />;
+        return <PersonalProfileViews />;
     }
   };
 
@@ -110,7 +109,7 @@ export default function SettingsPage() {
             System Settings
           </h1>
           <p className="text-sm text-gray-600">
-            This screen manages the teacher&#39;s digital identity.
+            This screen manages the parents digital identity.
           </p>
         </CardContent>
       </Card>

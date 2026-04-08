@@ -69,9 +69,11 @@ export function MessageInput({
               <Icon icon={AttachmentSquareIcon} size={18} />
             </InputGroupButton>
 
+            {/* file picker */}
             <InputGroupButton
               variant="ghost"
-              className="rounded-md"
+              className="rounded-md cursor-pointer"
+              onClick={() => alert("Hi there!")}
               size="icon-xs"
             >
               <Icon icon={Camera01Icon} size={18} />

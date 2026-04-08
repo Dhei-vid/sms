@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   DataTable,
@@ -39,12 +39,14 @@ interface Student {
 interface StudentTableProps {
   studentsData?: { data: any[]; total?: number };
   isLoading?: boolean;
+  setFilterModal: Dispatch<SetStateAction<boolean>>;
 }
 
 export function StudentTable({
   studentsData,
   isLoading = false,
-}: StudentTableProps = {}) {
+  setFilterModal,
+}: StudentTableProps) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
@@ -267,7 +269,11 @@ export function StudentTable({
             className="pl-10"
           />
         </div>
-        <Button variant="outline" className="text-muted-foreground gap-2">
+        <Button
+          onClick={() => setFilterModal(true)}
+          variant="outline"
+          className="text-muted-foreground gap-2"
+        >
           <Icon icon={FilterIcon} size={20} />
           Filter by:
         </Button>
