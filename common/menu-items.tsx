@@ -301,7 +301,7 @@ export const menuItems: MenuItem[] = [
     icon: AnalyticsUpIcon,
     href: "/reports",
     roles: [],
-  },  
+  },
   // {
   //   id: "alumni-management",
   //   label: "Alumni Management",
