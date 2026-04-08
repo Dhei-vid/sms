@@ -195,20 +195,14 @@ export default function DiscountPolicyManagementPage() {
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <Button
-          variant={"outline"}
-          className="h-11 flex items-center gap-2"
-          onClick={() => router.push("new-discount-rules")}
-        >
-          <Icon icon={PolicyIcon} size={18} />
-          Create New Discount Rule
-        </Button>
-        <Button variant="outline" className="h-11 flex items-center gap-2">
-          <Icon icon={PolicyIcon} size={18} />
-          View Policy History
-        </Button>
-      </div>
+      <Button
+        variant={"outline"}
+        className="h-11 flex items-center gap-2 w-full"
+        onClick={() => router.push("new-discount-rules")}
+      >
+        <Icon icon={PolicyIcon} size={18} />
+        Create New Discount Rule
+      </Button>
 
       <Card>
         <CardHeader>

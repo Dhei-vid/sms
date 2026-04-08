@@ -9,11 +9,6 @@ import { DataTable, TableColumn } from "@/components/ui/data-table";
 import Link from "next/link";
 import { useGetNotificationsQuery } from "@/services/shared";
 import { useGetTeacherByUserIdQuery } from "@/services/stakeholders/stakeholders";
-import {
-  useGetTeacherActivityQuery,
-  useGetTeacherActivityLogQuery,
-} from "@/services/courses/courses";
-import { useGetCoursesQuery } from "@/services/shared";
 import { format } from "date-fns";
 
 interface TaskItem {
@@ -37,52 +32,6 @@ export default function TeacherDashboardPage() {
     { per_page: 5 },
     { skip: !user?.id },
   );
-  const { data: teacherActivityData } = useGetTeacherActivityQuery(undefined, {
-    skip: !user?.id,
-  });
-  const { data: activityLogData, isLoading: isLoadingActivityLog } =
-    useGetTeacherActivityLogQuery(teacherId ?? "", { skip: !teacherId });
-  const { data: coursesData } = useGetCoursesQuery(
-    { _all: true } as { _all?: boolean },
-    { skip: !user?.id },
-  );
-
-  const myActivity = useMemo(() => {
-    const list = teacherActivityData?.data ?? [];
-    return (
-      list.find((a) => a.id === teacherId || a.staffId === teacherId) ?? null
-    );
-  }, [teacherActivityData?.data, teacherId]);
-
-  const coursesTaught = useMemo(() => {
-    const list = Array.isArray(coursesData?.data)
-      ? coursesData.data
-      : ((coursesData as { data?: unknown[] })?.data ?? []);
-    return list.filter((c) => {
-      const course = c as {
-        lead_instructor_id?: string;
-        leadInstructor?: { id?: string };
-      };
-      return (
-        course.lead_instructor_id === teacherId ||
-        course.leadInstructor?.id === teacherId
-      );
-    });
-  }, [coursesData, teacherId]);
-
-  const tasks: TaskItem[] = useMemo(() => {
-    const log = activityLogData?.data ?? [];
-    return log.slice(0, 6).map((entry) => ({
-      id: entry.id ?? "",
-      taskType: entry.loggedAction ?? "Task",
-      subjectAssessment: entry.associatedCourseResource ?? "N/A",
-      deadline: entry.dateTime
-        ? format(new Date(entry.dateTime), "MMM d, yyyy")
-        : "—",
-      actionLabel: "View",
-      actionHref: "/teacher/my-class",
-    }));
-  }, [activityLogData?.data]);
 
   const noticeBoardItems = useMemo(() => {
     const list = notificationsData?.data ?? [];
@@ -108,13 +57,6 @@ export default function TeacherDashboardPage() {
       : user?.first_name || user?.last_name
         ? [user.first_name, user.last_name].filter(Boolean).join(" ")
         : "Teacher";
-
-  const totalStudents =
-    myActivity?.contentSubmissionsCount ?? coursesTaught.length * 30;
-  const totalClasses = coursesTaught.length || (myActivity ? 1 : 0);
-  const avgScore = myActivity?.complianceRate ?? "—";
-  const attendanceRate =
-    myActivity?.complianceStatus === "On Time" ? "94%" : "—";
 
   const taskColumns: TableColumn<TaskItem>[] = [
     {
@@ -171,28 +113,28 @@ export default function TeacherDashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
           title="Total Students"
-          value={`${totalStudents} ${totalStudents === 1 ? "Student" : "Students"}`}
+          value={`1 Student`}
           trend="up"
           trendColor="text-main-blue"
           subtitle="Across all assigned classes"
         />
         <MetricCard
           title="Total Class Covered"
-          value={`${totalClasses} ${totalClasses === 1 ? "Class" : "Classes"}`}
+          value={`2 Classes`}
           trend="up"
           trendColor="text-main-blue"
           subtitle="Current academic term"
         />
         <MetricCard
           title="Compliance Rate"
-          value={avgScore}
+          value={0}
           trend="up"
           trendColor="text-main-blue"
           subtitle="Content submission status"
         />
         <MetricCard
           title="Attendance"
-          value={attendanceRate}
+          value={0}
           trend="up"
           trendColor="text-main-blue"
           subtitle="Last attendance cycle"
@@ -236,8 +178,8 @@ export default function TeacherDashboardPage() {
           <div className="border rounded-lg overflow-hidden">
             <DataTable
               columns={taskColumns}
-              data={tasks}
-              isLoading={isLoadingActivityLog}
+              data={[]}
+              isLoading={false}
               showActionsColumn={false}
               emptyMessage="No tasks yet."
             />

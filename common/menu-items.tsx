@@ -302,13 +302,13 @@ export const menuItems: MenuItem[] = [
     href: "/reports",
     roles: [],
   },
-  {
-    id: "alumni-management",
-    label: "Alumni Management",
-    icon: StudentIcon,
-    href: "/alumni-management",
-    roles: ["admin", "staff"],
-  },
+  // {
+  //   id: "alumni-management",
+  //   label: "Alumni Management",
+  //   icon: StudentIcon,
+  //   href: "/alumni-management",
+  //   roles: ["admin", "staff"],
+  // },
   {
     id: "terminal",
     label: "Terminal",

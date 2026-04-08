@@ -17,15 +17,6 @@ import {
   LibrariesIcon,
   TransactionHistoryIcon,
 } from "@hugeicons/core-free-icons";
-import {
-  useGetCoursesQuery,
-  useGetContentSubmissionsQuery,
-  useGetTeacherActivityQuery,
-} from "@/services/courses/courses";
-import type {
-  Course,
-  ContentSubmission as ApiContentSubmission,
-} from "@/services/courses/courses-type";
 
 interface ContentSubmissionRow {
   id: string;
@@ -69,83 +60,6 @@ function mapApiStatus(status: string): ContentSubmissionRow["status"] {
 
 export default function LearningManagementDashboardPage() {
   const router = useRouter();
-  const { data: coursesResponse, isLoading: isLoadingCourses } =
-    useGetCoursesQuery({ _all: true });
-  const { data: submissionsResponse, isLoading: isLoadingSubmissions } =
-    useGetContentSubmissionsQuery({ _all: true });
-  const { data: teacherActivityResponse } = useGetTeacherActivityQuery();
-
-  const coursesList = useMemo(() => {
-    const d = coursesResponse as
-      | { data?: Course[] | { data?: Course[] } }
-      | undefined;
-    if (!d?.data) return [];
-    return Array.isArray(d.data)
-      ? d.data
-      : ((d.data as { data?: Course[] }).data ?? []);
-  }, [coursesResponse]);
-
-  const submissionsList = useMemo(() => {
-    const d = submissionsResponse as
-      | { data?: ApiContentSubmission[] | { data?: ApiContentSubmission[] } }
-      | undefined;
-    if (!d?.data) return [];
-    return Array.isArray(d.data)
-      ? d.data
-      : ((d.data as { data?: ApiContentSubmission[] }).data ?? []);
-  }, [submissionsResponse]);
-
-  const teacherActivityList = useMemo(() => {
-    const d = teacherActivityResponse as
-      | {
-          data?: Array<{
-            id: string;
-            fullName: string;
-            contentSubmissionsCount: number;
-          }>;
-        }
-      | undefined;
-    return d?.data ?? [];
-  }, [teacherActivityResponse]);
-
-  const activeCoursesCount = useMemo(
-    () =>
-      coursesList.filter(
-        (c) => (c as { is_active?: boolean }).is_active !== false,
-      ).length,
-    [coursesList],
-  );
-
-  const pendingReviewCount = useMemo(
-    () => submissionsList.filter((s) => s.status === "pending_review").length,
-    [submissionsList],
-  );
-
-  const teacherContributionPct = useMemo(() => {
-    const total = teacherActivityList.length;
-    if (total === 0) return "0%";
-    const contributing = teacherActivityList.filter(
-      (t) => t.contentSubmissionsCount > 0,
-    ).length;
-    return `${Math.round((100 * contributing) / total)}%`;
-  }, [teacherActivityList]);
-
-  const tableData: ContentSubmissionRow[] = useMemo(
-    () =>
-      submissionsList.slice(0, 20).map((s) => ({
-        id: s.id,
-        resourceName: s.resource_name,
-        subjectClass:
-          s.course_location ??
-          (s.course as { title?: string } | undefined)?.title ??
-          "—",
-        submittedBy:
-          (s.submitted_by as { display_name?: string } | undefined)
-            ?.display_name ?? "—",
-        status: mapApiStatus(s.status),
-      })),
-    [submissionsList],
-  );
 
   const columns: TableColumn<ContentSubmissionRow>[] = [
     { key: "resourceName", title: "Resource Name", className: "font-medium" },
@@ -201,17 +115,13 @@ export default function LearningManagementDashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
           title="Total Courses Active"
-          value={
-            isLoadingCourses
-              ? "—"
-              : `${activeCoursesCount} Course${activeCoursesCount !== 1 ? "s" : ""}`
-          }
+          value={"0"}
           subtitle="Number of active digital courses"
           trend="up"
         />
         <MetricCard
           title="Teacher Content Contributions"
-          value={teacherContributionPct}
+          value={"0"}
           subtitle="Percentage of teachers contributing content"
           trend="up"
         />
@@ -223,11 +133,7 @@ export default function LearningManagementDashboardPage() {
         />
         <MetricCard
           title="Content Pending Review"
-          value={
-            isLoadingSubmissions
-              ? "—"
-              : `${pendingReviewCount} Item${pendingReviewCount !== 1 ? "s" : ""}`
-          }
+          value={"0"}
           subtitle="Items awaiting administrative review"
           trend="up"
         />
@@ -279,9 +185,9 @@ export default function LearningManagementDashboardPage() {
           <div className="border rounded-lg overflow-hidden">
             <DataTable
               columns={columns}
-              data={tableData}
+              data={[]}
               actions={actions}
-              isLoading={isLoadingSubmissions}
+              isLoading={false}
               emptyMessage="No content submissions found."
               tableClassName="border-collapse"
             />
