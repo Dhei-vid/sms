@@ -1,18 +1,4 @@
 export {
-  useGetCoursesQuery,
-  useGetCourseByIdQuery,
-  useCreateCourseMutation,
-  useUpdateCourseMutation,
-  useDeleteCourseMutation,
-} from "./courses/courses";
-
-export type {
-  Course,
-  CreateCourseRequest,
-  UpdateCourseRequest,
-} from "./courses/courses-type";
-
-export {
   useGetGradesQuery,
   useGetGradeByIdQuery,
   useCreateGradeMutation,

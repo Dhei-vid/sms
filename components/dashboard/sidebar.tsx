@@ -115,7 +115,7 @@ export function Sidebar({
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto scrollbar-width bg-background rounded-md">
+      <nav className="flex-1 overflow-y-auto scrollbar-width bg-background rounded-md shadow-md">
         <div className="p-4 space-y-2">
           {filteredNavItems.map((item, index) => {
             const rolePath = getRoleSpecificPath(item.href);
